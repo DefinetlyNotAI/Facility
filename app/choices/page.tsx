@@ -50,7 +50,7 @@ const ChoicesPage = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const hasAccess = Cookies.get('Choice unlocked');
+    const hasAccess = Cookies.get('Choice Unlocked');
     if (!hasAccess) router.replace('/404');
     else fetchLocationAndBegin();
   }, []);

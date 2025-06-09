@@ -46,7 +46,7 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -87,7 +87,7 @@ body {
 
 /* Typography */
 .font-mono {
-  font-family: var(--font-mono);
+  font-family: var(--font-mono), monospace;
 }
 
 .text-glow {
@@ -149,7 +149,7 @@ body {
   border: 1px solid var(--border-accent);
   border-radius: 12px;
   padding: 1.5rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-mono), monospace;
   box-shadow: var(--shadow-glow);
   position: relative;
   overflow: hidden;
@@ -297,7 +297,7 @@ body {
   padding: 0.875rem 1.75rem;
   border: none;
   border-radius: 10px;
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
@@ -307,7 +307,7 @@ body {
   overflow: hidden;
   user-select: none;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .btn::before {
@@ -396,7 +396,6 @@ body {
   height: 20px;
   margin: -10px 0 0 -10px;
   border: 2px solid transparent;
-  border-top: 2px solid currentColor;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -409,11 +408,66 @@ body {
   border: 2px solid var(--border-primary);
   border-radius: 10px;
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-mono), ui-monospace;
   font-size: 0.9rem;
   transition: var(--transition-smooth);
   backdrop-filter: blur(10px);
 }
+
+/* scroll */
+.scroll-container {
+  position: relative;
+  background: black;
+  overflow-x: hidden;
+}
+
+.scroll-glitch::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.02) 1px,
+          transparent 1px,
+          transparent 3px
+  );
+  z-index: 9999;
+  animation: vhs-jitter 0.3s infinite;
+}
+
+.scroll-glitch::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background: url('/static/noise.gif');
+  opacity: 0.08;
+  mix-blend-mode: lighten;
+  z-index: 9998;
+  animation: glitch-blink 0.3s infinite;
+}
+
+@keyframes vhs-jitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-0.5px, 0.5px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes glitch-blink {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.12; }
+}
+/* scroll */
 
 .input:focus {
   outline: none;
@@ -906,18 +960,6 @@ body {
   outline-offset: 2px;
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  :root {
-    --bg-primary: #000000;
-    --bg-secondary: #000000;
-    --bg-tertiary: #000000;
-    --text-primary: #ffffff;
-    --text-secondary: #ffffff;
-    --border-primary: #ffffff;
-  }
-}
-
 /* Print styles */
 @media print {
   .terminal,
@@ -963,11 +1005,11 @@ body {
   right: 0;
   bottom: 0;
   background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 255, 0, 0.03) 2px,
-    rgba(0, 255, 0, 0.03) 4px
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 255, 0, 0.03) 2px,
+          rgba(0, 255, 0, 0.03) 4px
   );
   pointer-events: none;
 }
