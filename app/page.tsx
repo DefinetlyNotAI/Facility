@@ -8,72 +8,159 @@ export default function RootPage() {
   const router = useRouter();
   const [accepted, setAccepted] = useState<boolean | null>(null);
   const [showConsoleWarning, setShowConsoleWarning] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const cookieAccepted = Cookies.get("accepted");
-    if (cookieAccepted) {
-      // Already accepted -> redirect immediately
-      router.replace("/home");
-    } else {
-      // Not accepted yet, show permission screen
-      setAccepted(false);
-    }
+    // Simulate system boot
+    setTimeout(() => {
+      setIsLoading(false);
+      const cookieAccepted = Cookies.get("accepted");
+      if (cookieAccepted) {
+        router.replace("/home");
+      } else {
+        setAccepted(false);
+      }
+    }, 2000);
   }, [router]);
 
-  // Called when user clicks Accept button
   function handleAccept() {
-    Cookies.set("accepted", "true", { expires: 365 }); // 1 year expiration
+    Cookies.set("accepted", "true", { expires: 365 });
     setAccepted(true);
     setShowConsoleWarning(true);
 
-    // After a short delay, redirect to /home
     setTimeout(() => {
       router.replace("/home");
-    }, 8000); // 8 seconds to read the console warning
+    }, 8000);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-green-400 text-4xl font-mono mb-8 animate-pulse">
+            FACILITY OS v3.15.25
+          </div>
+          <div className="text-green-400 font-mono text-lg mb-4">
+            Initializing secure connection...
+          </div>
+          <div className="loading-bar w-64 mx-auto"></div>
+        </div>
+      </div>
+    );
   }
 
   if (accepted === null) {
-    // Loading state while checking cookie
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="loading-spinner"></div>
+      </div>
+    );
   }
 
   if (!accepted) {
-    // Show permission & trigger warning screen
     return (
-        <main style={{ padding: "2rem", fontFamily: "monospace", color: "#eee", backgroundColor: "#111", height: "100vh" }}>
-          <h1>Required Site Permissions</h1>
-          <p>
-            This site requires certain permissions to proceed, including notifications and audio.
-            Please accept to continue.
-          </p>
+      <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
+        <div className="card max-w-2xl w-full">
+          <div className="card-header">
+            <h1 className="card-title text-red-400 text-center">
+              ⚠️ RESTRICTED ACCESS TERMINAL ⚠️
+            </h1>
+            <p className="card-subtitle text-center">
+              FACILITY 05-B • CLEARANCE LEVEL 5 REQUIRED
+            </p>
+          </div>
 
-          <h2>Trigger Warnings</h2>
-          <ul>
-            <li>Psychological horror</li>
-            <li>Visual and audio disturbing content</li>
-            <li>Possible flashing lights</li>
-            <li>Content may be distressing</li>
-          </ul>
+          <div className="space-y-6">
+            <div className="terminal">
+              <div className="terminal-header">
+                <div className="terminal-dot red"></div>
+                <div className="terminal-dot yellow"></div>
+                <div className="terminal-dot green"></div>
+                <span className="text-xs text-gray-400 ml-2">PERMISSIONS REQUIRED</span>
+              </div>
+              <div className="terminal-content">
+                <div className="terminal-line">
+                  <span className="terminal-prompt">SYSTEM:</span> This terminal requires elevated permissions
+                </div>
+                <div className="terminal-line">
+                  <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications, and media permissions needed
+                </div>
+                <div className="terminal-line">
+                  <span className="terminal-prompt">SYSTEM:</span> Psychological evaluation protocols active
+                </div>
+              </div>
+            </div>
 
-          <button onClick={handleAccept} style={{ marginTop: "2rem", fontSize: "1.2rem", padding: "0.5rem 1rem" }}>
-            Accept
-          </button>
-        </main>
+            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+              <h2 className="text-red-400 font-bold mb-3 flex items-center gap-2">
+                <span>⚠️</span> CONTENT WARNINGS
+              </h2>
+              <ul className="space-y-2 text-sm text-red-300">
+                <li>• Psychological horror and disturbing content</li>
+                <li>• Visual and audio disturbances</li>
+                <li>• Possible flashing lights and rapid imagery</li>
+                <li>• Content may be psychologically distressing</li>
+                <li>• Immersive horror experience with audio cues</li>
+              </ul>
+            </div>
+
+            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+              <h3 className="text-yellow-400 font-bold mb-2">FACILITY PROTOCOLS</h3>
+              <p className="text-sm text-yellow-300">
+                By proceeding, you acknowledge understanding of all safety protocols and 
+                consent to psychological evaluation procedures. This experience is designed 
+                for mature audiences only.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <button 
+                onClick={handleAccept} 
+                className="btn btn-danger text-lg px-8 py-4"
+              >
+                ACCEPT TERMS & ENTER FACILITY
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 
   if (showConsoleWarning) {
-    // Show console warning before redirect
     return (
-        <main style={{ padding: "2rem", fontFamily: "monospace", color: "#eee", backgroundColor: "#111", height: "100vh" }}>
-          <h1>Warning</h1>
-          <p>
-            The console of this site should <strong>NOT</strong> be used unless explicitly stated. Using it may ruin or break the puzzle for everyone.
-          </p>
-          <p>You will be redirected shortly...</p>
-        </main>
+      <main className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="card max-w-2xl w-full card-danger">
+          <div className="text-center">
+            <div className="text-6xl mb-6 animate-pulse">⚠️</div>
+            <h1 className="text-3xl font-bold text-red-400 mb-6">
+              CRITICAL WARNING
+            </h1>
+            <div className="terminal mb-6">
+              <div className="terminal-content">
+                <div className="terminal-line text-red-400">
+                  <span className="terminal-prompt">WARNING:</span> Developer console access STRICTLY PROHIBITED
+                </div>
+                <div className="terminal-line text-red-400">
+                  <span className="terminal-prompt">WARNING:</span> Unauthorized console usage may corrupt the experience
+                </div>
+                <div className="terminal-line text-red-400">
+                  <span className="terminal-prompt">WARNING:</span> Console commands may break puzzles for ALL users
+                </div>
+                <div className="terminal-line text-yellow-400">
+                  <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when explicitly instructed
+                </div>
+              </div>
+            </div>
+            <p className="text-gray-300 mb-4">
+              Redirecting to secure terminal in <span className="text-green-400 font-mono">8</span> seconds...
+            </p>
+            <div className="loading-bar w-full"></div>
+          </div>
+        </div>
+      </main>
     );
   }
 
-  return null; // This should never be reached but needed to satisfy TS
+  return null;
 }
