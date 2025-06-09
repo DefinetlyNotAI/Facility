@@ -33,7 +33,9 @@ export default function WifiPanel() {
             setMode('locked');
         };
 
-        checkWifiPassed();
+        checkWifiPassed().catch(error => {
+            console.error('Error caught:', error);
+        });
     }, [router]);
 
     // Generate the encoded question

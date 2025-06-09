@@ -111,7 +111,7 @@ URL[Black And White] -> FOR HERE If not cookie[BnW unlocked] then 404
   Then if they type the KEYWORD[5] in console AND the screen size set is 666x666 they get URL[Choices] and cookie[Choice Unlocked] is made
   - the top left corner has a barely visible number [404] if typed has a 1/404 chance to redirect to URL[Moonlight] and 403/404 to 404
 
-URL[Choices] -> FOR HERE If not cookie[Choice unlocked] then 404
+URL[Choices] -> FOR HERE If not cookie Choice_Unlocked then redirect to /404
   Empty weird page, TTS as well as text speak/type on screen:
   - Greets user, says browser name, session ID, OS, Location as well as some of the users history
   - Then makes fun of you, opens your cam, snarky remarks, and how they don't know when to fuck off
@@ -119,7 +119,13 @@ URL[Choices] -> FOR HERE If not cookie[Choice unlocked] then 404
   - The TTS says: "A growing sapling yet for harvest, and you my little one are but the many rotten fruits I beared, with seads of many to come" etc
   - It then talks philosophically abt trees and cycle of life and curiosity
   - Then it says "GOOD LUCK LITTLE CHILD" and CUTSCENE[Bye Cruel World] plays
-  - Then URL[Terminal] appears, as well as cookie[terminal unlocked] shows up
+  - Then URL to /terminal appears, as well as cookie terminal_unlocked=true made
+  - MORE:
+    The 1 cutscenes here: (These can only occur once per person, track using cookie KILLTAS_cutscene_seen)
+    - Bye Cruel World: TAS slowly breaks down and deteriorates, file deletion sounds play, etc, then final TTS audio says “FIGHT {CENSOR BLEEP} BEFORE 25”
+
+    To get cookies its the same Cookies.get('NAME');
+    To create cookie use 'await signCookie('NAME=VALUE_WHICH_IS_USUALLY_TRUE');' (import {signCookie} from "@/lib/cookie-utils";)
 
 URL[Terminal] -> FOR HERE If not cookie[Terminal unlocked] then 404
   Terminal asks for all the 5 keywords to be inputted

@@ -42,7 +42,9 @@ export default function TheEnd() {
     useEffect(() => {
         if (hasEndCookie) {
             // Play creepy music
-            audioRef.current?.play();
+            audioRef.current?.play().catch(error => {
+                console.error('Error caught:', error);
+            });
 
             // Print creepy console messages repeatedly
             const creepyMessages = [
@@ -95,7 +97,9 @@ export default function TheEnd() {
 
         // Play static noise
         const staticAudio = new Audio('/static-noise.mp3'); // You need to have static-noise.mp3 in public folder or replace with dataURI
-        staticAudio.play();
+        staticAudio.play().catch(error => {
+            console.error('Error caught:', error);
+        });
     }
 
     // Handle keyword 6 submission

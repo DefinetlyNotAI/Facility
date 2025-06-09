@@ -24,7 +24,7 @@ const binaryCorruptText = "Last time thou hesitated, it found thine";
 const hexCorruptText = "0x6666";
 
 const sessionIdGenerator = () =>
-    `SID-${Math.random().toString(36).substr(2, 9)}`;
+    `SID-${Math.random().toString(36).slice(2, 11)}`;
 
 const letterReplace = (text: string) =>
     text
@@ -118,7 +118,7 @@ export default function H0m3() {
             </audio>
 
             <main className={styles.content}>
-                <h1>{letterReplace("Welcome t0 Facility 05-B")}</h1>
+                <h1>{letterReplace("Welcome to Facility 05-B")}</h1>
 
                 <p>
                     {letterReplace(

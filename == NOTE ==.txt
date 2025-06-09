@@ -19,9 +19,6 @@ h0m3:
 - Don't replace letters/3rd person words added by h0m3, aka only replace/jumble the normal words not additional text
 - actually make it scroll/loop back and keep corrupting itself...
 
-file console:
-- implement the new files to have content
-
 choices
 - REMAKE FULLY
 
@@ -39,7 +36,6 @@ moonlight:
 - remake the moon
 - remake the cutscene as it doesn't work
 - cookie should expire after an hour
-
 
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
