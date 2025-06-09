@@ -1,28 +1,20 @@
-/*
-URL[File Console] -> FOR HERE If not cookie[File Unlocked] then 404
-
-A welcome message appears in a console/terminal like page that has a boot animation like old retro device
-Has the following commands: cat <>, cd <>, wget <>, ls, help, ofc you know how they work, (There is also secret command "whoami" and "sudo" which aren't in the help aka easter eggs)
-Files available:
-    - / [Commands available: ls]
-    - riddle.pdf [only wget, which downloads the PDF that contains the riddle]
-- riddle-hint.txt [cat -> gibberish text that only reading the caps gives the hint, which is to check the riddles EXIF, also wget to get a local file]
-- code/ [ls]
-- code/robots.txt [cat or wget, contains random shit and then a hidden password to allow access for the pdf]
-- code/LETITGROW.tree [FAILS WITH PERM DENIED NOT EVEN SUDO WORKS WITH THIS - wget or cat (doesn't actually exist)]
-The riddle when solved hints of using the Konami code in home,
-    - If sudo is used “You are NOT in control... IT IS” and aborts 500 with error screen saying “Foolish user attempt to gain control”
-  - If whoami is used “No matter what its still you :)” “but... wH0 @R3 ¥0u?”
-
-The following are in public/file-console, riddle.pdf, riddle-hint.txt, robots.txt
-*/
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
-import {fetchUserIP} from '@/utils/getUserInfo'; // adjust path as needed
+
+async function fetchUserIP(): Promise<string> {
+    try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        return data.ip;
+    } catch {
+        return 'UNKNOWN';
+    }
+}
+
 
 type Dirent = { name: string; type: 'file' | 'dir'; };
 const DUMMY_FILES: Dirent[] = Array.from({length: 6}, (_, i) => ({
@@ -55,7 +47,7 @@ export default function FileConsole() {
         '> Syncing consciousness...',
         '> Establishing dream-link...',
         '> [TR33] AUTHORITY OVERRIDE DETECTED',
-        '> Welcome, VESSEL_31525'
+        '> Welcome, VESSEL_31525\n'
     ]);
     const [input, setInput] = useState('');
     const [booting, setBooting] = useState(true);
@@ -86,14 +78,15 @@ export default function FileConsole() {
         }
     };
 
-    const downloadFile = (filename: string, content: string) => {
-        const blob = new Blob([content], {type: 'text/plain'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    };
+    function downloadFile(filename: string) {
+        const url = `/file-console/${filename}`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 
     const execute = (raw: string) => {
         append(`${cwd}$ ${raw}`);
@@ -144,6 +137,7 @@ export default function FileConsole() {
             case 'ls': {
                 const list = cwd === '/' ? ROOT_FILES : cwd === '/code' ? CODE_FILES : [];
                 list.forEach(f => append(f.type === 'dir' ? f.name + '/' : f.name));
+                append('\n')
                 break;
             }
 
@@ -151,7 +145,7 @@ export default function FileConsole() {
                 const [dir] = args;
                 if (cwd === '/' && dir === 'code') setCwd('/code');
                 else if (cwd === '/code' && dir === '..') setCwd('/');
-                else append('Directory not found');
+                else append('Directory not found\n');
                 break;
             }
 
@@ -217,8 +211,51 @@ export default function FileConsole() {
                         '# Access Key for /███/███/riddle.pdf → \'bark&rot\'\n' +
                         '# Don’t say we didn’t warn you\n' +
                         '# @@@@ END AUTH @@@@\n');
+                } else if (cwd === '/code' && fn === 'LETITGROW.tree') {
+                    append(
+                        'TREE SIG: ROOT/BUD/███/█/█/█/█\n' +
+                        'SEED: ████\n' +
+                        '████████: ███-COMPOUND-B3\n' +
+                        'NOTE: The growth never stopped. The roots cracked the chamber floor.\n' +
+                        'WARNING: Do NOT attempt to prune ██ branches.\n' +
+                        '\n' +
+                        '> GROWTH LOG #25:\n' +
+                        'It hums when no one listens.\n' +
+                        'It stretches when the eyes are closed.\n' +
+                        'It KNOWS when you’re watching.\n'
+                    );
+                } else if (cwd === '/code' && fn === '.backup') {
+                    append(
+                        '[RECOVERED SEGMENT: .backup]\n' +
+                        'user=TR██\n' +
+                        'interface=████_v2\n' +
+                        'last_boot=███-██-██\n' +
+                        'corruption_level=██%\n' +
+                        'whispers.enabled=█████\n' +
+                        'echo_path=/dev/████s/██████/c██e\n' +
+                        '████████_ref=██████#31525\n' +
+                        '\n' +
+                        ':: Backup integrity compromised. Fragments only.\n'
+                    );
+                } else if (cwd === '/code' && fn === 'nullskin.swp') {
+                    append(
+                        '[SWAP DUMP BEGIN]\n' +
+                        'boot>>VESSEL.████\n' +
+                        'echo:mirror:echo:mirror\n' +
+                        '███ █ ███ █ █ ███ ███\n' +
+                        '[fracture::imminent]\n' +
+                        'you do not own this shell\n' +
+                        'you are the shell\n' +
+                        '[END SWAP DUMP]\n'
+                    );
+                } else if (cwd === '/code' && fn === 'ERROR###.log') {
+                    append(
+                        '25 logs can you find me\n' +
+                        '43 logs can you find me\n' +
+                        '666 logs can you find me\n'
+                    );
                 } else {
-                    append('Cannot cat that file');
+                    append('Cannot cat that file\n');
                 }
                 break;
             }
@@ -227,15 +264,15 @@ export default function FileConsole() {
                 const [fn] = args;
                 if (cwd === '/' && fn === 'riddle.pdf') {
                     append('Downloading riddle.pdf...');
-                    downloadFile('riddle.pdf', '[PDF DUMMY CONTENT]');
+                    downloadFile('riddle.pdf');
                 } else if (cwd === '/' && fn === 'riddle-hint.txt') {
                     append('Downloading riddle-hint.txt...');
-                    downloadFile('riddle-hint.txt', 'the fitneSsgram pacEr...');
+                    downloadFile('riddle-hint.txt');
                 } else if (cwd === '/code' && fn === 'robots.txt') {
                     append('Downloading robots.txt...');
-                    downloadFile('robots.txt', '# robots.txt for http://...');
+                    downloadFile('robots.txt');
                 } else {
-                    append('wget: file not found');
+                    append('wget: file not found\n');
                 }
                 break;
             }
@@ -244,8 +281,10 @@ export default function FileConsole() {
                 slowType([
                     'No matter what, it’s still you :)',
                     'but...',
-                    'wH0 @R3 ¥0u?'
-                ]);
+                    'wH0 @R3 ¥0u?\n'
+                ]).catch(error => {
+                    console.error('Error caught:', error);
+                });
                 break;
             case 'sudo':
                 append('[ROOT ACCESS ATTEMPT DETECTED]');
@@ -255,7 +294,7 @@ export default function FileConsole() {
                     append(`> MAC: ██:██:██:██:██:██`);
                     append('> Device: VESSEL_31525');
                     append('> Personality Signature: ████████████');
-                    append('[ CONNECTION BREACHED ]');
+                    append('[ CONNECTION BREACHED ]\n');
 
                     // Wait 5 seconds *after* IP trace
                     setTimeout(() => {
@@ -276,7 +315,9 @@ export default function FileConsole() {
                     <p>HE is coming.</p>
                     <p>HE is coming.</p>
                     <p>HE is coming.</p>
-                    <p>PRAISE BE SMILE KING.</p>
+                    <p>PRAISE BE - SMILE KING.</p>
+                    <p>❖ RESETTING SYSTEM FROM BACKUP POINT ❖</p>
+
                 </div>
             `;
                         const scream = new Audio('/sounds/scream.mp3');

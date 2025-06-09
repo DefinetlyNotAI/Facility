@@ -57,7 +57,9 @@ export default function Home() {
             setCountdown(Math.floor(Math.random() * 6) + 5);
         };
 
-        runAsync();
+        runAsync().catch(error => {
+            console.error('Error caught:', error);
+        });
 
         // Update facility data periodically
         const dataInterval = setInterval(() => {
@@ -119,7 +121,9 @@ export default function Home() {
             }
         };
 
-        checkTime();
+        checkTime().catch(error => {
+            console.error('Error caught:', error);
+        });
         const interval = setInterval(checkTime, 60000);
         return () => clearInterval(interval);
     }, [router]);

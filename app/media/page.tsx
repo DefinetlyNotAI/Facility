@@ -40,7 +40,9 @@ export default function MediaPage() {
             const unlockButton = async () => {
                 await signCookie('Button_Unlocked=true');
             };
-            unlockButton();
+            unlockButton().catch(error => {
+                console.error('Error caught:', error);
+            });
         }
     }, [played, dl1, dl2]);
 

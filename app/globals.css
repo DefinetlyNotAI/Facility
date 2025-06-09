@@ -450,7 +450,7 @@ body {
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    background: url('/static/noise.gif');
+    background: url('/public/noise.gif');
     opacity: 0.08;
     mix-blend-mode: lighten;
     z-index: 9998;
@@ -468,12 +468,32 @@ body {
         transform: translate(1px, -1px);
     }
     75% {
+        /*noinspection CssNonIntegerLengthInPixels*/
         transform: translate(-0.5px, 0.5px);
     }
     100% {
         transform: translate(0, 0);
     }
 }
+
+/* globals.css */
+.blinking-cursor {
+    display: inline-block;
+    width: 1px;
+    height: 1em;
+    background: #00ff88;
+    animation: blink 0.9s step-end infinite;
+}
+
+@keyframes blink {
+    from, to {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
 
 @keyframes glitch-blink {
     0%, 100% {
