@@ -11,7 +11,7 @@ URL[Wifi Panel] -> FOR HERE If no cookie[wifi passed] but cookie[Wifi Unlocked] 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/WifiPanel.module.css';
+import styles from '../../styles/extra.module.css';
 
 const KEYWORD_1 = 'Whispers';  // From your flow
 
@@ -58,8 +58,8 @@ export default function WifiPanel() {
 
   // Generate the encoded question
   const handleReceive = () => {
-    // Encoded phrase example: Base64 of "What is 2+2?"
-    const q = btoa('What is 2+2?');
+    // Encoded phrase example: Base64 of "What is 3+15+25?"
+    const q = btoa('What is 3+15+25?');
     setQuestion(q);
     setMode('receive');
   };
@@ -75,7 +75,7 @@ export default function WifiPanel() {
   };
 
   const handleSendAnswer = () => {
-    if (userAnswer.trim() === '4') {
+    if (userAnswer.trim() === '43') {
       setErrorMsg('Transmission error—apply Caesar cipher shift (+3)');
       setMode('caesar');
     } else {

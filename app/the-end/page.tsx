@@ -12,7 +12,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
-const KEYWORD_6 = "your-keyword-6-from-VESSEL-exe"; // Replace with actual secret
+const KEYWORD_6 = "Unbirth"; // Replace with actual secret
 
 export default function TheEnd() {
   const router = useRouter();

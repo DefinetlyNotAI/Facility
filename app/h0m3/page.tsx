@@ -17,7 +17,7 @@ URL[h0m3] -> FOR HERE If not cookie[Corrupt] and not cookie[corrupting] or cooki
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/WifiPanel.module.css';
+import styles from '../../styles/extra.module.css';
 
 const binaryCorruptText = "Last time thou hesitated, it found thine";
 const hexCorruptText = "0x6666";
@@ -29,6 +29,9 @@ const letterReplace = (text: string) =>
     text
         .replace(/o/gi, '0')
         .replace(/a/gi, '@')
+        .replace(/i/gi, '1')
+        .replace(/e/gi, '3')
+        .replace(/s/gi, '$')
         .replace(/\bI\b/gi, 'we') // crude first person replacement example
         .replace(/\bmy\b/gi, 'our')
         .replace(/\bme\b/gi, 'us')

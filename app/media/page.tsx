@@ -15,7 +15,7 @@ URL[Media] -> FOR HERE If not cookie[Media Unlocked] then 404
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/WifiPanel.module.css';
+import styles from '../../styles/extra.module.css';
 
 const KEYWORD_2 = 'Fletchling';
 

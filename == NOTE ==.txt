@@ -1,0 +1,59 @@
+https://bolt.new/~/github-yzoljzk4
+
+All pages:
+- ⚠ Unsupported metadata themeColor is configured in metadata export in /home. Please move it to viewport export instead.
+      Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+- if user didnt accept terms, always redirect to terms page
+- if corrupting then SHOULDNT ALLOW ANY OTHER PAGE TO WORK -> ALL Redirect to h0m3
+
+Home:
+- Time doesnt exist here keeps on looping??? Audio
+- Make it when time hits 0 it becomes infinity sign
+- Hovering over "Data" shows binary
+- Add fake logs, and text and shit, like make it populated
+- time to be taken from USER viewpoint, aka users time
+- Hydration failed because the server-rendered timestamp (09/06/2025, 14:28:12) didn't match the client-rendered one (09/06/2025, 14:28:13), likely due to dynamic data like Date.now() being used in a component rendered during SSR.
+- when No corruption -> after user presses acknowledge, redirect them to /scroll
+- when corrupt -> the acknowledge button should wait for a press before redirect to h0m3
+- when cookie the end always redirect to the end
+
+h0m3:
+- Copy HOME but with those changes of h0m3
+- Dont replace letters/3rd person words added by h0me, aka only replace/jumble the normal words not additional text
+- actually make it scroll/loop back and keep corrupting itself...
+
+Buttons (!):
+- AxiosError: Request failed with status code 404
+      at settle (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/settle.js:24:12)
+      at XMLHttpRequest.onloadend (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/adapters/xhr.js:73:66)
+      at Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:57:41)
+
+file console:
+- add clear command,
+- implement wget to actually download said file,
+- sudo should be a jumpscare on the user,
+- help [command] should give command help
+- whoami should type it out slowly
+
+404:
+- wingdings shouldnt be disco...
+
+wifi panel and wifi login (!):
+- getServerSideProps is not supported in the app/ directory -> crashes
+
+bnw:
+- the qr? should be sized to the normal qr
+- double check moonlight is actually accessable
+
+choices
+- REMAKE FULLY
+
+terminal
+- the The ___ ___ ___, signals the ___ ___ is shown twice?
+- REMAKE FULLY
+- save vessel.exe in download folder
+
+the end:
+- add the required media
+- REMAKE
+- add the comments

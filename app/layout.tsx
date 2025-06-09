@@ -20,12 +20,12 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({
-  children,
-}: {
+                                     children,
+                                   }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
+      <html lang="en" className="dark">
       <head>
         <meta name="robots" content="noindex, nofollow" />
         <meta name="theme-color" content="#000000" />
@@ -60,21 +60,21 @@ export default function RootLayout({
         }} />
       </head>
       <body className="font-sans antialiased bg-black text-white min-h-screen">
-        <div id="loading-screen" className="loading-screen">
-          <div className="text-center">
-            <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
-            <div className="loading-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
+      <div id="loading-screen" className="loading-screen">
+        <div className="text-center">
+          <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
+          <div className="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
         </div>
-        <div className="scanlines crt-effect">
-          {children}
-        </div>
-        <script dangerouslySetInnerHTML={{
-          __html: `
+      </div>
+      <div className="scanlines crt-effect">
+        {children}
+      </div>
+      <script dangerouslySetInnerHTML={{
+        __html: `
             window.addEventListener('load', function() {
               setTimeout(function() {
                 const loadingScreen = document.getElementById('loading-screen');
@@ -88,8 +88,8 @@ export default function RootLayout({
               }, 1500);
             });
           `
-        }} />
+      }} />
       </body>
-    </html>
+      </html>
   )
 }
