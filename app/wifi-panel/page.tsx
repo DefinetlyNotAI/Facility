@@ -1,11 +1,3 @@
-/*
-URL[Wifi Panel] -> FOR HERE If no cookie[wifi passed] but cookie[Wifi Unlocked] create cookie[wifi login] and redirect to URL[Wifi login], FOR HERE If not cookie[Wifi Unlocked] then 404
-  2 buttons -> [Receive] and [Send]
-  - Receive outputs a encoded message, which the algorithm would be in the html comments to help decipher, the message is a question that must be answered via the send
-  - Send is locked until user inputs KEYWORD[1] as the password, then the button unlocks, if pressed a popup asks for the answer to the question, if answered correctly simulate sending the answer but then simulate a error and ask the user to use ceaser cipher to answer, if correct and all simulate everything loading well, and finally show URL[Media] and create cookie[Media Unlocked]
-  If curl/wget is used, the json should return KEYWORD[2]
-*/
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -14,18 +6,6 @@ import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
 
 const KEYWORD_1 = 'Whispers';  // From your flow
-
-export async function getServerSideProps(context: any) {
-  const userAgent = context.req.headers['user-agent']?.toLowerCase() || '';
-
-  if (userAgent.includes('curl') || userAgent.includes('wget')) {
-    context.res.writeHead(302, { Location: '/api/wifi-panel' });
-    context.res.end();
-  }
-
-  return { props: {} };
-}
-
 
 export default function WifiPanel() {
   const router = useRouter();
@@ -50,12 +30,6 @@ export default function WifiPanel() {
     setMode('locked');
   }, [router]);
 
-  // Handle curl/wget clients
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    // Browser only
-  }, []);
-
   // Generate the encoded question
   const handleReceive = () => {
     // Encoded phrase example: Base64 of "What is 3+15+25?"
@@ -65,21 +39,21 @@ export default function WifiPanel() {
   };
 
   const handleUnlockSend = () => {
-    if (password === KEYWORD_1) {
+    if (password.trim().toLowerCase() === KEYWORD_1.trim().toLowerCase()) {
       setSendUnlocked(true);
       setMode('send');
       setErrorMsg(null);
     } else {
-      setErrorMsg('Incorrect password');
+      setErrorMsg('46 6F 6F 6C');
     }
   };
 
   const handleSendAnswer = () => {
     if (userAnswer.trim() === '43') {
-      setErrorMsg('Transmission error—apply Caesar cipher shift (+3)');
+      setErrorMsg('Transmission error: Encryption module failed — Caesar cipher your message for us.');
       setMode('caesar');
     } else {
-      setErrorMsg('Wrong answer.');
+      setErrorMsg('49 64 69 6F 74');
     }
   };
 
@@ -95,17 +69,17 @@ export default function WifiPanel() {
           return ch;
         })
         .join('');
-    if (decoded === '4') {
+    if (decoded === '76') {
       Cookies.set('Media Unlocked', 'true');
-      router.push('/Media');
+      router.push('/media');
     } else {
-      setErrorMsg('Still incorrect after Caesar.');
+      setErrorMsg('42 6F 74 68 20 61 20 66 6F 6F 6C 20 61 6E 64 20 61 6E 20 69 64 69 6F 74');
     }
   };
 
   return (
       <div className={styles.container}>
-        <h1>📶 Wi‑Fi Panel</h1>
+        <h1>Wi‑Fi Panel</h1>
         <div className={styles.buttons}>
           <button onClick={handleReceive} disabled={mode !== 'locked'}>
             Receive
@@ -120,13 +94,13 @@ export default function WifiPanel() {
 
         {mode === 'receive' && (
             <div className={styles.box}>
-              <p><em>Encoded question:</em> <code>{question}</code></p>
+              <p><em>I ASK THEE </em> <code>{question}</code></p>
               <p className={styles.hint} /* <== hint inside HTML comments in real code */>
                 {/* Algorithm: Base64 decode this string */}
               </p>
               <input
                   type="text"
-                  placeholder="Enter password"
+                  placeholder="Provide the keyword[1]"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
               />
@@ -135,7 +109,7 @@ export default function WifiPanel() {
 
         {mode === 'send' && sendUnlocked && (
             <div className={styles.box}>
-              <p>🚀 Password accepted. Submit your answer:</p>
+              <p>Password accepted. Submit thee answer:</p>
               <input
                   type="text"
                   placeholder="Your answer"
@@ -148,7 +122,7 @@ export default function WifiPanel() {
 
         {mode === 'caesar' && (
             <div className={styles.box}>
-              <p>Caesar cipher step: shift your answer by +3</p>
+              <p>Submit thee answer:</p>
               <input
                   type="text"
                   placeholder="Caesar-shifted answer"
@@ -160,8 +134,6 @@ export default function WifiPanel() {
         )}
 
         {errorMsg && <p className={styles.error}>{errorMsg}</p>}
-
-        <p className={styles.footer}>Use curl or wget and check JSON response for special output.</p>
       </div>
   );
 }

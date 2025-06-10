@@ -105,7 +105,7 @@
         const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
         if (timeNow === '15:25') {
           Cookies.set('Wifi Unlocked', 'true');
-          setModalMessage('Network access granted. Use curl/wget for secure transmission.');
+          setModalMessage('Network access granted. Use curl/wget for a prize to the next ;)');
           setShowModal(true);
           setTimeout(() => router.push('/wifi-panel'), 3000);
         }
