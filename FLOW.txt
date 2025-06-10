@@ -5,6 +5,27 @@ KEYWORDS:
 4) Nullskin
 5) Echoes
 
+COOKIES:
+accepted
+Scroll unlocked
+Wifi Unlocked
+Corrupt (if not No corruption)
+wifi login
+Media Unlocked
+Button Unlocked
+File Unlocked
+corrupting (if not No corruption)
+No corruption (if not corrupting or Corrupt)
+BnW unlocked
+Choice Unlocked
+terminal unlocked
+End? (if not End)
+End (if not End?)
+- (CUTSCENES) -
+moonlight_time_cutscene_played
+Interference_cutscene_seen
+KILLTAS_cutscene_seen
+
 -------------------------------
 
 URL[/]<root> -> FOR ALL If not cookie[accepted] then redirect here else if here then redirect URL[Home]
@@ -122,6 +143,7 @@ URL[The End] -> FOR HERE If not cookie[End?] or not cookie[End] then 404, FOR AL
 
 ---
 
-The 2 cutscenes here: (These can only occur once per person, track using cookies)
+The 3 cutscenes here: (These can only occur once per person, track using cookies)
 - Interference: Screen glitches and TAS attempts speaking, but is cut-off and a black screen appears with slow breathing and slow text typing “V3$$3L.. W@TCH.. M3.. GR0W” “TH1$ TR33 H@$ JU$T F@LL3N” “PR@1$3 B3” “:)”
 - Bye Cruel World: TAS slowly breaks down and deteriorates, file deletion sounds play, then final TTS audio says “FIGHT {CENSOR BLEEP} BEFORE 25”
+- TIME: For moonlight, creepy imagery and poetic words on time

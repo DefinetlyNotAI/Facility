@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 
 const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'] as const;
 type BrowserName = typeof BROWSERS[number];
@@ -23,13 +23,13 @@ function HiddenFooter() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        if (Cookies.get('BnW unlocked')) {
+        if (Cookies.get('File Unlocked')) {
             setVisible(true);
         }
     }, []);
 
     function handleUnlock() {
-        Cookies.set('BnW unlocked', 'true', { expires: 7 });
+        Cookies.set('File Unlocked', 'true', {expires: 7});
         setVisible(true);
     }
 
@@ -67,7 +67,7 @@ function HiddenFooter() {
                     }}
                     onClick={(e) => {
                         e.stopPropagation();
-                        Cookies.set('BnW unlocked', 'true', { expires: 7 });
+                        Cookies.set('File Unlocked', 'true', {expires: 7});
                     }}
                 >
                     /file-console
@@ -75,23 +75,24 @@ function HiddenFooter() {
             </footer>
 
             <style jsx>{`
-        @keyframes blink {
-          0%,
-          50% {
-            opacity: 1;
-          }
-          50.01%,
-          100% {
-            opacity: 0;
-          }
-        }
-        #hidden-footer.visible {
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            user-select: text !important;
-            animation: blink 1s step-start infinite;
-        }
-      `}</style>
+                @keyframes blink {
+                    0%,
+                    50% {
+                        opacity: 1;
+                    }
+                    50.01%,
+                    100% {
+                        opacity: 0;
+                    }
+                }
+
+                #hidden-footer.visible {
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                    user-select: text !important;
+                    animation: blink 1s step-start infinite;
+                }
+            `}</style>
         </>
     );
 }
@@ -112,7 +113,8 @@ export default function ButtonsPage() {
     const allPressed = Object.values(buttonStates).every(Boolean);
 
     useEffect(() => {
-        axios.get('/api/csrf-token').catch(() => {});
+        axios.get('/api/csrf-token').catch(() => {
+        });
     }, []);
 
     useEffect(() => {
@@ -147,7 +149,8 @@ export default function ButtonsPage() {
                     Cookies.set('File Unlocked', 'true');
                 }
             })
-            .catch(() => {});
+            .catch(() => {
+            });
     }, []);
 
     async function pressButton(browser: BrowserName) {
@@ -158,11 +161,11 @@ export default function ButtonsPage() {
             const csrfToken = Cookies.get('csrf-token');
             await axios.post(
                 '/api/press',
-                { browser },
-                { headers: { 'X-CSRF-Token': csrfToken ?? '' } }
+                {browser},
+                {headers: {'X-CSRF-Token': csrfToken ?? ''}}
             );
 
-            const updatedStates = { ...buttonStates, [browser]: true };
+            const updatedStates = {...buttonStates, [browser]: true};
             setButtonStates(updatedStates);
 
             if (Object.values(updatedStates).every(Boolean)) {
@@ -231,6 +234,7 @@ export default function ButtonsPage() {
                             color: #400;
                             letter-spacing: 0.05em;
                         }
+
                         .secret::after {
                             content: 'Remove css tag from hidden-footer.visible to find the next link';
                             display: block;
@@ -239,11 +243,10 @@ export default function ButtonsPage() {
                             color: #666;
                         }
                     `}</style>
+                    {/* Include hidden footer here */}
+                    <HiddenFooter/>
                 </>
             )}
-
-            {/* Include hidden footer here */}
-            <HiddenFooter />
         </div>
     );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React, {useEffect, useRef, useState} from "react";
+import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 
 const CUTSCENE_COOKIE = "moonlight_time_cutscene_played";
@@ -19,9 +19,8 @@ export default function Moonlight() {
     // Check if user came from 404 or has cookie
     useEffect(() => {
         const ref = document.referrer;
-        if (ref.includes("/404") || Cookies.get("cameFrom404") === "true") {
+        if (ref.includes("/404")) {
             setAllowed(true);
-            Cookies.set("cameFrom404", "true", { expires: 1 });
         } else {
             router.replace("/404");
         }
@@ -82,7 +81,7 @@ export default function Moonlight() {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
-            Cookies.set(CUTSCENE_COOKIE, "true", { expires: 7 });
+            Cookies.set(CUTSCENE_COOKIE, "true", {expires: 7});
             setCutscenePlayed(true);
         };
 

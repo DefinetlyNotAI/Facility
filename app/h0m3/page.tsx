@@ -14,8 +14,8 @@ URL[h0m3] -> FOR HERE If not cookie[Corrupt] and not cookie[corrupting] or cooki
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import {useEffect, useRef, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
 
@@ -39,126 +39,127 @@ const letterReplace = (text: string) =>
         .replace(/\bam\b/gi, 'are');
 
 export default function H0m3() {
-  const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  const [mode, setMode] = useState<'initial' | 'glitch'>('initial');
-  const [scrollCount, setScrollCount] = useState(0);
-  const [sessionId] = useState(sessionIdGenerator());
+    const [mode, setMode] = useState<'initial' | 'glitch'>('initial');
+    const [scrollCount, setScrollCount] = useState(0);
+    const [sessionId] = useState(sessionIdGenerator());
 
-  // Redirect and cookie check logic
-  useEffect(() => {
-    const corrupt = Cookies.get('Corrupt');
-    const corrupting = Cookies.get('corrupting');
-    const noCorrupt = Cookies.get('No corruption');
+    // Redirect and cookie check logic
+    useEffect(() => {
+        const corrupt = Cookies.get('Corrupt');
+        const corrupting = Cookies.get('corrupting');
+        const noCorrupt = Cookies.get('No corruption');
 
-    if ((!corrupt && !corrupting) || noCorrupt) {
-      router.replace('/');
-      return;
+        if ((!corrupt && !corrupting) || noCorrupt) {
+            router.replace('/');
+            return;
+        }
+        if (corrupting) {
+            setMode('glitch');
+
+            // Static flash and smiley faces every minute
+            const staticInterval = setInterval(() => {
+                if (!containerRef.current) return;
+                containerRef.current.classList.add(styles.flash);
+                setTimeout(() => containerRef.current?.classList.remove(styles.flash), 200);
+
+                // Play static noise audio (make sure to add your file)
+                const audio = new Audio('/media/static_noise.mp3');
+                audio.play().catch(() => {
+                });
+            }, 60_000);
+
+            return () => clearInterval(staticInterval);
+        }
+    }, [router]);
+
+    // Scroll counter to track blurring + reset button
+    useEffect(() => {
+        const onScroll = () => {
+            setScrollCount(c => Math.min(c + 1, 10));
+        };
+        window.addEventListener('scroll', onScroll);
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    // Blank page with hidden button
+    if (mode === 'initial') {
+        return (
+            <div className={styles.blank}>
+                <button
+                    className={styles.hiddenButton}
+                    aria-label="Hidden corrupt button"
+                    onClick={() => {
+                        Cookies.set('corrupting', 'true');
+                        router.replace('/h0m3');
+                    }}
+                >
+                    .
+                </button>
+            </div>
+        );
     }
-    if (corrupting) {
-      setMode('glitch');
 
-      // Static flash and smiley faces every minute
-      const staticInterval = setInterval(() => {
-        if (!containerRef.current) return;
-        containerRef.current.classList.add(styles.flash);
-        setTimeout(() => containerRef.current?.classList.remove(styles.flash), 200);
-
-        // Play static noise audio (make sure to add your file)
-        const audio = new Audio('/media/static_noise.mp3');
-        audio.play().catch(() => {});
-      }, 60_000);
-
-      return () => clearInterval(staticInterval);
-    }
-  }, [router]);
-
-  // Scroll counter to track blurring + reset button
-  useEffect(() => {
-    const onScroll = () => {
-      setScrollCount(c => Math.min(c + 1, 10));
-    };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Blank page with hidden button
-  if (mode === 'initial') {
+    // Glitch mode — render corrupted Home
     return (
-        <div className={styles.blank}>
-          <button
-              className={styles.hiddenButton}
-              aria-label="Hidden corrupt button"
-              onClick={() => {
-                Cookies.set('corrupting', 'true');
-                router.replace('/h0m3');
-              }}
-          >
-            .
-          </button>
+        <div
+            ref={containerRef}
+            className={styles.glitchContainer}
+            style={{filter: `blur(${Math.min(scrollCount * 2, 20)}px)`}}
+        >
+            {/* Background Latin audio */}
+            <audio autoPlay loop>
+                <source src="/media/latin_run_stop_escape.mp3" type="audio/mpeg"/>
+                {/* Fallback text */}
+                Your browser does not support the audio element.
+            </audio>
+
+            <main className={styles.content}>
+                <h1>{letterReplace("Welcome t0 Facility 05-B")}</h1>
+
+                <p>
+                    {letterReplace(
+                        "I am testing subject myself. Standby for results."
+                    )}
+                </p>
+
+                {/* Binary replaced */}
+                <p className={styles.binaryText}>
+                    {binaryCorruptText}
+                </p>
+
+                {/* Hex replaced */}
+                <p className={styles.hexText}>
+                    {hexCorruptText}
+                </p>
+
+                {/* Session ID and creepy text */}
+                <p className={styles.sessionText}>
+                    {letterReplace(`Y0U SH0ULDNT BE HERE ${sessionId}`)}
+                </p>
+            </main>
+
+            {/* Reset button after 4-5 scrolls */}
+            {scrollCount >= 5 && (
+                <section className={styles.resetSection}>
+                    <p className={styles.polyglotText}>
+                        WHY DO THIS • なぜこれを • لماذا تفعل هذا • Pourquoi faire cela
+                    </p>
+                    <button
+                        className={styles.resetButton}
+                        onClick={() => {
+                            Cookies.remove('Corrupt');
+                            Cookies.remove('corrupting');
+                            Cookies.set('No corruption', 'true');
+                            router.replace('/');
+                        }}
+                    >
+                        RESET
+                    </button>
+                </section>
+            )}
         </div>
     );
-  }
-
-  // Glitch mode — render corrupted Home
-  return (
-      <div
-          ref={containerRef}
-          className={styles.glitchContainer}
-          style={{ filter: `blur(${Math.min(scrollCount * 2, 20)}px)` }}
-      >
-        {/* Background Latin audio */}
-        <audio autoPlay loop>
-          <source src="/media/latin_run_stop_escape.mp3" type="audio/mpeg" />
-          {/* Fallback text */}
-          Your browser does not support the audio element.
-        </audio>
-
-        <main className={styles.content}>
-          <h1>{letterReplace("Welcome t0 Facility 05-B")}</h1>
-
-          <p>
-            {letterReplace(
-                "I am testing subject myself. Standby for results."
-            )}
-          </p>
-
-          {/* Binary replaced */}
-          <p className={styles.binaryText}>
-            {binaryCorruptText}
-          </p>
-
-          {/* Hex replaced */}
-          <p className={styles.hexText}>
-            {hexCorruptText}
-          </p>
-
-          {/* Session ID and creepy text */}
-          <p className={styles.sessionText}>
-            {letterReplace(`Y0U SH0ULDNT BE HERE ${sessionId}`)}
-          </p>
-        </main>
-
-        {/* Reset button after 4-5 scrolls */}
-        {scrollCount >= 5 && (
-            <section className={styles.resetSection}>
-              <p className={styles.polyglotText}>
-                WHY DO THIS • なぜこれを • لماذا تفعل هذا • Pourquoi faire cela
-              </p>
-              <button
-                  className={styles.resetButton}
-                  onClick={() => {
-                    Cookies.remove('Corrupt');
-                    Cookies.remove('corrupting');
-                    Cookies.set('No corruption', 'true');
-                    router.replace('/');
-                  }}
-              >
-                RESET
-              </button>
-            </section>
-        )}
-      </div>
-  );
 }
