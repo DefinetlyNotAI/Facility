@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
+import {useEffect, useState} from "react";
+import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
 
 export default function RootPage() {
@@ -24,7 +24,7 @@ export default function RootPage() {
     }, [router]);
 
     function handleAccept() {
-        Cookies.set("accepted", "true", { expires: 365 });
+        Cookies.set("accepted", "true", {expires: 365});
         setAccepted(true);
         setShowConsoleWarning(true);
 
@@ -59,7 +59,8 @@ export default function RootPage() {
 
     if (!accepted) {
         return (
-            <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
+            <main
+                className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
                 <div className="card max-w-2xl w-full">
                     <div className="card-header">
                         <h1 className="card-title text-red-400 text-center">
@@ -80,13 +81,16 @@ export default function RootPage() {
                             </div>
                             <div className="terminal-content">
                                 <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> This terminal requires elevated permissions
+                                    <span className="terminal-prompt">SYSTEM:</span> This terminal requires elevated
+                                    permissions
                                 </div>
                                 <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications, and media permissions needed
+                                    <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications, and
+                                    media permissions needed
                                 </div>
                                 <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> Psychological evaluation protocols active
+                                    <span className="terminal-prompt">SYSTEM:</span> Psychological evaluation protocols
+                                    active
                                 </div>
                             </div>
                         </div>
@@ -139,21 +143,26 @@ export default function RootPage() {
                         <div className="terminal mb-6">
                             <div className="terminal-content">
                                 <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Developer console access STRICTLY PROHIBITED
+                                    <span className="terminal-prompt">WARNING:</span> Developer console access STRICTLY
+                                    PROHIBITED
                                 </div>
                                 <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Unauthorized console usage may destroy the experience
+                                    <span className="terminal-prompt">WARNING:</span> Unauthorized console usage may
+                                    destroy the experience
                                 </div>
                                 <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Console commands may break puzzles for you.
+                                    <span className="terminal-prompt">WARNING:</span> Console commands may break puzzles
+                                    for you.
                                 </div>
                                 <div className="terminal-line text-yellow-400">
-                                    <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when explicitly instructed
+                                    <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when
+                                    explicitly instructed
                                 </div>
                             </div>
                         </div>
                         <p className="text-gray-300 mb-4">
-                            Redirecting to secure terminal in <span className="text-green-400 font-mono">8</span> seconds...
+                            Redirecting to secure terminal in <span
+                            className="text-green-400 font-mono">8</span> seconds...
                         </p>
                         <div className="loading-bar w-full"></div>
                     </div>

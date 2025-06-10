@@ -58,8 +58,9 @@ moonlight:
 
 extra:
 - page called jump where u can jump to certain pages as long as u have their cookie, also besides each one a reminder to Quests
-- page called smileking which is only for admin (Me) and is pass protected and has message saying its not part of the puzzle, inside buttons to manually control ALL my cookies states, as well as the browsers
-- sign ALL cookies pages (maybe use utils.ts to make it a function?):
+- add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
+- add cheat detection and a callout for that
+- sign ALL cookies pages (maybe use utils.ts to make it a function?) and make them expire after a long time:
 
 // setup
 import * as cookieSignature from 'cookie-signature';

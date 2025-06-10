@@ -1,7 +1,7 @@
-import { Pool } from 'pg';
+import {Pool} from 'pg';
 import fs from 'fs';
 import path from 'path';
-import { createSecureResponse } from '@/lib/utils';
+import {createSecureResponse} from '@/lib/utils';
 
 
 const pool = new Pool({
@@ -20,6 +20,6 @@ export async function GET() {
         return createSecureResponse(res.rows);
     } catch (error) {
         console.error('Error fetching button states:', error);
-        return createSecureResponse({ error: 'Failed to fetch states' }, 500);
+        return createSecureResponse({error: 'Failed to fetch states'}, 500);
     }
 }

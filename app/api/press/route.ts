@@ -1,8 +1,8 @@
-import { NextRequest } from 'next/server';
-import { Pool } from 'pg';
+import {NextRequest} from 'next/server';
+import {Pool} from 'pg';
 import fs from 'fs';
 import path from 'path';
-import { createSecureResponse } from '@/lib/utils';
+import {createSecureResponse} from '@/lib/utils';
 
 
 const pool = new Pool({
@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
     try {
         const csrfTokenFromCookie = req.cookies.get('csrf-token')?.value;
         const csrfTokenFromHeader = req.headers.get('x-csrf-token');
+        const ignoreAlreadyPressed = req.headers.get('ignore-already-pressed') === 'true';
 
         if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromCookie !== csrfTokenFromHeader) {
             return createSecureResponse({ error: 'Invalid CSRF token' }, 403);
@@ -41,19 +42,23 @@ export async function POST(req: NextRequest) {
             return createSecureResponse({ error: 'Browser not found' }, 404);
         }
 
-        if (result.rows[0].clicked) {
+        const currentState = result.rows[0].clicked;
+
+        if (!ignoreAlreadyPressed && currentState) {
             client.release();
-            return createSecureResponse({ error: 'Already pressed' }, 409);
+            return createSecureResponse({error: `Already pressed`}, 409);
         }
 
-        // Update the clicked status
+        // If strict, set to true; if flexible, toggle
+        const newClickedState = ignoreAlreadyPressed ? !currentState : true;
+
         await client.query(
-            'UPDATE button_states SET clicked = TRUE WHERE browser = $1;',
-            [browser]
+            'UPDATE button_states SET clicked = $1 WHERE browser = $2;',
+            [newClickedState, browser]
         );
 
         client.release();
-        return createSecureResponse({ success: true });
+        return createSecureResponse({success: true, clicked: newClickedState});
     } catch (error) {
         console.error('Error pressing button:', error);
         return createSecureResponse({ error: 'Internal server error' }, 500);
