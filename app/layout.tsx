@@ -8,8 +8,6 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#000000",
   generator: 'Facility OS v3.15.25',
   robots: "noindex, nofollow",
   other: {
@@ -18,6 +16,12 @@ export const metadata: Metadata = {
     'facility-id': '05-B'
   }
 }
+
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+    themeColor: "#000000",
+};
 
 export default function RootLayout({
                                      children,

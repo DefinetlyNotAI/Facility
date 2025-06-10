@@ -11,10 +11,13 @@ URL[Buttons] -> FOR HERE If not cookie[Buttons Unlocked] then 404
 import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
-const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'];
+const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'] as const;
+type BrowserName = typeof BROWSERS[number];
 
-function getBrowserName(): string | null {
+// Detect browser reliably (basic)
+function getBrowserName(): BrowserName | null {
   const ua = navigator.userAgent;
   if (/Chrome/.test(ua) && !/Edge/.test(ua) && !/OPR/.test(ua)) return 'Chrome';
   if (/Firefox/.test(ua)) return 'Firefox';
@@ -25,76 +28,144 @@ function getBrowserName(): string | null {
 }
 
 export default function ButtonsPage() {
-  const [states, setStates] = useState<Record<string, boolean>>({});
-  const [browser, setBrowser] = useState<string | null>(null);
-  const [allPressed, setAllPressed] = useState(false);
+  const router = useRouter();
 
+  // States: which buttons globally pressed
+  const [buttonStates, setButtonStates] = useState<Record<BrowserName, boolean>>({
+    Chrome: false,
+    Firefox: false,
+    Safari: false,
+    Edge: false,
+    Opera: false,
+  });
+
+  // Detected browser of current user
+  const [userBrowser, setUserBrowser] = useState<BrowserName | null>(null);
+
+  // Flag if all buttons globally pressed
+  const allPressed = Object.values(buttonStates).every(Boolean);
+
+  // Check cookie and redirect if not unlocked
+  useEffect(() => {
+    const unlocked = Cookies.get('Button Unlocked');
+    if (!unlocked) {
+      router.replace('/404');
+    }
+  }, [router]);
+
+  // Detect browser and fetch global button states from API on mount
   useEffect(() => {
     const detected = getBrowserName();
-    setBrowser(detected);
-    axios.get('/api/buttons/state').then(res => {
-      const stateMap: Record<string, boolean> = {};
-      for (const { browser, clicked } of res.data) {
-        stateMap[browser] = clicked;
-      }
-      setStates(stateMap);
-      if (Object.values(stateMap).every(Boolean)) {
-        Cookies.set('File Unlocked', 'true');
-        setAllPressed(true);
-      }
-    });
+    setUserBrowser(detected);
+
+    axios.get('/api/state')
+        .then(res => {
+          // Build new state map, ensure all browsers present, fallback to false
+          const newStates: Record<BrowserName, boolean> = {
+            Chrome: false,
+            Firefox: false,
+            Safari: false,
+            Edge: false,
+            Opera: false,
+          };
+          for (const entry of res.data) {
+            if (BROWSERS.includes(entry.browser)) {
+              newStates[entry.browser as BrowserName] = entry.clicked;
+            }
+          }
+          setButtonStates(newStates);
+
+          if (Object.values(newStates).every(Boolean)) {
+            Cookies.set('File Unlocked', 'true');
+          }
+        })
+        .catch(() => {
+          // Optional: handle error, maybe notify user or log silently
+        });
   }, []);
 
-  const pressButton = async () => {
-    if (!browser || states[browser]) return;
-    try {
-      await axios.post('/api/buttons/press', { browser });
-      const updated = { ...states, [browser]: true };
-      setStates(updated);
-      if (Object.values(updated).every(Boolean)) {
-        Cookies.set('File Unlocked', 'true');
-        setAllPressed(true);
-      }
-    } catch (err) {
-      alert('Already pressed or error.');
-    }
-  };
+  // Handle a specific button press
+  async function pressButton(browser: BrowserName) {
+    if (!userBrowser || userBrowser !== browser) return; // disallow if not matching user browser
+    if (buttonStates[browser]) return; // already pressed
 
-  if (!Cookies.get('Buttons Unlocked')) return <h1>404</h1>;
+    try {
+      await axios.post('/api/press', { browser });
+      const updatedStates = { ...buttonStates, [browser]: true };
+      setButtonStates(updatedStates);
+
+      if (Object.values(updatedStates).every(Boolean)) {
+        Cookies.set('File Unlocked', 'true');
+      }
+    } catch {
+      alert('This button has already been pressed or there was an error.');
+    }
+  }
+
+  // Early return if cookie missing handled above via redirect
 
   return (
       <div style={{ fontFamily: allPressed ? 'Wingdings, monospace' : 'sans-serif', padding: '2rem' }}>
         <h1>Global Browser Buttons</h1>
-        {BROWSERS.map(b => (
-            <button
-                key={b}
-                onClick={pressButton}
-                disabled={b !== browser || states[b]}
-                style={{
-                  margin: '0.5rem',
-                  background: states[b] ? '#888' : '#0cf',
-                  cursor: b === browser && !states[b] ? 'pointer' : 'not-allowed'
-                }}
-            >
-              {b}
-            </button>
-        ))}
+        <p>
+          Click the button matching your browser to activate it globally.
+        </p>
+        <div>
+          {BROWSERS.map(b => {
+            const isDisabled = b !== userBrowser || buttonStates[b];
+            return (
+                <button
+                    key={b}
+                    onClick={() => pressButton(b)}
+                    disabled={isDisabled}
+                    title={
+                      isDisabled
+                          ? b !== userBrowser
+                              ? `This button is for ${b} browser only`
+                              : 'Button already pressed'
+                          : `Press to activate ${b} button`
+                    }
+                    style={{
+                      margin: '0.5rem',
+                      padding: '0.7rem 1.2rem',
+                      fontWeight: buttonStates[b] ? 'bold' : 'normal',
+                      backgroundColor: buttonStates[b] ? '#888' : '#0cf',
+                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                      borderRadius: 4,
+                      border: 'none',
+                      color: 'white',
+                      userSelect: 'none',
+                      transition: 'background-color 0.3s',
+                    }}
+                >
+                  {b}
+                </button>
+            );
+          })}
+        </div>
+
         {allPressed && (
-            <div className="secret-message">
+            <div className="secret-message" aria-live="polite" role="alert">
               👍︎♒︎♏︎♍︎🙵 ⧫︎♒︎♏︎ 👍︎💧︎💧︎ ⬧︎♏︎♍︎❒︎♏︎⧫︎
             </div>
         )}
 
         <style jsx>{`
-        .secret-message {
-          font-size: 1.5rem;
-          margin-top: 2rem;
-        }
-        .secret::after {
-          content: 'Remove invisible HTML to find the next link';
-          visibility: hidden;
-        }
-      `}</style>
+          .secret-message {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            user-select: none;
+          }
+
+          /* Hint message visible by default, to tell user to check CSS */
+          .secret::after {
+            content: 'Remove invisible HTML tags to find the next link';
+            display: block;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #666;
+          }
+        `}</style>
       </div>
   );
 }
