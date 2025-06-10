@@ -142,10 +142,10 @@ export default function RootPage() {
                                     <span className="terminal-prompt">WARNING:</span> Developer console access STRICTLY PROHIBITED
                                 </div>
                                 <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Unauthorized console usage may corrupt the experience
+                                    <span className="terminal-prompt">WARNING:</span> Unauthorized console usage may destroy the experience
                                 </div>
                                 <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Console commands may break puzzles for ALL users
+                                    <span className="terminal-prompt">WARNING:</span> Console commands may break puzzles for you.
                                 </div>
                                 <div className="terminal-line text-yellow-400">
                                     <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when explicitly instructed

@@ -1,13 +1,11 @@
 https://bolt.new/~/github-yzoljzk4
 
 All pages:
-- ⚠ Unsupported metadata themeColor is configured in metadata export in /home. Please move it to viewport export instead.
-      Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
-- if user didnt accept terms, always redirect to terms page
-- if corrupting then SHOULDNT ALLOW ANY OTHER PAGE TO WORK -> ALL Redirect to h0m3
+- add favicon.ico
+- change all /404 to forced, while normal 404 (aka the search bar isnt 404)
 
 Home:
-- Time doesnt exist here keeps on looping??? Audio
+- Time doesn't exist here keeps on looping??? Audio
 - Make it when time hits 0 it becomes infinity sign
 - Hovering over "Data" shows binary
 - Add fake logs, and text and shit, like make it populated
@@ -19,14 +17,11 @@ Home:
 
 h0m3:
 - Copy HOME but with those changes of h0m3
-- Dont replace letters/3rd person words added by h0me, aka only replace/jumble the normal words not additional text
+- Don't replace letters/3rd person words added by h0m3, aka only replace/jumble the normal words not additional text
 - actually make it scroll/loop back and keep corrupting itself...
 
 Buttons (!):
-- AxiosError: Request failed with status code 404
-      at settle (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/settle.js:24:12)
-      at XMLHttpRequest.onloadend (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/adapters/xhr.js:73:66)
-      at Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:57:41)
+- just reset the buttons, make a script (py)
 
 file console:
 - add clear command,
@@ -57,3 +52,8 @@ the end:
 - add the required media
 - REMAKE
 - add the comments
+
+moonlight:
+- remake the moon
+- remake the cutscene as it doesnt work
+- cookie should expire after an hour
