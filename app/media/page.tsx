@@ -54,7 +54,7 @@ export default function MediaPage() {
         <h1>🔐 Media Repository</h1>
         {!accessGranted ? (
             <div className={styles.access}>
-              <p>Enter access keyword:</p>
+              <p>Enter access keyword[2]:</p>
               <input
                   type="text"
                   value={inputKey}

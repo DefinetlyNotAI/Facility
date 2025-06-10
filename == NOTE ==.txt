@@ -20,7 +20,7 @@ h0m3:
 - Don't replace letters/3rd person words added by h0m3, aka only replace/jumble the normal words not additional text
 - actually make it scroll/loop back and keep corrupting itself...
 
-Buttons (!):
+Buttons:
 - just reset the buttons, make a script (py)
 
 file console:
@@ -31,20 +31,17 @@ file console:
 - whoami should type it out slowly
 
 404:
-- wingdings shouldnt be disco...
-
-wifi panel and wifi login (!):
-- getServerSideProps is not supported in the app/ directory -> crashes
+- wingdings shouldn't be disco...
 
 bnw:
 - the qr? should be sized to the normal qr
-- double check moonlight is actually accessable
+- double check moonlight is actually accessible
 
 choices
 - REMAKE FULLY
 
 terminal
-- the The ___ ___ ___, signals the ___ ___ is shown twice?
+- the "The ___ ___ ___, signals the ___ ___" is shown twice?
 - REMAKE FULLY
 - save vessel.exe in download folder
 
@@ -55,5 +52,22 @@ the end:
 
 moonlight:
 - remake the moon
-- remake the cutscene as it doesnt work
+- remake the cutscene as it doesn't work
 - cookie should expire after an hour
+
+
+extra:
+- page called jump where u can jump to certain pages as long as u have their cookie, also besides each one a reminder to Quests
+- page called smileking which is only for admin (Me) and is pass protected and has message saying its not part of the puzzle, inside buttons to manually control ALL my cookies states, as well as the browsers
+- sign ALL cookies pages (maybe use utils.ts to make it a function?):
+
+// setup
+import * as cookieSignature from 'cookie-signature';
+const secret = process.env.COOKIE_SECRET; // keep this secret!
+
+// Create cookie:
+const signedValue = 's:' + cookieSignature.sign('myValue', secret);
+
+// Read cookie:
+const unsignedValue = cookieSignature.unsign(signedValue.slice(2), secret);
+if (unsignedValue === true) // no forgery, else forged

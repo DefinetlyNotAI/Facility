@@ -1,12 +1,3 @@
-/*
-URL[Wifi Login] -> FOR HERE If not cookie[Wifi Unlocked] then 404, FOR HERE If cookie[wifi passed] redirect to URL[Wifi Panel]
-  * IF FIRST TIME -> CUTSCENE[Interference]
-  Generic login page, asks for username and password:
-  - Pass is written in the JS code and is able to be seen by the people in inspect, the hash should be easy to crack
-  - Username is in a html comment that says to go to a youtube vid to remember the username, the vid is just a basic reversed audio saying the username (itgrowshere)
-  When logged in create cookie[Wifi passed]
-*/
-
 "use client"
 
 import React, { useEffect, useState } from 'react';
@@ -21,6 +12,28 @@ const setCookie = (name: string, value: string, days = 365) => {
   const expires = new Date(Date.now() + days * 86400000).toUTCString();
   document.cookie = `${name}=${value}; path=/; expires=${expires}`;
 };
+
+const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({ onDismiss }) => {
+  useEffect(() => {
+    const timer = setTimeout(onDismiss, 6000); // Auto-dismiss after 6 seconds
+    return () => clearTimeout(timer);
+  }, [onDismiss]);
+
+  return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.85)', color: '#0f0', fontFamily: 'monospace',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
+        zIndex: 10000, flexDirection: 'column', padding: '2rem', textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '1.4rem', whiteSpace: 'pre-line' }}>
+          {'ACCESS GRANTED.\n\nBUT SOMETHING\nSTILL WATCHES...\n\nTRY CURLING THIS PAGE WITH PREFIX /api'}
+        </div>
+        <TypingCursor active={true} />
+      </div>
+  );
+};
+
 
 const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
   const [step, setStep] = useState(0);
@@ -80,6 +93,7 @@ const WifiLoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showCurlHint, setShowCurlHint] = useState(false);
 
   // On mount: check cookies and handle redirects + cutscene
   useEffect(() => {
@@ -90,7 +104,7 @@ const WifiLoginPage: React.FC = () => {
     }
     const wifiPassed = getCookie('wifi passed');
     if (wifiPassed) {
-      router.replace('/wifi-panel');
+      setShowCurlHint(true);
       return;
     }
     const cutsceneDone = getCookie('cutscene_seen');
@@ -114,16 +128,17 @@ const WifiLoginPage: React.FC = () => {
       return;
     }
 
-    // Password hash to match: e2f2a803878e98b0b440b3c071187f0c38ad17f2 ('trees')
-    if (sha1(password) !== 'e2f2a803878e98b0b440b3c071187f0c38ad17f2') {
-      setError('Invalid password.');
+    // Password hash to match: e6d7a4c1389cffecac2b41b4645a305dcc137e81 ('trees')
+    if (sha1(password.trim().toLowerCase()) !== 'e6d7a4c1389cffecac2b41b4645a305dcc137e81') {
+      setError(`Invalid password. Your hash: ${sha1(password)}`);
       return;
     }
 
     setLoading(true);
     setTimeout(() => {
       setCookie('wifi passed', 'true');
-      router.replace('/wifi-panel');
+      setShowCurlHint(true);
+      return;
     }, 1000);
   };
 
@@ -134,11 +149,14 @@ const WifiLoginPage: React.FC = () => {
       setCutsceneSeen(true);
     }} />;
   }
+  if (showCurlHint) {
+    return <CurlHintPopup onDismiss={() => router.replace('/wifi-panel')} />;
+  }
 
   return (
       <>
         {/* If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s */}
-        {/* Also the pass hash is e2f2a803878e98b0b440b3c071187f0c38ad17f2 */}
+        {/* Hash of the sha1 e6d7a4c1389cffecac2b41b4645a305dcc137e81 */}
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           height: '100vh', backgroundColor: '#111', color: '#0f0', fontFamily: 'monospace',
