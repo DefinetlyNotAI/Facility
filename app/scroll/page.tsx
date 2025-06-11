@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {signCookie} from "@/lib/cookie-utils";
 
 function getRandomFilename(length = 8) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -23,7 +24,7 @@ export default function ScrollPage() {
     const faviconRef = useRef<HTMLLinkElement | null>(null);
 
     useEffect(() => {
-        const unlocked = Cookies.get('Scroll unlocked');
+        const unlocked = Cookies.get('Scroll_unlocked');
         if (!unlocked) {
             router.replace('/404');
             return;
@@ -160,8 +161,8 @@ export default function ScrollPage() {
                             }}
                             onMouseEnter={() => setEscapeHovered(true)}
                             onMouseLeave={() => setEscapeHovered(false)}
-                            onClick={() => {
-                                Cookies.set('BnW unlocked', 'true');
+                            onClick={async () => {
+                                await signCookie('BnW_unlocked=true');
                                 router.push('/black-and-white');
                             }}
                         >

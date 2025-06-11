@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
+import {signCookie} from "@/lib/cookie-utils";
 
 const KEYWORD_1 = 'Whispers';  // From your flow
 
@@ -18,16 +19,21 @@ export default function WifiPanel() {
 
     // 404 and redirect logic
     useEffect(() => {
-        if (!Cookies.get('Wifi Unlocked')) {
+        if (!Cookies.get('Wifi_Unlocked')) {
             router.replace('/404');
             return;
         }
-        if (!Cookies.get('wifi passed')) {
-            Cookies.set('wifi login', 'true');
-            router.replace('/wifi-login');
-            return;
-        }
-        setMode('locked');
+
+        const checkWifiPassed = async () => {
+            if (!Cookies.get('wifi_passed')) {
+                await signCookie('wifi_login=true');
+                router.replace('/wifi-login');
+                return;
+            }
+            setMode('locked');
+        };
+
+        checkWifiPassed();
     }, [router]);
 
     // Generate the encoded question
@@ -57,7 +63,7 @@ export default function WifiPanel() {
         }
     };
 
-    const handleCaesarSubmit = () => {
+    const handleCaesarSubmit = async () => {
         const decoded = userAnswer
             .split('')
             .map((ch) => {
@@ -70,7 +76,7 @@ export default function WifiPanel() {
             })
             .join('');
         if (decoded === '76') {
-            Cookies.set('Media Unlocked', 'true');
+            await signCookie('Media_Unlocked=true');
             router.push('/media');
         } else {
             setErrorMsg('42 6F 74 68 20 61 20 66 6F 6F 6C 20 61 6E 64 20 61 6E 20 69 64 69 6F 74');

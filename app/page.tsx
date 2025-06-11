@@ -3,6 +3,7 @@
 import {useEffect, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
+import {signCookie} from "@/lib/cookie-utils";
 
 export default function RootPage() {
     const router = useRouter();
@@ -23,14 +24,14 @@ export default function RootPage() {
         }, 2000);
     }, [router]);
 
-    function handleAccept() {
-        Cookies.set("accepted", "true", {expires: 365});
+    async function handleAccept() {
+        await signCookie("accepted=true");
         setAccepted(true);
         setShowConsoleWarning(true);
 
         setTimeout(() => {
             router.replace("/home");
-        }, 8000);
+        }, 1000);
     }
 
     if (isLoading) {
@@ -85,8 +86,9 @@ export default function RootPage() {
                                     permissions
                                 </div>
                                 <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications, and
-                                    media permissions needed
+                                    <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications, camera
+                                    access, and
+                                    media permissions needed as well as allowance to download files.
                                 </div>
                                 <div className="terminal-line">
                                     <span className="terminal-prompt">SYSTEM:</span> Psychological evaluation protocols
@@ -144,19 +146,23 @@ export default function RootPage() {
                             <div className="terminal-content">
                                 <div className="terminal-line text-red-400">
                                     <span className="terminal-prompt">WARNING:</span> Developer console access STRICTLY
-                                    PROHIBITED
+                                    PROHIBITED - Unauthorized console usage may destroy the experience
                                 </div>
                                 <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Unauthorized console usage may
-                                    destroy the experience
-                                </div>
-                                <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Console commands may break puzzles
-                                    for you.
+                                    <span className="terminal-prompt">WARNING:</span> DO NOT MANUALLY MODIFY COOKIES TO
+                                    SKIP CERTAIN ASPECTS OF THE FACILITY
                                 </div>
                                 <div className="terminal-line text-yellow-400">
                                     <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when
-                                    explicitly instructed
+                                    explicitly instructed by the system.
+                                </div>
+                                <div className="terminal-line text-yellow-400">
+                                    <span className="terminal-prompt">NOTICE:</span> THIS IS NOT FOR EPILEPTIC PEOPLE
+                                </div>
+                                <div className="terminal-line text-yellow-400">
+                                    <span className="terminal-prompt">NOTICE:</span> The Facility heavily relies on
+                                    cookies for SAVE data. Please do not use incognito or delete the cookies or your
+                                    progress may be reset.
                                 </div>
                             </div>
                         </div>

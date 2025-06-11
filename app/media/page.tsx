@@ -16,6 +16,7 @@ import {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
+import {signCookie} from "@/lib/cookie-utils";
 
 const KEYWORD_2 = 'Fletchling';
 
@@ -29,14 +30,17 @@ export default function MediaPage() {
     const [dl2, setDl2] = useState(false);
 
     useEffect(() => {
-        if (!Cookies.get('Media Unlocked')) {
+        if (!Cookies.get('Media_Unlocked')) {
             router.replace('/404');
         }
     }, [router]);
 
     useEffect(() => {
         if (played && dl1 && dl2) {
-            Cookies.set('Button Unlocked', 'true');
+            const unlockButton = async () => {
+                await signCookie('Button_Unlocked=true');
+            };
+            unlockButton();
         }
     }, [played, dl1, dl2]);
 

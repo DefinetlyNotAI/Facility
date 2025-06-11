@@ -1,0 +1,49 @@
+export async function signCookie(data: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const res = await fetch('/api/sign-cookie', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({data}),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            return {success: false, error: errorData.error || 'Failed to sign cookie'};
+        }
+
+        return {success: true};
+    } catch (e) {
+        return {success: false, error: (e as Error).message};
+    }
+}
+
+export async function verifyCookie(request: Request): Promise<{ valid: boolean; data?: string; error?: string }> {
+    try {
+        const url = new URL('/api/verify-cookie', request.url); // Build absolute URL
+        const res = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                cookie: request.headers.get('cookie') || ''
+            }
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            return {valid: false, error: errorData.error || 'Failed to verify cookie'};
+        }
+
+        return await res.json();
+    } catch (e) {
+        return {valid: false, error: (e as Error).message};
+    }
+}
+
+
+export const cookiesList = [
+    'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'Corrupt',
+    'wifi_login', 'Media_Unlocked', 'Button_Unlocked', 'File_Unlocked',
+    'corrupting', 'No_corruption', 'BnW_unlocked', 'Choice_Unlocked',
+    'terminal_unlocked', 'End?', 'End',
+    'moonlight_time_cutscene_played',
+    'Interference_cutscene_seen', 'KILLTAS_cutscene_seen',
+];

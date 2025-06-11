@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {signCookie} from "@/lib/cookie-utils";
 
 const KEYWORD_5 = 'Echoes';
 
@@ -15,7 +16,7 @@ export default function BlackAndWhitePage() {
 
     // On mount: check cookie, else redirect 404
     useEffect(() => {
-        const unlocked = Cookies.get('BnW unlocked');
+        const unlocked = Cookies.get('BnW_unlocked');
         if (!unlocked) {
             router.replace('/404');
             return;
@@ -29,7 +30,7 @@ export default function BlackAndWhitePage() {
 
         const maxLength = 20;
 
-        const onKeyDown = (e: KeyboardEvent) => {
+        const onKeyDown = async (e: KeyboardEvent) => {
             if (e.key.length === 1) {
                 inputBufferRef.current += e.key.toLowerCase();
                 if (inputBufferRef.current.length > maxLength) {
@@ -38,7 +39,7 @@ export default function BlackAndWhitePage() {
 
                 if (inputBufferRef.current.endsWith(KEYWORD_5.toLowerCase())) {
                     if (window.innerWidth === 666 && window.innerHeight === 666) {
-                        Cookies.set('Choice Unlocked', 'true');
+                        await signCookie('Choice_Unlocked=true');
                         router.push('/choices');
                     } else {
                         setMessage('Incorrect screen size for unlocking choice.');
@@ -161,7 +162,7 @@ export default function BlackAndWhitePage() {
                     fontFamily: 'Courier New, monospace',
                 }}
             >
-                Type the correct keyword in the console to continue...
+                Type the correct keyword when the condition is right.
             </p>
         </div>
     );

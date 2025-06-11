@@ -16,6 +16,7 @@ The 1 cutscenes here: (These can only occur once per person, track using cookies
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {signCookie} from "@/lib/cookie-utils";
 
 type LocationInfo = {
     city: string;
@@ -50,7 +51,7 @@ const ChoicesPage = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        const hasAccess = Cookies.get('Choice Unlocked');
+        const hasAccess = Cookies.get('Choice_Unlocked');
         if (!hasAccess) {
             router.replace('/404');
         } else {
@@ -109,7 +110,7 @@ const ChoicesPage = () => {
         }, 120);
     };
 
-    const handleCutscene = () => {
+    const handleCutscene = async () => {
         if (cutscene || Cookies.get('KILLTAS_cutscene_seen')) {
             // If it's already seen, skip straight to terminal
             router.push('/terminal');
@@ -117,7 +118,7 @@ const ChoicesPage = () => {
         }
 
         setCutscene(true);
-        Cookies.set('KILLTAS_cutscene_seen', 'true', {expires: 7});
+        await signCookie('KILLTAS_cutscene_seen=true');
 
         const lines = [
             "A growing sapling yet for harvest...",
@@ -132,9 +133,9 @@ const ChoicesPage = () => {
             setTimeout(() => speak(line), idx * 5000);
         });
 
-        setTimeout(() => {
+        setTimeout(async () => {
             speak("FIGHT... [REDACTED]... BEFORE 25.");
-            Cookies.set('terminal unlocked', 'true', {expires: 7});
+            await signCookie('terminal_unlocked=true');
             router.push('/terminal');
         }, lines.length * 5000 + 3000);
     };

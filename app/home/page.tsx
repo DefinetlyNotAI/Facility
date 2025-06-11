@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {signCookie} from "@/lib/cookie-utils";
 
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
@@ -40,18 +41,23 @@ export default function Home() {
             return;
         }
 
-        // System initialization sequence
-        setTimeout(() => setSystemStatus('ONLINE'), 1000);
-        setTimeout(() => setSystemStatus('MONITORING'), 2000);
+        // Define and immediately invoke an async function inside the effect
+        const runAsync = async () => {
+            // System initialization sequence
+            setTimeout(() => setSystemStatus('ONLINE'), 1000);
+            setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
-        // todo add check if the next cookie was also unlocked, if true dont do this
-        if (Cookies.get('No corruption')) {
-            setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
-            setShowModal(true);
-            Cookies.set('Scroll unlocked', 'true');
-        }
+            // todo add check if the next cookie was also unlocked, if true dont do this
+            if (Cookies.get('No_corruption')) {
+                setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
+                setShowModal(true);
+                await signCookie('Scroll_unlocked=true');
+            }
 
-        setCountdown(Math.floor(Math.random() * 6) + 5);
+            setCountdown(Math.floor(Math.random() * 6) + 5);
+        };
+
+        runAsync();
 
         // Update facility data periodically
         const dataInterval = setInterval(() => {
@@ -65,6 +71,7 @@ export default function Home() {
 
         return () => clearInterval(dataInterval);
     }, [router]);
+
 
     useEffect(() => {
         if (countdown === null || countdown <= 0 || voiceTriggered) return;
@@ -101,11 +108,11 @@ export default function Home() {
     };
 
     useEffect(() => {
-        const checkTime = () => {
+        const checkTime = async () => {
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
             if (timeNow === '15:25') {
-                Cookies.set('Wifi Unlocked', 'true');
+                await signCookie('Wifi_Unlocked=true');
                 setModalMessage('Network access granted. Use curl/wget for a prize to the next ;)');
                 setShowModal(true);
                 setTimeout(() => router.push('/wifi-panel'), 3000);
@@ -128,13 +135,13 @@ export default function Home() {
             'KeyB', 'KeyA'
         ];
 
-        const handler = (e: KeyboardEvent) => {
+        const handler = async (e: KeyboardEvent) => {
             // Check current key against sequence
             if (e.code === sequence[indexRef.current]) {
                 indexRef.current++;
                 if (indexRef.current === sequence.length) {
-                    if (Cookies.get('File Unlocked')) {
-                        Cookies.set('Corrupt', 'true');
+                    if (Cookies.get('File_Unlocked')) {
+                        await signCookie('Corrupt=true');
                         setModalMessage('CRITICAL ERROR: System corruption detected. Initiating emergency protocols...');
                         setShowModal(true);
                         setTimeout(() => window.location.reload(), 3000);

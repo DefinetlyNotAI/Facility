@@ -3,15 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import Cookies from "js-cookie";
-
-const cookiesList = [
-    'accepted', 'Scroll unlocked', 'Wifi Unlocked', 'Corrupt',
-    'wifi login', 'Media Unlocked', 'Button Unlocked', 'File Unlocked',
-    'corrupting', 'No corruption', 'BnW unlocked', 'Choice Unlocked',
-    'terminal unlocked', 'End?', 'End',
-    'moonlight_time_cutscene_played',
-    'Interference_cutscene_seen', 'KILLTAS_cutscene_seen',
-];
+import {cookiesList, signCookie} from "@/lib/cookie-utils";
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {
@@ -44,7 +36,7 @@ export default function SmilekingClient() {
             .then(data => setButtonStates(data));
     }, []);
 
-    const toggleCookie = (name: string) => {
+    const toggleCookie = async (name: string) => {
         const allCookies = getCookiesMap();
         const isSet = allCookies.hasOwnProperty(name);
 
@@ -54,9 +46,10 @@ export default function SmilekingClient() {
         ];
 
         if (isSet) {
+            // Unset locally via document.cookie
             document.cookie = `${encodeURIComponent(name)}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
         } else {
-            document.cookie = `${encodeURIComponent(name)}=true; path=/`;
+            // Remove exclusive group conflicts
             for (const group of exclusivityGroups) {
                 if (group.includes(name)) {
                     for (const other of group) {
@@ -66,8 +59,16 @@ export default function SmilekingClient() {
                     }
                 }
             }
+
+            // Call signCookie to have the server set the signed cookie
+            const result = await signCookie(`${name}=true`);
+            if (!result.success) {
+                alert(`Failed to set cookie "${name}": ${result.error}`);
+                return;
+            }
         }
 
+        // Refresh local cookie state
         const updatedCookies = getCookiesMap();
         setCookieState(prev => {
             const newState = {...prev};
@@ -77,6 +78,7 @@ export default function SmilekingClient() {
             return newState;
         });
     };
+
 
     const pressButton = async (browser: string) => {
         const csrfToken = Cookies.get('csrf-token');

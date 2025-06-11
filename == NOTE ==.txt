@@ -2,7 +2,6 @@ https://bolt.new/~/github-yzoljzk4
 
 All pages:
 - add favicon.ico
-- change all /404 to forced, while normal 404 (aka the search bar isnt 404)
 
 Home:
 - Time doesn't exist here keeps on looping??? Audio
@@ -20,18 +19,12 @@ h0m3:
 - Don't replace letters/3rd person words added by h0m3, aka only replace/jumble the normal words not additional text
 - actually make it scroll/loop back and keep corrupting itself...
 
-Buttons:
-- just reset the buttons, make a script (py)
-
 file console:
 - add clear command,
 - implement wget to actually download said file,
 - sudo should be a jumpscare on the user,
 - help [command] should give command help
 - whoami should type it out slowly
-
-404:
-- wingdings shouldn't be disco...
 
 bnw:
 - the qr? should be sized to the normal qr
@@ -57,18 +50,5 @@ moonlight:
 
 
 extra:
-- page called jump where u can jump to certain pages as long as u have their cookie, also besides each one a reminder to Quests
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
 - add cheat detection and a callout for that
-- sign ALL cookies pages (maybe use utils.ts to make it a function?) and make them expire after a long time:
-
-// setup
-import * as cookieSignature from 'cookie-signature';
-const secret = process.env.COOKIE_SECRET; // keep this secret!
-
-// Create cookie:
-const signedValue = 's:' + cookieSignature.sign('myValue', secret);
-
-// Read cookie:
-const unsignedValue = cookieSignature.unsign(signedValue.slice(2), secret);
-if (unsignedValue === true) // no forgery, else forged

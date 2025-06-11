@@ -43,7 +43,7 @@ export default function FileConsole() {
     const consoleRef = useRef<HTMLPreElement>(null);
 
     useEffect(() => {
-        if (!Cookies.get('File Unlocked')) {
+        if (!Cookies.get('File_Unlocked')) {
             router.replace('/404');
             return;
         }

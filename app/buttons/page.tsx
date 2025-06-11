@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
+import {signCookie} from "@/lib/cookie-utils";
 
 const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'] as const;
 type BrowserName = typeof BROWSERS[number];
@@ -23,13 +24,13 @@ function HiddenFooter() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        if (Cookies.get('File Unlocked')) {
+        if (Cookies.get('File_Unlocked')) {
             setVisible(true);
         }
     }, []);
 
-    function handleUnlock() {
-        Cookies.set('File Unlocked', 'true', {expires: 7});
+    async function handleUnlock() {
+        await signCookie('File_Unlocked=true');
         setVisible(true);
     }
 
@@ -65,9 +66,9 @@ function HiddenFooter() {
                         userSelect: 'text',
                         pointerEvents: visible ? 'auto' : 'none',
                     }}
-                    onClick={(e) => {
+                    onClick={async (e) => {
                         e.stopPropagation();
-                        Cookies.set('File Unlocked', 'true', {expires: 7});
+                        await signCookie('File_Unlocked=true');
                     }}
                 >
                     /file-console
@@ -118,7 +119,7 @@ export default function ButtonsPage() {
     }, []);
 
     useEffect(() => {
-        const unlocked = Cookies.get('Button Unlocked');
+        const unlocked = Cookies.get('Button_Unlocked');
         if (!unlocked) {
             router.replace('/404');
         }
@@ -130,7 +131,7 @@ export default function ButtonsPage() {
 
         axios
             .get('/api/state')
-            .then((res) => {
+            .then(async (res) => {
                 const newStates: Record<BrowserName, boolean> = {
                     Chrome: false,
                     Firefox: false,
@@ -146,7 +147,7 @@ export default function ButtonsPage() {
                 setButtonStates(newStates);
 
                 if (Object.values(newStates).every(Boolean)) {
-                    Cookies.set('File Unlocked', 'true');
+                    await signCookie('File_Unlocked=true');
                 }
             })
             .catch(() => {
@@ -169,7 +170,7 @@ export default function ButtonsPage() {
             setButtonStates(updatedStates);
 
             if (Object.values(updatedStates).every(Boolean)) {
-                Cookies.set('File Unlocked', 'true');
+                await signCookie('File_Unlocked=true');
             }
         } catch {
             alert('This button has already been pressed or there was an error.');
