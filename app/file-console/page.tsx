@@ -22,32 +22,56 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
+import {fetchUserIP} from '@/utils/getUserInfo'; // adjust path as needed
 
 type Dirent = { name: string; type: 'file' | 'dir'; };
+const DUMMY_FILES: Dirent[] = Array.from({length: 6}, (_, i) => ({
+    name: `broken_shadow${i + 1}${Math.random() > 0.5 ? '.bin' : ''}`,
+    type: Math.random() > 0.4 ? 'file' : 'dir'
+}));
+
 const ROOT_FILES: Dirent[] = [
     {name: 'riddle.pdf', type: 'file'},
     {name: 'riddle-hint.txt', type: 'file'},
-    {name: 'code', type: 'dir'}
+    {name: 'code', type: 'dir'},
+    ...DUMMY_FILES
 ];
+
 const CODE_FILES: Dirent[] = [
     {name: 'robots.txt', type: 'file'},
-    {name: 'LETITGROW.tree', type: 'file'}
+    {name: 'LETITGROW.tree', type: 'file'},
+    {name: '.backup', type: 'file'},
+    {name: 'nullskin.swp', type: 'file'},
+    {name: 'tmp_env/', type: 'dir'},
+    {name: 'ERROR###.log', type: 'file'}
 ];
 
 export default function FileConsole() {
     const router = useRouter();
     const [cwd, setCwd] = useState('/');
-    const [history, setHistory] = useState<string[]>([]);
+    const [history, setHistory] = useState<string[]>([
+        '> FACILITY 3.15.25 BOOT SYSTEM [OK]',
+        '> Mounting /dev/TREE',
+        '> Syncing consciousness...',
+        '> Establishing dream-link...',
+        '> [TR33] AUTHORITY OVERRIDE DETECTED',
+        '> Welcome, VESSEL_31525'
+    ]);
     const [input, setInput] = useState('');
     const [booting, setBooting] = useState(true);
     const consoleRef = useRef<HTMLPreElement>(null);
+
+    const [ip, setIp] = useState<string>('0.0.0.0');
+    useEffect(() => {
+        fetchUserIP().then(setIp);
+    }, []);
 
     useEffect(() => {
         if (!Cookies.get('File_Unlocked')) {
             router.replace('/404');
             return;
         }
-        setTimeout(() => setBooting(false), 3000); // 3s boot animation
+        setTimeout(() => setBooting(false), 3000);
     }, [router]);
 
     const append = (line: string) => {
@@ -55,29 +79,82 @@ export default function FileConsole() {
         setTimeout(() => consoleRef.current?.scrollTo(0, consoleRef.current.scrollHeight), 0);
     };
 
+    const slowType = async (lines: string[], delay = 300) => {
+        for (const line of lines) {
+            await new Promise(r => setTimeout(r, delay));
+            append(line);
+        }
+    };
+
+    const downloadFile = (filename: string, content: string) => {
+        const blob = new Blob([content], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    };
+
     const execute = (raw: string) => {
-        append(`> ${raw}`);
+        append(`${cwd}$ ${raw}`);
         const [cmd, ...args] = raw.trim().split(' ');
+
         switch (cmd) {
-            case 'help':
-                append('Commands: ls, cat [file], wget [file], cd [dir]');
+            case 'clear':
+                setHistory([]);
                 break;
-            case 'ls': {
-                const list = cwd === '/'
-                    ? ROOT_FILES
-                    : cwd === '/code'
-                        ? CODE_FILES
-                        : [];
-                list.forEach(f => append(`${f.type === 'dir' ? f.name + '/' : f.name}`));
+
+            case 'help': {
+                if (args.length === 0) {
+                    append('Commands: ls, cd [dir], cat [file], wget [file], ██████, ████, clear, help [cmd]');
+                } else {
+                    const topic = args[0];
+                    switch (topic) {
+                        case 'help':
+                            append('help: YOU WILL NEED ALL THE HELP YOU CAN GET');
+                            break;
+                        case 'ls':
+                            append('ls: List directory contents');
+                            break;
+                        case 'cd':
+                            append('cd [dir]: Change directory');
+                            break;
+                        case 'cat':
+                            append('cat [file]: Output file contents');
+                            break;
+                        case 'wget':
+                            append('wget [file]: Download a file');
+                            break;
+                        case '██████':
+                            append('██████: Reveal your inner truth');
+                            break;
+                        case 'clear':
+                            append('clear: Clears the terminal screen');
+                            break;
+                        case '████':
+                            append('████: Don’t. Just don’t.');
+                            break;
+                        default:
+                            append(`help: no manual entry for ${topic}`);
+                    }
+                }
+                break;
             }
+
+            case 'ls': {
+                const list = cwd === '/' ? ROOT_FILES : cwd === '/code' ? CODE_FILES : [];
+                list.forEach(f => append(f.type === 'dir' ? f.name + '/' : f.name));
                 break;
+            }
+
             case 'cd': {
                 const [dir] = args;
                 if (cwd === '/' && dir === 'code') setCwd('/code');
                 else if (cwd === '/code' && dir === '..') setCwd('/');
                 else append('Directory not found');
-            }
                 break;
+            }
+
             case 'cat': {
                 const [fn] = args;
                 if (cwd === '/' && fn === 'riddle-hint.txt') {
@@ -143,44 +220,80 @@ export default function FileConsole() {
                 } else {
                     append('Cannot cat that file');
                 }
-            }
                 break;
+            }
+
             case 'wget': {
                 const [fn] = args;
                 if (cwd === '/' && fn === 'riddle.pdf') {
-                    append('Downloaded riddle.pdf');
+                    append('Downloading riddle.pdf...');
+                    downloadFile('riddle.pdf', '[PDF DUMMY CONTENT]');
                 } else if (cwd === '/' && fn === 'riddle-hint.txt') {
-                    append('Downloaded riddle-hint.txt');
+                    append('Downloading riddle-hint.txt...');
+                    downloadFile('riddle-hint.txt', 'the fitneSsgram pacEr...');
                 } else if (cwd === '/code' && fn === 'robots.txt') {
-                    append('Downloaded robots.txt');
+                    append('Downloading robots.txt...');
+                    downloadFile('robots.txt', '# robots.txt for http://...');
                 } else {
-                    append('Failed to download');
+                    append('wget: file not found');
                 }
-            }
                 break;
+            }
+
             case 'whoami':
-                append('No matter what its still you :)');
-                append('but... wH0 @R3 ¥0u?');
+                slowType([
+                    'No matter what, it’s still you :)',
+                    'but...',
+                    'wH0 @R3 ¥0u?'
+                ]);
                 break;
             case 'sudo':
-                // Trigger 500-style page or modal
-                append('You are NOT in control... IT IS');
+                append('[ROOT ACCESS ATTEMPT DETECTED]');
                 setTimeout(() => {
-                    throw new Error('Foolish user attempt to gain control');
-                }, 100);
+                    append('[ TRACE INITIATED... LOCATION FOUND ]');
+                    append(`> IP: ${ip}`);
+                    append(`> MAC: ██:██:██:██:██:██`);
+                    append('> Device: VESSEL_31525');
+                    append('> Personality Signature: ████████████');
+                    append('[ CONNECTION BREACHED ]');
+
+                    // Wait 5 seconds *after* IP trace
+                    setTimeout(() => {
+                        document.body.style.background = 'black';
+                        document.body.innerHTML = `
+                <div style="
+                    font-family: monospace;
+                    color: red;
+                    font-size: 2rem;
+                    padding: 2rem;
+                    text-align: center;
+                ">
+                    <p>❖ SYSTEM INFECTED ❖</p>
+                    <p>They are watching you through your screen.</p>
+                    <p>VESSEL ID: <span style="color:white">#31525</span></p>
+                    <p>HE is coming.</p>
+                    <p>HE is coming.</p>
+                    <p>HE is coming.</p>
+                    <p>HE is coming.</p>
+                    <p>HE is coming.</p>
+                    <p>PRAISE BE SMILE KING.</p>
+                </div>
+            `;
+                        const scream = new Audio('/sounds/scream.mp3');
+                        scream.play().catch(() => {
+                        });
+                        setTimeout(() => window.location.reload(), 4000);
+                    }, 5000); // 5 second wait here
+                }, 500); // Initial delay before IP trace
                 break;
-            default:
-                if (raw.trim()) append(`${cmd}: command not found`);
         }
     };
 
     return (
         <div className={styles.container}>
-      <pre ref={consoleRef} className={styles.console}>
-        {booting
-            ? 'Booting...\n'
-            : history.join('\n')}
-      </pre>
+            <pre ref={consoleRef} className={styles.console}>
+                {booting ? 'Booting...\n' : history.join('\n')}
+            </pre>
             {!booting && (
                 <form className={styles.form} onSubmit={(e) => {
                     e.preventDefault();
