@@ -97,7 +97,7 @@ export default function BlackAndWhitePage() {
                     zIndex: 9999,
                 }}
             >
-                [404]
+                [Type 404]
             </div>
 
             <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>

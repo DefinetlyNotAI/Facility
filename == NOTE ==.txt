@@ -20,11 +20,7 @@ h0m3:
 - actually make it scroll/loop back and keep corrupting itself...
 
 file console:
-- add clear command,
-- implement wget to actually download said file,
-- sudo should be a jumpscare on the user,
-- help [command] should give command help
-- whoami should type it out slowly
+- implement the new files to have content
 
 choices
 - REMAKE FULLY
