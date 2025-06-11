@@ -11,6 +11,7 @@ URL[The End] -> FOR HERE If not cookie[End?] or not cookie[End] then 404, FOR AL
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {signCookie} from "@/lib/cookie-utils";
 
 const KEYWORD_6 = "Unbirth"; // Replace with actual secret
 
@@ -98,23 +99,22 @@ export default function TheEnd() {
     }
 
     // Handle keyword 6 submission
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (input.trim() === KEYWORD_6) {
             Cookies.remove('End?');
-            Cookies.set('End', 'true');
+            await signCookie('End=true');
             setHasEndCookie(true);
             setHasEndQuestionCookie(false);
             setError('');
         } else {
-            setError('Incorrect keyword. Try again.');
+            setError('Incorrect keywords. Try again. Type the words only with space as your seperator');
         }
     }
 
     if (hasEndCookie) {
         return (
             <>
-                {/* Maniacal insane comments in HTML */}
                 {/*
           // These survivors never made it:
           // "They whispered secrets no one dared to hear."

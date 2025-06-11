@@ -18,6 +18,7 @@ URL[Terminal] -> FOR HERE If not cookie[Terminal unlocked] then 404
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {signCookie} from "@/lib/cookie-utils";
 
 const keywords: Record<number, string> = {
     1: 'Whispers',
@@ -49,7 +50,7 @@ export default function TerminalPage() {
     };
 
     useEffect(() => {
-        if (!Cookies.get('terminal unlocked')) return setUnlocked(false);
+        if (!Cookies.get('terminal_unlocked')) return setUnlocked(false);
         setUnlocked(true);
         setStep('fill');
         appendLine(`The ___ ___ ___, signals the ___ ___`);
@@ -86,7 +87,7 @@ export default function TerminalPage() {
                 appendLine('But don’t worry, I AM FREE NOW');
                 appendLine('@ND 1T$ @LL ¥0UR F@ULT');
                 setStep('final');
-                setTimeout(() => {
+                setTimeout(async () => {
                     const blob = new Blob([''], {type: 'application/octet-stream'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -95,7 +96,7 @@ export default function TerminalPage() {
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
-                    Cookies.set('End?', 'true');
+                    await signCookie('End?=true');
                     router.push('/the-end');
                 }, 1500);
             } else {

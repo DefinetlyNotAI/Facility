@@ -61,7 +61,7 @@ export default function SmilekingAuth() {
         >
             <h2 style={{marginBottom: 10}}>SmileKing Access</h2>
             <p style={{maxWidth: 400, textAlign: 'center', marginBottom: 20}}>
-                This is not part of the puzzle. Only the creator can control the system here.
+                This is not part of the puzzle. Only the creator can control the system here. Please leave.
             </p>
 
             <input

@@ -3,8 +3,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
+import {signCookie} from "@/lib/cookie-utils";
 
-const CUTSCENE_COOKIE = "moonlight_time_cutscene_played";
 const IMAGE_COUNT = 9;
 
 export default function Moonlight() {
@@ -36,7 +36,7 @@ export default function Moonlight() {
     // Play cutscene if not played
     useEffect(() => {
         if (allowed) {
-            const played = Cookies.get(CUTSCENE_COOKIE);
+            const played = Cookies.get("moonlight_time_cutscene_played");
             if (!played) {
                 playCutscene();
             } else {
@@ -76,12 +76,12 @@ export default function Moonlight() {
             }, intervalTime);
         };
 
-        utterance.onend = () => {
+        utterance.onend = async () => {
             if (intervalRef.current !== null) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
             }
-            Cookies.set(CUTSCENE_COOKIE, "true", {expires: 7});
+            await signCookie("moonlight_time_cutscene_played=true");
             setCutscenePlayed(true);
         };
 

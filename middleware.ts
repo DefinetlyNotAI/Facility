@@ -1,7 +1,8 @@
 import type {NextRequest} from 'next/server'
 import {NextResponse} from 'next/server'
+import {verifyCookie} from "@/lib/cookie-utils";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const {pathname} = request.nextUrl
 
     if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
@@ -11,12 +12,20 @@ export function middleware(request: NextRequest) {
     const accepted = request.cookies.get('accepted')?.value
     const end = request.cookies.get('End')
     const corrupting = request.cookies.get('corrupting')
+    const result = await verifyCookie(request);
 
     // Redirect priority order:
     // If not smileking or smileking-auth
-    if (pathname !== '/smileking' && pathname !== '/smileking-auth') {
+    if (pathname !== '/smileking' && pathname !== '/smileking-auth' && pathname !== '/CHEATER') {
+        // Cheater due to invalid cookies
+        if (result.error) {
+            console.error(`ERROR RESULT -> ${result.error}`)
+        } else if (!result.valid) {
+            return NextResponse.redirect(new URL('/CHEATER', request.url));
+        }
+
         // 1. Else if accepted cookie is not true, redirect to / (unless already there)
-        if (accepted !== 'true') {
+        if (!accepted) {
             if (pathname !== '/') {
                 return NextResponse.redirect(new URL('/', request.url))
             } else {

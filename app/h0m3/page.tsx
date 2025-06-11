@@ -18,6 +18,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
+import {signCookie} from "@/lib/cookie-utils";
 
 const binaryCorruptText = "Last time thou hesitated, it found thine";
 const hexCorruptText = "0x6666";
@@ -50,7 +51,7 @@ export default function H0m3() {
     useEffect(() => {
         const corrupt = Cookies.get('Corrupt');
         const corrupting = Cookies.get('corrupting');
-        const noCorrupt = Cookies.get('No corruption');
+        const noCorrupt = Cookies.get('No_corruption');
 
         if ((!corrupt && !corrupting) || noCorrupt) {
             router.replace('/');
@@ -91,8 +92,8 @@ export default function H0m3() {
                 <button
                     className={styles.hiddenButton}
                     aria-label="Hidden corrupt button"
-                    onClick={() => {
-                        Cookies.set('corrupting', 'true');
+                    onClick={async () => {
+                        await signCookie('corrupting=true');
                         router.replace('/h0m3');
                     }}
                 >
@@ -149,10 +150,10 @@ export default function H0m3() {
                     </p>
                     <button
                         className={styles.resetButton}
-                        onClick={() => {
+                        onClick={async () => {
                             Cookies.remove('Corrupt');
                             Cookies.remove('corrupting');
-                            Cookies.set('No corruption', 'true');
+                            await signCookie('No_corruption=true');
                             router.replace('/');
                         }}
                     >
