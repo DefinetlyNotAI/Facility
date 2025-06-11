@@ -56,6 +56,7 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
+                        sessionStorage.setItem("legalMoon", "true");
                         router.push('/moonlight');
                     } else {
                         router.push('/404');
@@ -68,9 +69,7 @@ export default function BlackAndWhitePage() {
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [bnwUnlocked, router]);
 
-    if (bnwUnlocked === null) {
-        return null;
-    }
+    if (bnwUnlocked === null) return null;
 
     return (
         <div
@@ -84,7 +83,7 @@ export default function BlackAndWhitePage() {
                 overflowY: 'auto',
             }}
         >
-            {/* Barely visible top-left corner 404 */}
+            {/* Hidden 404 Corner */}
             <div
                 style={{
                     position: 'fixed',
@@ -94,47 +93,80 @@ export default function BlackAndWhitePage() {
                     color: 'rgba(255,255,255,0.05)',
                     padding: '0.25rem',
                     fontWeight: 'bold',
-                    userSelect: 'none',
                     pointerEvents: 'none',
                     zIndex: 9999,
-                    fontFamily: 'Courier New, monospace',
                 }}
             >
                 [404]
             </div>
 
             <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>
-                The Black and White Page
+                Black like the Night, White like the day - Bleed child, Smile king - Weep thrice but feel twice
             </h1>
 
+            {/* QR Codes Side-by-Side */}
             <div
                 style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    gap: '4rem',
+                    alignItems: 'center',
+                    gap: '2rem',
                     flexWrap: 'wrap',
                 }}
             >
-                {/* Image 1 QR code */}
-                <figure style={{maxWidth: '300px', textAlign: 'center'}}>
+                {/* Image 1 */}
+                <figure style={{
+                    width: '500px',
+                    height: '500px',
+                    textAlign: 'center',
+                    backgroundColor: '#111',
+                    padding: '1rem',
+                    border: '2px solid #444',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
                     <img
                         src="/black-and-white/qr.png"
                         alt="QR Code"
-                        style={{width: '100%', height: 'auto', userSelect: 'none'}}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            userSelect: 'none',
+                        }}
                         draggable={false}
                     />
                     <figcaption style={{marginTop: '0.5rem'}}>QR code</figcaption>
                 </figure>
 
-                {/* Image 2 QR code */}
-                <figure style={{maxWidth: '300px', textAlign: 'center'}}>
+                {/* Image 2 */}
+                <figure style={{
+                    width: '500px',
+                    height: '500px',
+                    textAlign: 'center',
+                    backgroundColor: '#fff',
+                    padding: '1rem',
+                    border: '2px solid #ccc',
+                    boxShadow: '0 0 10px rgba(0,0,0,0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
                     <img
                         src="/black-and-white/qr-doppelganger.png"
                         alt="QR Code Doppelganger"
-                        style={{width: '100%', height: 'auto', userSelect: 'none'}}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            userSelect: 'none',
+                        }}
                         draggable={false}
                     />
-                    <figcaption style={{marginTop: '0.5rem'}}>QR?</figcaption>
+                    <figcaption style={{marginTop: '0.5rem', fontSize: '0.9rem'}}>QR?</figcaption>
                 </figure>
             </div>
 
@@ -159,7 +191,6 @@ export default function BlackAndWhitePage() {
                     fontSize: '0.8rem',
                     color: '#555',
                     userSelect: 'none',
-                    fontFamily: 'Courier New, monospace',
                 }}
             >
                 Type the correct keyword when the condition is right.

@@ -21,6 +21,7 @@ export default function Glitchy404() {
 
     useEffect(() => {
         if (showMoonlight) {
+            sessionStorage.setItem("legalMoon", "true");
             router.push("/moonlight");
         }
     }, [showMoonlight, router]);

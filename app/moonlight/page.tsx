@@ -18,13 +18,20 @@ export default function Moonlight() {
 
     // Check if user came from 404 or has cookie
     useEffect(() => {
-        const ref = document.referrer;
-        if (ref.includes("/404")) {
-            setAllowed(true);
+        let ran = false;
+
+        if (!ran) {
+            const cameFrom = sessionStorage.getItem("legalMoon");
+            if (cameFrom === "true") {
+                setAllowed(true);
+                sessionStorage.removeItem("legalMoon");
+            }
+            // noinspection JSUnusedAssignment
+            ran = true;
         } else {
             router.replace("/404");
         }
-    }, [router]);
+    }, []);
 
     // Decide moon color on mount (1/666 chance red)
     useEffect(() => {

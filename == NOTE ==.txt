@@ -26,10 +26,6 @@ file console:
 - help [command] should give command help
 - whoami should type it out slowly
 
-bnw:
-- the qr? should be sized to the normal qr
-- double check moonlight is actually accessible
-
 choices
 - REMAKE FULLY
 
