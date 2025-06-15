@@ -19,10 +19,8 @@ h0m3:
 - Don't replace letters/3rd person words added by h0m3, aka only replace/jumble the normal words not additional text
 - actually make it scroll/loop back and keep corrupting itself...
 
-terminal
-- the "The ___ ___ ___, signals the ___ ___" is shown twice?
-- REMAKE FULLY
-- save vessel.exe in download folder
+choices
+- ADD CUTSCENE
 
 the end:
 - add the required media
