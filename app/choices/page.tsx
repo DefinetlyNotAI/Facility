@@ -3,6 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
+import {VNTextRenderer} from "@/components/text";
 
 // Secret input triggers (retained)
 const CHOICE_KEYWORDS = [
@@ -180,7 +181,16 @@ export default function ChoicesPage() {
 
         "I am forgotten.",
         "I am hollow.",
-        "I am the echo in the void."
+        "I am the echo in the void.",
+
+        "So praise be little one",
+        "PRAISE BE SMILE KING",
+        "WEEP THE SACRED NUMBER",
+        "THE NUMBER OF THE BIRTH",
+
+        "DONT CONNECT TO TERMINAL NUMBER ███",
+        "DONT SMILE",
+        "GOODBYE"
     ];
 
     function triggerEgg(message: string) {
@@ -381,38 +391,8 @@ export default function ChoicesPage() {
                 fontSize: '0.75rem',
                 color: '#888'
             }}>
-                EASTER EGGS: {easterEggs.length} / 15
+                EGGS AND SEEDS: {easterEggs.length} / 15
             </div>
         </div>
     );
 }
-
-const VNTextRenderer = ({text}: { text: string }) => {
-    const [displayedText, setDisplayedText] = useState('');
-    const indexRef = useRef(0);
-    const textRef = useRef(text);
-
-    useEffect(() => {
-        textRef.current = text;
-        indexRef.current = 0;
-        setDisplayedText('');
-
-        const interval = setInterval(() => {
-            if (indexRef.current >= textRef.current.length) {
-                clearInterval(interval);
-                return;
-            }
-            const nextChar = textRef.current.charAt(indexRef.current);
-            setDisplayedText(prev => prev + nextChar);
-            indexRef.current++;
-        }, 20);
-
-        return () => clearInterval(interval);
-    }, [text]);
-
-    return (
-        <p style={{textAlign: 'center', margin: '0 auto', maxWidth: '600px'}}>
-            {displayedText}
-        </p>
-    );
-};
