@@ -4,6 +4,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
 import {VNTextRenderer} from "@/components/text";
+import {TASCutscene} from './playTASFinalCutscene';
 
 // Secret input triggers (retained)
 const CHOICE_KEYWORDS = [
@@ -65,13 +66,12 @@ const CHOICE_KEYWORDS = [
     },
 ];
 
-
 const getOS = (): string => {
     const platform = window.navigator.platform.toLowerCase();
     if (platform.includes('mac')) return 'macOS';
     if (platform.includes('win')) return 'Windows';
     if (platform.includes('linux')) return 'Linux';
-    return 'Unknown OS';
+    return 'unknown';
 };
 
 export default function ChoicesPage() {
@@ -85,7 +85,11 @@ export default function ChoicesPage() {
     const [deletingInput, setDeletingInput] = useState(false);
     const [expandedDialogueMode, setExpandedDialogueMode] = useState(false);
     const [onFinalDialogueComplete, setOnFinalDialogueComplete] = useState<(() => void) | null>(null);
-
+    const [cutsceneActive, setCutsceneActive] = useState(false);
+    const [showSkipButton, setShowSkipButton] = useState(false);
+    const [isPunishmentActive, setIsPunishmentActive] = useState(false);
+    const [punishmentSecondsLeft, setPunishmentSecondsLeft] = useState(60);
+    const [skipLocked, setSkipLocked] = useState(false);
     const triggeredEggs = useRef<Set<string>>(new Set());
     const expandedDialogue = [
         "The forest is not a place. It is a state of becoming.",
@@ -192,6 +196,8 @@ export default function ChoicesPage() {
         "DONT SMILE",
         "GOODBYE"
     ];
+    const skipHandlerRef = useRef<(() => void) | null>(null);
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
     function triggerEgg(message: string) {
         if (triggeredEggs.current.has(message)) return;
@@ -222,11 +228,13 @@ export default function ChoicesPage() {
                 return;
             }
 
+            const isAgainFlag = !!Cookies.get('terminal_unlocked');
+
             try {
                 const res = await fetch('https://ipapi.co/json');
                 const loc = await res.json();
                 const base = [
-                    `Hello again.`,
+                    `Hello${isAgainFlag ? ' 𝙖𝙜𝙖𝙞𝙣.. Forgot to read something?' : ''}.`,
                     `You're on a ${getOS()} machine... \nUsing ${getBrowserName()} as the temporary VESSEL`,
                     `I see you.. \nLiving in ${loc.city}, ${loc.region}, ${loc.country_name}.`,
                     `You're not hidden. \nYou never were.`,
@@ -246,21 +254,24 @@ export default function ChoicesPage() {
     }, [router]);
 
     const next = () => {
+        // Prevent advancing dialogue if in punishment or skip-locked state
+        if (isPunishmentActive || skipLocked) return;
+
         if (dialogueIndex < dialogue.length - 1) {
             setDialogueIndex(d => d + 1);
         } else {
-            // If we are showing expandedDialogue and there's a callback, run it
+            // End of expanded dialogue: trigger final logic
             if (expandedDialogueMode && onFinalDialogueComplete) {
                 onFinalDialogueComplete();
                 setOnFinalDialogueComplete(null);
                 setExpandedDialogueMode(false);
                 return;
             }
+
+            // Re-enable input
             setInputActive(true);
         }
     };
-
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
     const showDialogueSequence = async (lines: string[], onComplete?: () => void) => {
         setInputActive(false);
@@ -271,61 +282,105 @@ export default function ChoicesPage() {
             await delay(2000);
         }
         if (onComplete) onComplete();
-        else setInputActive(true);
     };
 
     const onSubmit = () => {
         const matched = CHOICE_KEYWORDS.find(k => k.match.test(input));
 
-        if (matched) {
-            triggerEgg(matched.message);
-
-            if (/who are you/i.test(input)) {
-                (async () => {
-                    await showDialogueSequence(
-                        [
-                            "HOW DID YOU KNOW WHAT YOU WOULD ASK?",
-                            "Well... IT DOESNT MATTER NOW."
-                        ]
-                    );
-                    setExpandedDialogueMode(true);
-                    setDialogue(expandedDialogue);
-                    setDialogueIndex(0);
-                    setInputActive(false);
-                    await signCookie('terminal_unlocked=true');
-                    setOnFinalDialogueComplete(() => () => router.push('/terminal'));
-                })();
+        // Final step: Terminal unlock and cutscene logic
+        const finalizeTerminalUnlock = async () => {
+            await signCookie('terminal_unlocked=true');
+            if (!Cookies.get('KILLTAS_cutscene_seen')) {
+                setCutsceneActive(true); // triggers <TASCutscene />
             } else {
-                setDialogue([matched.message]);
-                setDialogueIndex(0);
-                setTimeout(() => setInputActive(true), 2500);
+                router.push('/terminal');
             }
-        } else {
+        };
+
+        // Triggers base dialogue + expanded dialogue after
+        const triggerFinalSequence = async (lines: string[]) => {
+            try {
+                setInputActive(false);
+                await showDialogueSequence(lines); // initial short lines
+                await proceedToExpandedDialogue(); // long dialogue
+            } catch (e) {
+                // handles interruption/skips
+            }
+        };
+
+        // Extended monologue phase — no unlock here
+        const proceedToExpandedDialogue = async () => {
+            setShowSkipButton(true);
+            setExpandedDialogueMode(true);
+            setDialogue(expandedDialogue);
+            setDialogueIndex(0);
+            setInputActive(false);
+
+            // When dialogue ends, unlock terminal + cutscene if needed
+            setOnFinalDialogueComplete(() => finalizeTerminalUnlock);
+        };
+
+        // When user skips → punishment → *then* cutscene or terminal
+        skipHandlerRef.current = () => {
+            if (skipLocked) return; // prevent double skip triggers
+            setSkipLocked(true); // lock further inputs/clicks
+            setShowSkipButton(false);
+            setIsPunishmentActive(true);
+            setDialogue([
+                "Oh. You [[𝒔𝒌𝒊𝒑]] things? \n Fine. If you won’t listen... \n ...you’ll [[𝒘𝒂𝒊𝒕]]",
+            ]);
+
+            // Ensure dialogue renders before countdown starts
+            setTimeout(() => {
+                let seconds = 60;
+                setPunishmentSecondsLeft(seconds);
+
+                const countdown = setInterval(() => {
+                    seconds--;
+                    setPunishmentSecondsLeft(seconds);
+
+                    if (seconds <= 0) {
+                        clearInterval(countdown);
+                        setIsPunishmentActive(false);
+                        setDialogueIndex(0);
+                        setInputActive(false);
+                        finalizeTerminalUnlock().catch(console.error); // trigger only after punishment
+                    }
+                }, 1000);
+            }, 300); // short delay to allow text render before countdown
+        };
+
+        // Bad input → delete input → trigger fallback dialogue
+        const handleInputDeleteSequence = () => {
             let index = input.length;
             setDeletingInput(true);
             const deleter = setInterval(() => {
                 index--;
                 if (index < 0) {
                     clearInterval(deleter);
-                    (async () => {
-                        await showDialogueSequence(
-                            [
-                                "Well... IT DOESNT MATTER NOW."
-                            ],
-                            async () => {
-                                setExpandedDialogueMode(true);
-                                setDialogue(expandedDialogue);
-                                setDialogueIndex(0);
-                                setInputActive(false);
-                                await signCookie('terminal_unlocked=true');
-                                setOnFinalDialogueComplete(() => () => router.push('/terminal'));
-                            }
-                        );
-                    })();
+                    triggerFinalSequence(["Well... IT DOESN’T MATTER NOW."]).catch(console.error);
                     return;
                 }
                 setInput(input.slice(0, index));
-            }, 1000);
+            }, 500);
+        };
+
+        // Main logic branch
+        if (matched) {
+            triggerEgg(matched.message);
+
+            if (/who are you/i.test(input)) {
+                triggerFinalSequence([
+                    "HOW DID YOU KNOW WHAT YOU WOULD ASK?",
+                    "Well... IT DOESN’T MATTER NOW."
+                ]).catch(console.error);
+            } else {
+                setDialogue([matched.message]);
+                setDialogueIndex(0);
+                setTimeout(() => setInputActive(true), 2500);
+            }
+        } else {
+            handleInputDeleteSequence();
         }
     };
 
@@ -341,58 +396,104 @@ export default function ChoicesPage() {
             flexDirection: 'column',
             justifyContent: 'space-between'
         }}>
-            <div onClick={next} style={{
-                cursor: 'pointer',
-                userSelect: 'none',
-                whiteSpace: 'pre-wrap',
-                fontSize: '1.25rem',
-                minHeight: '300px',
-                paddingBottom: '20px'
-            }}>
-                <VNTextRenderer text={dialogue[dialogueIndex] || ''}/>
-                {!inputActive &&
-                    <p style={{textAlign: 'center', color: '#888', fontSize: '0.85rem'}}>Click to continue...</p>}
-            </div>
+            {!cutsceneActive && (
+                <>
+                    {/* Main Dialogue Section */}
+                    <div onClick={next} style={{
+                        cursor: isPunishmentActive ? 'default' : 'pointer', // disable clicking during punishment
+                        userSelect: 'none',
+                        whiteSpace: 'pre-wrap',
+                        fontSize: '1.25rem',
+                        minHeight: '300px',
+                        paddingBottom: '20px'
+                    }}>
+                        <VNTextRenderer text={dialogue[dialogueIndex] || ''}/>
+                        {!inputActive && !isPunishmentActive &&
+                            <p style={{textAlign: 'center', color: '#888', fontSize: '0.85rem'}}>Click to
+                                continue...</p>}
+                    </div>
 
-            {inputActive && (
-                <div>
-                    <input
-                        style={{
-                            width: '100%',
-                            background: 'black',
-                            color: '#0f0',
-                            border: '1px solid #0f0',
-                            fontFamily: 'monospace',
-                            fontSize: '1rem',
-                            padding: '10px'
-                        }}
-                        type="text"
-                        value={typingOverride || input}
-                        onChange={(e) => {
-                            if (!deletingInput) {
-                                setInput(e.target.value);
-                                setTypingOverride('');
-                            }
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !deletingInput) onSubmit();
-                        }}
-                        placeholder="Say something to the Entity..."
-                    />
-                    <p style={{fontSize: '0.85rem', color: '#555', marginTop: '5px'}}>You get one shot. Choose
-                        wisely.</p>
-                </div>
+                    {/* Input Field */}
+                    {inputActive && !isPunishmentActive && (
+                        <div>
+                            <input
+                                style={{
+                                    width: '100%',
+                                    background: 'black',
+                                    color: '#0f0',
+                                    border: '1px solid #0f0',
+                                    fontFamily: 'monospace',
+                                    fontSize: '1rem',
+                                    padding: '10px'
+                                }}
+                                type="text"
+                                value={typingOverride || input}
+                                onChange={(e) => {
+                                    if (!deletingInput) {
+                                        setInput(e.target.value);
+                                        setTypingOverride('');
+                                    }
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !deletingInput) onSubmit();
+                                }}
+                                placeholder="Say something to the Entity..."
+                                disabled={isPunishmentActive} // disable input if punishment active
+                            />
+                            <p style={{fontSize: '0.85rem', color: '#555', marginTop: '5px'}}>You get one shot. Choose
+                                wisely.</p>
+                        </div>
+                    )}
+
+                    {/* SKIP BUTTON - show only when allowed */}
+                    {showSkipButton && !isPunishmentActive && (
+                        <button
+                            onClick={() => skipHandlerRef.current?.()}
+                            style={{
+                                marginTop: '1rem',
+                                padding: '10px 20px',
+                                backgroundColor: '#0f0',
+                                color: '#000',
+                                fontFamily: 'monospace',
+                                cursor: 'pointer',
+                                border: 'none',
+                                borderRadius: '4px',
+                                alignSelf: 'center'
+                            }}
+                        >
+                            Skip
+                        </button>
+                    )}
+
+                    {/* PUNISHMENT TIMER */}
+                    {isPunishmentActive && (
+                        <div style={{
+                            marginTop: '1rem',
+                            color: 'red',
+                            fontWeight: 'bold',
+                            fontSize: '1.5rem',
+                            textAlign: 'center',
+                            fontFamily: 'monospace'
+                        }}>
+                            You chose to skip. <br/>
+                            <span style={{fontSize: '2.5rem'}}>{punishmentSecondsLeft}</span> seconds remaining.<br/>
+                        </div>
+                    )}
+
+                    {/* Egg Tracker */}
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '10px',
+                        right: '10px',
+                        fontSize: '0.75rem',
+                        color: '#888'
+                    }}>
+                        EGGS AND SEEDS: {easterEggs.length} / 15
+                    </div>
+                </>
             )}
-
-            <div style={{
-                position: 'fixed',
-                bottom: '10px',
-                right: '10px',
-                fontSize: '0.75rem',
-                color: '#888'
-            }}>
-                EGGS AND SEEDS: {easterEggs.length} / 15
-            </div>
+            {/* TAS Death Cutscene Overlay */}
+            {cutsceneActive && <TASCutscene onFinish={() => router.push('/terminal')}/>}
         </div>
     );
 }

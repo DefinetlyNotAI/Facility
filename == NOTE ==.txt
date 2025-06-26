@@ -1,5 +1,3 @@
-https://bolt.new/~/github-yzoljzk4
-
 All pages:
 - add favicon.ico
 
@@ -20,7 +18,7 @@ h0m3:
 - actually make it scroll/loop back and keep corrupting itself...
 
 choices
-- ADD CUTSCENE
+todo: the audio is weird and repeating, and cutscene dialogue is just not progressing, audio should play when needed
 
 the end:
 - add the required media
