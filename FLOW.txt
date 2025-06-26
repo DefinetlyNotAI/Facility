@@ -124,9 +124,6 @@ URL[Choices] -> FOR HERE If not cookie Choice_Unlocked then redirect to /404
     The 1 cutscenes here: (These can only occur once per person, track using cookie KILLTAS_cutscene_seen)
     - Bye Cruel World: TAS slowly breaks down and deteriorates, file deletion sounds play, etc, then final TTS audio says “FIGHT {CENSOR BLEEP} BEFORE 25”
 
-    To get cookies its the same Cookies.get('NAME');
-    To create cookie use 'await signCookie('NAME=VALUE_WHICH_IS_USUALLY_TRUE');' (import {signCookie} from "@/lib/cookie-utils";)
-
 URL[Terminal] -> FOR HERE If not cookie[Terminal unlocked] then 404
   Terminal asks for all the 5 keywords to be inputted
   - The terminal will ask for the keyword in the following fill-the-blank format: "The ___ ___ ___, signals the ___ ___" where the correct order is [2, 1, 5, 3, 4]

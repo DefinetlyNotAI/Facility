@@ -17,27 +17,6 @@ export async function signCookie(data: string): Promise<{ success: boolean; erro
     }
 }
 
-export async function verifyCookie(request: Request): Promise<{ valid: boolean; data?: string; error?: string }> {
-    try {
-        const url = new URL('/api/verify-cookie', request.url); // Build absolute URL
-        const res = await fetch(url.toString(), {
-            method: 'GET',
-            headers: {
-                cookie: request.headers.get('cookie') || ''
-            }
-        });
-
-        if (!res.ok) {
-            const errorData = await res.json();
-            return {valid: false, error: errorData.error || 'Failed to verify cookie'};
-        }
-
-        return await res.json();
-    } catch (e) {
-        return {valid: false, error: (e as Error).message};
-    }
-}
-
 
 export const cookiesList = [
     'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'Corrupt',
