@@ -9,7 +9,7 @@ const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 0111001
 const hexCode = "0x31353a3235"; // 15:25
 
 const secretPhrases = [
-    'smileking', 'vessel', 'tree', 'neural', 'facility', 'echo', 'whisper', 
+    'smileking', 'vessel', 'tree', 'neural', 'facility', 'echo', 'whisper',
     'root', 'branch', 'consciousness', 'temporal', 'reality', 'void', 'shadow', 'memory'
 ];
 
@@ -28,7 +28,7 @@ interface HomeClientProps {
 
 export default function HomeClient({ initialCookies }: HomeClientProps) {
     const router = useRouter();
-    
+
     // State management
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
@@ -52,7 +52,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
     const [blinkingMode, setBlinkingMode] = useState(false);
     const [colorInverted, setColorInverted] = useState(false);
     const [showInvertToggle, setShowInvertToggle] = useState(false);
-    
+
     // Refs for tracking
     const typingBuffer = useRef('');
     const konamiIndex = useRef(0);
@@ -65,22 +65,22 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         const savedLogsUnlocked = localStorage.getItem('facilityLogsUnlocked') === 'true';
         const savedBlinking = localStorage.getItem('facilityBlinking') === 'true';
         const savedInverted = localStorage.getItem('facilityInverted') === 'true';
-        
+
         setRefreshCount(savedRefreshCount + 1); // Increment on page load
         setUniqueInteractions(new Set(savedInteractions));
         setLogsUnlocked(savedLogsUnlocked);
         setBlinkingMode(savedBlinking);
         setColorInverted(savedInverted);
-        
+
         // Save updated refresh count
         localStorage.setItem('facilityRefreshCount', (savedRefreshCount + 1).toString());
-        
+
         // Check for refresh count milestones
         const newRefreshCount = savedRefreshCount + 1;
         if (newRefreshCount === 3 || newRefreshCount === 15 || newRefreshCount === 25) {
             setTimeout(() => playRefreshTTS(newRefreshCount), 2000);
         }
-        
+
         // Apply visual effects
         if (savedInverted) {
             document.body.style.filter = 'invert(1) hue-rotate(180deg)';
@@ -225,10 +225,10 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             const newInteractions = new Set(uniqueInteractions);
             newInteractions.add(id);
             setUniqueInteractions(newInteractions);
-            
+
             // Save to localStorage
             localStorage.setItem('facilityInteractions', JSON.stringify([...newInteractions]));
-            
+
             // Check milestones
             const count = newInteractions.size;
             if (count === 3) {
@@ -308,6 +308,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
                         <div className="facility-logo" onClick={() => handleClick('logo')}>
+                            <br/>
                             <div className="text-green-400 text-2xl font-mono font-bold cursor-pointer">
                                 FACILITY 05-B
                             </div>
@@ -315,6 +316,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                 <div className="status-dot"></div>
                                 <span>{systemStatus}</span>
                             </div>
+                            <br/>
                         </div>
                         <div className="facility-time" onClick={() => handleClick('time')}>
                             <div className="text-green-400 font-mono text-sm cursor-pointer">
@@ -452,8 +454,8 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                 {logsUnlocked ? (
                                     <div className="logs-container">
                                         {researchLogs.slice(0, 3).map((log) => (
-                                            <div 
-                                                key={log.id} 
+                                            <div
+                                                key={log.id}
                                                 className={`log-entry ${log.corrupted ? 'corrupted' : ''}`}
                                                 onClick={() => handleClick(`log_${log.id}`)}
                                             >
@@ -546,7 +548,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
 
             {/* Background Audio */}
             <audio ref={audioRef} loop>
-                <source src="/audio/sweethome.mp3" type="audio/mpeg" />
+                <source src="/sfx/home/sweethome.mp3" type="audio/mpeg" />
             </audio>
         </div>
     );
