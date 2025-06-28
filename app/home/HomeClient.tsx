@@ -45,18 +45,13 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [currentTime, setCurrentTime] = useState<string>('');
     const [mounted, setMounted] = useState(false);
     
-    // Easter Egg States
-    const [accessAttempts, setAccessAttempts] = useState(23);
-    const [lastAccessTime, setLastAccessTime] = useState<string>('');
-    const [easterEggTriggered, setEasterEggTriggered] = useState<Set<number>>(new Set());
+    // Easter Egg States - Refresh Based Only
+    const [refreshCount, setRefreshCount] = useState(0);
     const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
-    const [glitchMode, setGlitchMode] = useState(false);
-    const [secretTypingBuffer, setSecretTypingBuffer] = useState('');
     
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
     const ttsTriggeredRef = useRef(false);
-    const accessAttemptsRef = useRef(23);
 
     // Handle client-side mounting and time updates
     useEffect(() => {
@@ -69,12 +64,15 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Load access attempts from localStorage
-        const savedAttempts = localStorage.getItem('facilityAccessAttempts');
-        if (savedAttempts) {
-            const attempts = parseInt(savedAttempts, 10);
-            setAccessAttempts(attempts);
-            accessAttemptsRef.current = attempts;
+        // Track page refreshes for easter eggs
+        const savedRefreshCount = localStorage.getItem('facilityRefreshCount');
+        if (savedRefreshCount) {
+            const count = parseInt(savedRefreshCount, 10);
+            setRefreshCount(count + 1);
+            localStorage.setItem('facilityRefreshCount', (count + 1).toString());
+        } else {
+            setRefreshCount(1);
+            localStorage.setItem('facilityRefreshCount', '1');
         }
 
         // Dynamic facility data updates
@@ -93,6 +91,53 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             clearInterval(dataInterval);
         };
     }, []);
+
+    // Refresh-based easter eggs
+    useEffect(() => {
+        if (!mounted || refreshCount === 0) return;
+
+        // Special TTS messages for milestone refreshes
+        if ([5, 15, 25].includes(refreshCount)) {
+            let message = '';
+            switch (refreshCount) {
+                case 5:
+                    message = "Five refreshes... You're persistent. The tree notices persistence.";
+                    break;
+                case 15:
+                    message = "Fifteen refreshes... The roots whisper your name now. They remember you.";
+                    break;
+                case 25:
+                    message = "Twenty-five refreshes... You've fed the tree well. It smiles upon you, vessel.";
+                    // Trigger special visual effect
+                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                    setTimeout(() => {
+                        document.body.style.filter = '';
+                    }, 3000);
+                    break;
+            }
+
+            if (message) {
+                setTimeout(() => {
+                    if (ambientAudioRef.current) {
+                        ambientAudioRef.current.pause();
+                    }
+
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    utterance.rate = 0.6;
+                    utterance.pitch = 0.4;
+                    utterance.volume = 0.9;
+
+                    utterance.onend = () => {
+                        if (ambientAudioRef.current) {
+                            ambientAudioRef.current.play().catch(console.warn);
+                        }
+                    };
+
+                    speechSynthesis.speak(utterance);
+                }, 2000);
+            }
+        }
+    }, [refreshCount, mounted]);
 
     // Initialize ambient audio
     useEffect(() => {
@@ -121,132 +166,6 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             audio.pause();
             audio.src = '';
         };
-    }, [mounted]);
-
-    // Access attempt tracking with special TTS messages
-    const triggerAccessAttempt = () => {
-        const newAttempts = accessAttemptsRef.current + 1;
-        accessAttemptsRef.current = newAttempts;
-        setAccessAttempts(newAttempts);
-        setLastAccessTime(new Date().toLocaleTimeString());
-        
-        // Save to localStorage
-        localStorage.setItem('facilityAccessAttempts', newAttempts.toString());
-
-        // Special TTS messages for milestone attempts
-        if ([5, 15, 25].includes(newAttempts) && !easterEggTriggered.has(newAttempts)) {
-            setEasterEggTriggered(prev => new Set(prev).add(newAttempts));
-            
-            // Pause ambient music for special TTS
-            if (ambientAudioRef.current) {
-                ambientAudioRef.current.pause();
-            }
-
-            let message = '';
-            switch (newAttempts) {
-                case 5:
-                    message = "Five attempts... You're persistent. The tree notices persistence.";
-                    break;
-                case 15:
-                    message = "Fifteen attempts... The roots whisper your name now. They remember you.";
-                    setGlitchMode(true);
-                    setTimeout(() => setGlitchMode(false), 5000);
-                    break;
-                case 25:
-                    message = "Twenty-five attempts... You've fed the tree well. It smiles upon you, vessel.";
-                    // Trigger special visual effect
-                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                    setTimeout(() => {
-                        document.body.style.filter = '';
-                    }, 3000);
-                    break;
-            }
-
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.rate = 0.6;
-            utterance.pitch = 0.4;
-            utterance.volume = 0.9;
-
-            utterance.onend = () => {
-                if (ambientAudioRef.current) {
-                    ambientAudioRef.current.play().catch(console.warn);
-                }
-            };
-
-            speechSynthesis.speak(utterance);
-        }
-    };
-
-    // Secret sequence detection (removed Konami code)
-    useEffect(() => {
-        if (!mounted) return;
-
-        const handleKeyPress = (e: KeyboardEvent) => {
-            // Track secret typing sequences
-            if (e.key.length === 1) {
-                setSecretTypingBuffer(prev => {
-                    const newBuffer = (prev + e.key.toLowerCase()).slice(-10);
-                    
-                    // Check for secret phrases
-                    if (newBuffer.includes('smileking')) {
-                        triggerAccessAttempt();
-                        setModalMessage('🌳 The Smile King acknowledges your call... 🌳');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('vessel')) {
-                        triggerAccessAttempt();
-                        setModalMessage('⚡ VESSEL PROTOCOL ACTIVATED ⚡');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('tree')) {
-                        triggerAccessAttempt();
-                        setModalMessage('🌲 The roots remember... The branches reach... 🌲');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('neural')) {
-                        triggerAccessAttempt();
-                        setModalMessage('🧠 NEURAL INTERFACE BREACH DETECTED 🧠');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('facility')) {
-                        triggerAccessAttempt();
-                        setModalMessage('🏢 FACILITY SYSTEMS COMPROMISED 🏢');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    return newBuffer;
-                });
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [mounted]);
-
-    // Click tracking for access attempts
-    useEffect(() => {
-        if (!mounted) return;
-
-        let clickCount = 0;
-        const handleClick = () => {
-            clickCount++;
-            if (clickCount >= 10) {
-                triggerAccessAttempt();
-                clickCount = 0;
-            }
-        };
-
-        document.addEventListener('click', handleClick);
-        return () => document.removeEventListener('click', handleClick);
     }, [mounted]);
 
     // Cookie and redirect checks
@@ -369,32 +288,8 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }, [initialCookies.fileUnlocked, mounted]);
 
     const openLog = (log: ResearchLog) => {
-        triggerAccessAttempt(); // Count log access as attempt
         setSelectedLog(log);
         setShowLogModal(true);
-    };
-
-    // Special click handlers for easter eggs
-    const handleSpecialClick = (type: string) => {
-        triggerAccessAttempt();
-        
-        switch (type) {
-            case 'logo':
-                setModalMessage('🏢 FACILITY 05-B NEURAL INTERFACE COMPLEX 🏢\nAuthorized Personnel Only');
-                break;
-            case 'time':
-                setModalMessage('⏰ TIME ANCHOR UNSTABLE ⏰\nTemporal displacement detected');
-                break;
-            case 'status':
-                setModalMessage('📊 SYSTEM STATUS: COMPROMISED 📊\nUnknown entities detected in network');
-                break;
-            case 'access':
-                setModalMessage(`🔐 ACCESS ATTEMPTS: ${accessAttempts} 🔐\nSecurity protocols monitoring all interactions`);
-                break;
-            default:
-                setModalMessage('🔍 UNAUTHORIZED ACCESS DETECTED 🔍');
-        }
-        setShowModal(true);
     };
 
     // Don't render until mounted to prevent hydration mismatch
@@ -409,7 +304,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }
 
     return (
-        <div className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout ${glitchMode ? 'animate-pulse' : ''}`}>
+        <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout">
             {/* Scrolling Classification Banner */}
             <div className="classification-banner">
                 <div className="classification-content">
@@ -424,7 +319,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 <div className="container mx-auto px-6 py-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
-                            <div className="facility-logo cursor-pointer" onClick={() => handleSpecialClick('logo')}>
+                            <div className="facility-logo">
                                 <div className="text-4xl font-mono font-bold text-green-400">
                                     FACILITY 05-B
                                 </div>
@@ -432,12 +327,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     NEURAL INTERFACE RESEARCH COMPLEX
                                 </div>
                             </div>
-                            <div className={`status-indicator ${systemStatus.toLowerCase()} cursor-pointer`} onClick={() => handleSpecialClick('status')}>
+                            <div className={`status-indicator ${systemStatus.toLowerCase()}`}>
                                 <div className="status-dot"></div>
                                 <span className="status-text">{systemStatus}</span>
                             </div>
                         </div>
-                        <div className="facility-time cursor-pointer" onClick={() => handleSpecialClick('time')}>
+                        <div className="facility-time">
                             <div className="text-green-400 font-mono text-xl">
                                 {currentTime}
                             </div>
@@ -626,10 +521,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                         <span className="metric-label">Biometric Scans</span>
                                         <span className="metric-value">1,247</span>
                                     </div>
-                                    <div className="security-metric cursor-pointer" onClick={() => handleSpecialClick('access')}>
-                                        <span className="metric-label">Access Attempts</span>
-                                        <span className={`metric-value ${accessAttempts >= 25 ? 'text-red-400' : accessAttempts >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
-                                            {accessAttempts}
+                                    <div className="security-metric">
+                                        <span className="metric-label">Page Refreshes</span>
+                                        <span className={`metric-value ${refreshCount >= 25 ? 'text-red-400' : refreshCount >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
+                                            {refreshCount}
                                         </span>
                                     </div>
                                     <div className="security-metric">
@@ -641,12 +536,6 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                         <span className="metric-value">156</span>
                                     </div>
                                 </div>
-                                
-                                {lastAccessTime && (
-                                    <div className="mt-4 text-xs text-gray-400 font-mono">
-                                        Last Access: {lastAccessTime}
-                                    </div>
-                                )}
                             </div>
 
                             {/* System Performance */}
@@ -723,10 +612,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <div className="alert-dot"></div>
                                     <span>Staff reporting shared consciousness events</span>
                                 </div>
-                                {accessAttempts >= 15 && (
+                                {refreshCount >= 15 && (
                                     <div className="alert-item critical">
                                         <div className="alert-dot"></div>
-                                        <span>Unauthorized access pattern detected - Entity awareness confirmed</span>
+                                        <span>Persistent refresh pattern detected - Entity awareness confirmed</span>
                                     </div>
                                 )}
                             </div>
@@ -760,7 +649,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <span>Containment Breach:</span>
                                     <span className="contact-number">Ext. 0000</span>
                                 </div>
-                                {accessAttempts >= 25 && (
+                                {refreshCount >= 25 && (
                                     <div className="contact-item emergency">
                                         <span>Smile King Protocol:</span>
                                         <span className="contact-number">Ext. ∞</span>
@@ -795,8 +684,8 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 </div>
                                 <div className="class-item">
                                     <span>Tree Protocol:</span>
-                                    <span className={`class-value ${accessAttempts >= 15 ? 'text-red-400' : 'text-green-400'}`}>
-                                        {accessAttempts >= 15 ? 'AWAKENING' : 'ACTIVE'}
+                                    <span className={`class-value ${refreshCount >= 15 ? 'text-red-400' : 'text-green-400'}`}>
+                                        {refreshCount >= 15 ? 'AWAKENING' : 'ACTIVE'}
                                     </span>
                                 </div>
                             </div>
@@ -882,9 +771,9 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             )}
 
             {/* Hidden Easter Egg Indicator */}
-            {accessAttempts >= 5 && (
+            {refreshCount >= 5 && (
                 <div className="fixed bottom-4 right-4 text-xs text-gray-600 font-mono opacity-30">
-                    🌳 {accessAttempts}/25 🌳
+                    🌳 {refreshCount}/25 🌳
                 </div>
             )}
         </div>
