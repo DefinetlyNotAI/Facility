@@ -59,22 +59,22 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     // Handle client-side mounting and time updates
     useEffect(() => {
         setMounted(true);
-        
+
         const updateTime = () => {
             setCurrentTime(new Date().toLocaleString());
         };
-        
+
         updateTime(); // Set initial time
         const timeInterval = setInterval(updateTime, 1000);
-        
+
         return () => clearInterval(timeInterval);
     }, []);
 
     // Initialize ambient audio
     useEffect(() => {
         if (!mounted) return;
-        
-        const audio = new Audio('/audio/sweethome.mp3');
+
+        const audio = new Audio('/sfx/home/sweethome.mp3');
         audio.loop = true;
         audio.volume = 0.3;
         ambientAudioRef.current = audio;
@@ -104,7 +104,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     // Cookie and redirect checks
     useEffect(() => {
         if (!mounted) return;
-        
+
         if (initialCookies.corrupt) {
             router.replace('/h0m3');
             return;
@@ -171,7 +171,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     // Time check for 15:25
     useEffect(() => {
         if (!mounted) return;
-        
+
         const checkTime = async () => {
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
@@ -191,7 +191,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     // Konami code detection
     useEffect(() => {
         if (!mounted) return;
-        
+
         const sequence = [
             'ArrowUp', 'ArrowUp',
             'ArrowDown', 'ArrowDown',
