@@ -7,6 +7,28 @@ import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
 
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
+const facilityData = {
+    temperature: '22.7°C',
+    pressure: '1013.42 hPa',
+    humidity: '43%',
+    radiation: '0.09 μSv/h',
+    powerOutput: '2.4 MW',
+    networkStatus: 'SECURE'
+};
+
+const securityMetrics = {
+    biometricScans: '1,247',
+    accessAttempts: '23',
+    breachAlerts: '0',
+    activePersonnel: '156'
+};
+
+const systemMetrics = {
+    cpuUsage: '67%',
+    memoryUsage: '8.2/16 GB',
+    diskSpace: '2.1/4.8 TB',
+    networkTraffic: '847 MB/s'
+};
 
 interface InitialCookies {
     corrupt: boolean;
@@ -32,30 +54,6 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
     const ttsTriggeredRef = useRef(false); // Prevent TTS from triggering multiple times
-
-    // Static facility data
-    const facilityData = {
-        temperature: '22.7°C',
-        pressure: '1013.42 hPa',
-        humidity: '43%',
-        radiation: '0.09 μSv/h',
-        powerOutput: '2.4 MW',
-        networkStatus: 'SECURE'
-    };
-
-    const securityMetrics = {
-        biometricScans: '1,247',
-        accessAttempts: '23',
-        breachAlerts: '0',
-        activePersonnel: '156'
-    };
-
-    const systemMetrics = {
-        cpuUsage: '67%',
-        memoryUsage: '8.2/16 GB',
-        diskSpace: '2.1/4.8 TB',
-        networkTraffic: '847 MB/s'
-    };
 
     // Handle client-side mounting and time updates
     useEffect(() => {
@@ -116,7 +114,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             setTimeout(() => setSystemStatus('ONLINE'), 1000);
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
-            if (initialCookies.noCorruption) {
+            if (initialCookies.noCorruption && !initialCookies.fileUnlocked) {
                 setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
                 setShowModal(true);
                 await signCookie('Scroll_unlocked=true');
@@ -138,7 +136,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 if (c <= 1) {
                     if (!ttsTriggeredRef.current) {
                         ttsTriggeredRef.current = true; // Prevent multiple triggers
-                        
+
                         // Pause ambient music for TTS
                         if (ambientAudioRef.current) {
                             ambientAudioRef.current.pause();
@@ -293,7 +291,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <h2 className="panel-title">NEURAL INTERFACE TERMINAL</h2>
                                     <div className="panel-subtitle">Project VESSEL • Subject 31525 • Clearance COSMIC</div>
                                 </div>
-                                
+
                                 <div className="terminal-display">
                                     <div className="terminal-header">
                                         <div className="terminal-dots">
@@ -303,7 +301,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                         </div>
                                         <span className="terminal-label">SECURE NEURAL LINK</span>
                                     </div>
-                                    
+
                                     <div className="terminal-content">
                                         <div className="terminal-line">
                                             <span className="prompt">FACILITY:</span> Neural Interface Research Complex 05-B
@@ -361,7 +359,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 <h2 className="panel-title">SYSTEM STATUS</h2>
                                 <div className="panel-subtitle">Real-time Monitoring</div>
                             </div>
-                            
+
                             <div className="status-grid">
                                 <div className="status-item">
                                     <span className="status-label">Temperature</span>
@@ -414,7 +412,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 <h2 className="panel-title">RESEARCH LOGS</h2>
                                 <div className="panel-subtitle">Project VESSEL Documentation Archive</div>
                             </div>
-                            
+
                             <div className="logs-container">
                                 {researchLogs.slice(0, 6).map((log) => (
                                     <div
@@ -452,7 +450,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <h2 className="panel-title">SECURITY PROTOCOLS</h2>
                                     <div className="panel-subtitle">Access Control & Monitoring</div>
                                 </div>
-                                
+
                                 <div className="security-grid">
                                     <div className="security-metric">
                                         <span className="metric-label">Biometric Scans</span>
@@ -479,7 +477,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <h2 className="panel-title">SYSTEM PERFORMANCE</h2>
                                     <div className="panel-subtitle">Neural Processing Units</div>
                                 </div>
-                                
+
                                 <div className="performance-grid">
                                     <div className="perf-metric">
                                         <span className="metric-label">CPU Usage</span>
@@ -521,7 +519,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 <h2 className="panel-title">CRITICAL ALERTS</h2>
                                 <div className="panel-subtitle">Active Incidents & Warnings</div>
                             </div>
-                            
+
                             <div className="alerts-container">
                                 <div className="alert-item critical">
                                     <div className="alert-dot"></div>
@@ -556,7 +554,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 <h2 className="panel-title">EMERGENCY CONTACTS</h2>
                                 <div className="panel-subtitle">24/7 Response Teams</div>
                             </div>
-                            
+
                             <div className="contacts-list">
                                 <div className="contact-item">
                                     <span>Neural Security:</span>
@@ -587,7 +585,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 <h2 className="panel-title">PROJECT CLASSIFICATION</h2>
                                 <div className="panel-subtitle">Security Clearance Info</div>
                             </div>
-                            
+
                             <div className="classification-info">
                                 <div className="class-item">
                                     <span>Security Level:</span>
