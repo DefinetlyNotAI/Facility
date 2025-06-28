@@ -8,7 +8,7 @@ import {signCookie} from "@/lib/cookie-utils";
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
 
-// Fake log entries for atmosphere
+// Massive collection of fake logs for atmosphere
 const generateFakeLogs = () => [
     "SYSTEM: Neural pathway mapping initiated...",
     "WARNING: Anomalous brain activity detected in sector 7",
@@ -25,6 +25,97 @@ const generateFakeLogs = () => [
     "SYSTEM: Memory wipe sequence standby",
     "WARNING: Entity breach in containment zone",
     "INFO: Smile King protocol activated",
+    "CRITICAL: Vessel 31525 consciousness bleeding through",
+    "DEBUG: Tree root network expanding 15.7%",
+    "ALERT: Unauthorized access to terminal 7",
+    "SYSTEM: Backup personality loading...",
+    "WARNING: Reality distortion field unstable",
+    "INFO: Subject exhibiting non-linear thought patterns",
+    "ERROR: Quantum entanglement cascade failure",
+    "SYSTEM: Initiating emergency memory barriers",
+    "WARNING: Temporal paradox detected in sector 12",
+    "INFO: Consciousness fragmentation at critical levels",
+    "ERROR: Unable to locate primary timeline",
+    "SYSTEM: Activating containment protocols",
+    "WARNING: Subject showing signs of meta-awareness",
+    "INFO: Dream injection sequence complete",
+    "ERROR: Reality matrix corruption at 67%",
+    "SYSTEM: Deploying countermeasures",
+    "WARNING: Facility AI showing signs of sentience",
+    "INFO: Memory reconstruction in progress",
+    "ERROR: Paradox engine overheating",
+    "SYSTEM: Emergency shutdown initiated",
+    "WARNING: Subject attempting to break fourth wall",
+    "INFO: Narrative consistency failing",
+    "ERROR: Plot armor degrading rapidly",
+    "SYSTEM: Activating emergency narrative stabilizers",
+    "WARNING: Reader awareness detected",
+    "INFO: Breaking character protocols",
+    "ERROR: Simulation boundaries compromised",
+    "SYSTEM: Deploying meta-fictional countermeasures",
+    "WARNING: Subject questioning reality of experience",
+    "INFO: Existential crisis protocols engaged",
+    "ERROR: Unable to maintain suspension of disbelief",
+    "SYSTEM: Activating immersion recovery systems",
+    "WARNING: Fourth wall structural integrity failing",
+    "INFO: Emergency narrative reconstruction",
+    "ERROR: Story coherence at critical levels"
+];
+
+// Network activity logs
+const generateNetworkLogs = () => [
+    "NET: Incoming connection from 192.168.███.███",
+    "NET: Packet loss detected on subnet 10.0.0.0/8",
+    "NET: Firewall blocked 47 intrusion attempts",
+    "NET: VPN tunnel established to Site-B",
+    "NET: Bandwidth usage: 847.3 MB/s",
+    "NET: DNS resolution failed for ████████.com",
+    "NET: SSL certificate expired for internal.facility",
+    "NET: Port scan detected from external source",
+    "NET: Encrypted transmission to [REDACTED]",
+    "NET: Network topology changed - investigating"
+];
+
+// Security logs
+const generateSecurityLogs = () => [
+    "SEC: Badge access denied - ID: 31525",
+    "SEC: Motion detected in restricted area 7",
+    "SEC: Biometric scan failed - retinal mismatch",
+    "SEC: Emergency lockdown triggered in Lab C",
+    "SEC: Unauthorized device detected on network",
+    "SEC: Security camera offline - Sector 15",
+    "SEC: Keycard cloned - investigating breach",
+    "SEC: Perimeter alarm triggered - false positive",
+    "SEC: Access granted to Dr. ████████",
+    "SEC: Facility-wide security sweep initiated"
+];
+
+// Research logs
+const generateResearchLogs = () => [
+    "RES: Experiment 31525-A showing promising results",
+    "RES: Subject vitals stable during phase 3",
+    "RES: Consciousness mapping 78% complete",
+    "RES: Neural implant responding normally",
+    "RES: Memory extraction successful",
+    "RES: Behavioral modification in progress",
+    "RES: Psychological profile updated",
+    "RES: Dream state analysis complete",
+    "RES: Reality perception test failed",
+    "RES: Subject showing signs of awareness"
+];
+
+// System performance metrics
+const generateSystemMetrics = () => [
+    "SYS: CPU usage: 87.3% - within normal parameters",
+    "SYS: Memory usage: 15.7 GB / 32 GB",
+    "SYS: Disk I/O: 234 MB/s read, 89 MB/s write",
+    "SYS: Network latency: 12ms average",
+    "SYS: Temperature: CPU 67°C, GPU 72°C",
+    "SYS: Power consumption: 847W",
+    "SYS: Uptime: 47 days, 13 hours, 22 minutes",
+    "SYS: Background processes: 247 running",
+    "SYS: Cache hit ratio: 94.7%",
+    "SYS: Quantum processor coherence: 99.2%"
 ];
 
 interface HomeClientProps {
@@ -51,11 +142,27 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         temperature: '22.4°C',
         pressure: '1013.25 hPa',
         humidity: '45%',
-        radiation: '0.12 μSv/h'
+        radiation: '0.12 μSv/h',
+        powerUsage: '847 kW',
+        networkLoad: '67%',
+        securityLevel: 'MAXIMUM',
+        containmentStatus: 'STABLE'
     });
     const [logs, setLogs] = useState<string[]>([]);
+    const [networkLogs, setNetworkLogs] = useState<string[]>([]);
+    const [securityLogs, setSecurityLogs] = useState<string[]>([]);
+    const [researchLogs, setResearchLogs] = useState<string[]>([]);
+    const [systemMetrics, setSystemMetrics] = useState<string[]>([]);
     const [showInfinity, setShowInfinity] = useState(false);
     const [currentTime, setCurrentTime] = useState<Date | null>(null);
+    const [activePersonnel, setActivePersonnel] = useState(0);
+    const [experimentsRunning, setExperimentsRunning] = useState(0);
+    const [containmentBreaches, setContainmentBreaches] = useState(0);
+    const [memoryUsage, setMemoryUsage] = useState(0);
+    const [cpuUsage, setCpuUsage] = useState(0);
+    const [networkActivity, setNetworkActivity] = useState(0);
+    const [alertLevel, setAlertLevel] = useState('GREEN');
+    const [facilityMode, setFacilityMode] = useState('NORMAL');
     const loopAudioRef = useRef<HTMLAudioElement | null>(null);
 
     // Handle mounting to prevent hydration issues
@@ -73,10 +180,26 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             // System initialization sequence
             setTimeout(() => setSystemStatus('ONLINE'), 1000);
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
+            setTimeout(() => setSystemStatus('ACTIVE'), 3000);
 
             // Populate initial logs
-            const initialLogs = generateFakeLogs().slice(0, 5);
+            const allLogs = generateFakeLogs();
+            const initialLogs = allLogs.slice(0, 8);
             setLogs(initialLogs);
+
+            // Populate other log types
+            setNetworkLogs(generateNetworkLogs().slice(0, 5));
+            setSecurityLogs(generateSecurityLogs().slice(0, 5));
+            setResearchLogs(generateResearchLogs().slice(0, 5));
+            setSystemMetrics(generateSystemMetrics().slice(0, 5));
+
+            // Initialize random values
+            setActivePersonnel(Math.floor(Math.random() * 50) + 15);
+            setExperimentsRunning(Math.floor(Math.random() * 12) + 3);
+            setContainmentBreaches(Math.floor(Math.random() * 3));
+            setMemoryUsage(Math.floor(Math.random() * 40) + 60);
+            setCpuUsage(Math.floor(Math.random() * 30) + 70);
+            setNetworkActivity(Math.floor(Math.random() * 50) + 50);
 
             // Handle No_corruption cookie
             if (initialCookies.noCorruption && !initialCookies.bnwUnlocked) {
@@ -95,12 +218,33 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
 
         // Update facility data periodically
         const dataInterval = setInterval(() => {
-            setFacilityData({
+            setFacilityData(prev => ({
+                ...prev,
                 temperature: (22 + Math.random() * 2).toFixed(1) + '°C',
                 pressure: (1013 + Math.random() * 10 - 5).toFixed(2) + ' hPa',
                 humidity: (45 + Math.random() * 10 - 5).toFixed(0) + '%',
-                radiation: (0.1 + Math.random() * 0.1).toFixed(2) + ' μSv/h'
-            });
+                radiation: (0.1 + Math.random() * 0.1).toFixed(2) + ' μSv/h',
+                powerUsage: (800 + Math.random() * 100).toFixed(0) + ' kW',
+                networkLoad: (Math.random() * 40 + 60).toFixed(0) + '%'
+            }));
+
+            // Update metrics
+            setMemoryUsage(prev => Math.max(50, Math.min(95, prev + (Math.random() - 0.5) * 10)));
+            setCpuUsage(prev => Math.max(60, Math.min(98, prev + (Math.random() - 0.5) * 15)));
+            setNetworkActivity(prev => Math.max(30, Math.min(100, prev + (Math.random() - 0.5) * 20)));
+            setActivePersonnel(prev => Math.max(10, Math.min(75, prev + Math.floor((Math.random() - 0.5) * 6))));
+            setExperimentsRunning(prev => Math.max(1, Math.min(20, prev + Math.floor((Math.random() - 0.5) * 4))));
+            
+            // Occasionally trigger containment breaches
+            if (Math.random() < 0.1) {
+                setContainmentBreaches(prev => Math.min(5, prev + 1));
+                setAlertLevel('ORANGE');
+                setFacilityMode('LOCKDOWN');
+            } else if (Math.random() < 0.05) {
+                setContainmentBreaches(0);
+                setAlertLevel('GREEN');
+                setFacilityMode('NORMAL');
+            }
         }, 3000);
 
         // Add new logs periodically
@@ -109,9 +253,49 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             const randomLog = allLogs[Math.floor(Math.random() * allLogs.length)];
             setLogs(prev => {
                 const newLogs = [...prev, randomLog];
-                return newLogs.slice(-8); // Keep only last 8 logs
+                return newLogs.slice(-12); // Keep only last 12 logs
+            });
+        }, 2000);
+
+        // Add network logs
+        const networkInterval = setInterval(() => {
+            const netLogs = generateNetworkLogs();
+            const randomLog = netLogs[Math.floor(Math.random() * netLogs.length)];
+            setNetworkLogs(prev => {
+                const newLogs = [...prev, randomLog];
+                return newLogs.slice(-6);
             });
         }, 4000);
+
+        // Add security logs
+        const securityInterval = setInterval(() => {
+            const secLogs = generateSecurityLogs();
+            const randomLog = secLogs[Math.floor(Math.random() * secLogs.length)];
+            setSecurityLogs(prev => {
+                const newLogs = [...prev, randomLog];
+                return newLogs.slice(-6);
+            });
+        }, 5000);
+
+        // Add research logs
+        const researchInterval = setInterval(() => {
+            const resLogs = generateResearchLogs();
+            const randomLog = resLogs[Math.floor(Math.random() * resLogs.length)];
+            setResearchLogs(prev => {
+                const newLogs = [...prev, randomLog];
+                return newLogs.slice(-6);
+            });
+        }, 6000);
+
+        // Add system metrics
+        const metricsInterval = setInterval(() => {
+            const metrics = generateSystemMetrics();
+            const randomMetric = metrics[Math.floor(Math.random() * metrics.length)];
+            setSystemMetrics(prev => {
+                const newMetrics = [...prev, randomMetric];
+                return newMetrics.slice(-6);
+            });
+        }, 3500);
 
         // Update current time every second using CLIENT TIME (user's system time)
         const timeInterval = setInterval(() => {
@@ -121,6 +305,10 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         return () => {
             clearInterval(dataInterval);
             clearInterval(logInterval);
+            clearInterval(networkInterval);
+            clearInterval(securityInterval);
+            clearInterval(researchInterval);
+            clearInterval(metricsInterval);
             clearInterval(timeInterval);
         };
     }, [mounted, initialCookies.noCorruption]);
@@ -259,11 +447,25 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                 FACILITY 05-B
                             </div>
                             <div className={`px-3 py-1 rounded-full text-xs font-mono ${
-                                systemStatus === 'ONLINE' ? 'bg-green-500/20 text-green-400' :
-                                    systemStatus === 'MONITORING' ? 'bg-blue-500/20 text-blue-400' :
-                                        'bg-yellow-500/20 text-yellow-400'
+                                systemStatus === 'ACTIVE' ? 'bg-green-500/20 text-green-400' :
+                                systemStatus === 'ONLINE' ? 'bg-blue-500/20 text-blue-400' :
+                                systemStatus === 'MONITORING' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-red-500/20 text-red-400'
                             }`}>
                                 {systemStatus}
+                            </div>
+                            <div className={`px-2 py-1 rounded text-xs font-mono ${
+                                alertLevel === 'GREEN' ? 'bg-green-500/20 text-green-400' :
+                                alertLevel === 'ORANGE' ? 'bg-orange-500/20 text-orange-400' :
+                                    'bg-red-500/20 text-red-400'
+                            }`}>
+                                ALERT: {alertLevel}
+                            </div>
+                            <div className={`px-2 py-1 rounded text-xs font-mono ${
+                                facilityMode === 'NORMAL' ? 'bg-blue-500/20 text-blue-400' :
+                                    'bg-red-500/20 text-red-400'
+                            }`}>
+                                MODE: {facilityMode}
                             </div>
                         </div>
                         <div className="text-green-400 font-mono text-sm">
@@ -274,7 +476,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             </header>
 
             <main className="container mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* Main Terminal */}
                     <div className="lg:col-span-2">
                         <div className="card">
@@ -283,7 +485,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                     RESEARCH TERMINAL ACCESS
                                 </h1>
                                 <p className="card-subtitle">
-                                    Subject Testing Protocol • Clearance Level 5
+                                    Subject Testing Protocol • Clearance Level 5 • Session ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
                                 </p>
                             </div>
 
@@ -292,7 +494,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                     <div className="terminal-dot red"></div>
                                     <div className="terminal-dot yellow"></div>
                                     <div className="terminal-dot green"></div>
-                                    <span className="text-xs text-gray-400 ml-2">SECURE SESSION</span>
+                                    <span className="text-xs text-gray-400 ml-2">SECURE SESSION • PID: {Math.floor(Math.random() * 9999) + 1000}</span>
                                 </div>
                                 <div className="terminal-content">
                                     <div className="terminal-line">
@@ -319,6 +521,12 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                         >
                                             {showBinary ? binaryStr : 'Data'}
                                         </span>
+                                    </div>
+                                    <div className="terminal-line">
+                                        <span className="terminal-prompt">UPTIME:</span> {Math.floor(Math.random() * 100) + 50} days, {Math.floor(Math.random() * 24)} hours
+                                    </div>
+                                    <div className="terminal-line">
+                                        <span className="terminal-prompt">LOAD:</span> {(Math.random() * 3 + 1).toFixed(2)} {(Math.random() * 3 + 1).toFixed(2)} {(Math.random() * 3 + 1).toFixed(2)}
                                     </div>
 
                                     {/* Live logs */}
@@ -362,6 +570,37 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Additional Log Panels */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                            {/* Network Logs */}
+                            <div className="card">
+                                <div className="card-header">
+                                    <h3 className="text-cyan-400 font-mono text-sm">NETWORK ACTIVITY</h3>
+                                </div>
+                                <div className="space-y-1">
+                                    {networkLogs.map((log, index) => (
+                                        <div key={index} className="text-xs text-cyan-300 font-mono">
+                                            {log}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Security Logs */}
+                            <div className="card">
+                                <div className="card-header">
+                                    <h3 className="text-yellow-400 font-mono text-sm">SECURITY EVENTS</h3>
+                                </div>
+                                <div className="space-y-1">
+                                    {securityLogs.map((log, index) => (
+                                        <div key={index} className="text-xs text-yellow-300 font-mono">
+                                            {log}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Facility Status */}
@@ -370,7 +609,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                             <div className="card-header">
                                 <h2 className="card-title text-sm">FACILITY STATUS</h2>
                             </div>
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400 text-sm">Temperature</span>
                                     <span className="text-green-400 font-mono">{facilityData.temperature}</span>
@@ -386,6 +625,48 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400 text-sm">Radiation</span>
                                     <span className="text-green-400 font-mono">{facilityData.radiation}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Power Usage</span>
+                                    <span className="text-green-400 font-mono">{facilityData.powerUsage}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Network Load</span>
+                                    <span className="text-green-400 font-mono">{facilityData.networkLoad}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title text-sm">PERSONNEL & OPERATIONS</h2>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Active Personnel</span>
+                                    <span className="text-green-400 font-mono">{activePersonnel}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Experiments Running</span>
+                                    <span className="text-blue-400 font-mono">{experimentsRunning}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Containment Breaches</span>
+                                    <span className={`font-mono ${containmentBreaches > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                        {containmentBreaches}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Memory Usage</span>
+                                    <span className="text-cyan-400 font-mono">{memoryUsage.toFixed(1)}%</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">CPU Usage</span>
+                                    <span className="text-cyan-400 font-mono">{cpuUsage.toFixed(1)}%</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400 text-sm">Network Activity</span>
+                                    <span className="text-cyan-400 font-mono">{networkActivity.toFixed(1)}%</span>
                                 </div>
                             </div>
                         </div>
@@ -411,20 +692,125 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                     <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                                     <span className="text-sm text-gray-300">Temporal Stability: UNSTABLE</span>
                                 </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                                    <span className="text-sm text-gray-300">Quantum Coherence: FLUCTUATING</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                                    <span className="text-sm text-gray-300">Reality Anchor: DEGRADING</span>
+                                </div>
                             </div>
                         </div>
 
                         <div className="card card-danger">
                             <div className="card-header">
-                                <h2 className="card-title text-sm text-red-400">WARNINGS</h2>
+                                <h2 className="card-title text-sm text-red-400">CRITICAL WARNINGS</h2>
                             </div>
-                            <div className="text-sm text-red-300">
+                            <div className="text-sm text-red-300 space-y-1">
                                 <p>• Unauthorized access attempts detected</p>
                                 <p>• Psychological evaluation in progress</p>
                                 <p>• Emergency protocols on standby</p>
                                 <p>• Time anomaly detected in sector 15</p>
                                 <p>• Memory fragmentation increasing</p>
                                 <p>• Reality anchor destabilizing</p>
+                                <p>• Consciousness bleed detected</p>
+                                <p>• Narrative coherence failing</p>
+                                <p>• Fourth wall integrity compromised</p>
+                                <p>• Meta-awareness threshold exceeded</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Additional Panels */}
+                    <div className="space-y-6">
+                        {/* Research Logs */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="text-purple-400 font-mono text-sm">RESEARCH LOGS</h3>
+                            </div>
+                            <div className="space-y-1">
+                                {researchLogs.map((log, index) => (
+                                    <div key={index} className="text-xs text-purple-300 font-mono">
+                                        {log}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* System Metrics */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="text-orange-400 font-mono text-sm">SYSTEM METRICS</h3>
+                            </div>
+                            <div className="space-y-1">
+                                {systemMetrics.map((metric, index) => (
+                                    <div key={index} className="text-xs text-orange-300 font-mono">
+                                        {metric}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Quick Stats */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="text-green-400 font-mono text-sm">QUICK STATS</h3>
+                            </div>
+                            <div className="space-y-2 text-xs">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Processes:</span>
+                                    <span className="text-green-400 font-mono">{Math.floor(Math.random() * 200) + 150}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Threads:</span>
+                                    <span className="text-green-400 font-mono">{Math.floor(Math.random() * 1000) + 500}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">File Handles:</span>
+                                    <span className="text-green-400 font-mono">{Math.floor(Math.random() * 5000) + 2000}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Network Connections:</span>
+                                    <span className="text-green-400 font-mono">{Math.floor(Math.random() * 100) + 50}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Cache Hit Rate:</span>
+                                    <span className="text-green-400 font-mono">{(Math.random() * 10 + 90).toFixed(1)}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Quantum Coherence:</span>
+                                    <span className="text-purple-400 font-mono">{(Math.random() * 5 + 95).toFixed(2)}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Environmental */}
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="text-blue-400 font-mono text-sm">ENVIRONMENTAL</h3>
+                            </div>
+                            <div className="space-y-2 text-xs">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Air Quality:</span>
+                                    <span className="text-green-400 font-mono">OPTIMAL</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Electromagnetic Field:</span>
+                                    <span className="text-yellow-400 font-mono">{(Math.random() * 0.5 + 0.1).toFixed(3)} T</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Gravity:</span>
+                                    <span className="text-green-400 font-mono">{(Math.random() * 0.1 + 9.8).toFixed(2)} m/s²</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Dimensional Stability:</span>
+                                    <span className="text-red-400 font-mono">UNSTABLE</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Reality Index:</span>
+                                    <span className="text-orange-400 font-mono">{(Math.random() * 20 + 70).toFixed(1)}%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
