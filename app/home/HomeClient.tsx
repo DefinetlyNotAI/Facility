@@ -46,6 +46,7 @@ interface HomeClientProps {
         endQuestion: boolean;
         noCorruption: boolean;
         fileUnlocked: boolean;
+        bnwUnlocked: boolean;
     };
 }
 
@@ -90,7 +91,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             setLogs(initialLogs);
 
             // Handle No_corruption cookie
-            if (initialCookies.noCorruption) {
+            if (initialCookies.noCorruption && !initialCookies.bnwUnlocked) {
                 setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
                 setShowModal(true);
                 await signCookie('Scroll_unlocked=true');
@@ -236,22 +237,18 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
     }, [mounted, initialCookies.fileUnlocked]);
 
     // Handle modal acknowledgment
-    const handleAcknowledge = async () => {
-        setShowModal(false);
-        
-        if (initialCookies.noCorruption || Cookies.get('No_corruption')) {
-            // Wait a moment before redirecting to /scroll
-            setTimeout(() => {
-                router.push('/scroll');
-            }, 500);
-        } else if (initialCookies.corrupt || Cookies.get('Corrupt')) {
-            // Wait for user press before redirect to h0m3
-            setTimeout(() => {
-                router.push('/h0m3');
-            }, 1000);
+    const handleAcknowledge = () => {
+        if (modalMessage.includes('diagnostic scroll')) {
+            // Redirect to /scroll for diagnostic scroll acknowledgment
+            window.location.href = '/scroll';
+        } else if (modalMessage.includes('Network access granted')) {
+            // Redirect to /wifi-panel for network access acknowledgment
+            window.location.href = '/wifi-panel';
+        } else if (initialCookies.corrupt) {
+            // Redirect to /h0m3 when corruption is detected
+            window.location.href = '/h0m3';
         }
     };
-
     // Don't render until mounted to prevent hydration issues
     if (!mounted || !currentTime) {
         return (
@@ -342,7 +339,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                             <span className="terminal-prompt">DECODED:</span> {decoded}
                                         </div>
                                     )}
-                                    
+
                                     {/* Live logs */}
                                     <div className="mt-4 border-t border-gray-700 pt-2">
                                         <div className="text-xs text-gray-500 mb-2">LIVE SYSTEM LOGS:</div>
