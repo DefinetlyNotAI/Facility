@@ -234,7 +234,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             setNetworkActivity(prev => Math.max(30, Math.min(100, prev + (Math.random() - 0.5) * 20)));
             setActivePersonnel(prev => Math.max(10, Math.min(75, prev + Math.floor((Math.random() - 0.5) * 6))));
             setExperimentsRunning(prev => Math.max(1, Math.min(20, prev + Math.floor((Math.random() - 0.5) * 4))));
-            
+
             // Occasionally trigger containment breaches
             if (Math.random() < 0.1) {
                 setContainmentBreaches(prev => Math.min(5, prev + 1));
@@ -407,7 +407,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
     // Handle modal acknowledgment with proper redirects
     const handleAcknowledge = () => {
         setShowModal(false);
-        
+
         if (modalMessage.includes('diagnostic scroll')) {
             // Redirect to /scroll for diagnostic scroll acknowledgment
             setTimeout(() => router.push('/scroll'), 500);
@@ -435,7 +435,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
             {/* Hidden audio elements */}
             <audio ref={loopAudioRef} loop preload="auto">
-                <source src="/sfx/ambient-loop.mp3" type="audio/mpeg" />
+                <source src="/sfx/home/sweethome.mp3" type="audio/mpeg" />
             </audio>
 
             {/* Header */}
@@ -448,16 +448,16 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                             </div>
                             <div className={`px-3 py-1 rounded-full text-xs font-mono ${
                                 systemStatus === 'ACTIVE' ? 'bg-green-500/20 text-green-400' :
-                                systemStatus === 'ONLINE' ? 'bg-blue-500/20 text-blue-400' :
-                                systemStatus === 'MONITORING' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    'bg-red-500/20 text-red-400'
+                                    systemStatus === 'ONLINE' ? 'bg-blue-500/20 text-blue-400' :
+                                        systemStatus === 'MONITORING' ? 'bg-yellow-500/20 text-yellow-400' :
+                                            'bg-red-500/20 text-red-400'
                             }`}>
                                 {systemStatus}
                             </div>
                             <div className={`px-2 py-1 rounded text-xs font-mono ${
                                 alertLevel === 'GREEN' ? 'bg-green-500/20 text-green-400' :
-                                alertLevel === 'ORANGE' ? 'bg-orange-500/20 text-orange-400' :
-                                    'bg-red-500/20 text-red-400'
+                                    alertLevel === 'ORANGE' ? 'bg-orange-500/20 text-orange-400' :
+                                        'bg-red-500/20 text-red-400'
                             }`}>
                                 ALERT: {alertLevel}
                             </div>
