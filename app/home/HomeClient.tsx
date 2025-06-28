@@ -31,6 +31,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [mounted, setMounted] = useState(false);
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
+    const ttsTriggeredRef = useRef(false); // Prevent TTS from triggering multiple times
 
     // Static facility data
     const facilityData = {
@@ -74,7 +75,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     useEffect(() => {
         if (!mounted) return;
 
-        const audio = new Audio('/sfx/home/sweethome.mp3');
+        const audio = new Audio('/audio/sweethome.mp3');
         audio.loop = true;
         audio.volume = 0.3;
         ambientAudioRef.current = audio;
@@ -127,15 +128,17 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         runAsync().catch(console.error);
     }, [router, initialCookies, mounted]);
 
-    // Countdown and TTS logic
+    // Countdown and TTS logic - FIXED to prevent double triggering
     useEffect(() => {
-        if (!mounted || countdown === null || countdown <= 0 || voiceTriggered) return;
+        if (!mounted || countdown === null || countdown <= 0 || voiceTriggered || ttsTriggeredRef.current) return;
 
         const timer = setInterval(() => {
             setCountdown(c => {
                 if (c === null) return null;
                 if (c <= 1) {
-                    if (!voiceTriggered) {
+                    if (!ttsTriggeredRef.current) {
+                        ttsTriggeredRef.current = true; // Prevent multiple triggers
+                        
                         // Pause ambient music for TTS
                         if (ambientAudioRef.current) {
                             ambientAudioRef.current.pause();
@@ -153,10 +156,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                             if (ambientAudioRef.current) {
                                 ambientAudioRef.current.play().catch(console.warn);
                             }
+                            setVoiceTriggered(true);
                         };
 
                         speechSynthesis.speak(utterance);
-                        setVoiceTriggered(true);
                     }
                     clearInterval(timer);
                     return null; // Will show ∞
@@ -238,161 +241,201 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
-            {/* Animated Classification Banner */}
-            <div className="bg-red-600 text-white text-center py-2 font-mono text-sm font-bold relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-red-600 via-red-500 to-red-600 animate-pulse"></div>
-                <div className="relative z-10 animate-bounce">
-                    TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY
+        <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout">
+            {/* Scrolling Classification Banner */}
+            <div className="classification-banner">
+                <div className="classification-content">
+                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
                 </div>
-                <div className="absolute inset-0 bg-red-400 opacity-20 animate-ping"></div>
             </div>
 
-            {/* Header */}
-            <header className="border-b border-green-500/30 bg-black/50 backdrop-blur-sm relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-transparent to-green-500/5 animate-pulse"></div>
-                <div className="container mx-auto px-6 py-4 relative z-10">
+            {/* Main Header */}
+            <header className="facility-header">
+                <div className="container mx-auto px-6 py-6">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                            <div className="text-green-400 text-3xl font-mono font-bold animate-pulse">
-                                FACILITY 05-B
+                        <div className="flex items-center gap-8">
+                            <div className="facility-logo">
+                                <div className="text-4xl font-mono font-bold text-green-400">
+                                    FACILITY 05-B
+                                </div>
+                                <div className="text-sm text-gray-400 font-mono">
+                                    NEURAL INTERFACE RESEARCH COMPLEX
+                                </div>
                             </div>
-                            <div className={`px-4 py-2 rounded-full text-sm font-mono transition-all duration-500 ${
-                                systemStatus === 'ONLINE' ? 'bg-green-500/20 text-green-400 animate-pulse' :
-                                    systemStatus === 'MONITORING' ? 'bg-blue-500/20 text-blue-400 animate-pulse' :
-                                        'bg-yellow-500/20 text-yellow-400 animate-bounce'
-                            }`}>
-                                {systemStatus}
+                            <div className={`status-indicator ${systemStatus.toLowerCase()}`}>
+                                <div className="status-dot"></div>
+                                <span className="status-text">{systemStatus}</span>
                             </div>
                         </div>
-                        <div className="text-green-400 font-mono text-lg animate-pulse">
-                            {currentTime}
+                        <div className="facility-time">
+                            <div className="text-green-400 font-mono text-xl">
+                                {currentTime}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                                FACILITY LOCAL TIME
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-6 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    {/* Left Column - Main Terminal and Research Logs */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Main Terminal */}
-                        <div className="card relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent animate-pulse"></div>
-                            <div className="card-header relative z-10">
-                                <h1 className="card-title text-green-400 text-2xl">
-                                    NEURAL INTERFACE TERMINAL
-                                </h1>
-                                <p className="card-subtitle">
-                                    Consciousness Transfer Protocol • Subject 31525 • Clearance Level COSMIC
-                                </p>
-                            </div>
-
-                            <div className="terminal mb-6 relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-transparent to-green-500/10 animate-pulse"></div>
-                                <div className="terminal-header relative z-10">
-                                    <div className="terminal-dot red animate-pulse"></div>
-                                    <div className="terminal-dot yellow animate-pulse"></div>
-                                    <div className="terminal-dot green animate-pulse"></div>
-                                    <span className="text-xs text-gray-400 ml-2">SECURE NEURAL LINK</span>
+            {/* Main Content Grid */}
+            <main className="facility-main">
+                <div className="container mx-auto px-6 py-8">
+                    {/* Top Row - Mission Critical Systems */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                        {/* Primary Terminal */}
+                        <div className="lg:col-span-2">
+                            <div className="facility-panel primary-terminal">
+                                <div className="panel-header">
+                                    <h2 className="panel-title">NEURAL INTERFACE TERMINAL</h2>
+                                    <div className="panel-subtitle">Project VESSEL • Subject 31525 • Clearance COSMIC</div>
                                 </div>
-                                <div className="terminal-content relative z-10">
-                                    <div className="terminal-line">
-                                        <span className="terminal-prompt">FACILITY:</span> Neural Interface Research Complex 05-B
+                                
+                                <div className="terminal-display">
+                                    <div className="terminal-header">
+                                        <div className="terminal-dots">
+                                            <div className="dot red"></div>
+                                            <div className="dot yellow"></div>
+                                            <div className="dot green"></div>
+                                        </div>
+                                        <span className="terminal-label">SECURE NEURAL LINK</span>
                                     </div>
-                                    <div className="terminal-line">
-                                        <span className="terminal-prompt">PROJECT:</span> VESSEL - Consciousness Transfer Protocol
-                                    </div>
-                                    <div className="terminal-line">
-                                        <span className="terminal-prompt">SUBJECT:</span> 31525 - Neural compatibility: 97.3%
-                                    </div>
-                                    <div className="terminal-line">
-                                        <span className="terminal-prompt">STATUS:</span> Transfer sequence initiated
-                                    </div>
-                                    <div className="terminal-line">
-                                        <span className="terminal-prompt">DATA:</span>
-                                        <span
-                                            onMouseEnter={() => setBinaryVisible(true)}
-                                            onMouseLeave={() => setBinaryVisible(false)}
-                                            className="cursor-pointer text-blue-400 hover:text-blue-300 transition-all duration-300 ml-2"
-                                            title="Neural data stream"
-                                        >
-                                            {binaryVisible ? binaryStr : '[NEURAL_DATA_STREAM]'}
-                                        </span>
-                                    </div>
-                                    <div className="terminal-line">
-                                        <span className="terminal-prompt">WARNING:</span>
-                                        <span className="text-red-400 ml-2 animate-pulse">
-                                            Temporal displacement detected in Test Chamber 3
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent animate-pulse"></div>
-                                    <h3 className="text-green-400 font-mono text-sm mb-3 relative z-10">CONSCIOUSNESS TIMER</h3>
-                                    <div className="text-4xl font-mono text-white mb-2 relative z-10">
-                                        {countdown === null ? '∞' : countdown}
-                                    </div>
-                                    <div className="text-xs text-gray-400 relative z-10">
-                                        {countdown === null ? 'Time Dissolved' : 'Neural Sync Countdown'}
+                                    
+                                    <div className="terminal-content">
+                                        <div className="terminal-line">
+                                            <span className="prompt">FACILITY:</span> Neural Interface Research Complex 05-B
+                                        </div>
+                                        <div className="terminal-line">
+                                            <span className="prompt">PROJECT:</span> VESSEL - Consciousness Transfer Protocol
+                                        </div>
+                                        <div className="terminal-line">
+                                            <span className="prompt">SUBJECT:</span> 31525 - Neural compatibility: 97.3%
+                                        </div>
+                                        <div className="terminal-line">
+                                            <span className="prompt">STATUS:</span> Transfer sequence initiated
+                                        </div>
+                                        <div className="terminal-line">
+                                            <span className="prompt">DATA:</span>
+                                            <span
+                                                onMouseEnter={() => setBinaryVisible(true)}
+                                                onMouseLeave={() => setBinaryVisible(false)}
+                                                className="data-stream"
+                                            >
+                                                {binaryVisible ? binaryStr : '[NEURAL_DATA_STREAM]'}
+                                            </span>
+                                        </div>
+                                        <div className="terminal-line warning">
+                                            <span className="prompt">WARNING:</span>
+                                            <span className="warning-text">
+                                                Temporal displacement detected in Test Chamber 3
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-transparent animate-pulse"></div>
-                                    <h3 className="text-green-400 font-mono text-sm mb-3 relative z-10">TEMPORAL REFERENCE</h3>
-                                    <div className="text-2xl font-mono text-cyan-400 mb-2 relative z-10">
-                                        {hexCode}
+                                <div className="metrics-grid">
+                                    <div className="metric-card consciousness">
+                                        <div className="metric-label">CONSCIOUSNESS TIMER</div>
+                                        <div className="metric-value">
+                                            {countdown === null ? '∞' : countdown}
+                                        </div>
+                                        <div className="metric-unit">
+                                            {countdown === null ? 'Time Dissolved' : 'Neural Sync Countdown'}
+                                        </div>
                                     </div>
-                                    <div className="text-xs text-gray-400 relative z-10">Reality Anchor Timestamp</div>
+                                    <div className="metric-card temporal">
+                                        <div className="metric-label">TEMPORAL REFERENCE</div>
+                                        <div className="metric-value">{hexCode}</div>
+                                        <div className="metric-unit">Reality Anchor Timestamp</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Research Logs */}
-                        <div className="card relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent animate-pulse"></div>
-                            <div className="card-header relative z-10">
-                                <h2 className="card-title text-purple-400">RESEARCH LOGS</h2>
-                                <p className="card-subtitle">Project VESSEL Documentation Archive</p>
+                        {/* System Status */}
+                        <div className="facility-panel system-status">
+                            <div className="panel-header">
+                                <h2 className="panel-title">SYSTEM STATUS</h2>
+                                <div className="panel-subtitle">Real-time Monitoring</div>
                             </div>
-                            <div className="space-y-3 relative z-10">
-                                {researchLogs.map((log) => (
+                            
+                            <div className="status-grid">
+                                <div className="status-item">
+                                    <span className="status-label">Temperature</span>
+                                    <span className="status-value">{facilityData.temperature}</span>
+                                </div>
+                                <div className="status-item">
+                                    <span className="status-label">Pressure</span>
+                                    <span className="status-value">{facilityData.pressure}</span>
+                                </div>
+                                <div className="status-item">
+                                    <span className="status-label">Humidity</span>
+                                    <span className="status-value">{facilityData.humidity}</span>
+                                </div>
+                                <div className="status-item">
+                                    <span className="status-label">Radiation</span>
+                                    <span className="status-value">{facilityData.radiation}</span>
+                                </div>
+                                <div className="status-item">
+                                    <span className="status-label">Power Output</span>
+                                    <span className="status-value">{facilityData.powerOutput}</span>
+                                </div>
+                                <div className="status-item">
+                                    <span className="status-label">Network</span>
+                                    <span className="status-value">{facilityData.networkStatus}</span>
+                                </div>
+                            </div>
+
+                            <div className="system-indicators">
+                                <div className="indicator active">
+                                    <div className="indicator-dot"></div>
+                                    <span>Neural Interface: ACTIVE</span>
+                                </div>
+                                <div className="indicator active">
+                                    <div className="indicator-dot"></div>
+                                    <span>Consciousness Monitor: ACTIVE</span>
+                                </div>
+                                <div className="indicator warning">
+                                    <div className="indicator-dot"></div>
+                                    <span>Reality Anchors: DEGRADED</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Middle Row - Research and Security */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        {/* Research Logs */}
+                        <div className="facility-panel research-logs">
+                            <div className="panel-header">
+                                <h2 className="panel-title">RESEARCH LOGS</h2>
+                                <div className="panel-subtitle">Project VESSEL Documentation Archive</div>
+                            </div>
+                            
+                            <div className="logs-container">
+                                {researchLogs.slice(0, 6).map((log) => (
                                     <div
                                         key={log.id}
                                         onClick={() => openLog(log)}
-                                        className={`p-4 rounded-lg border cursor-pointer transition-all duration-300 hover:scale-105 ${
-                                            log.corrupted
-                                                ? 'bg-red-900/20 border-red-500/30 hover:border-red-400 hover:bg-red-900/30'
-                                                : 'bg-gray-800/50 border-gray-700 hover:border-green-400 hover:bg-gray-800/70'
-                                        }`}
+                                        className={`log-entry ${log.corrupted ? 'corrupted' : 'normal'}`}
                                     >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h3 className={`font-mono text-sm font-bold ${
-                                                log.corrupted ? 'text-red-400' : 'text-green-400'
-                                            }`}>
-                                                {log.title}
-                                            </h3>
-                                            <span className={`text-xs px-2 py-1 rounded ${
-                                                log.classification === 'COSMIC' ? 'bg-purple-900/50 text-purple-300' :
-                                                    log.classification === 'TOP SECRET' ? 'bg-red-900/50 text-red-300' :
-                                                        log.classification === 'SECRET' ? 'bg-orange-900/50 text-orange-300' :
-                                                            'bg-blue-900/50 text-blue-300'
-                                            }`}>
+                                        <div className="log-header">
+                                            <h3 className="log-title">{log.title}</h3>
+                                            <span className={`classification ${log.classification.toLowerCase().replace(' ', '-')}`}>
                                                 {log.classification}
                                             </span>
                                         </div>
-                                        <div className="text-xs text-gray-400 mb-2">
+                                        <div className="log-meta">
                                             {log.id} | {log.researcher} | {log.date}
                                         </div>
-                                        <div className={`text-sm ${log.corrupted ? 'text-red-300' : 'text-gray-300'}`}>
-                                            {log.content.split('\n')[0].substring(0, 100)}...
+                                        <div className="log-preview">
+                                            {log.content.split('\n')[0].substring(0, 80)}...
                                         </div>
                                         {log.corrupted && (
-                                            <div className="text-xs text-red-400 mt-2 animate-pulse">
+                                            <div className="corruption-warning">
                                                 ⚠️ DATA CORRUPTION DETECTED
                                             </div>
                                         )}
@@ -400,237 +443,172 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 ))}
                             </div>
                         </div>
+
+                        {/* Security and Performance */}
+                        <div className="space-y-8">
+                            {/* Security Metrics */}
+                            <div className="facility-panel security-panel">
+                                <div className="panel-header">
+                                    <h2 className="panel-title">SECURITY PROTOCOLS</h2>
+                                    <div className="panel-subtitle">Access Control & Monitoring</div>
+                                </div>
+                                
+                                <div className="security-grid">
+                                    <div className="security-metric">
+                                        <span className="metric-label">Biometric Scans</span>
+                                        <span className="metric-value">{securityMetrics.biometricScans}</span>
+                                    </div>
+                                    <div className="security-metric">
+                                        <span className="metric-label">Access Attempts</span>
+                                        <span className="metric-value warning">{securityMetrics.accessAttempts}</span>
+                                    </div>
+                                    <div className="security-metric">
+                                        <span className="metric-label">Breach Alerts</span>
+                                        <span className="metric-value">{securityMetrics.breachAlerts}</span>
+                                    </div>
+                                    <div className="security-metric">
+                                        <span className="metric-label">Active Personnel</span>
+                                        <span className="metric-value">{securityMetrics.activePersonnel}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* System Performance */}
+                            <div className="facility-panel performance-panel">
+                                <div className="panel-header">
+                                    <h2 className="panel-title">SYSTEM PERFORMANCE</h2>
+                                    <div className="panel-subtitle">Neural Processing Units</div>
+                                </div>
+                                
+                                <div className="performance-grid">
+                                    <div className="perf-metric">
+                                        <span className="metric-label">CPU Usage</span>
+                                        <span className="metric-value warning">{systemMetrics.cpuUsage}</span>
+                                    </div>
+                                    <div className="perf-metric">
+                                        <span className="metric-label">Memory</span>
+                                        <span className="metric-value">{systemMetrics.memoryUsage}</span>
+                                    </div>
+                                    <div className="perf-metric">
+                                        <span className="metric-label">Disk Space</span>
+                                        <span className="metric-value">{systemMetrics.diskSpace}</span>
+                                    </div>
+                                    <div className="perf-metric">
+                                        <span className="metric-label">Network</span>
+                                        <span className="metric-value">{systemMetrics.networkTraffic}</span>
+                                    </div>
+                                </div>
+
+                                <div className="neural-units">
+                                    <div className="units-label">Neural Processing Units:</div>
+                                    <div className="units-grid">
+                                        {[...Array(16)].map((_, i) => (
+                                            <div key={i} className={`unit ${
+                                                i < 12 ? 'active' : i < 14 ? 'warning' : 'critical'
+                                            }`}></div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Right Column - Status Panels */}
-                    <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Environmental Status */}
-                        <div className="card relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent animate-pulse"></div>
-                            <div className="card-header relative z-10">
-                                <h2 className="card-title text-sm">ENVIRONMENTAL STATUS</h2>
-                            </div>
-                            <div className="space-y-4 relative z-10">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Temperature</span>
-                                    <span className="text-green-400 font-mono">{facilityData.temperature}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Pressure</span>
-                                    <span className="text-green-400 font-mono">{facilityData.pressure}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Humidity</span>
-                                    <span className="text-green-400 font-mono">{facilityData.humidity}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Radiation</span>
-                                    <span className="text-green-400 font-mono">{facilityData.radiation}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Power Output</span>
-                                    <span className="text-green-400 font-mono">{facilityData.powerOutput}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Network</span>
-                                    <span className="text-green-400 font-mono">{facilityData.networkStatus}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Security Metrics */}
-                        <div className="card relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent animate-pulse"></div>
-                            <div className="card-header relative z-10">
-                                <h2 className="card-title text-sm">SECURITY PROTOCOLS</h2>
-                            </div>
-                            <div className="space-y-4 relative z-10">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Biometric Scans</span>
-                                    <span className="text-green-400 font-mono">{securityMetrics.biometricScans}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Access Attempts</span>
-                                    <span className="text-yellow-400 font-mono">{securityMetrics.accessAttempts}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Breach Alerts</span>
-                                    <span className="text-green-400 font-mono">{securityMetrics.breachAlerts}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Active Personnel</span>
-                                    <span className="text-green-400 font-mono">{securityMetrics.activePersonnel}</span>
-                                </div>
-                                <div className="mt-4 space-y-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span className="text-sm text-gray-300">Neural Interface: ACTIVE</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span className="text-sm text-gray-300">Consciousness Monitor: ACTIVE</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                                        <span className="text-sm text-gray-300">Reality Anchors: DEGRADED</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* System Performance */}
-                        <div className="card relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent animate-pulse"></div>
-                            <div className="card-header relative z-10">
-                                <h2 className="card-title text-sm">SYSTEM PERFORMANCE</h2>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4 relative z-10">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">CPU Usage</span>
-                                    <span className="text-yellow-400 font-mono">{systemMetrics.cpuUsage}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Memory</span>
-                                    <span className="text-green-400 font-mono">{systemMetrics.memoryUsage}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Disk Space</span>
-                                    <span className="text-green-400 font-mono">{systemMetrics.diskSpace}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 text-sm">Network</span>
-                                    <span className="text-green-400 font-mono">{systemMetrics.networkTraffic}</span>
-                                </div>
-                            </div>
-                            <div className="mt-4 space-y-2">
-                                <div className="text-xs text-gray-400">Neural Processing Units:</div>
-                                <div className="grid grid-cols-4 gap-1">
-                                    {[...Array(16)].map((_, i) => (
-                                        <div key={i} className={`h-2 rounded ${
-                                            i < 12 ? 'bg-green-400 animate-pulse' :
-                                                i < 14 ? 'bg-yellow-400 animate-pulse' :
-                                                    'bg-red-400 animate-pulse'
-                                        }`}></div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
+                    {/* Bottom Row - Critical Alerts and Information */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         {/* Critical Alerts */}
-                        <div className="card card-danger relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent animate-pulse"></div>
-                            <div className="card-header relative z-10">
-                                <h2 className="card-title text-sm text-red-400">CRITICAL ALERTS</h2>
+                        <div className="lg:col-span-2 facility-panel alert-panel">
+                            <div className="panel-header">
+                                <h2 className="panel-title">CRITICAL ALERTS</h2>
+                                <div className="panel-subtitle">Active Incidents & Warnings</div>
                             </div>
-                            <div className="text-sm text-red-300 space-y-3 relative z-10">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                            
+                            <div className="alerts-container">
+                                <div className="alert-item critical">
+                                    <div className="alert-dot"></div>
                                     <span>Organic growth detected in Sector 7 ventilation</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                                <div className="alert-item critical">
+                                    <div className="alert-dot"></div>
                                     <span>Subject 31525 consciousness fragmentation detected</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                                <div className="alert-item warning">
+                                    <div className="alert-dot"></div>
                                     <span>Temporal displacement events in Test Chamber 3</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                                <div className="alert-item critical">
+                                    <div className="alert-dot"></div>
                                     <span>Reality anchor stability: 23% and falling</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                                <div className="alert-item critical">
+                                    <div className="alert-dot"></div>
                                     <span>Unknown root systems breaching foundation</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+                                <div className="alert-item critical">
+                                    <div className="alert-dot"></div>
                                     <span>Staff reporting shared consciousness events</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Footer Information */}
-                <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent animate-pulse"></div>
-                        <h3 className="text-green-400 font-mono text-sm mb-4 relative z-10">EMERGENCY CONTACTS</h3>
-                        <div className="text-sm text-gray-300 space-y-2 relative z-10">
-                            <div className="flex justify-between">
-                                <span>Neural Security:</span>
-                                <span className="font-mono">Ext. 2847</span>
+                        {/* Emergency Contacts */}
+                        <div className="facility-panel contacts-panel">
+                            <div className="panel-header">
+                                <h2 className="panel-title">EMERGENCY CONTACTS</h2>
+                                <div className="panel-subtitle">24/7 Response Teams</div>
                             </div>
-                            <div className="flex justify-between">
-                                <span>Medical Emergency:</span>
-                                <span className="font-mono">Ext. 3156</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Technical Support:</span>
-                                <span className="font-mono">Ext. 4729</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Command Center:</span>
-                                <span className="font-mono">Ext. 1001</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Containment Breach:</span>
-                                <span className="font-mono text-red-400">Ext. 0000</span>
+                            
+                            <div className="contacts-list">
+                                <div className="contact-item">
+                                    <span>Neural Security:</span>
+                                    <span className="contact-number">Ext. 2847</span>
+                                </div>
+                                <div className="contact-item">
+                                    <span>Medical Emergency:</span>
+                                    <span className="contact-number">Ext. 3156</span>
+                                </div>
+                                <div className="contact-item">
+                                    <span>Technical Support:</span>
+                                    <span className="contact-number">Ext. 4729</span>
+                                </div>
+                                <div className="contact-item">
+                                    <span>Command Center:</span>
+                                    <span className="contact-number">Ext. 1001</span>
+                                </div>
+                                <div className="contact-item emergency">
+                                    <span>Containment Breach:</span>
+                                    <span className="contact-number">Ext. 0000</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse"></div>
-                        <h3 className="text-green-400 font-mono text-sm mb-4 relative z-10">FACILITY SPECIFICATIONS</h3>
-                        <div className="text-sm text-gray-300 space-y-2 relative z-10">
-                            <div className="flex justify-between">
-                                <span>Neural Cores:</span>
-                                <span className="font-mono">16 Active</span>
+                        {/* Project Classification */}
+                        <div className="facility-panel classification-panel">
+                            <div className="panel-header">
+                                <h2 className="panel-title">PROJECT CLASSIFICATION</h2>
+                                <div className="panel-subtitle">Security Clearance Info</div>
                             </div>
-                            <div className="flex justify-between">
-                                <span>Quantum Processors:</span>
-                                <span className="font-mono">8 Online</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Memory Banks:</span>
-                                <span className="font-mono">2.1 PB</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Power Grid:</span>
-                                <span className="font-mono">2.4 MW</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Reality Anchors:</span>
-                                <span className="font-mono text-yellow-400">4 Degraded</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-700 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent animate-pulse"></div>
-                        <h3 className="text-green-400 font-mono text-sm mb-4 relative z-10">PROJECT CLASSIFICATION</h3>
-                        <div className="text-sm text-gray-300 space-y-2 relative z-10">
-                            <div className="flex justify-between">
-                                <span>Security Level:</span>
-                                <span className="font-mono text-red-400">COSMIC</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Compartment:</span>
-                                <span className="font-mono">SCI//VESSEL</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Project Code:</span>
-                                <span className="font-mono">VESSEL-31525</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Facility ID:</span>
-                                <span className="font-mono">05-B</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Tree Protocol:</span>
-                                <span className="font-mono text-green-400">ACTIVE</span>
+                            
+                            <div className="classification-info">
+                                <div className="class-item">
+                                    <span>Security Level:</span>
+                                    <span className="class-value cosmic">COSMIC</span>
+                                </div>
+                                <div className="class-item">
+                                    <span>Compartment:</span>
+                                    <span className="class-value">SCI//VESSEL</span>
+                                </div>
+                                <div className="class-item">
+                                    <span>Project Code:</span>
+                                    <span className="class-value">VESSEL-31525</span>
+                                </div>
+                                <div className="class-item">
+                                    <span>Facility ID:</span>
+                                    <span className="class-value">05-B</span>
+                                </div>
+                                <div className="class-item">
+                                    <span>Tree Protocol:</span>
+                                    <span className="class-value active">ACTIVE</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -699,7 +677,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 <div className="modal-overlay" onClick={() => setShowModal(false)}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="text-center">
-                            <div className="text-4xl mb-4 animate-bounce">⚠️</div>
+                            <div className="text-4xl mb-4">⚠️</div>
                             <h2 className="text-xl font-bold text-green-400 mb-4">SYSTEM NOTIFICATION</h2>
                             <p className="text-gray-300 mb-6">{modalMessage}</p>
                             <button
