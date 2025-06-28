@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface EasterEggState {
     refreshCount: number;
@@ -13,7 +13,7 @@ interface EasterEggState {
 }
 
 interface EasterEggSystemProps {
-    onStateChange: (state: EasterEggState) => void;
+    onStateChangeAction: (state: EasterEggState) => void;
     children: React.ReactNode;
 }
 
@@ -29,12 +29,7 @@ const SECRET_PHRASES = [
     'shadow', 'memory'
 ];
 
-const CLICKABLE_ELEMENTS = [
-    'logo', 'time', 'status', 'binary', 'countdown', 'hex', 'temperature', 
-    'pressure', 'humidity', 'radiation', 'power', 'network'
-];
-
-export default function EasterEggSystem({ onStateChange, children }: EasterEggSystemProps) {
+export default function EasterEggSystem({ onStateChangeAction, children }: EasterEggSystemProps) {
     const [easterEggState, setEasterEggState] = useState<EasterEggState>({
         refreshCount: 0,
         uniqueInteractions: new Set(),
@@ -46,7 +41,6 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
     });
 
     const typingBuffer = useRef('');
-    const lastRefreshTime = useRef(0);
     const hasInitialized = useRef(false);
 
     // Initialize state from localStorage
@@ -68,7 +62,7 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
                     }
                 };
                 setEasterEggState(newState);
-                onStateChange(newState);
+                onStateChangeAction(newState);
             }
 
             // Track page refresh
@@ -104,7 +98,7 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
         } catch (error) {
             console.error('Failed to load easter egg state:', error);
         }
-    }, [onStateChange]);
+    }, [onStateChangeAction]);
 
     // Save state to localStorage whenever it changes
     useEffect(() => {
@@ -117,11 +111,11 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
                 visualChanges: easterEggState.visualChanges
             };
             localStorage.setItem('easterEggState', JSON.stringify(stateToSave));
-            onStateChange(easterEggState);
+            onStateChangeAction(easterEggState);
         } catch (error) {
             console.error('Failed to save easter egg state:', error);
         }
-    }, [easterEggState, onStateChange]);
+    }, [easterEggState, onStateChangeAction]);
 
     // Register unique interaction
     const registerInteraction = (type: string, identifier: string) => {
@@ -147,11 +141,17 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
             if (interactionCount >= 15 && !newVisualChanges.blinkingEnabled) {
                 newVisualChanges.blinkingEnabled = true;
                 console.log('✨ Blinking mode enabled! (15 interactions)');
+                
+                // Apply blinking to body
+                document.body.style.animation = 'flash 1s infinite';
             }
             
             if (interactionCount >= 25 && !newVisualChanges.colorsInverted) {
                 newVisualChanges.colorsInverted = true;
                 console.log('🔄 Colors inverted! (25 interactions)');
+                
+                // Apply color inversion to body
+                document.body.style.filter = 'invert(1)';
             }
 
             return {
@@ -189,6 +189,21 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
         return () => window.removeEventListener('keydown', handleKeyPress);
     }, []);
 
+    // Apply visual effects when state changes
+    useEffect(() => {
+        if (easterEggState.visualChanges.blinkingEnabled) {
+            document.body.style.animation = 'flash 1s infinite';
+        } else {
+            document.body.style.animation = '';
+        }
+
+        if (easterEggState.visualChanges.colorsInverted) {
+            document.body.style.filter = 'invert(1)';
+        } else {
+            document.body.style.filter = '';
+        }
+    }, [easterEggState.visualChanges]);
+
     // Provide interaction registration function to children
     const enhancedChildren = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
@@ -202,15 +217,7 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
     });
 
     return (
-        <div 
-            className={`
-                ${easterEggState.visualChanges.blinkingEnabled ? 'animate-flash' : ''}
-                ${easterEggState.visualChanges.colorsInverted ? 'invert' : ''}
-            `}
-            style={{
-                transition: 'filter 0.5s ease-in-out'
-            }}
-        >
+        <div>
             {enhancedChildren}
             
             {/* Color inversion toggle button */}
@@ -224,6 +231,7 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
                                 colorsInverted: false
                             }
                         }));
+                        document.body.style.filter = '';
                     }}
                     className="fixed bottom-4 right-4 bg-green-500 text-black px-4 py-2 rounded-lg font-mono text-sm hover:bg-green-400 transition-colors z-50"
                     style={{ filter: 'invert(1)' }} // Ensure button is visible when colors are inverted
@@ -244,14 +252,4 @@ export default function EasterEggSystem({ onStateChange, children }: EasterEggSy
             )}
         </div>
     );
-}
-
-// Hook for components to register interactions
-export function useEasterEgg() {
-    const registerInteraction = (type: string, identifier: string) => {
-        // This will be overridden by the EasterEggSystem
-        console.log(`Interaction registered: ${type}:${identifier}`);
-    };
-
-    return { registerInteraction };
 }
