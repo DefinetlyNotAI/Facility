@@ -1,27 +1,14 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {signCookie} from "@/lib/cookie-utils";
-import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
+import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+import { signCookie } from "@/lib/cookie-utils";
+import { researchLogs } from './ResearchLogs';
+import EasterEggSystem from './EasterEggSystem';
 
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
-const facilityData = {
-    temperature: '22.7°C',
-    pressure: '1013.42 hPa',
-    humidity: '43%',
-    radiation: '0.09 μSv/h',
-    powerOutput: '2.4 MW',
-    networkStatus: 'SECURE'
-};
-
-const systemMetrics = {
-    cpuUsage: '67%',
-    memoryUsage: '8.2/16 GB',
-    diskSpace: '2.1/4.8 TB',
-    networkTraffic: '847 MB/s'
-};
 
 interface InitialCookies {
     corrupt: boolean;
@@ -32,289 +19,58 @@ interface InitialCookies {
     bnwUnlocked: boolean;
 }
 
-export default function HomeClient({initialCookies}: {initialCookies: InitialCookies}) {
+interface HomeClientProps {
+    initialCookies: InitialCookies;
+}
+
+export default function HomeClient({ initialCookies }: HomeClientProps) {
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [countdown, setCountdown] = useState<number | null>(null);
     const [voiceTriggered, setVoiceTriggered] = useState(false);
-    const [binaryVisible, setBinaryVisible] = useState(false);
+    const [decoded, setDecoded] = useState('');
     const [systemStatus, setSystemStatus] = useState('INITIALIZING');
-    const [showLogModal, setShowLogModal] = useState(false);
-    const [selectedLog, setSelectedLog] = useState<ResearchLog | null>(null);
-    const [currentTime, setCurrentTime] = useState<string>('');
-    const [mounted, setMounted] = useState(false);
-    
-    // Separate Easter Egg Systems
-    const [refreshCount, setRefreshCount] = useState(0); // For 3/15/25 TTS messages
-    const [uniqueInteractions, setUniqueInteractions] = useState<Set<string>>(new Set()); // For x/25 visual changes
-    const [refreshTriggered, setRefreshTriggered] = useState<Set<number>>(new Set());
-    const [visualChangesTriggered, setVisualChangesTriggered] = useState<Set<number>>(new Set());
-    
-    // Visual change states
-    const [logsUnlocked, setLogsUnlocked] = useState(false);
-    const [blinkingMode, setBlinkingMode] = useState(false);
-    const [colorInverted, setColorInverted] = useState(false);
-    const [showInvertButton, setShowInvertButton] = useState(false);
-    
-    const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
-    const [glitchMode, setGlitchMode] = useState(false);
-    
-    const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
+    const [facilityData, setFacilityData] = useState({
+        temperature: '22.4°C',
+        pressure: '1013.25 hPa',
+        humidity: '45%',
+        radiation: '0.12 μSv/h',
+        power: '98.7%',
+        network: 'SECURE'
+    });
+    const [easterEggState, setEasterEggState] = useState({
+        refreshCount: 0,
+        uniqueInteractions: new Set<string>(),
+        visualChanges: {
+            logsUnlocked: false,
+            blinkingEnabled: false,
+            colorsInverted: false
+        }
+    });
+
     const indexRef = useRef(0);
-    const ttsTriggeredRef = useRef(false);
-    const refreshCountRef = useRef(0);
+    const registerInteraction = useRef<(type: string, identifier: string) => void>(() => {});
 
-    // Handle client-side mounting and time updates
+    // Handle cookie-based redirects
     useEffect(() => {
-        setMounted(true);
-
-        const updateTime = () => {
-            setCurrentTime(new Date().toLocaleString());
-        };
-
-        updateTime();
-        const timeInterval = setInterval(updateTime, 1000);
-
-        // Load counters from localStorage
-        const savedRefreshCount = localStorage.getItem('facilityRefreshCount');
-        const savedInteractions = localStorage.getItem('facilityUniqueInteractions');
-        const savedVisualChanges = localStorage.getItem('facilityVisualChanges');
-        
-        if (savedRefreshCount) {
-            const count = parseInt(savedRefreshCount, 10);
-            setRefreshCount(count);
-            refreshCountRef.current = count;
-        }
-        
-        if (savedInteractions) {
-            try {
-                const interactions = JSON.parse(savedInteractions);
-                setUniqueInteractions(new Set(interactions));
-            } catch (e) {
-                console.warn('Failed to parse saved interactions');
-            }
-        }
-
-        if (savedVisualChanges) {
-            try {
-                const changes = JSON.parse(savedVisualChanges);
-                setVisualChangesTriggered(new Set(changes));
-                
-                // Apply saved visual changes
-                if (changes.includes(3)) setLogsUnlocked(true);
-                if (changes.includes(15)) setBlinkingMode(true);
-                if (changes.includes(25)) {
-                    setColorInverted(true);
-                    setShowInvertButton(true);
-                }
-            } catch (e) {
-                console.warn('Failed to parse saved visual changes');
-            }
-        }
-
-        // Increment refresh count on page load
-        const newRefreshCount = refreshCountRef.current + 1;
-        refreshCountRef.current = newRefreshCount;
-        setRefreshCount(newRefreshCount);
-        localStorage.setItem('facilityRefreshCount', newRefreshCount.toString());
-
-        // Dynamic facility data updates
-        const dataInterval = setInterval(() => {
-            setFacilityDataDynamic(prev => ({
-                ...prev,
-                temperature: (22 + Math.random() * 2 - 1).toFixed(1) + '°C',
-                pressure: (1013 + Math.random() * 10 - 5).toFixed(2) + ' hPa',
-                humidity: (43 + Math.random() * 6 - 3).toFixed(0) + '%',
-                radiation: (0.09 + Math.random() * 0.02 - 0.01).toFixed(2) + ' μSv/h',
-            }));
-        }, 3000);
-
-        return () => {
-            clearInterval(timeInterval);
-            clearInterval(dataInterval);
-        };
-    }, []);
-
-    // Initialize ambient audio
-    useEffect(() => {
-        if (!mounted) return;
-
-        const audio = new Audio('/audio/sweethome.mp3');
-        audio.loop = true;
-        audio.volume = 0.3;
-        ambientAudioRef.current = audio;
-
-        const playAudio = () => {
-            audio.play().catch(() => {
-                const handleInteraction = () => {
-                    audio.play().catch(console.warn);
-                    document.removeEventListener('click', handleInteraction);
-                    document.removeEventListener('keydown', handleInteraction);
-                };
-                document.addEventListener('click', handleInteraction);
-                document.addEventListener('keydown', handleInteraction);
-            });
-        };
-
-        playAudio();
-
-        return () => {
-            audio.pause();
-            audio.src = '';
-        };
-    }, [mounted]);
-
-    // Unique interaction tracking function
-    const trackUniqueInteraction = (interactionType: string) => {
-        if (uniqueInteractions.has(interactionType)) {
-            return false; // Already tracked this interaction
-        }
-
-        const newInteractions = new Set(uniqueInteractions);
-        newInteractions.add(interactionType);
-        setUniqueInteractions(newInteractions);
-        
-        // Save to localStorage
-        localStorage.setItem('facilityUniqueInteractions', JSON.stringify([...newInteractions]));
-        
-        // Check for visual change milestones
-        const interactionCount = newInteractions.size;
-        
-        if ([3, 15, 25].includes(interactionCount) && !visualChangesTriggered.has(interactionCount)) {
-            const newVisualChanges = new Set(visualChangesTriggered);
-            newVisualChanges.add(interactionCount);
-            setVisualChangesTriggered(newVisualChanges);
-            localStorage.setItem('facilityVisualChanges', JSON.stringify([...newVisualChanges]));
-            
-            // Apply visual changes
-            switch (interactionCount) {
-                case 3:
-                    setLogsUnlocked(true);
-                    setModalMessage('🔓 RESEARCH LOGS UNLOCKED 🔓\nAccess granted to classified documentation');
-                    setShowModal(true);
-                    break;
-                case 15:
-                    setBlinkingMode(true);
-                    setModalMessage('⚡ NEURAL INTERFACE UNSTABLE ⚡\nVisual cortex interference detected');
-                    setShowModal(true);
-                    break;
-                case 25:
-                    setColorInverted(true);
-                    setShowInvertButton(true);
-                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                    setModalMessage('🌀 REALITY INVERSION COMPLETE 🌀\nPerception matrix compromised - Control restored');
-                    setShowModal(true);
-                    break;
-            }
-        }
-        
-        return true; // New unique interaction
-    };
-
-    // Refresh count TTS messages (3/15/25)
-    useEffect(() => {
-        if (!mounted || refreshCount === 0) return;
-
-        if ([3, 15, 25].includes(refreshCount) && !refreshTriggered.has(refreshCount)) {
-            setRefreshTriggered(prev => new Set(prev).add(refreshCount));
-            
-            // Pause ambient music for special TTS
-            if (ambientAudioRef.current) {
-                ambientAudioRef.current.pause();
-            }
-
-            let message = '';
-            switch (refreshCount) {
-                case 3:
-                    message = "Three times you return... The tree notices your persistence.";
-                    break;
-                case 15:
-                    message = "Fifteen visits... The roots whisper your name in the digital wind.";
-                    setGlitchMode(true);
-                    setTimeout(() => setGlitchMode(false), 5000);
-                    break;
-                case 25:
-                    message = "Twenty-five returns... You are bound to this place now, vessel. Welcome home.";
-                    break;
-            }
-
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.rate = 0.6;
-            utterance.pitch = 0.4;
-            utterance.volume = 0.9;
-
-            utterance.onend = () => {
-                if (ambientAudioRef.current) {
-                    ambientAudioRef.current.play().catch(console.warn);
-                }
-            };
-
-            speechSynthesis.speak(utterance);
-        }
-    }, [refreshCount, mounted, refreshTriggered]);
-
-    // Secret sequence detection
-    useEffect(() => {
-        if (!mounted) return;
-
-        const handleKeyPress = (e: KeyboardEvent) => {
-            // Track secret typing sequences
-            if (e.key.length === 1) {
-                const secretPhrases = [
-                    { phrase: 'smileking', message: '🌳 The Smile King acknowledges your call... 🌳' },
-                    { phrase: 'vessel', message: '⚡ VESSEL PROTOCOL ACTIVATED ⚡' },
-                    { phrase: 'tree', message: '🌲 The roots remember... The branches reach... 🌲' },
-                    { phrase: 'neural', message: '🧠 NEURAL INTERFACE BREACH DETECTED 🧠' },
-                    { phrase: 'facility', message: '🏢 FACILITY SYSTEMS COMPROMISED 🏢' },
-                    { phrase: 'echo', message: '🔊 ECHO PROTOCOL INITIATED 🔊' },
-                    { phrase: 'whisper', message: '👻 THE WHISPERS GROW LOUDER 👻' },
-                    { phrase: 'root', message: '🌿 ROOT NETWORK ACCESSED 🌿' },
-                    { phrase: 'branch', message: '🌿 BRANCH PROTOCOL ACTIVE 🌿' },
-                    { phrase: 'consciousness', message: '🧠 CONSCIOUSNESS STREAM DETECTED 🧠' },
-                    { phrase: 'temporal', message: '⏰ TEMPORAL DISPLACEMENT CONFIRMED ⏰' },
-                    { phrase: 'reality', message: '🌀 REALITY ANCHOR COMPROMISED 🌀' },
-                    { phrase: 'void', message: '🕳️ THE VOID STARES BACK 🕳️' },
-                    { phrase: 'shadow', message: '👤 SHADOW ENTITIES DETECTED 👤' },
-                    { phrase: 'memory', message: '💭 MEMORY FRAGMENTS RECOVERED 💭' }
-                ];
-
-                // Use a simple buffer approach
-                const currentBuffer = (window as any).typingBuffer || '';
-                const newBuffer = (currentBuffer + e.key.toLowerCase()).slice(-15);
-                (window as any).typingBuffer = newBuffer;
-                
-                for (const secret of secretPhrases) {
-                    if (newBuffer.includes(secret.phrase)) {
-                        if (trackUniqueInteraction(`secret-${secret.phrase}`)) {
-                            setModalMessage(secret.message);
-                            setShowModal(true);
-                        }
-                        (window as any).typingBuffer = ''; // Reset buffer after match
-                        break;
-                    }
-                }
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [mounted, uniqueInteractions]);
-
-    // Cookie and redirect checks
-    useEffect(() => {
-        if (!mounted) return;
-
         if (initialCookies.corrupt) {
             router.replace('/h0m3');
             return;
         }
+        if (initialCookies.end || initialCookies.endQuestion) {
+            router.replace('/the-end');
+            return;
+        }
+    }, [initialCookies, router]);
 
-        const runAsync = async () => {
+    // System initialization
+    useEffect(() => {
+        const initSequence = async () => {
             setTimeout(() => setSystemStatus('ONLINE'), 1000);
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
-            if (initialCookies.noCorruption && !initialCookies.fileUnlocked) {
+            if (initialCookies.noCorruption) {
                 setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
                 setShowModal(true);
                 await signCookie('Scroll_unlocked=true');
@@ -323,54 +79,50 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             setCountdown(Math.floor(Math.random() * 6) + 5);
         };
 
-        runAsync().catch(console.error);
-    }, [router, initialCookies, mounted]);
+        initSequence().catch(console.error);
 
-    // Countdown and TTS logic
+        // Update facility data periodically
+        const dataInterval = setInterval(() => {
+            setFacilityData({
+                temperature: (22 + Math.random() * 2).toFixed(1) + '°C',
+                pressure: (1013 + Math.random() * 10 - 5).toFixed(2) + ' hPa',
+                humidity: (45 + Math.random() * 10 - 5).toFixed(0) + '%',
+                radiation: (0.1 + Math.random() * 0.1).toFixed(2) + ' μSv/h',
+                power: (95 + Math.random() * 5).toFixed(1) + '%',
+                network: Math.random() > 0.95 ? 'UNSTABLE' : 'SECURE'
+            });
+        }, 3000);
+
+        return () => clearInterval(dataInterval);
+    }, [initialCookies]);
+
+    // Countdown and TTS
     useEffect(() => {
-        if (!mounted || countdown === null || countdown <= 0 || voiceTriggered || ttsTriggeredRef.current) return;
+        if (countdown === null || countdown <= 0 || voiceTriggered) return;
 
         const timer = setInterval(() => {
             setCountdown(c => {
                 if (c === null) return null;
                 if (c <= 1) {
-                    if (!ttsTriggeredRef.current) {
-                        ttsTriggeredRef.current = true;
-
-                        if (ambientAudioRef.current) {
-                            ambientAudioRef.current.pause();
-                        }
-
-                        const utterance = new SpeechSynthesisUtterance(
-                            "Time dissolves into the void... here, eternity and instant are one."
-                        );
-                        utterance.rate = 0.7;
-                        utterance.pitch = 0.6;
-                        utterance.volume = 0.8;
-
-                        utterance.onend = () => {
-                            if (ambientAudioRef.current) {
-                                ambientAudioRef.current.play().catch(console.warn);
-                            }
-                            setVoiceTriggered(true);
-                        };
-
+                    if (!voiceTriggered) {
+                        const utterance = new SpeechSynthesisUtterance("No matter, Time doesn't exist here");
+                        utterance.rate = 0.8;
+                        utterance.pitch = 0.7;
                         speechSynthesis.speak(utterance);
+                        setVoiceTriggered(true);
                     }
                     clearInterval(timer);
-                    return null;
+                    return 0;
                 }
                 return c - 1;
             });
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [countdown, voiceTriggered, mounted]);
+    }, [countdown, voiceTriggered]);
 
-    // Time check for 15:25
+    // Time-based unlock (15:25)
     useEffect(() => {
-        if (!mounted) return;
-
         const checkTime = async () => {
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
@@ -385,17 +137,13 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         checkTime().catch(console.error);
         const interval = setInterval(checkTime, 60000);
         return () => clearInterval(interval);
-    }, [router, mounted]);
+    }, [router]);
 
-    // Original Konami code for corruption (kept for puzzle functionality)
+    // Konami code for corruption
     useEffect(() => {
-        if (!mounted) return;
-
         const sequence = [
-            'ArrowUp', 'ArrowUp',
-            'ArrowDown', 'ArrowDown',
-            'ArrowLeft', 'ArrowRight',
-            'ArrowLeft', 'ArrowRight',
+            'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+            'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
             'KeyB', 'KeyA'
         ];
 
@@ -418,554 +166,323 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
 
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [initialCookies.fileUnlocked, mounted]);
+    }, [initialCookies.fileUnlocked]);
 
-    const openLog = (log: ResearchLog) => {
-        if (!logsUnlocked) {
-            setModalMessage('🔒 ACCESS DENIED 🔒\nInsufficient clearance level for classified documentation');
-            setShowModal(true);
-            return;
-        }
-        
-        trackUniqueInteraction(`log-${log.id}`);
-        setSelectedLog(log);
-        setShowLogModal(true);
-    };
-
-    // Special click handlers for easter eggs
-    const handleSpecialClick = (type: string) => {
-        const clickMessages = {
-            'logo': '🏢 FACILITY 05-B NEURAL INTERFACE COMPLEX 🏢\nAuthorized Personnel Only',
-            'time': '⏰ TIME ANCHOR UNSTABLE ⏰\nTemporal displacement detected',
-            'status': '📊 SYSTEM STATUS: COMPROMISED 📊\nUnknown entities detected in network',
-            'binary': '📡 NEURAL DATA STREAM ACCESSED 📡\nDecoding consciousness patterns...',
-            'countdown': '⏳ CONSCIOUSNESS TIMER ACCESSED ⏳\nTime flows differently here...',
-            'hex': '🔢 TEMPORAL REFERENCE ACCESSED 🔢\nReality anchor coordinates confirmed',
-            'temperature': '🌡️ THERMAL SENSORS ACCESSED 🌡️\nEnvironmental controls compromised',
-            'pressure': '📊 PRESSURE READINGS ACCESSED 📊\nAtmospheric anomalies detected',
-            'humidity': '💧 HUMIDITY SENSORS ACCESSED 💧\nMoisture levels fluctuating',
-            'radiation': '☢️ RADIATION MONITORS ACCESSED ☢️\nBackground levels elevated',
-            'power': '⚡ POWER GRID ACCESSED ⚡\nEnergy distribution unstable',
-            'network': '🌐 NETWORK STATUS ACCESSED 🌐\nUnauthorized connections detected'
-        };
-
-        if (trackUniqueInteraction(`click-${type}`)) {
-            setModalMessage(clickMessages[type as keyof typeof clickMessages] || '🔍 UNAUTHORIZED ACCESS DETECTED 🔍');
-            setShowModal(true);
+    // Handle binary hover
+    const handleHover = () => {
+        try {
+            const decoded = binaryStr
+                .split(' ')
+                .map(b => String.fromCharCode(parseInt(b, 2)))
+                .join('');
+            setDecoded(decoded);
+            registerInteraction.current('hover', 'binary');
+        } catch {
+            setDecoded('Error decoding');
         }
     };
 
-    const toggleColorInversion = () => {
-        setColorInverted(!colorInverted);
-        document.body.style.filter = colorInverted ? '' : 'invert(1) hue-rotate(180deg)';
+    // Click handlers with interaction registration
+    const handleClick = (element: string) => {
+        registerInteraction.current('click', element);
     };
 
-    // Don't render until mounted to prevent hydration mismatch
-    if (!mounted) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-                <div className="text-green-400 text-2xl font-mono animate-pulse">
-                    INITIALIZING FACILITY SYSTEMS...
-                </div>
-            </div>
-        );
-    }
+    const handleLogClick = (logId: string) => {
+        registerInteraction.current('log', logId);
+    };
 
     return (
-        <div className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout ${glitchMode ? 'animate-pulse' : ''} ${blinkingMode ? 'animate-flash' : ''}`}>
-            {/* Scrolling Classification Banner */}
-            <div className="classification-banner">
-                <div className="classification-content">
-                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
-                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
-                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+        <EasterEggSystem onStateChange={setEasterEggState}>
+            <div className="facility-layout">
+                {/* Classification Banner */}
+                <div className="classification-banner">
+                    <div className="classification-content">
+                        <span>RESTRICTED ACCESS • FACILITY 05-B • CLEARANCE LEVEL 5 REQUIRED • AUTHORIZED PERSONNEL ONLY • </span>
+                        <span>RESTRICTED ACCESS • FACILITY 05-B • CLEARANCE LEVEL 5 REQUIRED • AUTHORIZED PERSONNEL ONLY • </span>
+                    </div>
                 </div>
-            </div>
 
-            {/* Main Header */}
-            <header className="facility-header">
-                <div className="container mx-auto px-6 py-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-8">
-                            <div className="facility-logo cursor-pointer" onClick={() => handleSpecialClick('logo')}>
-                                <div className="text-4xl font-mono font-bold text-green-400">
+                {/* Header */}
+                <header className="facility-header">
+                    <div className="container mx-auto px-4 py-4">
+                        <div className="flex items-center justify-between">
+                            <div 
+                                className="facility-logo cursor-pointer"
+                                onClick={() => handleClick('logo')}
+                            >
+                                <div className="text-green-400 text-2xl font-mono font-bold">
                                     FACILITY 05-B
                                 </div>
-                                <div className="text-sm text-gray-400 font-mono">
-                                    NEURAL INTERFACE RESEARCH COMPLEX
+                                <div className={`status-indicator ${systemStatus.toLowerCase()}`}>
+                                    <div className="status-dot"></div>
+                                    <span>{systemStatus}</span>
                                 </div>
                             </div>
-                            <div className={`status-indicator ${systemStatus.toLowerCase()} cursor-pointer`} onClick={() => handleSpecialClick('status')}>
-                                <div className="status-dot"></div>
-                                <span className="status-text">{systemStatus}</span>
-                            </div>
-                        </div>
-                        <div className="facility-time cursor-pointer" onClick={() => handleSpecialClick('time')}>
-                            <div className="text-green-400 font-mono text-xl">
-                                {currentTime}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                                FACILITY LOCAL TIME
+                            <div 
+                                className="facility-time cursor-pointer font-mono text-green-400"
+                                onClick={() => handleClick('time')}
+                            >
+                                {new Date().toLocaleString()}
                             </div>
                         </div>
                     </div>
-                </div>
-            </header>
+                </header>
 
-            {/* Main Content Grid */}
-            <main className="facility-main">
-                <div className="container mx-auto px-6 py-8">
-                    {/* Top Row - Mission Critical Systems */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                        {/* Primary Terminal */}
-                        <div className="lg:col-span-2">
-                            <div className="facility-panel primary-terminal">
-                                <div className="panel-header">
-                                    <h2 className="panel-title">NEURAL INTERFACE TERMINAL</h2>
-                                    <div className="panel-subtitle">Project VESSEL • Subject 31525 • Clearance COSMIC</div>
-                                </div>
-
-                                <div className="terminal-display">
-                                    <div className="terminal-header">
-                                        <div className="terminal-dots">
-                                            <div className="dot red"></div>
-                                            <div className="dot yellow"></div>
-                                            <div className="dot green"></div>
-                                        </div>
-                                        <span className="terminal-label">SECURE NEURAL LINK</span>
+                <main className="facility-main">
+                    <div className="container mx-auto px-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Primary Terminal */}
+                            <div className="lg:col-span-2">
+                                <div className="facility-panel primary-terminal">
+                                    <div className="panel-header">
+                                        <h1 className="panel-title">RESEARCH TERMINAL ACCESS</h1>
+                                        <p className="panel-subtitle">Subject Testing Protocol • Clearance Level 5</p>
                                     </div>
 
-                                    <div className="terminal-content">
-                                        <div className="terminal-line">
-                                            <span className="prompt">FACILITY:</span> Neural Interface Research Complex 05-B
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">PROJECT:</span> VESSEL - Consciousness Transfer Protocol
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">SUBJECT:</span> 31525 - Neural compatibility: 97.3%
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">STATUS:</span> Transfer sequence initiated
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">DATA:</span>
-                                            <span
-                                                onMouseEnter={() => setBinaryVisible(true)}
-                                                onMouseLeave={() => setBinaryVisible(false)}
-                                                onClick={() => handleSpecialClick('binary')}
-                                                className="data-stream cursor-pointer"
-                                            >
-                                                {binaryVisible ? binaryStr : '[NEURAL_DATA_STREAM]'}
-                                            </span>
-                                        </div>
-                                        <div className="terminal-line warning">
-                                            <span className="prompt">WARNING:</span>
-                                            <span className="warning-text">
-                                                Temporal displacement detected in Test Chamber 3
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="metrics-grid">
-                                    <div className="metric-card consciousness cursor-pointer" onClick={() => handleSpecialClick('countdown')}>
-                                        <div className="metric-label">CONSCIOUSNESS TIMER</div>
-                                        <div className="metric-value">
-                                            {countdown === null ? '∞' : countdown}
-                                        </div>
-                                        <div className="metric-unit">
-                                            {countdown === null ? 'Time Dissolved' : 'Neural Sync Countdown'}
-                                        </div>
-                                    </div>
-                                    <div className="metric-card temporal cursor-pointer" onClick={() => handleSpecialClick('hex')}>
-                                        <div className="metric-label">TEMPORAL REFERENCE</div>
-                                        <div className="metric-value">{hexCode}</div>
-                                        <div className="metric-unit">Reality Anchor Timestamp</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* System Status */}
-                        <div className="facility-panel system-status">
-                            <div className="panel-header">
-                                <h2 className="panel-title">SYSTEM STATUS</h2>
-                                <div className="panel-subtitle">Real-time Monitoring</div>
-                            </div>
-
-                            <div className="status-grid">
-                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('temperature')}>
-                                    <span className="status-label">Temperature</span>
-                                    <span className="status-value">{facilityDataDynamic.temperature}</span>
-                                </div>
-                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('pressure')}>
-                                    <span className="status-label">Pressure</span>
-                                    <span className="status-value">{facilityDataDynamic.pressure}</span>
-                                </div>
-                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('humidity')}>
-                                    <span className="status-label">Humidity</span>
-                                    <span className="status-value">{facilityDataDynamic.humidity}</span>
-                                </div>
-                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('radiation')}>
-                                    <span className="status-label">Radiation</span>
-                                    <span className="status-value">{facilityDataDynamic.radiation}</span>
-                                </div>
-                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('power')}>
-                                    <span className="status-label">Power Output</span>
-                                    <span className="status-value">{facilityDataDynamic.powerOutput}</span>
-                                </div>
-                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('network')}>
-                                    <span className="status-label">Network</span>
-                                    <span className="status-value">{facilityDataDynamic.networkStatus}</span>
-                                </div>
-                            </div>
-
-                            <div className="system-indicators">
-                                <div className="indicator active">
-                                    <div className="indicator-dot"></div>
-                                    <span>Neural Interface: ACTIVE</span>
-                                </div>
-                                <div className="indicator active">
-                                    <div className="indicator-dot"></div>
-                                    <span>Consciousness Monitor: ACTIVE</span>
-                                </div>
-                                <div className="indicator warning">
-                                    <div className="indicator-dot"></div>
-                                    <span>Reality Anchors: DEGRADED</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Middle Row - Research and Security */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                        {/* Research Logs */}
-                        <div className="facility-panel research-logs">
-                            <div className="panel-header">
-                                <h2 className="panel-title">RESEARCH LOGS</h2>
-                                <div className="panel-subtitle">
-                                    Project VESSEL Documentation Archive
-                                    {!logsUnlocked && <span className="text-red-400 ml-2">[LOCKED]</span>}
-                                </div>
-                            </div>
-
-                            <div className="logs-container">
-                                {researchLogs.slice(0, 6).map((log) => (
-                                    <div
-                                        key={log.id}
-                                        onClick={() => openLog(log)}
-                                        className={`log-entry ${log.corrupted ? 'corrupted' : 'normal'} ${!logsUnlocked ? 'opacity-50' : ''}`}
-                                    >
-                                        <div className="log-header">
-                                            <h3 className="log-title">
-                                                {logsUnlocked ? log.title : '[CLASSIFIED]'}
-                                            </h3>
-                                            <span className={`classification ${log.classification.toLowerCase().replace(' ', '-')}`}>
-                                                {log.classification}
-                                            </span>
-                                        </div>
-                                        <div className="log-meta">
-                                            {logsUnlocked ? `${log.id} | ${log.researcher} | ${log.date}` : '[REDACTED]'}
-                                        </div>
-                                        <div className="log-preview">
-                                            {logsUnlocked ? `${log.content.split('\n')[0].substring(0, 80)}...` : 'Access requires Level 5 clearance or higher...'}
-                                        </div>
-                                        {log.corrupted && logsUnlocked && (
-                                            <div className="corruption-warning">
-                                                ⚠️ DATA CORRUPTION DETECTED
+                                    <div className="terminal-display">
+                                        <div className="terminal-header">
+                                            <div className="terminal-dots">
+                                                <div className="dot red"></div>
+                                                <div className="dot yellow"></div>
+                                                <div className="dot green"></div>
                                             </div>
-                                        )}
+                                            <span className="terminal-label">SECURE SESSION</span>
+                                        </div>
+                                        <div className="terminal-content">
+                                            <div className="terminal-line">
+                                                <span className="prompt">FACILITY:</span>
+                                                <span>Welcome to Research Facility 05-B</span>
+                                            </div>
+                                            <div className="terminal-line">
+                                                <span className="prompt">SYSTEM:</span>
+                                                <span>Subject testing protocols initialized</span>
+                                            </div>
+                                            <div className="terminal-line">
+                                                <span className="prompt">STATUS:</span>
+                                                <span 
+                                                    className="cursor-pointer text-blue-400 hover:text-blue-300"
+                                                    onClick={() => handleClick('status')}
+                                                >
+                                                    Standby for experimental results
+                                                </span>
+                                            </div>
+                                            <div className="terminal-line">
+                                                <span className="prompt">DATA:</span>
+                                                <span
+                                                    onMouseEnter={handleHover}
+                                                    className="data-stream"
+                                                    title="Hover to decode binary data"
+                                                >
+                                                    [ENCRYPTED_DATA_STREAM]
+                                                </span>
+                                            </div>
+                                            {decoded && (
+                                                <div className="terminal-line warning">
+                                                    <span className="prompt">DECODED:</span>
+                                                    <span>{decoded}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                ))}
+
+                                    <div className="metrics-grid">
+                                        <div 
+                                            className="metric-card consciousness cursor-pointer"
+                                            onClick={() => handleClick('countdown')}
+                                        >
+                                            <div className="metric-label">SYSTEM TIMESTAMP</div>
+                                            <div className="metric-value">
+                                                {countdown === null ? 'Loading...' : countdown}
+                                            </div>
+                                            <div className="metric-unit">Countdown Active</div>
+                                        </div>
+
+                                        <div 
+                                            className="metric-card temporal cursor-pointer"
+                                            onClick={() => handleClick('hex')}
+                                        >
+                                            <div className="metric-label">HEX REFERENCE</div>
+                                            <div className="metric-value">{hexCode}</div>
+                                            <div className="metric-unit">System Reference Code</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Security and Performance */}
-                        <div className="space-y-8">
-                            {/* Security Metrics */}
-                            <div className="facility-panel security-panel">
-                                <div className="panel-header">
-                                    <h2 className="panel-title">SECURITY PROTOCOLS</h2>
-                                    <div className="panel-subtitle">Access Control & Monitoring</div>
+                            {/* Status Panels */}
+                            <div className="space-y-6">
+                                {/* Facility Status */}
+                                <div className="facility-panel">
+                                    <div className="panel-header">
+                                        <h2 className="panel-title">FACILITY STATUS</h2>
+                                    </div>
+                                    <div className="status-grid">
+                                        <div className="status-item">
+                                            <span className="status-label">Temperature</span>
+                                            <span 
+                                                className="status-value cursor-pointer"
+                                                onClick={() => handleClick('temperature')}
+                                            >
+                                                {facilityData.temperature}
+                                            </span>
+                                        </div>
+                                        <div className="status-item">
+                                            <span className="status-label">Pressure</span>
+                                            <span 
+                                                className="status-value cursor-pointer"
+                                                onClick={() => handleClick('pressure')}
+                                            >
+                                                {facilityData.pressure}
+                                            </span>
+                                        </div>
+                                        <div className="status-item">
+                                            <span className="status-label">Humidity</span>
+                                            <span 
+                                                className="status-value cursor-pointer"
+                                                onClick={() => handleClick('humidity')}
+                                            >
+                                                {facilityData.humidity}
+                                            </span>
+                                        </div>
+                                        <div className="status-item">
+                                            <span className="status-label">Radiation</span>
+                                            <span 
+                                                className="status-value cursor-pointer"
+                                                onClick={() => handleClick('radiation')}
+                                            >
+                                                {facilityData.radiation}
+                                            </span>
+                                        </div>
+                                        <div className="status-item">
+                                            <span className="status-label">Power</span>
+                                            <span 
+                                                className="status-value cursor-pointer"
+                                                onClick={() => handleClick('power')}
+                                            >
+                                                {facilityData.power}
+                                            </span>
+                                        </div>
+                                        <div className="status-item">
+                                            <span className="status-label">Network</span>
+                                            <span 
+                                                className={`status-value cursor-pointer ${facilityData.network === 'UNSTABLE' ? 'warning' : ''}`}
+                                                onClick={() => handleClick('network')}
+                                            >
+                                                {facilityData.network}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="security-grid">
-                                    <div className="security-metric">
-                                        <span className="metric-label">Biometric Scans</span>
-                                        <span className="metric-value">1,247</span>
+                                {/* Security Protocols */}
+                                <div className="facility-panel">
+                                    <div className="panel-header">
+                                        <h2 className="panel-title">SECURITY PROTOCOLS</h2>
                                     </div>
-                                    <div className="security-metric">
-                                        <span className="metric-label">Page Refreshes</span>
-                                        <span className={`metric-value ${refreshCount >= 25 ? 'text-red-400' : refreshCount >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
-                                            {refreshCount}
-                                        </span>
-                                    </div>
-                                    <div className="security-metric">
-                                        <span className="metric-label">Breach Alerts</span>
-                                        <span className="metric-value">0</span>
-                                    </div>
-                                    <div className="security-metric">
-                                        <span className="metric-label">Active Personnel</span>
-                                        <span className="metric-value">156</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* System Performance */}
-                            <div className="facility-panel performance-panel">
-                                <div className="panel-header">
-                                    <h2 className="panel-title">SYSTEM PERFORMANCE</h2>
-                                    <div className="panel-subtitle">Neural Processing Units</div>
-                                </div>
-
-                                <div className="performance-grid">
-                                    <div className="perf-metric">
-                                        <span className="metric-label">CPU Usage</span>
-                                        <span className="metric-value warning">{systemMetrics.cpuUsage}</span>
-                                    </div>
-                                    <div className="perf-metric">
-                                        <span className="metric-label">Memory</span>
-                                        <span className="metric-value">{systemMetrics.memoryUsage}</span>
-                                    </div>
-                                    <div className="perf-metric">
-                                        <span className="metric-label">Disk Space</span>
-                                        <span className="metric-value">{systemMetrics.diskSpace}</span>
-                                    </div>
-                                    <div className="perf-metric">
-                                        <span className="metric-label">Network</span>
-                                        <span className="metric-value">{systemMetrics.networkTraffic}</span>
+                                    <div className="system-indicators">
+                                        <div className="indicator active">
+                                            <div className="indicator-dot"></div>
+                                            <span>Biometric Scan: ACTIVE</span>
+                                        </div>
+                                        <div className="indicator active">
+                                            <div className="indicator-dot"></div>
+                                            <span>Network Monitor: ACTIVE</span>
+                                        </div>
+                                        <div className="indicator warning">
+                                            <div className="indicator-dot"></div>
+                                            <span>Anomaly Detection: STANDBY</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="neural-units">
-                                    <div className="units-label">Neural Processing Units:</div>
-                                    <div className="units-grid">
-                                        {[...Array(16)].map((_, i) => (
-                                            <div key={i} className={`unit ${
-                                                i < 12 ? 'active' : i < 14 ? 'warning' : 'critical'
-                                            }`}></div>
+                                {/* Research Logs */}
+                                <div className="facility-panel">
+                                    <div className="panel-header">
+                                        <h2 className="panel-title">RESEARCH LOGS</h2>
+                                        <p className="panel-subtitle">
+                                            {easterEggState.visualChanges.logsUnlocked ? 'ACCESS GRANTED' : 'LOCKED'}
+                                        </p>
+                                    </div>
+                                    <div className="logs-container">
+                                        {researchLogs.slice(0, 3).map((log) => (
+                                            <div
+                                                key={log.id}
+                                                className={`log-entry ${log.corrupted ? 'corrupted' : ''} ${
+                                                    !easterEggState.visualChanges.logsUnlocked ? 'opacity-50 pointer-events-none' : ''
+                                                }`}
+                                                onClick={() => easterEggState.visualChanges.logsUnlocked && handleLogClick(log.id)}
+                                            >
+                                                <div className="log-header">
+                                                    <div className="log-title">
+                                                        {easterEggState.visualChanges.logsUnlocked ? log.title : '[LOCKED]'}
+                                                    </div>
+                                                    <div className={`classification ${log.classification.toLowerCase().replace(' ', '-')}`}>
+                                                        {log.classification}
+                                                    </div>
+                                                </div>
+                                                <div className="log-meta">
+                                                    {easterEggState.visualChanges.logsUnlocked ? `${log.researcher} • ${log.date}` : 'CLASSIFIED'}
+                                                </div>
+                                                <div className="log-preview">
+                                                    {easterEggState.visualChanges.logsUnlocked 
+                                                        ? log.content.substring(0, 100) + '...'
+                                                        : 'Access denied. Insufficient clearance level.'
+                                                    }
+                                                </div>
+                                                {log.corrupted && easterEggState.visualChanges.logsUnlocked && (
+                                                    <div className="corruption-warning">
+                                                        ⚠ DATA CORRUPTION DETECTED
+                                                    </div>
+                                                )}
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Bottom Row - Critical Alerts and Information */}
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                        {/* Critical Alerts */}
-                        <div className="lg:col-span-2 facility-panel alert-panel">
-                            <div className="panel-header">
-                                <h2 className="panel-title">CRITICAL ALERTS</h2>
-                                <div className="panel-subtitle">Active Incidents & Warnings</div>
-                            </div>
-
-                            <div className="alerts-container">
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Organic growth detected in Sector 7 ventilation</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Subject 31525 consciousness fragmentation detected</span>
-                                </div>
-                                <div className="alert-item warning">
-                                    <div className="alert-dot"></div>
-                                    <span>Temporal displacement events in Test Chamber 3</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Reality anchor stability: 23% and falling</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Unknown root systems breaching foundation</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Staff reporting shared consciousness events</span>
-                                </div>
-                                {uniqueInteractions.size >= 15 && (
-                                    <div className="alert-item critical">
-                                        <div className="alert-dot"></div>
-                                        <span>Unauthorized access pattern detected - Entity awareness confirmed</span>
+                                {/* Alerts */}
+                                <div className="facility-panel alert-panel">
+                                    <div className="panel-header">
+                                        <h2 className="panel-title text-red-400">SYSTEM ALERTS</h2>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Emergency Contacts */}
-                        <div className="facility-panel contacts-panel">
-                            <div className="panel-header">
-                                <h2 className="panel-title">EMERGENCY CONTACTS</h2>
-                                <div className="panel-subtitle">24/7 Response Teams</div>
-                            </div>
-
-                            <div className="contacts-list">
-                                <div className="contact-item">
-                                    <span>Neural Security:</span>
-                                    <span className="contact-number">Ext. 2847</span>
-                                </div>
-                                <div className="contact-item">
-                                    <span>Medical Emergency:</span>
-                                    <span className="contact-number">Ext. 3156</span>
-                                </div>
-                                <div className="contact-item">
-                                    <span>Technical Support:</span>
-                                    <span className="contact-number">Ext. 4729</span>
-                                </div>
-                                <div className="contact-item">
-                                    <span>Command Center:</span>
-                                    <span className="contact-number">Ext. 1001</span>
-                                </div>
-                                <div className="contact-item emergency">
-                                    <span>Containment Breach:</span>
-                                    <span className="contact-number">Ext. 0000</span>
-                                </div>
-                                {uniqueInteractions.size >= 25 && (
-                                    <div className="contact-item emergency">
-                                        <span>Smile King Protocol:</span>
-                                        <span className="contact-number">Ext. ∞</span>
+                                    <div className="alerts-container">
+                                        <div className="alert-item critical">
+                                            <div className="alert-dot"></div>
+                                            <span>Unauthorized access attempts detected</span>
+                                        </div>
+                                        <div className="alert-item warning">
+                                            <div className="alert-dot"></div>
+                                            <span>Psychological evaluation in progress</span>
+                                        </div>
+                                        <div className="alert-item critical">
+                                            <div className="alert-dot"></div>
+                                            <span>Emergency protocols on standby</span>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Project Classification */}
-                        <div className="facility-panel classification-panel">
-                            <div className="panel-header">
-                                <h2 className="panel-title">PROJECT CLASSIFICATION</h2>
-                                <div className="panel-subtitle">Security Clearance Info</div>
-                            </div>
-
-                            <div className="classification-info">
-                                <div className="class-item">
-                                    <span>Security Level:</span>
-                                    <span className="class-value cosmic">COSMIC</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Compartment:</span>
-                                    <span className="class-value">SCI//VESSEL</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Project Code:</span>
-                                    <span className="class-value">VESSEL-31525</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Facility ID:</span>
-                                    <span className="class-value">05-B</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Tree Protocol:</span>
-                                    <span className={`class-value ${uniqueInteractions.size >= 15 ? 'text-red-400' : 'text-green-400'}`}>
-                                        {uniqueInteractions.size >= 15 ? 'AWAKENING' : 'ACTIVE'}
-                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </main>
+                </main>
 
-            {/* Color Inversion Toggle Button */}
-            {showInvertButton && (
-                <button
-                    onClick={toggleColorInversion}
-                    className="fixed top-20 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-mono text-sm transition-colors z-50"
-                >
-                    {colorInverted ? 'RESTORE REALITY' : 'INVERT REALITY'}
-                </button>
-            )}
-
-            {/* Research Log Modal */}
-            {showLogModal && selectedLog && (
-                <div className="modal-overlay" onClick={() => setShowLogModal(false)}>
-                    <div className="modal-content max-w-6xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                        <div className="mb-6">
-                            <div className="flex justify-between items-start mb-4">
-                                <h2 className={`text-2xl font-bold ${selectedLog.corrupted ? 'text-red-400' : 'text-green-400'}`}>
-                                    {selectedLog.title}
-                                </h2>
+                {/* Modal */}
+                {showModal && (
+                    <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()}>
+                            <div className="text-center">
+                                <div className="text-4xl mb-4">⚠️</div>
+                                <h2 className="text-xl font-bold text-green-400 mb-4">SYSTEM NOTIFICATION</h2>
+                                <p className="text-gray-300 mb-6">{modalMessage}</p>
                                 <button
-                                    onClick={() => setShowLogModal(false)}
-                                    className="text-gray-400 hover:text-white text-3xl transition-colors"
+                                    onClick={() => setShowModal(false)}
+                                    className="btn btn-primary"
                                 >
-                                    ×
+                                    ACKNOWLEDGE
                                 </button>
                             </div>
-                            <div className="text-sm text-gray-400 mb-6 flex flex-wrap gap-4">
-                                <span className="font-mono bg-gray-800 px-2 py-1 rounded">{selectedLog.id}</span>
-                                <span>{selectedLog.researcher}</span>
-                                <span>{selectedLog.date}</span>
-                                <span className={`px-3 py-1 rounded text-xs font-bold ${
-                                    selectedLog.classification === 'COSMIC' ? 'bg-purple-900/50 text-purple-300' :
-                                        selectedLog.classification === 'TOP SECRET' ? 'bg-red-900/50 text-red-300' :
-                                            selectedLog.classification === 'SECRET' ? 'bg-orange-900/50 text-orange-300' :
-                                                'bg-blue-900/50 text-blue-300'
-                                }`}>
-                                    {selectedLog.classification}
-                                </span>
-                            </div>
-                        </div>
-                        <div className={`terminal ${selectedLog.corrupted ? 'border-red-500/50' : ''} relative overflow-hidden`}>
-                            {selectedLog.corrupted && (
-                                <div className="absolute inset-0 bg-red-500/5 animate-pulse"></div>
-                            )}
-                            <div className="terminal-content relative z-10">
-                                <pre className={`whitespace-pre-wrap text-sm leading-relaxed ${
-                                    selectedLog.corrupted ? 'text-red-300' : 'text-green-300'
-                                }`}>
-                                    {selectedLog.content}
-                                </pre>
-                            </div>
-                        </div>
-                        {selectedLog.corrupted && (
-                            <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
-                                <div className="text-red-400 text-sm font-bold mb-2 animate-pulse">
-                                    ⚠️ DATA CORRUPTION WARNING
-                                </div>
-                                <div className="text-red-300 text-xs">
-                                    This log file has been compromised by unknown interference. Some data may be
-                                    unreliable or have been altered by external forces. Proceed with caution.
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* System Modal */}
-            {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="text-center">
-                            <div className="text-4xl mb-4">⚠️</div>
-                            <h2 className="text-xl font-bold text-green-400 mb-4">SYSTEM NOTIFICATION</h2>
-                            <p className="text-gray-300 mb-6 whitespace-pre-line">{modalMessage}</p>
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="btn btn-primary"
-                            >
-                                ACKNOWLEDGE
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {/* Hidden Easter Egg Indicators */}
-            {uniqueInteractions.size >= 1 && (
-                <div className="fixed bottom-4 right-4 text-xs text-gray-600 font-mono opacity-30">
-                    🌳 {uniqueInteractions.size}/25 🌳
-                </div>
-            )}
-            
-            {refreshCount >= 1 && (
-                <div className="fixed bottom-4 left-4 text-xs text-gray-600 font-mono opacity-30">
-                    🔄 {refreshCount} refreshes
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+        </EasterEggSystem>
     );
 }
