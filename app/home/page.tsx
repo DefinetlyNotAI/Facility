@@ -20,6 +20,25 @@ const decodeBase64 = (bin: string) => {
     }
 };
 
+// Fake log entries for atmosphere
+const generateFakeLogs = () => [
+    "SYSTEM: Neural pathway mapping initiated...",
+    "WARNING: Anomalous brain activity detected in sector 7",
+    "INFO: Subject 31525 showing resistance patterns",
+    "ERROR: Memory fragmentation at 0x7FF8A2B4",
+    "SYSTEM: Consciousness transfer at 23.7% completion",
+    "WARNING: Temporal displacement detected",
+    "INFO: Dream state synchronization active",
+    "ERROR: Reality anchor failing - code 0xDEAD",
+    "SYSTEM: Psychological barriers weakening",
+    "WARNING: Subject awareness increasing beyond parameters",
+    "INFO: Facility lockdown protocols engaged",
+    "ERROR: Time loop detected in chamber 15",
+    "SYSTEM: Memory wipe sequence standby",
+    "WARNING: Entity breach in containment zone",
+    "INFO: Smile King protocol activated",
+];
+
 export default function Home() {
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
@@ -34,26 +53,48 @@ export default function Home() {
         humidity: '45%',
         radiation: '0.12 μSv/h'
     });
-    useRef<HTMLDivElement>(null);
+    const [logs, setLogs] = useState<string[]>([]);
+    const [showInfinity, setShowInfinity] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const loopAudioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Handle redirects based on cookies
     useEffect(() => {
-        if (Cookies.get('Corrupt')) {
+        const corrupt = Cookies.get('Corrupt');
+        const end = Cookies.get('End');
+        const endQuestion = Cookies.get('End?');
+
+        if (corrupt) {
             router.replace('/h0m3');
             return;
         }
 
-        // Define and immediately invoke an async function inside the effect
+        if (end || endQuestion) {
+            router.replace('/the-end');
+            return;
+        }
+    }, [router]);
+
+    // Initialize system and populate logs
+    useEffect(() => {
         const runAsync = async () => {
             // System initialization sequence
             setTimeout(() => setSystemStatus('ONLINE'), 1000);
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
-            // todo add check if the next cookie was also unlocked, if true dont do this
+            // Populate initial logs
+            const initialLogs = generateFakeLogs().slice(0, 5);
+            setLogs(initialLogs);
+
+            // Handle No_corruption cookie
             if (Cookies.get('No_corruption')) {
                 setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
                 setShowModal(true);
                 await signCookie('Scroll_unlocked=true');
             }
 
+            // Set initial countdown
             setCountdown(Math.floor(Math.random() * 6) + 5);
         };
 
@@ -71,10 +112,29 @@ export default function Home() {
             });
         }, 3000);
 
-        return () => clearInterval(dataInterval);
+        // Add new logs periodically
+        const logInterval = setInterval(() => {
+            const allLogs = generateFakeLogs();
+            const randomLog = allLogs[Math.floor(Math.random() * allLogs.length)];
+            setLogs(prev => {
+                const newLogs = [...prev, randomLog];
+                return newLogs.slice(-8); // Keep only last 8 logs
+            });
+        }, 4000);
+
+        // Update current time every second
+        const timeInterval = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+
+        return () => {
+            clearInterval(dataInterval);
+            clearInterval(logInterval);
+            clearInterval(timeInterval);
+        };
     }, [router]);
 
-
+    // Countdown logic with audio and infinity
     useEffect(() => {
         if (countdown === null || countdown <= 0 || voiceTriggered) return;
 
@@ -83,11 +143,18 @@ export default function Home() {
                 if (c === null) return null;
                 if (c <= 1) {
                     if (!voiceTriggered) {
-                        const utterance = new SpeechSynthesisUtterance("No matter, Time doesn't exist here");
+                        // Play the "Time doesn't exist here" audio
+                        const utterance = new SpeechSynthesisUtterance("Time doesn't exist here");
                         utterance.rate = 0.8;
                         utterance.pitch = 0.7;
                         speechSynthesis.speak(utterance);
                         setVoiceTriggered(true);
+                        setShowInfinity(true);
+
+                        // Start looping audio
+                        if (loopAudioRef.current) {
+                            loopAudioRef.current.play().catch(() => {});
+                        }
                     }
                     clearInterval(timer);
                     return 0;
@@ -99,6 +166,7 @@ export default function Home() {
         return () => clearInterval(timer);
     }, [countdown, voiceTriggered]);
 
+    // Handle data hover to show binary
     const handleHover = () => {
         try {
             const base64 = decodeBase64(binaryStr);
@@ -109,6 +177,7 @@ export default function Home() {
         }
     };
 
+    // Check for 15:25 time
     useEffect(() => {
         const checkTime = async () => {
             const current = new Date();
@@ -128,8 +197,8 @@ export default function Home() {
         return () => clearInterval(interval);
     }, [router]);
 
+    // Konami code for corruption
     const indexRef = useRef(0);
-
     useEffect(() => {
         const sequence = [
             'ArrowUp', 'ArrowUp',
@@ -140,7 +209,6 @@ export default function Home() {
         ];
 
         const handler = async (e: KeyboardEvent) => {
-            // Check current key against sequence
             if (e.code === sequence[indexRef.current]) {
                 indexRef.current++;
                 if (indexRef.current === sequence.length) {
@@ -150,10 +218,10 @@ export default function Home() {
                         setShowModal(true);
                         setTimeout(() => window.location.reload(), 3000);
                     }
-                    indexRef.current = 0; // reset after success
+                    indexRef.current = 0;
                 }
             } else {
-                indexRef.current = 0; // reset on failure
+                indexRef.current = 0;
             }
         };
 
@@ -161,8 +229,33 @@ export default function Home() {
         return () => window.removeEventListener('keydown', handler);
     }, []);
 
+    // Handle modal acknowledgment
+    const handleAcknowledge = async () => {
+        setShowModal(false);
+        
+        if (Cookies.get('No_corruption')) {
+            // Wait a moment before redirecting to /scroll
+            setTimeout(() => {
+                router.push('/scroll');
+            }, 500);
+        } else if (Cookies.get('Corrupt')) {
+            // Wait for user press before redirect to h0m3
+            setTimeout(() => {
+                router.push('/h0m3');
+            }, 1000);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
+            {/* Hidden audio elements */}
+            <audio ref={audioRef} preload="auto">
+                <source src="/sfx/time-loop.mp3" type="audio/mpeg" />
+            </audio>
+            <audio ref={loopAudioRef} loop preload="auto">
+                <source src="/sfx/ambient-loop.mp3" type="audio/mpeg" />
+            </audio>
+
             {/* Header */}
             <header className="border-b border-green-500/30 bg-black/50 backdrop-blur-sm">
                 <div className="container mx-auto px-4 py-4">
@@ -180,7 +273,7 @@ export default function Home() {
                             </div>
                         </div>
                         <div className="text-green-400 font-mono text-sm">
-                            {new Date().toLocaleString()}
+                            {currentTime.toLocaleString()}
                         </div>
                     </div>
                 </div>
@@ -209,16 +302,13 @@ export default function Home() {
                                 </div>
                                 <div className="terminal-content">
                                     <div className="terminal-line">
-                                        <span className="terminal-prompt">FACILITY:</span> Welcome to Research Facility
-                                        05-B
+                                        <span className="terminal-prompt">FACILITY:</span> Welcome to Research Facility 05-B
                                     </div>
                                     <div className="terminal-line">
-                                        <span className="terminal-prompt">SYSTEM:</span> Subject testing protocols
-                                        initialized
+                                        <span className="terminal-prompt">SYSTEM:</span> Subject testing protocols initialized
                                     </div>
                                     <div className="terminal-line">
-                                        <span className="terminal-prompt">STATUS:</span> Standby for experimental
-                                        results
+                                        <span className="terminal-prompt">STATUS:</span> Standby for experimental results
                                     </div>
                                     <div className="terminal-line">
                                         <span className="terminal-prompt">DATA:</span>
@@ -227,14 +317,24 @@ export default function Home() {
                                             className="cursor-pointer text-blue-400 hover:text-blue-300 transition-colors ml-2"
                                             title="Hover to decode binary data"
                                         >
-                        [ENCRYPTED_DATA_STREAM]
-                      </span>
+                                            {decoded || binaryStr}
+                                        </span>
                                     </div>
                                     {decoded && (
                                         <div className="terminal-line text-yellow-400">
                                             <span className="terminal-prompt">DECODED:</span> {decoded}
                                         </div>
                                     )}
+                                    
+                                    {/* Live logs */}
+                                    <div className="mt-4 border-t border-gray-700 pt-2">
+                                        <div className="text-xs text-gray-500 mb-2">LIVE SYSTEM LOGS:</div>
+                                        {logs.map((log, index) => (
+                                            <div key={index} className="terminal-line text-xs text-gray-400 animate-fadeInUp">
+                                                <span className="text-green-500">[{new Date().toLocaleTimeString()}]</span> {log}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
@@ -242,9 +342,11 @@ export default function Home() {
                                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
                                     <h3 className="text-green-400 font-mono text-sm mb-2">SYSTEM TIMESTAMP</h3>
                                     <div className="text-2xl font-mono text-white">
-                                        {countdown === null ? 'Loading...' : countdown}
+                                        {showInfinity ? '∞' : (countdown === null ? 'Loading...' : countdown)}
                                     </div>
-                                    <div className="text-xs text-gray-400 mt-1">Countdown Active</div>
+                                    <div className="text-xs text-gray-400 mt-1">
+                                        {showInfinity ? 'Time Loop Active' : 'Countdown Active'}
+                                    </div>
                                 </div>
 
                                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
@@ -301,6 +403,10 @@ export default function Home() {
                                     <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                                     <span className="text-sm text-gray-300">Anomaly Detection: STANDBY</span>
                                 </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                                    <span className="text-sm text-gray-300">Temporal Stability: UNSTABLE</span>
+                                </div>
                             </div>
                         </div>
 
@@ -312,6 +418,8 @@ export default function Home() {
                                 <p>• Unauthorized access attempts detected</p>
                                 <p>• Psychological evaluation in progress</p>
                                 <p>• Emergency protocols on standby</p>
+                                <p>• Time anomaly detected in sector 15</p>
+                                <p>• Memory fragmentation increasing</p>
                             </div>
                         </div>
                     </div>
@@ -320,14 +428,14 @@ export default function Home() {
 
             {/* Modal */}
             {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                <div className="modal-overlay" onClick={(e) => e.stopPropagation()}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="text-center">
                             <div className="text-4xl mb-4">⚠️</div>
                             <h2 className="text-xl font-bold text-green-400 mb-4">SYSTEM NOTIFICATION</h2>
                             <p className="text-gray-300 mb-6">{modalMessage}</p>
                             <button
-                                onClick={() => setShowModal(false)}
+                                onClick={handleAcknowledge}
                                 className="btn btn-primary"
                             >
                                 ACKNOWLEDGE
