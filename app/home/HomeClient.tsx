@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookie-utils";
-import {researchLogs} from "@/app/home/ResearchLogs";
+import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
 
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
@@ -17,15 +17,7 @@ interface InitialCookies {
     bnwUnlocked: boolean;
 }
 
-interface ResearchLog {
-    id: string;
-    title: string;
-    researcher: string;
-    date: string;
-    classification: string;
-    corrupted: boolean;
-    content: string;
-}
+
 
 export default function HomeClient({initialCookies}: {initialCookies: InitialCookies}) {
     const router = useRouter();
