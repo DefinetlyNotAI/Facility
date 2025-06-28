@@ -51,16 +51,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [easterEggTriggered, setEasterEggTriggered] = useState<Set<number>>(new Set());
     const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
     const [glitchMode, setGlitchMode] = useState(false);
-    const [secretSequence, setSecretSequence] = useState('');
-    const [konamiProgress, setKonamiProgress] = useState(0);
+    const [secretTypingBuffer, setSecretTypingBuffer] = useState('');
     
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
     const ttsTriggeredRef = useRef(false);
     const accessAttemptsRef = useRef(23);
-
-    // Konami Code sequence
-    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
 
     // Handle client-side mounting and time updates
     useEffect(() => {
@@ -181,62 +177,60 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         }
     };
 
-    // Secret sequence detection
+    // Secret sequence detection (removed Konami code)
     useEffect(() => {
         if (!mounted) return;
 
         const handleKeyPress = (e: KeyboardEvent) => {
             // Track secret typing sequences
             if (e.key.length === 1) {
-                setSecretSequence(prev => {
-                    const newSeq = (prev + e.key.toLowerCase()).slice(-10);
+                setSecretTypingBuffer(prev => {
+                    const newBuffer = (prev + e.key.toLowerCase()).slice(-10);
                     
                     // Check for secret phrases
-                    if (newSeq.includes('smileking')) {
+                    if (newBuffer.includes('smileking')) {
                         triggerAccessAttempt();
                         setModalMessage('🌳 The Smile King acknowledges your call... 🌳');
                         setShowModal(true);
                         return '';
                     }
                     
-                    if (newSeq.includes('vessel')) {
+                    if (newBuffer.includes('vessel')) {
                         triggerAccessAttempt();
                         setModalMessage('⚡ VESSEL PROTOCOL ACTIVATED ⚡');
                         setShowModal(true);
                         return '';
                     }
                     
-                    if (newSeq.includes('tree')) {
+                    if (newBuffer.includes('tree')) {
                         triggerAccessAttempt();
                         setModalMessage('🌲 The roots remember... The branches reach... 🌲');
                         setShowModal(true);
                         return '';
                     }
                     
-                    return newSeq;
-                });
-            }
-
-            // Konami code detection
-            if (konamiCode[konamiProgress] === e.code) {
-                setKonamiProgress(prev => {
-                    const newProgress = prev + 1;
-                    if (newProgress === konamiCode.length) {
+                    if (newBuffer.includes('neural')) {
                         triggerAccessAttempt();
-                        setModalMessage('🎮 KONAMI CODE DETECTED - DEVELOPER MODE UNLOCKED 🎮');
+                        setModalMessage('🧠 NEURAL INTERFACE BREACH DETECTED 🧠');
                         setShowModal(true);
-                        return 0;
+                        return '';
                     }
-                    return newProgress;
+                    
+                    if (newBuffer.includes('facility')) {
+                        triggerAccessAttempt();
+                        setModalMessage('🏢 FACILITY SYSTEMS COMPROMISED 🏢');
+                        setShowModal(true);
+                        return '';
+                    }
+                    
+                    return newBuffer;
                 });
-            } else {
-                setKonamiProgress(0);
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [mounted, konamiProgress]);
+    }, [mounted]);
 
     // Click tracking for access attempts
     useEffect(() => {
@@ -341,7 +335,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         return () => clearInterval(interval);
     }, [router, mounted]);
 
-    // Original Konami code for corruption
+    // Original Konami code for corruption (kept for puzzle functionality)
     useEffect(() => {
         if (!mounted) return;
 
@@ -393,6 +387,9 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 break;
             case 'status':
                 setModalMessage('📊 SYSTEM STATUS: COMPROMISED 📊\nUnknown entities detected in network');
+                break;
+            case 'access':
+                setModalMessage(`🔐 ACCESS ATTEMPTS: ${accessAttempts} 🔐\nSecurity protocols monitoring all interactions`);
                 break;
             default:
                 setModalMessage('🔍 UNAUTHORIZED ACCESS DETECTED 🔍');
