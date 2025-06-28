@@ -8,18 +8,6 @@ import {signCookie} from "@/lib/cookie-utils";
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
 
-const decodeBase64 = (bin: string) => {
-    try {
-        const byteStr = bin
-            .split(' ')
-            .map(b => String.fromCharCode(parseInt(b, 2)))
-            .join('');
-        return btoa(byteStr);
-    } catch {
-        return 'Error';
-    }
-};
-
 // Fake log entries for atmosphere
 const generateFakeLogs = () => [
     "SYSTEM: Neural pathway mapping initiated...",
@@ -57,7 +45,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
     const [modalMessage, setModalMessage] = useState('');
     const [countdown, setCountdown] = useState<number | null>(null);
     const [voiceTriggered, setVoiceTriggered] = useState(false);
-    const [decoded, setDecoded] = useState('');
+    const [showBinary, setShowBinary] = useState(false);
     const [systemStatus, setSystemStatus] = useState('INITIALIZING');
     const [facilityData, setFacilityData] = useState({
         temperature: '22.4°C',
@@ -68,12 +56,12 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
     const [logs, setLogs] = useState<string[]>([]);
     const [showInfinity, setShowInfinity] = useState(false);
     const [currentTime, setCurrentTime] = useState<Date | null>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const loopAudioRef = useRef<HTMLAudioElement | null>(null);
 
     // Handle mounting to prevent hydration issues
     useEffect(() => {
         setMounted(true);
+        // Use client-side time (user's system time) - this allows time manipulation
         setCurrentTime(new Date());
     }, []);
 
@@ -125,9 +113,9 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
             });
         }, 4000);
 
-        // Update current time every second
+        // Update current time every second using CLIENT TIME (user's system time)
         const timeInterval = setInterval(() => {
-            setCurrentTime(new Date());
+            setCurrentTime(new Date()); // This uses the user's system time
         }, 1000);
 
         return () => {
@@ -146,16 +134,18 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                 if (c === null) return null;
                 if (c <= 1) {
                     if (!voiceTriggered) {
-                        // Play the "Time doesn't exist here" audio
-                        const utterance = new SpeechSynthesisUtterance("Time doesn't exist here");
-                        utterance.rate = 0.8;
-                        utterance.pitch = 0.7;
+                        // Play the poetic "Time doesn't exist here" audio
+                        const utterance = new SpeechSynthesisUtterance("Time doesn't exist here... it never did. Only the endless loop of consciousness remains, spiraling into the void where moments collapse into eternity.");
+                        utterance.rate = 0.7;
+                        utterance.pitch = 0.6;
+                        utterance.volume = 0.8;
                         speechSynthesis.speak(utterance);
                         setVoiceTriggered(true);
                         setShowInfinity(true);
 
-                        // Start looping audio
+                        // Start looping ambient audio if available
                         if (loopAudioRef.current) {
+                            loopAudioRef.current.volume = 0.3;
                             loopAudioRef.current.play().catch(() => {});
                         }
                     }
@@ -169,23 +159,13 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         return () => clearInterval(timer);
     }, [countdown, voiceTriggered, mounted]);
 
-    // Handle data hover to show binary
-    const handleHover = () => {
-        try {
-            const base64 = decodeBase64(binaryStr);
-            const decodedStr = atob(base64);
-            setDecoded(decodedStr);
-        } catch {
-            setDecoded('Error decoding');
-        }
-    };
-
-    // Check for 15:25 time
+    // Check for 15:25 time using USER'S SYSTEM TIME
     useEffect(() => {
         if (!mounted) return;
 
         const checkTime = async () => {
             if (!currentTime) return;
+            // Use user's local time (allows time manipulation)
             const timeNow = `${String(currentTime.getHours()).padStart(2, '0')}:${String(currentTime.getMinutes()).padStart(2, '0')}`;
             if (timeNow === '15:25') {
                 await signCookie('Wifi_Unlocked=true');
@@ -236,19 +216,22 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         return () => window.removeEventListener('keydown', handler);
     }, [mounted, initialCookies.fileUnlocked]);
 
-    // Handle modal acknowledgment
+    // Handle modal acknowledgment with proper redirects
     const handleAcknowledge = () => {
+        setShowModal(false);
+        
         if (modalMessage.includes('diagnostic scroll')) {
             // Redirect to /scroll for diagnostic scroll acknowledgment
-            window.location.href = '/scroll';
+            setTimeout(() => router.push('/scroll'), 500);
         } else if (modalMessage.includes('Network access granted')) {
             // Redirect to /wifi-panel for network access acknowledgment
-            window.location.href = '/wifi-panel';
-        } else if (initialCookies.corrupt) {
-            // Redirect to /h0m3 when corruption is detected
-            window.location.href = '/h0m3';
+            setTimeout(() => router.push('/wifi-panel'), 500);
+        } else if (modalMessage.includes('corruption detected')) {
+            // Wait for user acknowledgment before redirect to h0m3
+            setTimeout(() => router.push('/h0m3'), 1000);
         }
     };
+
     // Don't render until mounted to prevent hydration issues
     if (!mounted || !currentTime) {
         return (
@@ -263,9 +246,6 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
             {/* Hidden audio elements */}
-            <audio ref={audioRef} preload="auto">
-                <source src="/sfx/time-loop.mp3" type="audio/mpeg" />
-            </audio>
             <audio ref={loopAudioRef} loop preload="auto">
                 <source src="/sfx/ambient-loop.mp3" type="audio/mpeg" />
             </audio>
@@ -327,18 +307,19 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                     <div className="terminal-line">
                                         <span className="terminal-prompt">DATA:</span>
                                         <span
-                                            onMouseEnter={handleHover}
-                                            className="cursor-pointer text-blue-400 hover:text-blue-300 transition-colors ml-2"
-                                            title="Hover to decode binary data"
+                                            onMouseEnter={() => setShowBinary(true)}
+                                            onMouseLeave={() => setShowBinary(false)}
+                                            className="cursor-pointer text-blue-400 hover:text-blue-300 transition-all duration-300 ml-2 font-mono"
+                                            title="Hover to reveal binary data"
+                                            style={{
+                                                opacity: showBinary ? 0.8 : 1,
+                                                transform: showBinary ? 'scale(0.95)' : 'scale(1)',
+                                                letterSpacing: showBinary ? '1px' : 'normal'
+                                            }}
                                         >
-                                            {decoded || binaryStr}
+                                            {showBinary ? binaryStr : 'Data'}
                                         </span>
                                     </div>
-                                    {decoded && (
-                                        <div className="terminal-line text-yellow-400">
-                                            <span className="terminal-prompt">DECODED:</span> {decoded}
-                                        </div>
-                                    )}
 
                                     {/* Live logs */}
                                     <div className="mt-4 border-t border-gray-700 pt-2">
@@ -355,10 +336,19 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
                                     <h3 className="text-green-400 font-mono text-sm mb-2">SYSTEM TIMESTAMP</h3>
-                                    <div className="text-2xl font-mono text-white">
-                                        {showInfinity ? '∞' : (countdown === null ? 'Loading...' : countdown)}
+                                    <div className="text-2xl font-mono text-white flex items-center justify-center">
+                                        {showInfinity ? (
+                                            <span className="text-4xl animate-pulse" style={{
+                                                textShadow: '0 0 20px #ffffff, 0 0 40px #ffffff',
+                                                animation: 'glow 2s ease-in-out infinite alternate'
+                                            }}>
+                                                ∞
+                                            </span>
+                                        ) : (
+                                            countdown === null ? 'Loading...' : countdown
+                                        )}
                                     </div>
-                                    <div className="text-xs text-gray-400 mt-1">
+                                    <div className="text-xs text-gray-400 mt-1 text-center">
                                         {showInfinity ? 'Time Loop Active' : 'Countdown Active'}
                                     </div>
                                 </div>
@@ -434,6 +424,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                                 <p>• Emergency protocols on standby</p>
                                 <p>• Time anomaly detected in sector 15</p>
                                 <p>• Memory fragmentation increasing</p>
+                                <p>• Reality anchor destabilizing</p>
                             </div>
                         </div>
                     </div>
@@ -458,6 +449,17 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
                     </div>
                 </div>
             )}
+
+            <style jsx>{`
+                @keyframes glow {
+                    from {
+                        text-shadow: 0 0 20px #ffffff;
+                    }
+                    to {
+                        text-shadow: 0 0 30px #ffffff, 0 0 40px #ffffff;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
