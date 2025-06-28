@@ -46,17 +46,18 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [mounted, setMounted] = useState(false);
     
     // Easter Egg States
-    const [accessAttempts, setAccessAttempts] = useState(23);
+    const [accessAttempts, setAccessAttempts] = useState(0);
     const [lastAccessTime, setLastAccessTime] = useState<string>('');
     const [easterEggTriggered, setEasterEggTriggered] = useState<Set<number>>(new Set());
     const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
     const [glitchMode, setGlitchMode] = useState(false);
     const [secretTypingBuffer, setSecretTypingBuffer] = useState('');
+    const [uniqueInteractions, setUniqueInteractions] = useState<Set<string>>(new Set());
     
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
     const ttsTriggeredRef = useRef(false);
-    const accessAttemptsRef = useRef(23);
+    const accessAttemptsRef = useRef(0);
 
     // Handle client-side mounting and time updates
     useEffect(() => {
@@ -69,12 +70,23 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Load access attempts from localStorage
+        // Load access attempts and unique interactions from localStorage
         const savedAttempts = localStorage.getItem('facilityAccessAttempts');
+        const savedInteractions = localStorage.getItem('facilityUniqueInteractions');
+        
         if (savedAttempts) {
             const attempts = parseInt(savedAttempts, 10);
             setAccessAttempts(attempts);
             accessAttemptsRef.current = attempts;
+        }
+        
+        if (savedInteractions) {
+            try {
+                const interactions = JSON.parse(savedInteractions);
+                setUniqueInteractions(new Set(interactions));
+            } catch (e) {
+                console.warn('Failed to parse saved interactions');
+            }
         }
 
         // Dynamic facility data updates
@@ -123,8 +135,29 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         };
     }, [mounted]);
 
+    // Unique interaction tracking function
+    const trackUniqueInteraction = (interactionType: string) => {
+        if (uniqueInteractions.has(interactionType)) {
+            return false; // Already tracked this interaction
+        }
+
+        const newInteractions = new Set(uniqueInteractions);
+        newInteractions.add(interactionType);
+        setUniqueInteractions(newInteractions);
+        
+        // Save to localStorage
+        localStorage.setItem('facilityUniqueInteractions', JSON.stringify([...newInteractions]));
+        
+        return true; // New unique interaction
+    };
+
     // Access attempt tracking with special TTS messages
-    const triggerAccessAttempt = () => {
+    const triggerAccessAttempt = (interactionType?: string) => {
+        // If interaction type is provided, check if it's unique
+        if (interactionType && !trackUniqueInteraction(interactionType)) {
+            return; // Don't increment counter for repeated interactions
+        }
+
         const newAttempts = accessAttemptsRef.current + 1;
         accessAttemptsRef.current = newAttempts;
         setAccessAttempts(newAttempts);
@@ -189,35 +222,35 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                     
                     // Check for secret phrases
                     if (newBuffer.includes('smileking')) {
-                        triggerAccessAttempt();
+                        triggerAccessAttempt('secret-smileking');
                         setModalMessage('🌳 The Smile King acknowledges your call... 🌳');
                         setShowModal(true);
                         return '';
                     }
                     
                     if (newBuffer.includes('vessel')) {
-                        triggerAccessAttempt();
+                        triggerAccessAttempt('secret-vessel');
                         setModalMessage('⚡ VESSEL PROTOCOL ACTIVATED ⚡');
                         setShowModal(true);
                         return '';
                     }
                     
                     if (newBuffer.includes('tree')) {
-                        triggerAccessAttempt();
+                        triggerAccessAttempt('secret-tree');
                         setModalMessage('🌲 The roots remember... The branches reach... 🌲');
                         setShowModal(true);
                         return '';
                     }
                     
                     if (newBuffer.includes('neural')) {
-                        triggerAccessAttempt();
+                        triggerAccessAttempt('secret-neural');
                         setModalMessage('🧠 NEURAL INTERFACE BREACH DETECTED 🧠');
                         setShowModal(true);
                         return '';
                     }
                     
                     if (newBuffer.includes('facility')) {
-                        triggerAccessAttempt();
+                        triggerAccessAttempt('secret-facility');
                         setModalMessage('🏢 FACILITY SYSTEMS COMPROMISED 🏢');
                         setShowModal(true);
                         return '';
@@ -230,24 +263,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [mounted]);
-
-    // Click tracking for access attempts
-    useEffect(() => {
-        if (!mounted) return;
-
-        let clickCount = 0;
-        const handleClick = () => {
-            clickCount++;
-            if (clickCount >= 10) {
-                triggerAccessAttempt();
-                clickCount = 0;
-            }
-        };
-
-        document.addEventListener('click', handleClick);
-        return () => document.removeEventListener('click', handleClick);
-    }, [mounted]);
+    }, [mounted, uniqueInteractions]);
 
     // Cookie and redirect checks
     useEffect(() => {
@@ -369,14 +385,14 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }, [initialCookies.fileUnlocked, mounted]);
 
     const openLog = (log: ResearchLog) => {
-        triggerAccessAttempt(); // Count log access as attempt
+        triggerAccessAttempt(`log-${log.id}`); // Count log access as unique attempt
         setSelectedLog(log);
         setShowLogModal(true);
     };
 
     // Special click handlers for easter eggs
     const handleSpecialClick = (type: string) => {
-        triggerAccessAttempt();
+        triggerAccessAttempt(`click-${type}`);
         
         switch (type) {
             case 'logo':
@@ -390,6 +406,15 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 break;
             case 'access':
                 setModalMessage(`🔐 ACCESS ATTEMPTS: ${accessAttempts} 🔐\nSecurity protocols monitoring all interactions`);
+                break;
+            case 'binary':
+                setModalMessage('📡 NEURAL DATA STREAM ACCESSED 📡\nDecoding consciousness patterns...');
+                break;
+            case 'countdown':
+                setModalMessage('⏳ CONSCIOUSNESS TIMER ACCESSED ⏳\nTime flows differently here...');
+                break;
+            case 'hex':
+                setModalMessage('🔢 TEMPORAL REFERENCE ACCESSED 🔢\nReality anchor coordinates confirmed');
                 break;
             default:
                 setModalMessage('🔍 UNAUTHORIZED ACCESS DETECTED 🔍');
@@ -490,7 +515,8 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                             <span
                                                 onMouseEnter={() => setBinaryVisible(true)}
                                                 onMouseLeave={() => setBinaryVisible(false)}
-                                                className="data-stream"
+                                                onClick={() => handleSpecialClick('binary')}
+                                                className="data-stream cursor-pointer"
                                             >
                                                 {binaryVisible ? binaryStr : '[NEURAL_DATA_STREAM]'}
                                             </span>
@@ -505,7 +531,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 </div>
 
                                 <div className="metrics-grid">
-                                    <div className="metric-card consciousness">
+                                    <div className="metric-card consciousness cursor-pointer" onClick={() => handleSpecialClick('countdown')}>
                                         <div className="metric-label">CONSCIOUSNESS TIMER</div>
                                         <div className="metric-value">
                                             {countdown === null ? '∞' : countdown}
@@ -514,7 +540,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                             {countdown === null ? 'Time Dissolved' : 'Neural Sync Countdown'}
                                         </div>
                                     </div>
-                                    <div className="metric-card temporal">
+                                    <div className="metric-card temporal cursor-pointer" onClick={() => handleSpecialClick('hex')}>
                                         <div className="metric-label">TEMPORAL REFERENCE</div>
                                         <div className="metric-value">{hexCode}</div>
                                         <div className="metric-unit">Reality Anchor Timestamp</div>
@@ -882,7 +908,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             )}
 
             {/* Hidden Easter Egg Indicator */}
-            {accessAttempts >= 5 && (
+            {accessAttempts >= 1 && (
                 <div className="fixed bottom-4 right-4 text-xs text-gray-600 font-mono opacity-30">
                     🌳 {accessAttempts}/25 🌳
                 </div>
