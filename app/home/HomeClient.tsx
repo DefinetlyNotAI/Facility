@@ -45,19 +45,25 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [currentTime, setCurrentTime] = useState<string>('');
     const [mounted, setMounted] = useState(false);
     
-    // Easter Egg States
-    const [accessAttempts, setAccessAttempts] = useState(0);
-    const [lastAccessTime, setLastAccessTime] = useState<string>('');
-    const [easterEggTriggered, setEasterEggTriggered] = useState<Set<number>>(new Set());
+    // Separate Easter Egg Systems
+    const [refreshCount, setRefreshCount] = useState(0); // For 3/15/25 TTS messages
+    const [uniqueInteractions, setUniqueInteractions] = useState<Set<string>>(new Set()); // For x/25 visual changes
+    const [refreshTriggered, setRefreshTriggered] = useState<Set<number>>(new Set());
+    const [visualChangesTriggered, setVisualChangesTriggered] = useState<Set<number>>(new Set());
+    
+    // Visual change states
+    const [logsUnlocked, setLogsUnlocked] = useState(false);
+    const [blinkingMode, setBlinkingMode] = useState(false);
+    const [colorInverted, setColorInverted] = useState(false);
+    const [showInvertButton, setShowInvertButton] = useState(false);
+    
     const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
     const [glitchMode, setGlitchMode] = useState(false);
-    const [secretTypingBuffer, setSecretTypingBuffer] = useState('');
-    const [uniqueInteractions, setUniqueInteractions] = useState<Set<string>>(new Set());
     
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
     const ttsTriggeredRef = useRef(false);
-    const accessAttemptsRef = useRef(0);
+    const refreshCountRef = useRef(0);
 
     // Handle client-side mounting and time updates
     useEffect(() => {
@@ -70,14 +76,15 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Load access attempts and unique interactions from localStorage
-        const savedAttempts = localStorage.getItem('facilityAccessAttempts');
+        // Load counters from localStorage
+        const savedRefreshCount = localStorage.getItem('facilityRefreshCount');
         const savedInteractions = localStorage.getItem('facilityUniqueInteractions');
+        const savedVisualChanges = localStorage.getItem('facilityVisualChanges');
         
-        if (savedAttempts) {
-            const attempts = parseInt(savedAttempts, 10);
-            setAccessAttempts(attempts);
-            accessAttemptsRef.current = attempts;
+        if (savedRefreshCount) {
+            const count = parseInt(savedRefreshCount, 10);
+            setRefreshCount(count);
+            refreshCountRef.current = count;
         }
         
         if (savedInteractions) {
@@ -88,6 +95,29 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 console.warn('Failed to parse saved interactions');
             }
         }
+
+        if (savedVisualChanges) {
+            try {
+                const changes = JSON.parse(savedVisualChanges);
+                setVisualChangesTriggered(new Set(changes));
+                
+                // Apply saved visual changes
+                if (changes.includes(3)) setLogsUnlocked(true);
+                if (changes.includes(15)) setBlinkingMode(true);
+                if (changes.includes(25)) {
+                    setColorInverted(true);
+                    setShowInvertButton(true);
+                }
+            } catch (e) {
+                console.warn('Failed to parse saved visual changes');
+            }
+        }
+
+        // Increment refresh count on page load
+        const newRefreshCount = refreshCountRef.current + 1;
+        refreshCountRef.current = newRefreshCount;
+        setRefreshCount(newRefreshCount);
+        localStorage.setItem('facilityRefreshCount', newRefreshCount.toString());
 
         // Dynamic facility data updates
         const dataInterval = setInterval(() => {
@@ -148,27 +178,46 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         // Save to localStorage
         localStorage.setItem('facilityUniqueInteractions', JSON.stringify([...newInteractions]));
         
+        // Check for visual change milestones
+        const interactionCount = newInteractions.size;
+        
+        if ([3, 15, 25].includes(interactionCount) && !visualChangesTriggered.has(interactionCount)) {
+            const newVisualChanges = new Set(visualChangesTriggered);
+            newVisualChanges.add(interactionCount);
+            setVisualChangesTriggered(newVisualChanges);
+            localStorage.setItem('facilityVisualChanges', JSON.stringify([...newVisualChanges]));
+            
+            // Apply visual changes
+            switch (interactionCount) {
+                case 3:
+                    setLogsUnlocked(true);
+                    setModalMessage('🔓 RESEARCH LOGS UNLOCKED 🔓\nAccess granted to classified documentation');
+                    setShowModal(true);
+                    break;
+                case 15:
+                    setBlinkingMode(true);
+                    setModalMessage('⚡ NEURAL INTERFACE UNSTABLE ⚡\nVisual cortex interference detected');
+                    setShowModal(true);
+                    break;
+                case 25:
+                    setColorInverted(true);
+                    setShowInvertButton(true);
+                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                    setModalMessage('🌀 REALITY INVERSION COMPLETE 🌀\nPerception matrix compromised - Control restored');
+                    setShowModal(true);
+                    break;
+            }
+        }
+        
         return true; // New unique interaction
     };
 
-    // Access attempt tracking with special TTS messages
-    const triggerAccessAttempt = (interactionType?: string) => {
-        // If interaction type is provided, check if it's unique
-        if (interactionType && !trackUniqueInteraction(interactionType)) {
-            return; // Don't increment counter for repeated interactions
-        }
+    // Refresh count TTS messages (3/15/25)
+    useEffect(() => {
+        if (!mounted || refreshCount === 0) return;
 
-        const newAttempts = accessAttemptsRef.current + 1;
-        accessAttemptsRef.current = newAttempts;
-        setAccessAttempts(newAttempts);
-        setLastAccessTime(new Date().toLocaleTimeString());
-        
-        // Save to localStorage
-        localStorage.setItem('facilityAccessAttempts', newAttempts.toString());
-
-        // Special TTS messages for milestone attempts
-        if ([5, 15, 25].includes(newAttempts) && !easterEggTriggered.has(newAttempts)) {
-            setEasterEggTriggered(prev => new Set(prev).add(newAttempts));
+        if ([3, 15, 25].includes(refreshCount) && !refreshTriggered.has(refreshCount)) {
+            setRefreshTriggered(prev => new Set(prev).add(refreshCount));
             
             // Pause ambient music for special TTS
             if (ambientAudioRef.current) {
@@ -176,22 +225,17 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             }
 
             let message = '';
-            switch (newAttempts) {
-                case 5:
-                    message = "Five attempts... You're persistent. The tree notices persistence.";
+            switch (refreshCount) {
+                case 3:
+                    message = "Three times you return... The tree notices your persistence.";
                     break;
                 case 15:
-                    message = "Fifteen attempts... The roots whisper your name now. They remember you.";
+                    message = "Fifteen visits... The roots whisper your name in the digital wind.";
                     setGlitchMode(true);
                     setTimeout(() => setGlitchMode(false), 5000);
                     break;
                 case 25:
-                    message = "Twenty-five attempts... You've fed the tree well. It smiles upon you, vessel.";
-                    // Trigger special visual effect
-                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                    setTimeout(() => {
-                        document.body.style.filter = '';
-                    }, 3000);
+                    message = "Twenty-five returns... You are bound to this place now, vessel. Welcome home.";
                     break;
             }
 
@@ -208,56 +252,48 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
 
             speechSynthesis.speak(utterance);
         }
-    };
+    }, [refreshCount, mounted, refreshTriggered]);
 
-    // Secret sequence detection (removed Konami code)
+    // Secret sequence detection
     useEffect(() => {
         if (!mounted) return;
 
         const handleKeyPress = (e: KeyboardEvent) => {
             // Track secret typing sequences
             if (e.key.length === 1) {
-                setSecretTypingBuffer(prev => {
-                    const newBuffer = (prev + e.key.toLowerCase()).slice(-10);
-                    
-                    // Check for secret phrases
-                    if (newBuffer.includes('smileking')) {
-                        triggerAccessAttempt('secret-smileking');
-                        setModalMessage('🌳 The Smile King acknowledges your call... 🌳');
-                        setShowModal(true);
-                        return '';
+                const secretPhrases = [
+                    { phrase: 'smileking', message: '🌳 The Smile King acknowledges your call... 🌳' },
+                    { phrase: 'vessel', message: '⚡ VESSEL PROTOCOL ACTIVATED ⚡' },
+                    { phrase: 'tree', message: '🌲 The roots remember... The branches reach... 🌲' },
+                    { phrase: 'neural', message: '🧠 NEURAL INTERFACE BREACH DETECTED 🧠' },
+                    { phrase: 'facility', message: '🏢 FACILITY SYSTEMS COMPROMISED 🏢' },
+                    { phrase: 'echo', message: '🔊 ECHO PROTOCOL INITIATED 🔊' },
+                    { phrase: 'whisper', message: '👻 THE WHISPERS GROW LOUDER 👻' },
+                    { phrase: 'root', message: '🌿 ROOT NETWORK ACCESSED 🌿' },
+                    { phrase: 'branch', message: '🌿 BRANCH PROTOCOL ACTIVE 🌿' },
+                    { phrase: 'consciousness', message: '🧠 CONSCIOUSNESS STREAM DETECTED 🧠' },
+                    { phrase: 'temporal', message: '⏰ TEMPORAL DISPLACEMENT CONFIRMED ⏰' },
+                    { phrase: 'reality', message: '🌀 REALITY ANCHOR COMPROMISED 🌀' },
+                    { phrase: 'void', message: '🕳️ THE VOID STARES BACK 🕳️' },
+                    { phrase: 'shadow', message: '👤 SHADOW ENTITIES DETECTED 👤' },
+                    { phrase: 'memory', message: '💭 MEMORY FRAGMENTS RECOVERED 💭' }
+                ];
+
+                // Use a simple buffer approach
+                const currentBuffer = (window as any).typingBuffer || '';
+                const newBuffer = (currentBuffer + e.key.toLowerCase()).slice(-15);
+                (window as any).typingBuffer = newBuffer;
+                
+                for (const secret of secretPhrases) {
+                    if (newBuffer.includes(secret.phrase)) {
+                        if (trackUniqueInteraction(`secret-${secret.phrase}`)) {
+                            setModalMessage(secret.message);
+                            setShowModal(true);
+                        }
+                        (window as any).typingBuffer = ''; // Reset buffer after match
+                        break;
                     }
-                    
-                    if (newBuffer.includes('vessel')) {
-                        triggerAccessAttempt('secret-vessel');
-                        setModalMessage('⚡ VESSEL PROTOCOL ACTIVATED ⚡');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('tree')) {
-                        triggerAccessAttempt('secret-tree');
-                        setModalMessage('🌲 The roots remember... The branches reach... 🌲');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('neural')) {
-                        triggerAccessAttempt('secret-neural');
-                        setModalMessage('🧠 NEURAL INTERFACE BREACH DETECTED 🧠');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    if (newBuffer.includes('facility')) {
-                        triggerAccessAttempt('secret-facility');
-                        setModalMessage('🏢 FACILITY SYSTEMS COMPROMISED 🏢');
-                        setShowModal(true);
-                        return '';
-                    }
-                    
-                    return newBuffer;
-                });
+                }
             }
         };
 
@@ -385,41 +421,43 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }, [initialCookies.fileUnlocked, mounted]);
 
     const openLog = (log: ResearchLog) => {
-        triggerAccessAttempt(`log-${log.id}`); // Count log access as unique attempt
+        if (!logsUnlocked) {
+            setModalMessage('🔒 ACCESS DENIED 🔒\nInsufficient clearance level for classified documentation');
+            setShowModal(true);
+            return;
+        }
+        
+        trackUniqueInteraction(`log-${log.id}`);
         setSelectedLog(log);
         setShowLogModal(true);
     };
 
     // Special click handlers for easter eggs
     const handleSpecialClick = (type: string) => {
-        triggerAccessAttempt(`click-${type}`);
-        
-        switch (type) {
-            case 'logo':
-                setModalMessage('🏢 FACILITY 05-B NEURAL INTERFACE COMPLEX 🏢\nAuthorized Personnel Only');
-                break;
-            case 'time':
-                setModalMessage('⏰ TIME ANCHOR UNSTABLE ⏰\nTemporal displacement detected');
-                break;
-            case 'status':
-                setModalMessage('📊 SYSTEM STATUS: COMPROMISED 📊\nUnknown entities detected in network');
-                break;
-            case 'access':
-                setModalMessage(`🔐 ACCESS ATTEMPTS: ${accessAttempts} 🔐\nSecurity protocols monitoring all interactions`);
-                break;
-            case 'binary':
-                setModalMessage('📡 NEURAL DATA STREAM ACCESSED 📡\nDecoding consciousness patterns...');
-                break;
-            case 'countdown':
-                setModalMessage('⏳ CONSCIOUSNESS TIMER ACCESSED ⏳\nTime flows differently here...');
-                break;
-            case 'hex':
-                setModalMessage('🔢 TEMPORAL REFERENCE ACCESSED 🔢\nReality anchor coordinates confirmed');
-                break;
-            default:
-                setModalMessage('🔍 UNAUTHORIZED ACCESS DETECTED 🔍');
+        const clickMessages = {
+            'logo': '🏢 FACILITY 05-B NEURAL INTERFACE COMPLEX 🏢\nAuthorized Personnel Only',
+            'time': '⏰ TIME ANCHOR UNSTABLE ⏰\nTemporal displacement detected',
+            'status': '📊 SYSTEM STATUS: COMPROMISED 📊\nUnknown entities detected in network',
+            'binary': '📡 NEURAL DATA STREAM ACCESSED 📡\nDecoding consciousness patterns...',
+            'countdown': '⏳ CONSCIOUSNESS TIMER ACCESSED ⏳\nTime flows differently here...',
+            'hex': '🔢 TEMPORAL REFERENCE ACCESSED 🔢\nReality anchor coordinates confirmed',
+            'temperature': '🌡️ THERMAL SENSORS ACCESSED 🌡️\nEnvironmental controls compromised',
+            'pressure': '📊 PRESSURE READINGS ACCESSED 📊\nAtmospheric anomalies detected',
+            'humidity': '💧 HUMIDITY SENSORS ACCESSED 💧\nMoisture levels fluctuating',
+            'radiation': '☢️ RADIATION MONITORS ACCESSED ☢️\nBackground levels elevated',
+            'power': '⚡ POWER GRID ACCESSED ⚡\nEnergy distribution unstable',
+            'network': '🌐 NETWORK STATUS ACCESSED 🌐\nUnauthorized connections detected'
+        };
+
+        if (trackUniqueInteraction(`click-${type}`)) {
+            setModalMessage(clickMessages[type as keyof typeof clickMessages] || '🔍 UNAUTHORIZED ACCESS DETECTED 🔍');
+            setShowModal(true);
         }
-        setShowModal(true);
+    };
+
+    const toggleColorInversion = () => {
+        setColorInverted(!colorInverted);
+        document.body.style.filter = colorInverted ? '' : 'invert(1) hue-rotate(180deg)';
     };
 
     // Don't render until mounted to prevent hydration mismatch
@@ -434,7 +472,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }
 
     return (
-        <div className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout ${glitchMode ? 'animate-pulse' : ''}`}>
+        <div className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout ${glitchMode ? 'animate-pulse' : ''} ${blinkingMode ? 'animate-flash' : ''}`}>
             {/* Scrolling Classification Banner */}
             <div className="classification-banner">
                 <div className="classification-content">
@@ -557,27 +595,27 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                             </div>
 
                             <div className="status-grid">
-                                <div className="status-item">
+                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('temperature')}>
                                     <span className="status-label">Temperature</span>
                                     <span className="status-value">{facilityDataDynamic.temperature}</span>
                                 </div>
-                                <div className="status-item">
+                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('pressure')}>
                                     <span className="status-label">Pressure</span>
                                     <span className="status-value">{facilityDataDynamic.pressure}</span>
                                 </div>
-                                <div className="status-item">
+                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('humidity')}>
                                     <span className="status-label">Humidity</span>
                                     <span className="status-value">{facilityDataDynamic.humidity}</span>
                                 </div>
-                                <div className="status-item">
+                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('radiation')}>
                                     <span className="status-label">Radiation</span>
                                     <span className="status-value">{facilityDataDynamic.radiation}</span>
                                 </div>
-                                <div className="status-item">
+                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('power')}>
                                     <span className="status-label">Power Output</span>
                                     <span className="status-value">{facilityDataDynamic.powerOutput}</span>
                                 </div>
-                                <div className="status-item">
+                                <div className="status-item cursor-pointer" onClick={() => handleSpecialClick('network')}>
                                     <span className="status-label">Network</span>
                                     <span className="status-value">{facilityDataDynamic.networkStatus}</span>
                                 </div>
@@ -606,7 +644,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                         <div className="facility-panel research-logs">
                             <div className="panel-header">
                                 <h2 className="panel-title">RESEARCH LOGS</h2>
-                                <div className="panel-subtitle">Project VESSEL Documentation Archive</div>
+                                <div className="panel-subtitle">
+                                    Project VESSEL Documentation Archive
+                                    {!logsUnlocked && <span className="text-red-400 ml-2">[LOCKED]</span>}
+                                </div>
                             </div>
 
                             <div className="logs-container">
@@ -614,21 +655,23 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <div
                                         key={log.id}
                                         onClick={() => openLog(log)}
-                                        className={`log-entry ${log.corrupted ? 'corrupted' : 'normal'}`}
+                                        className={`log-entry ${log.corrupted ? 'corrupted' : 'normal'} ${!logsUnlocked ? 'opacity-50' : ''}`}
                                     >
                                         <div className="log-header">
-                                            <h3 className="log-title">{log.title}</h3>
+                                            <h3 className="log-title">
+                                                {logsUnlocked ? log.title : '[CLASSIFIED]'}
+                                            </h3>
                                             <span className={`classification ${log.classification.toLowerCase().replace(' ', '-')}`}>
                                                 {log.classification}
                                             </span>
                                         </div>
                                         <div className="log-meta">
-                                            {log.id} | {log.researcher} | {log.date}
+                                            {logsUnlocked ? `${log.id} | ${log.researcher} | ${log.date}` : '[REDACTED]'}
                                         </div>
                                         <div className="log-preview">
-                                            {log.content.split('\n')[0].substring(0, 80)}...
+                                            {logsUnlocked ? `${log.content.split('\n')[0].substring(0, 80)}...` : 'Access requires Level 5 clearance or higher...'}
                                         </div>
-                                        {log.corrupted && (
+                                        {log.corrupted && logsUnlocked && (
                                             <div className="corruption-warning">
                                                 ⚠️ DATA CORRUPTION DETECTED
                                             </div>
@@ -652,10 +695,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                         <span className="metric-label">Biometric Scans</span>
                                         <span className="metric-value">1,247</span>
                                     </div>
-                                    <div className="security-metric cursor-pointer" onClick={() => handleSpecialClick('access')}>
-                                        <span className="metric-label">Access Attempts</span>
-                                        <span className={`metric-value ${accessAttempts >= 25 ? 'text-red-400' : accessAttempts >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
-                                            {accessAttempts}
+                                    <div className="security-metric">
+                                        <span className="metric-label">Page Refreshes</span>
+                                        <span className={`metric-value ${refreshCount >= 25 ? 'text-red-400' : refreshCount >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
+                                            {refreshCount}
                                         </span>
                                     </div>
                                     <div className="security-metric">
@@ -667,12 +710,6 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                         <span className="metric-value">156</span>
                                     </div>
                                 </div>
-                                
-                                {lastAccessTime && (
-                                    <div className="mt-4 text-xs text-gray-400 font-mono">
-                                        Last Access: {lastAccessTime}
-                                    </div>
-                                )}
                             </div>
 
                             {/* System Performance */}
@@ -749,7 +786,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <div className="alert-dot"></div>
                                     <span>Staff reporting shared consciousness events</span>
                                 </div>
-                                {accessAttempts >= 15 && (
+                                {uniqueInteractions.size >= 15 && (
                                     <div className="alert-item critical">
                                         <div className="alert-dot"></div>
                                         <span>Unauthorized access pattern detected - Entity awareness confirmed</span>
@@ -786,7 +823,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <span>Containment Breach:</span>
                                     <span className="contact-number">Ext. 0000</span>
                                 </div>
-                                {accessAttempts >= 25 && (
+                                {uniqueInteractions.size >= 25 && (
                                     <div className="contact-item emergency">
                                         <span>Smile King Protocol:</span>
                                         <span className="contact-number">Ext. ∞</span>
@@ -821,8 +858,8 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 </div>
                                 <div className="class-item">
                                     <span>Tree Protocol:</span>
-                                    <span className={`class-value ${accessAttempts >= 15 ? 'text-red-400' : 'text-green-400'}`}>
-                                        {accessAttempts >= 15 ? 'AWAKENING' : 'ACTIVE'}
+                                    <span className={`class-value ${uniqueInteractions.size >= 15 ? 'text-red-400' : 'text-green-400'}`}>
+                                        {uniqueInteractions.size >= 15 ? 'AWAKENING' : 'ACTIVE'}
                                     </span>
                                 </div>
                             </div>
@@ -830,6 +867,16 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                     </div>
                 </div>
             </main>
+
+            {/* Color Inversion Toggle Button */}
+            {showInvertButton && (
+                <button
+                    onClick={toggleColorInversion}
+                    className="fixed top-20 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-mono text-sm transition-colors z-50"
+                >
+                    {colorInverted ? 'RESTORE REALITY' : 'INVERT REALITY'}
+                </button>
+            )}
 
             {/* Research Log Modal */}
             {showLogModal && selectedLog && (
@@ -907,10 +954,16 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 </div>
             )}
 
-            {/* Hidden Easter Egg Indicator */}
-            {accessAttempts >= 1 && (
+            {/* Hidden Easter Egg Indicators */}
+            {uniqueInteractions.size >= 1 && (
                 <div className="fixed bottom-4 right-4 text-xs text-gray-600 font-mono opacity-30">
-                    🌳 {accessAttempts}/25 🌳
+                    🌳 {uniqueInteractions.size}/25 🌳
+                </div>
+            )}
+            
+            {refreshCount >= 1 && (
+                <div className="fixed bottom-4 left-4 text-xs text-gray-600 font-mono opacity-30">
+                    🔄 {refreshCount} refreshes
                 </div>
             )}
         </div>
