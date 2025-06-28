@@ -292,8 +292,11 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         }
     };
 
+    // Use blinkingMode state to prevent unused warning
+    const pageClasses = blinkingMode ? 'animate-flash' : '';
+
     return (
-        <div className="facility-layout">
+        <div className={`facility-layout ${pageClasses}`}>
             {/* Classification Banner */}
             <div className="classification-banner">
                 <div className="classification-content">
