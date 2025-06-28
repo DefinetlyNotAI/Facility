@@ -23,6 +23,16 @@ interface HomeClientProps {
     initialCookies: InitialCookies;
 }
 
+interface EasterEggState {
+    refreshCount: number;
+    uniqueInteractions: Set<string>;
+    visualChanges: {
+        logsUnlocked: boolean;
+        blinkingEnabled: boolean;
+        colorsInverted: boolean;
+    };
+}
+
 export default function HomeClient({ initialCookies }: HomeClientProps) {
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
@@ -39,7 +49,7 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         power: '98.7%',
         network: 'SECURE'
     });
-    const [easterEggState, setEasterEggState] = useState({
+    const [easterEggState, setEasterEggState] = useState<EasterEggState>({
         refreshCount: 0,
         uniqueInteractions: new Set<string>(),
         visualChanges: {
@@ -191,8 +201,13 @@ export default function HomeClient({ initialCookies }: HomeClientProps) {
         registerInteraction.current('log', logId);
     };
 
+    // Easter egg state change handler
+    const handleEasterEggStateChange = (state: EasterEggState) => {
+        setEasterEggState(state);
+    };
+
     return (
-        <EasterEggSystem onStateChange={setEasterEggState}>
+        <EasterEggSystem onStateChangeAction={handleEasterEggStateChange}>
             <div className="facility-layout">
                 {/* Classification Banner */}
                 <div className="classification-banner">
