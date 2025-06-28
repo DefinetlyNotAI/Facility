@@ -17,8 +17,6 @@ interface InitialCookies {
     bnwUnlocked: boolean;
 }
 
-
-
 export default function HomeClient({initialCookies}: {initialCookies: InitialCookies}) {
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
@@ -29,6 +27,8 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [systemStatus, setSystemStatus] = useState('INITIALIZING');
     const [showLogModal, setShowLogModal] = useState(false);
     const [selectedLog, setSelectedLog] = useState<ResearchLog | null>(null);
+    const [currentTime, setCurrentTime] = useState<string>('');
+    const [mounted, setMounted] = useState(false);
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
 
@@ -56,9 +56,25 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         networkTraffic: '847 MB/s'
     };
 
+    // Handle client-side mounting and time updates
+    useEffect(() => {
+        setMounted(true);
+        
+        const updateTime = () => {
+            setCurrentTime(new Date().toLocaleString());
+        };
+        
+        updateTime(); // Set initial time
+        const timeInterval = setInterval(updateTime, 1000);
+        
+        return () => clearInterval(timeInterval);
+    }, []);
+
     // Initialize ambient audio
     useEffect(() => {
-        const audio = new Audio('/sfx/home/sweethome.mp3');
+        if (!mounted) return;
+        
+        const audio = new Audio('/audio/sweethome.mp3');
         audio.loop = true;
         audio.volume = 0.3;
         ambientAudioRef.current = audio;
@@ -83,10 +99,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             audio.pause();
             audio.src = '';
         };
-    }, []);
+    }, [mounted]);
 
     // Cookie and redirect checks
     useEffect(() => {
+        if (!mounted) return;
+        
         if (initialCookies.corrupt) {
             router.replace('/h0m3');
             return;
@@ -107,11 +125,11 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         };
 
         runAsync().catch(console.error);
-    }, [router, initialCookies]);
+    }, [router, initialCookies, mounted]);
 
     // Countdown and TTS logic
     useEffect(() => {
-        if (countdown === null || countdown <= 0 || voiceTriggered) return;
+        if (!mounted || countdown === null || countdown <= 0 || voiceTriggered) return;
 
         const timer = setInterval(() => {
             setCountdown(c => {
@@ -148,10 +166,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [countdown, voiceTriggered]);
+    }, [countdown, voiceTriggered, mounted]);
 
     // Time check for 15:25
     useEffect(() => {
+        if (!mounted) return;
+        
         const checkTime = async () => {
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
@@ -166,10 +186,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         checkTime().catch(console.error);
         const interval = setInterval(checkTime, 60000);
         return () => clearInterval(interval);
-    }, [router]);
+    }, [router, mounted]);
 
     // Konami code detection
     useEffect(() => {
+        if (!mounted) return;
+        
         const sequence = [
             'ArrowUp', 'ArrowUp',
             'ArrowDown', 'ArrowDown',
@@ -197,12 +219,23 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
 
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [initialCookies.fileUnlocked]);
+    }, [initialCookies.fileUnlocked, mounted]);
 
     const openLog = (log: ResearchLog) => {
         setSelectedLog(log);
         setShowLogModal(true);
     };
+
+    // Don't render until mounted to prevent hydration mismatch
+    if (!mounted) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+                <div className="text-green-400 text-2xl font-mono animate-pulse">
+                    INITIALIZING FACILITY SYSTEMS...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
@@ -233,7 +266,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                             </div>
                         </div>
                         <div className="text-green-400 font-mono text-lg animate-pulse">
-                            {new Date().toLocaleString()}
+                            {currentTime}
                         </div>
                     </div>
                 </div>
