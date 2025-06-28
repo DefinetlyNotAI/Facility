@@ -41,6 +41,7 @@ const generateFakeLogs = () => [
 
 export default function Home() {
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [countdown, setCountdown] = useState<number | null>(null);
@@ -55,12 +56,20 @@ export default function Home() {
     });
     const [logs, setLogs] = useState<string[]>([]);
     const [showInfinity, setShowInfinity] = useState(false);
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [currentTime, setCurrentTime] = useState<Date | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const loopAudioRef = useRef<HTMLAudioElement | null>(null);
 
+    // Handle mounting to prevent hydration issues
+    useEffect(() => {
+        setMounted(true);
+        setCurrentTime(new Date());
+    }, []);
+
     // Handle redirects based on cookies
     useEffect(() => {
+        if (!mounted) return;
+
         const corrupt = Cookies.get('Corrupt');
         const end = Cookies.get('End');
         const endQuestion = Cookies.get('End?');
@@ -74,10 +83,12 @@ export default function Home() {
             router.replace('/the-end');
             return;
         }
-    }, [router]);
+    }, [router, mounted]);
 
     // Initialize system and populate logs
     useEffect(() => {
+        if (!mounted) return;
+
         const runAsync = async () => {
             // System initialization sequence
             setTimeout(() => setSystemStatus('ONLINE'), 1000);
@@ -132,11 +143,11 @@ export default function Home() {
             clearInterval(logInterval);
             clearInterval(timeInterval);
         };
-    }, [router]);
+    }, [router, mounted]);
 
     // Countdown logic with audio and infinity
     useEffect(() => {
-        if (countdown === null || countdown <= 0 || voiceTriggered) return;
+        if (!mounted || countdown === null || countdown <= 0 || voiceTriggered) return;
 
         const timer = setInterval(() => {
             setCountdown(c => {
@@ -164,7 +175,7 @@ export default function Home() {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [countdown, voiceTriggered]);
+    }, [countdown, voiceTriggered, mounted]);
 
     // Handle data hover to show binary
     const handleHover = () => {
@@ -179,6 +190,8 @@ export default function Home() {
 
     // Check for 15:25 time
     useEffect(() => {
+        if (!mounted) return;
+
         const checkTime = async () => {
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
@@ -195,11 +208,13 @@ export default function Home() {
         });
         const interval = setInterval(checkTime, 60000);
         return () => clearInterval(interval);
-    }, [router]);
+    }, [router, mounted]);
 
     // Konami code for corruption
     const indexRef = useRef(0);
     useEffect(() => {
+        if (!mounted) return;
+
         const sequence = [
             'ArrowUp', 'ArrowUp',
             'ArrowDown', 'ArrowDown',
@@ -227,7 +242,7 @@ export default function Home() {
 
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, []);
+    }, [mounted]);
 
     // Handle modal acknowledgment
     const handleAcknowledge = async () => {
@@ -245,6 +260,17 @@ export default function Home() {
             }, 1000);
         }
     };
+
+    // Don't render until mounted to prevent hydration issues
+    if (!mounted || !currentTime) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-green-400 text-2xl font-mono animate-pulse">
+                    INITIALIZING FACILITY SYSTEMS...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
@@ -331,7 +357,7 @@ export default function Home() {
                                         <div className="text-xs text-gray-500 mb-2">LIVE SYSTEM LOGS:</div>
                                         {logs.map((log, index) => (
                                             <div key={index} className="terminal-line text-xs text-gray-400 animate-fadeInUp">
-                                                <span className="text-green-500">[{new Date().toLocaleTimeString()}]</span> {log}
+                                                <span className="text-green-500">[{currentTime.toLocaleTimeString()}]</span> {log}
                                             </div>
                                         ))}
                                     </div>
