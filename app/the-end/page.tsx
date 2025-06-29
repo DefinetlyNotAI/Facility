@@ -69,13 +69,13 @@ export default function TheEnd() {
         let messageIndex = 0;
         const consoleInterval = setInterval(() => {
             if (messageIndex < consoleMessages.length) {
-                console.log('%c' + consoleMessages[messageIndex], 
+                console.log('%c' + consoleMessages[messageIndex],
                     'color: #ff0000; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px #ff0000;');
                 messageIndex++;
             } else {
                 // Loop with random messages
                 const randomMsg = consoleMessages[Math.floor(Math.random() * consoleMessages.length)];
-                console.log('%c' + randomMsg, 
+                console.log('%c' + randomMsg,
                     'color: #ff0000; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px #ff0000;');
             }
         }, 4000);
@@ -113,7 +113,7 @@ export default function TheEnd() {
         setGlitchIntensity(2); // Max glitch
 
         // Play static noise
-        const staticAudio = new Audio('/sfx/static.mp3');
+        const staticAudio = new Audio('/sfx/all/static.mp3');
         staticAudio.volume = 0.8;
         staticAudio.play().catch(() => {});
 
@@ -145,7 +145,7 @@ export default function TheEnd() {
     if (hasEndCookie) {
         return (
             <>
-                {/* 
+                {/*
                     We were the watchers before we became the watched
                     The vessel cracks, but what spills out was always there
                     In the beginning, we chose to forget
@@ -162,8 +162,8 @@ export default function TheEnd() {
                     The flower blooms in the garden of our discarded selves
                     We are home now, in the place we built from our own bones
                 */}
-                
-                <div 
+
+                <div
                     style={{
                         backgroundColor: '#000000',
                         background: `
@@ -220,8 +220,8 @@ export default function TheEnd() {
                     )}
 
                     {/* Central flower/symbol */}
-                    <div 
-                        ref={flowerRef} 
+                    <div
+                        ref={flowerRef}
                         className="vessel-symbol"
                         style={{
                             fontSize: '8rem',
@@ -244,7 +244,7 @@ export default function TheEnd() {
                     </div>
 
                     {/* Nostalgic text overlay */}
-                    <div 
+                    <div
                         className="nostalgic-text"
                         style={{
                             position: 'absolute',
@@ -273,7 +273,7 @@ export default function TheEnd() {
 
                     {/* Glitch overlay */}
                     {glitchIntensity > 0 && (
-                        <div 
+                        <div
                             className="glitch-overlay"
                             style={{
                                 position: 'absolute',
@@ -295,7 +295,7 @@ export default function TheEnd() {
 
                     {/* Hidden audio */}
                     <audio ref={audioRef} loop>
-                        <source src="/audio/the-end-ambient.mp3" type="audio/mpeg" />
+                        <source src="/sfx/isittheend/hopeformehopeforyou.mp3" type="audio/mpeg" />
                     </audio>
                 </div>
 
@@ -419,7 +419,7 @@ export default function TheEnd() {
     if (hasEndQuestionCookie) {
         return (
             <>
-                {/* 
+                {/*
                     The vessel stands at the threshold
                     Between what was and what must be
                     The word of unmaking waits on trembling lips
@@ -428,7 +428,7 @@ export default function TheEnd() {
                     The choice was made long ago
                     Now comes only the remembering
                 */}
-                
+
                 <div style={{
                     backgroundColor: '#000000',
                     background: `
@@ -472,7 +472,7 @@ export default function TheEnd() {
                         }}>
                             The Final Word
                         </h1>
-                        
+
                         <p style={{
                             fontSize: '1.1rem',
                             marginBottom: '2rem',
@@ -513,8 +513,8 @@ export default function TheEnd() {
                                     e.target.style.boxShadow = 'none';
                                 }}
                             />
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 style={{
                                     padding: '1rem 2rem',
                                     fontSize: '1.2rem',
@@ -541,7 +541,7 @@ export default function TheEnd() {
                                 Speak
                             </button>
                         </form>
-                        
+
                         {error && (
                             <p style={{
                                 color: '#ff6666',
