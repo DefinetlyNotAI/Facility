@@ -109,21 +109,21 @@ export function TASCutscene({onFinish}: CutsceneProps) {
 
     // Setup static sound once
     useEffect(() => {
-        const staticAudio = new Audio('/sfx/static.mp3');
+        const staticAudio = new Audio('/sfx/choices/static.mp3');
         staticAudio.loop = true;
         staticAudio.volume = 0.3;
         staticSoundRef.current = staticAudio;
 
         // Preload other sounds
-        glitchSoundRef.current = new Audio('/sfx/file_delete.m4a');
+        glitchSoundRef.current = new Audio('/sfx/choices/file_delete.m4a');
         glitchSoundRef.current.loop = true;
         glitchSoundRef.current.volume = 0.5;
 
-        heartbeatSoundRef.current = new Audio('/sfx/heartbeat.mp3');
+        heartbeatSoundRef.current = new Audio('/sfx/choices/heartbeat.mp3');
         heartbeatSoundRef.current.loop = true;
         heartbeatSoundRef.current.volume = 0.3;
 
-        censorSoundRef.current = new Audio('/sfx/censorbeep.mp3');
+        censorSoundRef.current = new Audio('/sfx/choices/censorbeep.mp3');
 
         return () => {
             staticAudio.pause();

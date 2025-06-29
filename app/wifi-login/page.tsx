@@ -13,7 +13,7 @@ const setCookie = (name: string, value: string, days = 365) => {
     document.cookie = `${name}=${value}; path=/; expires=${expires}`;
 };
 
-const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({ onDismiss }) => {
+const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
         const timer = setTimeout(onDismiss, 6000);
         return () => clearTimeout(timer);
@@ -34,7 +34,7 @@ const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({ onDismiss }) => {
     );
 };
 
-const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
+const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({onFinish}) => {
     const [step, setStep] = useState(0);
     const messages = [
         'V3$$3L.. W@TCH.. M3.. GR0W',
@@ -69,7 +69,7 @@ const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({ onFinish }) 
     );
 };
 
-const TypingCursor: React.FC<{ active: boolean }> = ({ active }) => {
+const TypingCursor: React.FC<{ active: boolean }> = ({active}) => {
     const [visible, setVisible] = useState(true);
     useEffect(() => {
         if (!active) return;
