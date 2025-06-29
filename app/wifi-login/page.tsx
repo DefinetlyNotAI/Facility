@@ -147,8 +147,12 @@ const WifiLoginPage: React.FC = () => {
 
     return (
         <>
-            {/* If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s */}
-            {/* Hash of the sha1 e6d7a4c1389cffecac2b41b4645a305dcc137e81 */}
+            <div dangerouslySetInnerHTML={{
+                __html: `
+                &lt;!-- If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s --&gt;<br/>
+                &lt;!-- Hash of the sha1 e6d7a4c1389cffecac2b41b4645a305dcc137e81 --&gt;
+            `
+            }}/>
             <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 height: '100vh', backgroundColor: '#111', color: '#0f0', fontFamily: 'monospace',
