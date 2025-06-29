@@ -38,6 +38,7 @@ export default function Moonlight() {
     const [currentLineIndex, setCurrentLineIndex] = useState(0);
     const [showMoon, setShowMoon] = useState(false);
     const [stars, setStars] = useState<Array<{x: number, y: number, size: number, opacity: number}>>([]);
+    const [lineComplete, setLineComplete] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -108,8 +109,9 @@ export default function Moonlight() {
             console.warn('Audio autoplay blocked:', e);
         }
 
-        // Start the poetic sequence
+        // Start with first line
         setCurrentLineIndex(0);
+        setLineComplete(false);
     };
 
     const nextLine = () => {
@@ -117,8 +119,19 @@ export default function Moonlight() {
         
         if (currentLineIndex < lines.length - 1) {
             setCurrentLineIndex(prev => prev + 1);
+            setLineComplete(false);
         } else {
             finishCutscene().catch(console.error);
+        }
+    };
+
+    const onLineComplete = () => {
+        setLineComplete(true);
+    };
+
+    const handleClick = () => {
+        if (cutsceneActive && lineComplete) {
+            nextLine();
         }
     };
 
@@ -159,6 +172,7 @@ export default function Moonlight() {
 
     return (
         <div
+            onClick={handleClick}
             style={{
                 height: "100vh",
                 width: "100vw",
@@ -174,6 +188,7 @@ export default function Moonlight() {
                 overflow: "hidden",
                 position: "relative",
                 userSelect: "none",
+                cursor: cutsceneActive ? "pointer" : "default",
             }}
         >
             {/* Stars */}
@@ -219,15 +234,37 @@ export default function Moonlight() {
                 >
                     <VNTextRenderer 
                         text={lines[currentLineIndex]} 
-                        onDone={nextLine}
+                        onDone={onLineComplete}
                     />
+                </div>
+            )}
+
+            {/* Click to continue indicator */}
+            {cutsceneActive && lineComplete && (
+                <div
+                    style={{
+                        position: "absolute",
+                        bottom: "15%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        fontSize: "1rem",
+                        color: moonRed ? "#ff9999" : "#cce6ff",
+                        opacity: 0.7,
+                        animation: "pulse 2s ease-in-out infinite",
+                        zIndex: 10,
+                    }}
+                >
+                    Click to continue...
                 </div>
             )}
 
             {/* Skip Button */}
             {cutsceneActive && (
                 <button
-                    onClick={skipCutscene}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        skipCutscene();
+                    }}
                     style={{
                         position: "absolute",
                         bottom: "20px",
@@ -357,6 +394,11 @@ export default function Moonlight() {
                 @keyframes atmosphericFlow {
                     0% { transform: rotate(0deg) scale(1); }
                     100% { transform: rotate(360deg) scale(1.1); }
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.7; }
+                    50% { opacity: 1; }
                 }
             `}</style>
         </div>
