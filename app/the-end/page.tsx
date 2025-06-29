@@ -40,6 +40,11 @@ export default function TheEnd() {
         // Check if flower was previously cut
         const flowerWasCut = localStorage.getItem('flowerCut') === 'true';
         setFlowerCut(flowerWasCut);
+
+        // If flower was cut and audio should be playing, resume audio
+        if (flowerWasCut && audioRef.current) {
+            audioRef.current.play().catch(console.warn);
+        }
     }, [router]);
 
     // Initialize audio with user interaction
@@ -156,7 +161,7 @@ export default function TheEnd() {
         try {
             const staticAudio = new Audio('/sfx/all/static.mp3');
             staticAudio.volume = 0.8;
-            
+
             staticAudio.onended = () => {
                 // Resume background music when static finishes
                 if (audioRef.current && audioEnabled) {
@@ -166,11 +171,9 @@ export default function TheEnd() {
 
             staticAudio.play().catch((error) => {
                 console.warn('Static audio failed to play:', error);
-                // Resume background music even if static fails
-                if (audioRef.current && audioEnabled) {
-                    audioRef.current.play().catch(console.warn);
-                }
             });
+
+            router.refresh();
         } catch (error) {
             console.warn('Failed to create static audio:', error);
             // Resume background music if static creation fails
@@ -196,7 +199,7 @@ export default function TheEnd() {
             setError('');
         } else {
             setError('Do not lie, for you spoke what was not taught to you.');
-            
+
             // Play error sound
             try {
                 const errorAudio = new Audio('/sfx/all/computerboo.mp3');
@@ -272,26 +275,6 @@ export default function TheEnd() {
                         preload="auto"
                         style={{display: 'none'}}
                     />
-
-                    {/* Audio prompt */}
-                    {!audioEnabled && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '20px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            background: 'rgba(0, 0, 0, 0.8)',
-                            color: '#00ff00',
-                            padding: '10px 20px',
-                            borderRadius: '8px',
-                            border: '1px solid #00ff00',
-                            fontSize: '0.9rem',
-                            animation: 'pulse 2s infinite',
-                            zIndex: 1000
-                        }}>
-                            Click anywhere to enable audio
-                        </div>
-                    )}
 
                     {/* Ambient particles */}
                     <div className="particles">
@@ -554,7 +537,7 @@ export default function TheEnd() {
                     Now comes only the remembering
                 */}
 
-                <div 
+                <div
                     onClick={initializeBackgroundAudio}
                     style={{
                         backgroundColor: '#000000',
