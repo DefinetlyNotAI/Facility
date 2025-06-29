@@ -1,31 +1,17 @@
 "use client";
 
 import React, {useEffect, useRef, useState} from "react";
-import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
 
 const IMAGE_COUNT = 9;
 
 export default function Moonlight() {
-    const router = useRouter();
-    const [allowed, setAllowed] = useState(false);
     const [cutscenePlayed, setCutscenePlayed] = useState(false);
     const [moonRed, setMoonRed] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
     const intervalRef = useRef<number | null>(null);
-
-    // Check if user came from 404 or has cookie
-    useEffect(() => {
-        const cameFrom = sessionStorage.getItem("legalMoon");
-        if (cameFrom === "true") {
-            setAllowed(true);
-            sessionStorage.removeItem("legalMoon");
-        } else {
-            router.replace("/404");
-        }
-    }, []);
 
     // Decide moon color on mount (1/666 chance red)
     useEffect(() => {
@@ -36,15 +22,13 @@ export default function Moonlight() {
 
     // Play cutscene if not played
     useEffect(() => {
-        if (allowed) {
-            const played = Cookies.get("moonlight_time_cutscene_played");
+        const played = Cookies.get("moonlight_time_cutscene_played");
             if (!played) {
                 playCutscene();
             } else {
                 setCutscenePlayed(true);
             }
-        }
-    }, [allowed]);
+    },);
 
     function playCutscene() {
         if (!window.speechSynthesis) {
@@ -100,8 +84,6 @@ export default function Moonlight() {
         link.click();
         link.remove();
     }
-
-    if (!allowed) return null;
 
     return (
         <div
