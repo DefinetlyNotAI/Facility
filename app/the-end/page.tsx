@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
+import '/styles/theend.module.css';
 
 const KEYWORD_6 = "Unbirth";
 
@@ -44,15 +45,14 @@ export default function TheEnd() {
     // Initialize audio with user interaction
     const initializeAudio = async () => {
         if (!audioRef.current || audioInitialized) return;
-        
+
         try {
             // Create a new audio instance to avoid cached restrictions
             const audio = new Audio('/sfx/home/sweethome.mp3'); // Using existing audio file
             audio.loop = true;
             audio.volume = 0.3;
-            
+
             await audio.play();
-            audioRef.current = audio;
             setAudioInitialized(true);
             setAudioEnabled(true);
             console.log('Audio initialized successfully');
@@ -240,7 +240,6 @@ export default function TheEnd() {
                             zIndex: 1000,
                             animation: 'fade-in-out 3s ease-in-out infinite'
                         }}>
-                            Click anywhere to enable audio
                         </div>
                     )}
 
@@ -351,143 +350,6 @@ export default function TheEnd() {
                         />
                     )}
                 </div>
-
-                <style jsx>{`
-                    @keyframes fade-in-out {
-                        0%, 100% { opacity: 0.3; }
-                        50% { opacity: 0.8; }
-                    }
-
-                    .particles {
-                        position: absolute;
-                        inset: 0;
-                        pointer-events: none;
-                        overflow: hidden;
-                    }
-
-                    .particle {
-                        position: absolute;
-                        width: 2px;
-                        height: 2px;
-                        background: rgba(255, 255, 255, 0.3);
-                        border-radius: 50%;
-                        animation: float-up linear infinite;
-                    }
-
-                    @keyframes float-up {
-                        0% {
-                            transform: translateY(100vh) scale(0);
-                            opacity: 0;
-                        }
-                        10% {
-                            opacity: 1;
-                        }
-                        90% {
-                            opacity: 1;
-                        }
-                        100% {
-                            transform: translateY(-10vh) scale(1);
-                            opacity: 0;
-                        }
-                    }
-
-                    .memory-fragments {
-                        position: absolute;
-                        inset: 0;
-                        pointer-events: none;
-                    }
-
-                    .memory {
-                        position: absolute;
-                        animation: memory-fade 8s ease-in-out infinite;
-                    }
-
-                    .memory-text {
-                        font-size: 0.8rem;
-                        color: rgba(255, 255, 255, 0.4);
-                        text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-                        font-style: italic;
-                    }
-
-                    @keyframes memory-fade {
-                        0%, 100% { opacity: 0; transform: scale(0.8); }
-                        50% { opacity: 0.6; transform: scale(1); }
-                    }
-
-                    .vessel-symbol {
-                        animation: vessel-pulse 4s ease-in-out infinite;
-                    }
-
-                    @keyframes vessel-pulse {
-                        0%, 100% { 
-                            transform: scale(1) rotate(0deg);
-                        }
-                        50% { 
-                            transform: scale(1.1) rotate(5deg);
-                        }
-                    }
-
-                    .vessel-symbol.cut {
-                        animation: vessel-shatter 2s ease-out forwards;
-                    }
-
-                    .vessel-symbol.permanently-cut {
-                        animation: none;
-                        transform: scale(0.7) rotate(-15deg);
-                        filter: grayscale(100%) brightness(0.3) contrast(2) !important;
-                        opacity: 0.6;
-                    }
-
-                    @keyframes vessel-shatter {
-                        0% { 
-                            transform: scale(1) rotate(0deg);
-                            filter: none;
-                        }
-                        15% { 
-                            transform: scale(1.3) rotate(5deg);
-                            filter: brightness(2) contrast(2);
-                        }
-                        30% { 
-                            transform: scale(0.9) rotate(-10deg);
-                            filter: brightness(0.5) contrast(3);
-                        }
-                        45% { 
-                            transform: scale(1.1) rotate(8deg) scaleX(0.8);
-                            filter: grayscale(50%) brightness(0.7);
-                        }
-                        60% { 
-                            transform: scale(0.8) rotate(-12deg) scaleY(0.9);
-                            filter: grayscale(80%) brightness(0.4);
-                        }
-                        80% { 
-                            transform: scale(0.75) rotate(-18deg);
-                            filter: grayscale(100%) brightness(0.3) contrast(2);
-                        }
-                        100% { 
-                            transform: scale(0.7) rotate(-15deg);
-                            filter: grayscale(100%) brightness(0.3) contrast(2);
-                            opacity: 0.6;
-                        }
-                    }
-
-                    .nostalgic-text {
-                        animation: nostalgic-glow 6s ease-in-out infinite;
-                    }
-
-                    @keyframes nostalgic-glow {
-                        0%, 100% { 
-                            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-                        }
-                        50% { 
-                            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(200, 200, 255, 0.3);
-                        }
-                    }
-
-                    @keyframes glitch-scan {
-                        0% { transform: translateY(-100%); }
-                        100% { transform: translateY(100vh); }
-                    }
-                `}</style>
             </>
         );
     }
@@ -566,7 +428,7 @@ export default function TheEnd() {
                                 type="text"
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
-                                placeholder="The word of unmaking..."
+                                placeholder="The 6th word..."
                                 style={{
                                     fontSize: '1.5rem',
                                     padding: '1rem',
@@ -638,10 +500,10 @@ export default function TheEnd() {
                         }
 
                         @keyframes title-glow {
-                            0%, 100% { 
+                            0%, 100% {
                                 text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
                             }
-                            50% { 
+                            50% {
                                 text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(200, 100, 255, 0.4);
                             }
                         }
