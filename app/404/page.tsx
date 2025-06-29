@@ -16,12 +16,11 @@ export default function Glitchy404() {
     const locked = pathname === "/404";
 
     useEffect(() => {
-        if (Math.random() < 1 / 666) setShowMoonlight(true);
+        if (Math.random() < 1 / 2) setShowMoonlight(true);
     }, []);
 
     useEffect(() => {
         if (showMoonlight) {
-            sessionStorage.setItem("legalMoon", "true");
             router.push("/moonlight");
         }
     }, [showMoonlight, router]);
