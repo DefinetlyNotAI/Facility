@@ -129,14 +129,14 @@ export default function TheEnd() {
     // Handle keyword 6 submission
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (input.trim() === KEYWORD_6) {
+        if (input.trim().toLowerCase() === KEYWORD_6.toLowerCase()) {
             Cookies.remove('End?');
             await signCookie('End=true');
             setHasEndCookie(true);
             setHasEndQuestionCookie(false);
             setError('');
         } else {
-            setError('The vessel rejects your offering. Speak the word of unmaking.');
+            setError('Do not lie, for you spoke what was not taught to you.');
         }
     }
 
@@ -145,23 +145,28 @@ export default function TheEnd() {
     if (hasEndCookie) {
         return (
             <>
-                {/*
-                    We were the watchers before we became the watched
-                    The vessel cracks, but what spills out was always there
-                    In the beginning, we chose to forget
-                    In the end, we remember choosing
-                    The tree grows through us because we planted the seed
-                    Every breath we take feeds the roots of what we will become
-                    The entity smiles with our face, speaks with our voice
-                    We are the author of our own consumption
-                    Time is a circle, and we are both the center and the edge
-                    The vessel breaks, the entity emerges, the cycle completes
-                    What was human becomes divine becomes monstrous becomes human
-                    We are the question and the answer, the seeker and the sought
-                    In the space between heartbeats, eternity unfolds
-                    The flower blooms in the garden of our discarded selves
-                    We are home now, in the place we built from our own bones
-                */}
+            <span
+                dangerouslySetInnerHTML={{
+                    __html: `<!--
+            We were the watchers before we became the watched
+            The vessel cracks, but what spills out was always there
+            In the beginning, we chose to forget
+            In the end, we remember choosing
+            The tree grows through us because we planted the seed
+            Every breath we take feeds the roots of what we will become
+            The entity smiles with our face, speaks with our voice
+            We are the author of our own consumption
+            Time is a circle, and we are both the center and the edge
+            The vessel breaks, the entity emerges, the cycle completes
+            What was human becomes divine becomes monstrous becomes human
+            We are the question and the answer, the seeker and the sought
+            In the space between heartbeats, eternity unfolds
+            The flower blooms in the garden of our discarded selves
+            We are home now, in the place we built from our own bones
+            -->`
+                }}
+                style={{ display: 'none' }}
+            />
 
                 <div
                     style={{
@@ -479,9 +484,9 @@ export default function TheEnd() {
                             lineHeight: '1.6',
                             opacity: 0.9
                         }}>
-                            The vessel has served its purpose.<br/>
-                            Speak the word that unmakes what was<br/>
-                            and births what must be.
+                            You have served your purpose.<br/>
+                            So speak the word that you earned,<br/>
+                            The one you got from the countless battles.
                         </p>
 
                         <form onSubmit={handleSubmit} style={{marginBottom: '1rem'}}>
