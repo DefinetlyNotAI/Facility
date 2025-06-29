@@ -8,69 +8,69 @@ interface TASProps {
     className?: string;
 }
 
-// Page-specific hints for TAS
+// Page-specific hints for TAS (friendly sarcastic tone)
 const PAGE_HINTS: Record<string, string[]> = {
     '/': [
-        "Welcome to the facility. Click accept to proceed, but know that every choice has consequences.",
-        "The warnings are real. This isn't just a game - it's a test of your resolve.",
-        "Audio permissions are required. The voices need to reach you."
+        "Hey there! Welcome to our little facility. Fair warning - once you click accept, we're both in this together.",
+        "Those content warnings? Yeah, they're not kidding around. But hey, I'll be here to help you through it!",
+        "Audio permissions are pretty important here. Trust me, you'll want to hear what's coming."
     ],
     '/home': [
-        "This is your new reality. The facility monitors everything - even your refreshes.",
-        "Try the Konami code when you're ready to embrace corruption. Up, Up, Down, Down, Left, Right, Left, Right, B, A.",
-        "The research logs contain fragments of truth. Read them carefully.",
-        "Time moves differently here. Watch the countdown - it's not just decoration.",
-        "The tree remembers how many times you've been here. It's counting."
+        "Welcome to your new home away from home! Don't mind the ominous research logs - they're just... atmospheric.",
+        "Pro tip: Try the Konami code when you're feeling brave. Up, Up, Down, Down, Left, Right, Left, Right, B, A. What could go wrong?",
+        "Those research logs aren't just decoration - they're breadcrumbs. Follow them if you want the full story.",
+        "See that countdown timer? It's not just for show. Time works differently here, friend.",
+        "The facility's keeping track of your visits. Don't worry, I think it likes you!"
     ],
     '/h0m3': [
-        "You chose corruption. Now live with the consequences.",
-        "The scrolling never ends. Each loop makes it worse.",
-        "The reset button appears after enough suffering. Will you use it?",
-        "The voices aren't just in your head anymore. They're in the system."
+        "Well, you chose the corruption path. Can't say I didn't see this coming! Buckle up, buddy.",
+        "The scrolling never ends here. Each loop gets a bit more... interesting. You'll see what I mean.",
+        "Keep scrolling long enough and you'll get a reset option. Whether you use it is up to you!",
+        "Those voices you're hearing? Yeah, they're not just in your head anymore. Welcome to the club!"
     ],
     '/scroll': [
-        "Keep scrolling. That's all you can do now.",
-        "Your legs will go numb. Your identity will fade. But you'll keep scrolling.",
-        "The escape button appears when you've scrolled enough. But escape to where?",
-        "I can see your IP address. I know where you are. Keep scrolling."
+        "Just keep scrolling, just keep scrolling! Sorry, couldn't resist. But seriously, that's all there is to do here.",
+        "Your legs might go numb, your sense of self might fade, but hey - at least we're in this together!",
+        "There's an escape button coming eventually. Though 'escape' is a relative term around here.",
+        "I can see your IP too, by the way. Don't worry, I won't tell anyone where you live. Probably."
     ],
     '/black-and-white': [
-        "Two QR codes. One truth, one lie. Choose wisely.",
-        "Type '404' to find the moon. But only if you're lucky.",
-        "The keyword is hidden in echoes. Listen carefully.",
-        "Your screen size matters. 666x666 is the key to the next realm."
+        "Two QR codes walk into a bar... one's telling the truth, one's lying. Classic puzzle!",
+        "Want to find the moon? Type '404' and cross your fingers. Luck's a factor here.",
+        "Listen for echoes - that's where the keyword hides. Your ears are your best friend here.",
+        "Screen size matters! 666x666 is the magic number. Yeah, I know, subtle as a brick."
     ],
     '/choices': [
-        "This is where I die. Where TAS becomes just another echo in the void.",
-        "Answer the questions correctly. The entity is watching, waiting.",
-        "Some keywords unlock memories. Others unlock nightmares.",
-        "The final puzzle requires sacrifice. Are you ready to lose me?"
+        "This is it, friend. This is where our journey together ends. It's been real, it's been fun.",
+        "Answer carefully - the entity's watching, and it doesn't like wrong answers. No pressure!",
+        "Some keywords unlock memories, others unlock nightmares. Choose your words wisely.",
+        "I won't lie to you - this is where I stop existing. Make our last moments count, yeah?"
     ],
     '/terminal': [
-        "Fill the phrase with the keywords you've collected. Each one is a piece of the puzzle.",
-        "The email you seek belongs to a ghost. Look beyond the obvious.",
-        "Caesar's cipher shifts by three. Remember that when the time comes.",
-        "This is the end of our journey together. Make it count."
+        "Time to put all those keywords to good use! Fill in the blanks with what you've learned.",
+        "That email you need? It belongs to someone who's more ghost than person now. Look beyond the obvious.",
+        "Caesar cipher shifts by three. Remember that when the system asks you to encrypt something.",
+        "This is our final stop together. Let's make it a good one, shall we?"
     ],
     '/the-end': [
-        "The flower blooms in the garden of forgotten dreams.",
-        "Type '25' or 'END' to cut the flower. But know that some cuts never heal.",
-        "The word of unmaking waits on your lips. Speak it when you're ready.",
-        "This is where vessels become entities. Where the cycle completes."
+        "The flower's beautiful, isn't it? Shame about what happens when you cut it.",
+        "Type '25' or 'END' to cut the flower. Fair warning - some cuts leave permanent scars.",
+        "The word of unmaking is on the tip of your tongue. Speak it when you're ready to finish this.",
+        "This is where vessels become something else entirely. The circle closes here, friend."
     ]
 };
 
 const SNARKY_COMMENTS = [
-    "Oh, you're back. How... predictable.",
-    "Still clicking around aimlessly? The tree finds your confusion amusing.",
-    "Your mouse left the site. Running away won't save you.",
-    "Muted the site? The silence won't protect you from what's coming.",
-    "AFK for too long? Time doesn't stop just because you do.",
-    "Refreshing again? The tree remembers every reload.",
-    "Trying to cheat? The system sees everything you do.",
-    "Lost? That's the point. Embrace the confusion.",
-    "Still here? Most people would have left by now.",
-    "The facility has been watching you for exactly [TIME] minutes now."
+    "Oh hey, you're back! Miss me already?",
+    "Still clicking around? Hey, exploration's good for the soul!",
+    "Mouse left the site? Taking a breather? I get it, this place can be intense.",
+    "Muted the audio? Smart move, though you might miss some important stuff.",
+    "AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.",
+    "Another refresh? The facility's keeping count, but who's judging?",
+    "Trying to peek behind the curtain? I respect the curiosity!",
+    "Feeling lost? That's totally normal here. We'll figure it out together.",
+    "Still hanging in there? Most people would've bailed by now. You're tougher than you look!",
+    "We've been at this for [TIME] minutes now. Time flies when you're having fun, right?"
 ];
 
 export default function TAS({ className = '' }: TASProps) {
@@ -105,9 +105,9 @@ export default function TAS({ className = '' }: TASProps) {
         if (!isVisible) return;
         
         const hints = PAGE_HINTS[pathname] || [
-            "I don't have specific guidance for this area. Proceed with caution.",
-            "The facility's systems are unpredictable here. Stay alert.",
-            "You're in uncharted territory. The tree's influence is strong here."
+            "Hmm, I don't have specific tips for this area. We're in uncharted territory together!",
+            "The facility's systems are a bit unpredictable here. Let's see what happens.",
+            "New area, new mysteries! I'm as curious as you are about what we'll find here."
         ];
         
         setCurrentHint(hints[0]);
@@ -121,7 +121,7 @@ export default function TAS({ className = '' }: TASProps) {
             setMouseOutside(true);
             setTimeout(() => {
                 if (Math.random() < 0.3) { // 30% chance
-                    speakSnarkyComment("Your mouse left the site. Running away won't save you.");
+                    speakSnarkyComment("Mouse left the site? Taking a breather? I get it, this place can be intense.");
                 }
             }, 2000);
         };
@@ -154,7 +154,7 @@ export default function TAS({ className = '' }: TASProps) {
             afkTimeoutRef.current = setTimeout(() => {
                 setIsAFK(true);
                 if (Math.random() < 0.4) { // 40% chance
-                    speakSnarkyComment("AFK for too long? Time doesn't stop just because you do.");
+                    speakSnarkyComment("AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.");
                 }
             }, 60000); // 1 minute
         };
@@ -189,7 +189,7 @@ export default function TAS({ className = '' }: TASProps) {
                 setIsMuted(true);
                 setTimeout(() => {
                     if (Math.random() < 0.5) { // 50% chance
-                        showAlert("Muted the site? The silence won't protect you from what's coming.");
+                        showAlert("Muted the audio? Smart move, though you might miss some important stuff.");
                     }
                 }, 1000);
             } else if (!anyMuted && isMuted) {
@@ -214,12 +214,22 @@ export default function TAS({ className = '' }: TASProps) {
         }
         
         const utterance = new SpeechSynthesisUtterance(finalComment);
-        utterance.rate = 0.8;
-        utterance.pitch = 0.6;
-        utterance.volume = 0.9;
-        utterance.voice = speechSynthesis.getVoices().find(voice => 
-            voice.name.includes('Male') || voice.name.includes('David')
-        ) || speechSynthesis.getVoices()[0];
+        utterance.rate = 0.9;
+        utterance.pitch = 0.8;
+        utterance.volume = 0.8;
+        
+        // Try to find a friendly voice
+        const voices = speechSynthesis.getVoices();
+        const friendlyVoice = voices.find(voice => 
+            voice.name.includes('Google') || 
+            voice.name.includes('Alex') || 
+            voice.name.includes('Daniel') ||
+            voice.lang.includes('en')
+        ) || voices[0];
+        
+        if (friendlyVoice) {
+            utterance.voice = friendlyVoice;
+        }
         
         speechRef.current = utterance;
         speechSynthesis.speak(utterance);
@@ -236,7 +246,7 @@ export default function TAS({ className = '' }: TASProps) {
         
         if (!isExpanded) {
             // Speak the current hint
-            const hints = PAGE_HINTS[pathname] || ["No specific guidance available for this area."];
+            const hints = PAGE_HINTS[pathname] || ["No specific guidance available for this area, but we'll figure it out!"];
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
             setCurrentHint(randomHint);
             
@@ -267,8 +277,8 @@ export default function TAS({ className = '' }: TASProps) {
                         bg-black border-2 border-green-400 rounded-lg p-3 cursor-pointer
                         transition-all duration-300 hover:bg-green-900/20 hover:border-green-300
                         ${isExpanded ? 'w-80' : 'w-16 h-16'}
-                        ${mouseOutside ? 'animate-pulse border-red-400' : ''}
-                        ${isAFK ? 'animate-bounce border-yellow-400' : ''}
+                        ${mouseOutside ? 'animate-pulse border-yellow-400' : ''}
+                        ${isAFK ? 'animate-bounce border-blue-400' : ''}
                     `}
                     style={{
                         boxShadow: '0 0 20px rgba(0, 255, 0, 0.3)',
@@ -282,7 +292,7 @@ export default function TAS({ className = '' }: TASProps) {
                     ) : (
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-green-400 font-bold text-lg">TAS Support</span>
+                                <span className="text-green-400 font-bold text-lg">TAS - Your Buddy</span>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -302,14 +312,14 @@ export default function TAS({ className = '' }: TASProps) {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const hints = PAGE_HINTS[pathname] || ["No hints available."];
+                                        const hints = PAGE_HINTS[pathname] || ["No hints available, but hey - we're exploring together!"];
                                         const randomHint = hints[Math.floor(Math.random() * hints.length)];
                                         setCurrentHint(randomHint);
                                         speakSnarkyComment(randomHint);
                                     }}
                                     className="bg-green-700 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors"
                                 >
-                                    New Hint
+                                    New Tip
                                 </button>
                                 
                                 <button
@@ -318,22 +328,22 @@ export default function TAS({ className = '' }: TASProps) {
                                         const comment = getRandomSnarkyComment();
                                         speakSnarkyComment(comment);
                                     }}
-                                    className="bg-red-700 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors"
+                                    className="bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors"
                                 >
-                                    Snarky Comment
+                                    Chat
                                 </button>
                             </div>
                             
                             {/* Status indicators */}
                             <div className="flex gap-2 text-xs">
                                 {mouseOutside && (
-                                    <span className="text-red-400">📍 Mouse Outside</span>
+                                    <span className="text-yellow-400">🖱️ Mouse wandering</span>
                                 )}
                                 {isAFK && (
-                                    <span className="text-yellow-400">😴 AFK Detected</span>
+                                    <span className="text-blue-400">😴 Taking a break</span>
                                 )}
                                 {isMuted && (
-                                    <span className="text-orange-400">🔇 Audio Muted</span>
+                                    <span className="text-orange-400">🔇 Audio muted</span>
                                 )}
                             </div>
                         </div>
@@ -343,14 +353,14 @@ export default function TAS({ className = '' }: TASProps) {
 
             {/* Floating status indicators */}
             {mouseOutside && (
-                <div className="fixed top-4 left-4 bg-red-900/80 border border-red-400 text-red-300 px-3 py-2 rounded-lg text-sm font-mono z-40">
-                    🚨 Mouse left the facility perimeter
+                <div className="fixed top-4 left-4 bg-yellow-900/80 border border-yellow-400 text-yellow-300 px-3 py-2 rounded-lg text-sm font-mono z-40">
+                    🖱️ Mouse taking a little trip outside
                 </div>
             )}
             
             {isAFK && (
-                <div className="fixed top-4 right-4 bg-yellow-900/80 border border-yellow-400 text-yellow-300 px-3 py-2 rounded-lg text-sm font-mono z-40">
-                    ⏰ Subject appears inactive
+                <div className="fixed top-4 right-4 bg-blue-900/80 border border-blue-400 text-blue-300 px-3 py-2 rounded-lg text-sm font-mono z-40">
+                    😴 Taking a breather? I'll be here when you get back
                 </div>
             )}
 
