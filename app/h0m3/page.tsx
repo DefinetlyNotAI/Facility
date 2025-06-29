@@ -231,8 +231,15 @@ export default function H0m3() {
                         e.currentTarget.style.background = 'transparent';
                     }}
                     onClick={async () => {
-                        await signCookie('corrupting=true');
-                        router.replace('/h0m3');
+                        try {
+                            await signCookie('corrupting=true');
+                            // Force a page reload to trigger the corrupting mode
+                            window.location.reload();
+                        } catch (error) {
+                            console.error('Failed to set corrupting cookie:', error);
+                            // Fallback: try to navigate directly
+                            setMode('glitch');
+                        }
                     }}
                     aria-label="Hidden corrupt button"
                 >

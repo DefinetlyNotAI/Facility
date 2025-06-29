@@ -48,6 +48,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     // Easter Egg States - Refresh Based Only
     const [refreshCount, setRefreshCount] = useState(0);
     const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
+    const [isInverted, setIsInverted] = useState(false);
     
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
@@ -92,7 +93,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
         };
     }, []);
 
-    // Refresh-based easter eggs
+    // Refresh-based easter eggs with proper TTS
     useEffect(() => {
         if (!mounted || refreshCount === 0) return;
 
@@ -108,16 +109,18 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                     break;
                 case 25:
                     message = "Twenty-five refreshes... You've fed the tree well. It smiles upon you, vessel.";
-                    // Trigger special visual effect
-                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+                    // Trigger 25-second inversion effect
+                    setIsInverted(true);
                     setTimeout(() => {
-                        document.body.style.filter = '';
-                    }, 3000);
+                        setIsInverted(false);
+                    }, 25000); // 25 seconds
                     break;
             }
 
             if (message) {
+                // Delay TTS to ensure page is loaded
                 setTimeout(() => {
+                    // Pause ambient audio during TTS
                     if (ambientAudioRef.current) {
                         ambientAudioRef.current.pause();
                     }
@@ -128,12 +131,21 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                     utterance.volume = 0.9;
 
                     utterance.onend = () => {
+                        // Resume ambient audio after TTS
                         if (ambientAudioRef.current) {
                             ambientAudioRef.current.play().catch(console.warn);
                         }
                     };
 
-                    speechSynthesis.speak(utterance);
+                    // Ensure speech synthesis is ready
+                    if (window.speechSynthesis) {
+                        // Cancel any existing speech
+                        window.speechSynthesis.cancel();
+                        // Small delay to ensure cancellation is processed
+                        setTimeout(() => {
+                            window.speechSynthesis.speak(utterance);
+                        }, 100);
+                    }
                 }, 2000);
             }
         }
@@ -304,7 +316,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout">
+        <div className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black facility-layout ${isInverted ? 'inverted-colors' : ''}`}>
             {/* Scrolling Classification Banner */}
             <div className="classification-banner">
                 <div className="classification-content">
@@ -776,6 +788,14 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                     🌳 {refreshCount}/25 🌳
                 </div>
             )}
+
+            {/* Inversion Effect Styles */}
+            <style jsx>{`
+                .inverted-colors {
+                    filter: invert(1) hue-rotate(180deg);
+                    transition: filter 0.5s ease-in-out;
+                }
+            `}</style>
         </div>
     );
 }
