@@ -19,8 +19,10 @@ export default function TheEnd() {
     const [glitchIntensity, setGlitchIntensity] = useState(0);
     const [showMemories, setShowMemories] = useState(false);
     const [audioInitialized, setAudioInitialized] = useState(false);
+    const [audioEnabled, setAudioEnabled] = useState(false);
+    const [flowerCut, setFlowerCut] = useState(false);
 
-    // Check cookies on mount
+    // Check cookies and localStorage on mount
     useEffect(() => {
         setMounted(true);
         const end = Cookies.get('End');
@@ -33,6 +35,10 @@ export default function TheEnd() {
 
         setHasEndCookie(!!end);
         setHasEndQuestionCookie(!!endQuestion);
+
+        // Check if flower was previously cut
+        const flowerWasCut = localStorage.getItem('flowerCut') === 'true';
+        setFlowerCut(flowerWasCut);
     }, [router]);
 
     // Initialize audio with user interaction
@@ -40,39 +46,25 @@ export default function TheEnd() {
         if (!audioRef.current || audioInitialized) return;
         
         try {
-            audioRef.current.volume = 0.3;
-            await audioRef.current.play();
+            // Create a new audio instance to avoid cached restrictions
+            const audio = new Audio('/sfx/home/sweethome.mp3'); // Using existing audio file
+            audio.loop = true;
+            audio.volume = 0.3;
+            
+            await audio.play();
+            audioRef.current = audio;
             setAudioInitialized(true);
+            setAudioEnabled(true);
             console.log('Audio initialized successfully');
         } catch (error) {
-            console.warn('Audio autoplay blocked, waiting for user interaction:', error);
-            
-            // Add click listener to initialize audio on first user interaction
-            const handleFirstClick = async () => {
-                if (audioRef.current && !audioInitialized) {
-                    try {
-                        await audioRef.current.play();
-                        setAudioInitialized(true);
-                        console.log('Audio started after user interaction');
-                    } catch (e) {
-                        console.warn('Audio failed to start:', e);
-                    }
-                }
-                document.removeEventListener('click', handleFirstClick);
-                document.removeEventListener('keydown', handleFirstClick);
-            };
-            
-            document.addEventListener('click', handleFirstClick);
-            document.addEventListener('keydown', handleFirstClick);
+            console.warn('Audio failed to initialize:', error);
+            setAudioEnabled(false);
         }
     };
 
     // If End cookie present, start the final experience
     useEffect(() => {
         if (!hasEndCookie || !mounted) return;
-
-        // Initialize audio
-        initializeAudio();
 
         // Gradual glitch intensity increase
         const glitchTimer = setInterval(() => {
@@ -137,23 +129,28 @@ export default function TheEnd() {
     }, [hasEndCookie]);
 
     function triggerFlowerCutAndStatic() {
-        if (!flowerRef.current) return;
+        if (!flowerRef.current || flowerCut) return;
+
+        // Set flower as cut and persist to localStorage
+        setFlowerCut(true);
+        localStorage.setItem('flowerCut', 'true');
 
         flowerRef.current.classList.add('cut');
         setGlitchIntensity(2); // Max glitch
 
         // Play static noise with better error handling
-        const staticAudio = new Audio('/sfx/static.mp3');
-        staticAudio.volume = 0.8;
-        staticAudio.play().catch((error) => {
-            console.warn('Static audio failed to play:', error);
-        });
+        try {
+            const staticAudio = new Audio('/sfx/static.mp3');
+            staticAudio.volume = 0.8;
+            staticAudio.play().catch((error) => {
+                console.warn('Static audio failed to play:', error);
+            });
+        } catch (error) {
+            console.warn('Failed to create static audio:', error);
+        }
 
-        // Reset after effect
+        // Don't reset the cut state - it should persist
         setTimeout(() => {
-            if (flowerRef.current) {
-                flowerRef.current.classList.remove('cut');
-            }
             setGlitchIntensity(prev => Math.min(prev, 1));
         }, 3000);
     }
@@ -195,13 +192,17 @@ export default function TheEnd() {
             In the space between heartbeats, eternity unfolds
             The flower blooms in the garden of our discarded selves
             We are home now, in the place we built from our own bones
+            The smile that cuts through reality is our own
+            We are the tree, we are the root, we are the fruit that falls
+            In the end, there was only us, speaking to ourselves across time
+            The vessel was always empty, waiting to be filled with what we would become
             -->`
                 }}
                 style={{ display: 'none' }}
             />
 
                 <div
-                    onClick={initializeAudio} // Try to initialize audio on any click
+                    onClick={initializeAudio}
                     style={{
                         backgroundColor: '#000000',
                         background: `
@@ -221,12 +222,11 @@ export default function TheEnd() {
                         flexDirection: 'column',
                         fontFamily: "'Courier New', Courier, monospace",
                         fontSize: '1.2rem',
-                        cursor: audioInitialized ? 'default' : 'pointer'
+                        cursor: audioEnabled ? 'default' : 'pointer'
                     }}
-                    className={glitchIntensity > 0.5 ? 'reality-distortion' : ''}
                 >
                     {/* Audio initialization hint */}
-                    {!audioInitialized && (
+                    {!audioEnabled && (
                         <div style={{
                             position: 'fixed',
                             top: '20px',
@@ -280,7 +280,7 @@ export default function TheEnd() {
                     {/* Central flower/symbol */}
                     <div
                         ref={flowerRef}
-                        className="vessel-symbol"
+                        className={`vessel-symbol ${flowerCut ? 'permanently-cut' : ''}`}
                         style={{
                             fontSize: '8rem',
                             textShadow: `
@@ -291,7 +291,7 @@ export default function TheEnd() {
                             filter: `
                                 brightness(${1 + glitchIntensity * 0.5})
                                 contrast(${1 + glitchIntensity * 0.3})
-                                hue-rotate(${glitchIntensity * 180}deg)
+                                ${flowerCut ? 'grayscale(100%) brightness(0.3)' : ''}
                             `,
                             transition: 'all 0.3s ease',
                             position: 'relative',
@@ -350,18 +350,6 @@ export default function TheEnd() {
                             }}
                         />
                     )}
-
-                    {/* Audio element with better setup */}
-                    <audio 
-                        ref={audioRef} 
-                        loop 
-                        preload="auto"
-                        style={{ display: 'none' }}
-                    >
-                        <source src="/sfx/isittheend/hopeformehopeforyou.mp3" type="audio/mpeg" />
-                        <source src="/audio/hopeformehopeforyou.mp3" type="audio/mpeg" />
-                        <source src="/sounds/hopeformehopeforyou.mp3" type="audio/mpeg" />
-                    </audio>
                 </div>
 
                 <style jsx>{`
@@ -440,16 +428,46 @@ export default function TheEnd() {
                     }
 
                     .vessel-symbol.cut {
-                        animation: vessel-shatter 1.5s ease-out;
-                        filter: grayscale(100%) brightness(0.3) !important;
+                        animation: vessel-shatter 2s ease-out forwards;
+                    }
+
+                    .vessel-symbol.permanently-cut {
+                        animation: none;
+                        transform: scale(0.7) rotate(-15deg);
+                        filter: grayscale(100%) brightness(0.3) contrast(2) !important;
+                        opacity: 0.6;
                     }
 
                     @keyframes vessel-shatter {
-                        0% { transform: scale(1); }
-                        25% { transform: scale(1.2) rotate(10deg); }
-                        50% { transform: scale(0.8) rotate(-5deg) scaleX(0.1); }
-                        75% { transform: scale(1.1) rotate(15deg); }
-                        100% { transform: scale(1) rotate(0deg); }
+                        0% { 
+                            transform: scale(1) rotate(0deg);
+                            filter: none;
+                        }
+                        15% { 
+                            transform: scale(1.3) rotate(5deg);
+                            filter: brightness(2) contrast(2);
+                        }
+                        30% { 
+                            transform: scale(0.9) rotate(-10deg);
+                            filter: brightness(0.5) contrast(3);
+                        }
+                        45% { 
+                            transform: scale(1.1) rotate(8deg) scaleX(0.8);
+                            filter: grayscale(50%) brightness(0.7);
+                        }
+                        60% { 
+                            transform: scale(0.8) rotate(-12deg) scaleY(0.9);
+                            filter: grayscale(80%) brightness(0.4);
+                        }
+                        80% { 
+                            transform: scale(0.75) rotate(-18deg);
+                            filter: grayscale(100%) brightness(0.3) contrast(2);
+                        }
+                        100% { 
+                            transform: scale(0.7) rotate(-15deg);
+                            filter: grayscale(100%) brightness(0.3) contrast(2);
+                            opacity: 0.6;
+                        }
                     }
 
                     .nostalgic-text {
@@ -463,18 +481,6 @@ export default function TheEnd() {
                         50% { 
                             text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(200, 200, 255, 0.3);
                         }
-                    }
-
-                    .reality-distortion {
-                        animation: reality-shift 0.1s infinite;
-                    }
-
-                    @keyframes reality-shift {
-                        0% { filter: hue-rotate(0deg) brightness(1); }
-                        25% { filter: hue-rotate(90deg) brightness(1.1); }
-                        50% { filter: hue-rotate(180deg) brightness(0.9); }
-                        75% { filter: hue-rotate(270deg) brightness(1.1); }
-                        100% { filter: hue-rotate(360deg) brightness(1); }
                     }
 
                     @keyframes glitch-scan {
