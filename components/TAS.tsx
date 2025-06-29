@@ -26,36 +26,43 @@ const PAGE_HINTS: Record<string, string[]> = {
         "Two buttons, but you'll need a keyword to unlock the second one. The first one gives you a clue!",
         "That encoded message? It's not as complex as it looks. Sometimes the simplest tools work best.",
         "When you get that transmission error, don't panic - it's asking for a specific type of encoding.",
-        "The numbers are important here."
+        "The numbers are important here. Think about what they might add up to.",
+        "Caesar cipher, eh? Sometimes the oldest tricks are the best tricks!"
     ],
     '/wifi-login': [
         "Username and password time! The username might be hiding in plain sight around the facility.",
         "That password hash they're showing you? It's a breadcrumb. Work backwards from there.",
-        "Six characters max for the password - think simple, think nature, think... brute.",
+        "Six characters max for the password - think simple, think nature, think... growth.",
+        "The username has something to do with where things grow. And the password? Well, what grows?"
     ],
     '/media': [
         "Three items to interact with - audio, and two downloads. You'll need to crack some passwords!",
         "That morse code audio? Listen carefully, or find a way to decode it. It's your first key.",
         "The ZIP files are password protected with the keywords you've been collecting. Use them wisely!",
-        "One ZIP leads to another - it's a chain of puzzles. Follow the breadcrumbs."
+        "One ZIP leads to another - it's a chain of puzzles. Follow the breadcrumbs.",
+        "Each interaction unlocks the next step. It's all connected, trust me."
     ],
     '/file-console': [
-        "Welcome to the terminal! Try 'help' to explore.",
+        "Welcome to the terminal! Try 'help' to explore available commands.",
         "Some files can be downloaded with 'wget' - you might need them later!",
         "That robots.txt file is particularly interesting. Web crawlers aren't the only ones reading it.",
-        "I sense 2 secrets.",
-        "The riddle PDF and hint file might be your path outta here."
+        "The riddle PDF and hint file might be your path forward. Download them both!",
+        "Be careful with 'sudo' - some commands have... consequences.",
+        "Two secrets hide in this terminal. One's in the files, one's in the commands."
     ],
     '/buttons': [
         "Five browsers, but you can only press the one matching yours. It's a global system!",
         "Once all browsers are pressed by different people, something special unlocks.",
-        "Look for hidden elements that only appear when the task is complete."
+        "Look for hidden elements that only appear when the task is complete.",
+        "Check the CSS when everything's done - there might be a secret hiding in the styles.",
+        "This is a collaborative puzzle. You'll need help from others using different browsers."
     ],
     '/black-and-white': [
         "Two QR codes... one's telling the truth, one's lying. A classic puzzle!",
-        "Want to find the moon? Find the code and type it here... cross your fingers. Luck's a factor here.",
+        "Want to find the moon? Type the right sequence here... but luck's a factor.",
         "Listen for echoes - that's where the keyword hides. Your ears are your best friend here.",
-        "The screen size matters for the final unlock. Make it... devilishly specific."
+        "The screen size matters for the final unlock. Make it... devilishly specific.",
+        "666x666 pixels. That's the magic number for the final step."
     ],
     '/h0m3': [
         "...",
@@ -88,6 +95,7 @@ export default function TAS({className = ''}: TASProps) {
     const [isMuted, setIsMuted] = useState(false);
     const [startTime] = useState(Date.now());
     const [isCorrupted, setIsCorrupted] = useState(false);
+    const [lastSnarkyComment, setLastSnarkyComment] = useState(0);
 
     const afkTimeoutRef = useRef<NodeJS.Timeout>();
     const lastActivityRef = useRef(Date.now());
@@ -95,6 +103,7 @@ export default function TAS({className = ''}: TASProps) {
     const speechQueueRef = useRef<string[]>([]);
     const isSpeakingRef = useRef(false);
     const backgroundAudioRef = useRef<HTMLAudioElement[]>([]);
+    const originalVolumesRef = useRef<Map<HTMLAudioElement, number>>(new Map());
 
     // Check if TAS should exist and if he should be corrupted
     useEffect(() => {
@@ -112,10 +121,27 @@ export default function TAS({className = ''}: TASProps) {
         setIsVisible(true);
     }, [pathname]);
 
-    // Monitor background audio for dimming
+    // Monitor all audio elements for dimming
     useEffect(() => {
-        const audioElements = document.querySelectorAll('audio');
-        backgroundAudioRef.current = Array.from(audioElements);
+        const updateAudioElements = () => {
+            const audioElements = document.querySelectorAll('audio');
+            backgroundAudioRef.current = Array.from(audioElements);
+            
+            // Store original volumes
+            backgroundAudioRef.current.forEach(audio => {
+                if (!originalVolumesRef.current.has(audio)) {
+                    originalVolumesRef.current.set(audio, audio.volume);
+                }
+            });
+        };
+
+        updateAudioElements();
+        
+        // Update audio list when DOM changes
+        const observer = new MutationObserver(updateAudioElements);
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        return () => observer.disconnect();
     }, [pathname]);
 
     // Initialize page-specific hints
@@ -131,14 +157,15 @@ export default function TAS({className = ''}: TASProps) {
         setCurrentHint(hints[0]);
     }, [pathname, isVisible]);
 
-    // Speech queue management with background audio dimming
+    // Enhanced speech queue management with ALL audio dimming to 20%
     const processNextSpeech = () => {
         if (speechQueueRef.current.length === 0) {
             isSpeakingRef.current = false;
-            // Restore all audio elements' volume
+            // Restore all audio elements to their original volumes
             backgroundAudioRef.current.forEach(audio => {
+                const originalVolume = originalVolumesRef.current.get(audio) || 1;
                 if (!audio.paused) {
-                    audio.volume = Math.min(audio.volume / 0.3, 1);
+                    audio.volume = originalVolume;
                 }
             });
             return;
@@ -147,10 +174,12 @@ export default function TAS({className = ''}: TASProps) {
         const nextText = speechQueueRef.current.shift()!;
         isSpeakingRef.current = true;
 
-        // Dim all audio elements to 30% volume
+        // Dim ALL audio elements to 20% volume
         backgroundAudioRef.current.forEach(audio => {
             if (!audio.paused) {
-                audio.volume = 0.3;
+                const originalVolume = originalVolumesRef.current.get(audio) || audio.volume;
+                originalVolumesRef.current.set(audio, originalVolume);
+                audio.volume = originalVolume * 0.2;
             }
         });
 
@@ -182,31 +211,42 @@ export default function TAS({className = ''}: TASProps) {
         speechRef.current = utterance;
         speechSynthesis.speak(utterance);
     };
-    const queueSpeech = (text: string) => {
-        if (!isVisible) return;
+
+    const queueSpeech = (text: string, priority: 'normal' | 'high' = 'normal') => {
+        if (!isVisible || isCorrupted) return;
 
         // Replace [TIME] placeholder with actual time
         const timeMinutes = Math.floor((Date.now() - startTime) / 60000);
         const finalText = text.replace('[TIME]', timeMinutes.toString());
 
-        speechQueueRef.current.push(finalText);
+        if (priority === 'high') {
+            // For high priority, skip to the latest message and clear snarky comments
+            speechQueueRef.current = speechQueueRef.current.filter(msg => 
+                !SNARKY_COMMENTS.some(snarky => msg.includes(snarky.split('.')[0]))
+            );
+            speechQueueRef.current = [finalText]; // Replace with latest
+        } else {
+            speechQueueRef.current.push(finalText);
+        }
 
         if (!isSpeakingRef.current) {
             processNextSpeech();
         }
     };
 
-    // Mouse tracking for outside detection (disabled if TAS is dead)
+    // Mouse tracking for outside detection (disabled if TAS is dead, reduced frequency)
     useEffect(() => {
         if (!isVisible || isCorrupted) return;
 
         const handleMouseLeave = () => {
             setMouseOutside(true);
             setTimeout(() => {
-                if (Math.random() < 0.3) { // 30% chance
+                const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
+                if (timeSinceLastSnarky > 120000 && Math.random() < 0.2) { // 2 min cooldown, 20% chance
                     queueSpeech("Mouse left the site? Taking a breather? I get it, this place can be intense.");
+                    setLastSnarkyComment(Date.now());
                 }
-            }, 2000);
+            }, 3000);
         };
 
         const handleMouseEnter = () => {
@@ -220,9 +260,9 @@ export default function TAS({className = ''}: TASProps) {
             document.removeEventListener('mouseleave', handleMouseLeave);
             document.removeEventListener('mouseenter', handleMouseEnter);
         };
-    }, [isVisible, isCorrupted]);
+    }, [isVisible, isCorrupted, lastSnarkyComment]);
 
-    // AFK detection (disabled if TAS is dead)
+    // AFK detection (disabled if TAS is dead, reduced frequency)
     useEffect(() => {
         if (!isVisible || isCorrupted) return;
 
@@ -236,10 +276,12 @@ export default function TAS({className = ''}: TASProps) {
 
             afkTimeoutRef.current = setTimeout(() => {
                 setIsAFK(true);
-                if (Math.random() < 0.7) { // 70% chance
+                const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
+                if (timeSinceLastSnarky > 120000 && Math.random() < 0.3) { // 2 min cooldown, 30% chance
                     queueSpeech("AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.");
+                    setLastSnarkyComment(Date.now());
                 }
-            }, 60000); // 1 minute
+            }, 120000); // 2 minutes instead of 1
         };
 
         const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
@@ -257,7 +299,7 @@ export default function TAS({className = ''}: TASProps) {
                 clearTimeout(afkTimeoutRef.current);
             }
         };
-    }, [isVisible, isCorrupted]);
+    }, [isVisible, isCorrupted, lastSnarkyComment]);
 
     // Audio context detection for muting (disabled if TAS is dead)
     useEffect(() => {
@@ -270,17 +312,21 @@ export default function TAS({className = ''}: TASProps) {
 
             if (anyMuted && !isMuted) {
                 setIsMuted(true);
-                setTimeout(() => {
-                    showAlert("Muted the audio? You might miss some important stuff.");
-                }, 1000);
+                const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
+                if (timeSinceLastSnarky > 120000) { // 2 min cooldown
+                    setTimeout(() => {
+                        showAlert("Muted the audio? You might miss some important stuff.");
+                        setLastSnarkyComment(Date.now());
+                    }, 1000);
+                }
             } else if (!anyMuted && isMuted) {
                 setIsMuted(false);
             }
         };
 
-        const interval = setInterval(checkAudioContext, 3000); // Check every 3 seconds
+        const interval = setInterval(checkAudioContext, 5000); // Check every 5 seconds
         return () => clearInterval(interval);
-    }, [isVisible, isMuted, isCorrupted]);
+    }, [isVisible, isMuted, isCorrupted, lastSnarkyComment]);
 
     const showAlert = (message: string) => {
         alert(`TAS: ${message}`);
@@ -292,13 +338,13 @@ export default function TAS({className = ''}: TASProps) {
         setIsExpanded(!isExpanded);
 
         if (!isExpanded) {
-            // Speak the current hint
+            // Speak the current hint with high priority
             const hints = PAGE_HINTS[pathname] || ["No specific guidance available for this area, but we'll figure it out!"];
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
             setCurrentHint(randomHint);
 
-            // Queue the hint for TTS
-            queueSpeech(randomHint);
+            // Queue the hint for TTS with high priority
+            queueSpeech(randomHint, 'high');
         }
     };
 
@@ -376,7 +422,7 @@ export default function TAS({className = ''}: TASProps) {
                                             const hints = PAGE_HINTS[pathname] || ["No hints available, but hey - we're exploring together!"];
                                             const randomHint = hints[Math.floor(Math.random() * hints.length)];
                                             setCurrentHint(randomHint);
-                                            queueSpeech(randomHint);
+                                            queueSpeech(randomHint, 'high');
                                         }}
                                         className="bg-green-700 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors"
                                     >
@@ -386,8 +432,15 @@ export default function TAS({className = ''}: TASProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            const comment = getRandomSnarkyComment();
-                                            queueSpeech(comment);
+                                            const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
+                                            if (timeSinceLastSnarky > 120000) { // 2 min cooldown
+                                                const comment = getRandomSnarkyComment();
+                                                queueSpeech(comment);
+                                                setLastSnarkyComment(Date.now());
+                                            } else {
+                                                const remainingTime = Math.ceil((120000 - timeSinceLastSnarky) / 1000);
+                                                queueSpeech(`Hold on, I need ${remainingTime} more seconds to think of something witty!`, 'high');
+                                            }
                                         }}
                                         className="bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors"
                                     >
