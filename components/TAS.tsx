@@ -25,14 +25,13 @@ const PAGE_HINTS: Record<string, string[]> = {
     '/wifi-panel': [
         "Two buttons, but you'll need a keyword to unlock the second one. The first one gives you a clue!",
         "That encoded message? It's not as complex as it looks. Sometimes the simplest tools work best.",
-        "When you get that transmission error, don't panic - it's asking for a specific type of encoding shift.",
-        "The numbers are important here. Add them up, then shift your answer accordingly."
+        "When you get that transmission error, don't panic - it's asking for a specific type of encoding.",
+        "The numbers are important here."
     ],
     '/wifi-login': [
         "Username and password time! The username might be hiding in plain sight around the facility.",
         "That password hash they're showing you? It's a breadcrumb. Work backwards from there.",
-        "Six characters max for the password - think simple, think nature, think... growth.",
-        "The interference isn't random - it's trying to tell you something important."
+        "Six characters max for the password - think simple, think nature, think... brute.",
     ],
     '/media': [
         "Three items to interact with - audio, and two downloads. You'll need to crack some passwords!",
@@ -41,17 +40,15 @@ const PAGE_HINTS: Record<string, string[]> = {
         "One ZIP leads to another - it's a chain of puzzles. Follow the breadcrumbs."
     ],
     '/file-console': [
-        "Welcome to the terminal! Try basic commands like 'ls', 'cd', and 'cat' to explore.",
+        "Welcome to the terminal! Try 'help' to explore.",
         "Some files can be downloaded with 'wget' - you might need them later!",
         "That robots.txt file is particularly interesting. Web crawlers aren't the only ones reading it.",
-        "Be careful with 'sudo' - the system doesn't like unauthorized access attempts.",
-        "The riddle PDF and hint file might be crucial for later puzzles."
+        "I sense 2 secrets.",
+        "The riddle PDF and hint file might be your path outta here."
     ],
     '/buttons': [
         "Five browsers, but you can only press the one matching yours. It's a global system!",
         "Once all browsers are pressed by different people, something special unlocks.",
-        "Check the CSS when all buttons are pressed - there might be hidden instructions.",
-        "The Wingdings text isn't just decoration - it's a clue for what to do next.",
         "Look for hidden elements that only appear when the task is complete."
     ],
     '/black-and-white': [
