@@ -39,6 +39,7 @@ export default function Moonlight() {
     const [showMoon, setShowMoon] = useState(false);
     const [stars, setStars] = useState<Array<{x: number, y: number, size: number, opacity: number}>>([]);
     const [lineComplete, setLineComplete] = useState(false);
+    const [currentText, setCurrentText] = useState('');
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -109,7 +110,9 @@ export default function Moonlight() {
             console.warn('Audio autoplay blocked:', e);
         }
 
-        // Start with first line
+        // Set first line
+        const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
+        setCurrentText(lines[0]);
         setCurrentLineIndex(0);
         setLineComplete(false);
     };
@@ -118,7 +121,9 @@ export default function Moonlight() {
         const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
         
         if (currentLineIndex < lines.length - 1) {
-            setCurrentLineIndex(prev => prev + 1);
+            const nextIndex = currentLineIndex + 1;
+            setCurrentLineIndex(nextIndex);
+            setCurrentText(lines[nextIndex]);
             setLineComplete(false);
         } else {
             finishCutscene().catch(console.error);
@@ -167,8 +172,6 @@ export default function Moonlight() {
     }, []);
 
     if (!allowed) return null;
-
-    const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
 
     return (
         <div
@@ -233,7 +236,8 @@ export default function Moonlight() {
                     }}
                 >
                     <VNTextRenderer 
-                        text={lines[currentLineIndex]} 
+                        key={`line-${currentLineIndex}`}
+                        text={currentText} 
                         onDone={onLineComplete}
                     />
                 </div>
