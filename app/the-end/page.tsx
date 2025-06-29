@@ -47,12 +47,8 @@ export default function TheEnd() {
         if (!audioRef.current || audioInitialized) return;
 
         try {
-            // Create a new audio instance to avoid cached restrictions
-            const audio = new Audio('/sfx/home/sweethome.mp3'); // Using existing audio file
-            audio.loop = true;
-            audio.volume = 0.3;
-
-            await audio.play();
+            audioRef.current.volume = 0.3;
+            await audioRef.current.play();
             setAudioInitialized(true);
             setAudioEnabled(true);
             console.log('Audio initialized successfully');
@@ -140,7 +136,7 @@ export default function TheEnd() {
 
         // Play static noise with better error handling
         try {
-            const staticAudio = new Audio('/sfx/static.mp3');
+            const staticAudio = new Audio('/sfx/all/static.mp3');
             staticAudio.volume = 0.8;
             staticAudio.play().catch((error) => {
                 console.warn('Static audio failed to play:', error);
@@ -198,18 +194,17 @@ export default function TheEnd() {
             The vessel was always empty, waiting to be filled with what we would become
             -->`
                 }}
-                style={{ display: 'none' }}
+                style={{display: 'none'}}
             />
-
                 <div
                     onClick={initializeAudio}
                     style={{
                         backgroundColor: '#000000',
                         background: `
-                            radial-gradient(circle at 20% 30%, rgba(64, 0, 32, 0.3) 0%, transparent 50%),
-                            radial-gradient(circle at 80% 70%, rgba(32, 0, 64, 0.2) 0%, transparent 50%),
-                            linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #000000 100%)
-                        `,
+            radial-gradient(circle at 20% 30%, rgba(64, 0, 32, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(32, 0, 64, 0.2) 0%, transparent 50%),
+            linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #000000 100%)
+        `,
                         height: '100vh',
                         width: '100vw',
                         position: 'relative',
@@ -225,23 +220,13 @@ export default function TheEnd() {
                         cursor: audioEnabled ? 'default' : 'pointer'
                     }}
                 >
-                    {/* Audio initialization hint */}
-                    {!audioEnabled && (
-                        <div style={{
-                            position: 'fixed',
-                            top: '20px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            background: 'rgba(0, 0, 0, 0.8)',
-                            color: '#888',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            fontSize: '0.9rem',
-                            zIndex: 1000,
-                            animation: 'fade-in-out 3s ease-in-out infinite'
-                        }}>
-                        </div>
-                    )}
+                    <audio
+                        ref={audioRef}
+                        src="/sfx/isittheend/hopeformehopeforyou.mp3"
+                        loop
+                        preload="auto"
+                        style={{display: 'none'}}
+                    />
 
                     {/* Ambient particles */}
                     <div className="particles">
@@ -389,7 +374,7 @@ export default function TheEnd() {
                         inset: 0,
                         background: 'radial-gradient(circle at 50% 50%, rgba(100, 0, 100, 0.1) 0%, transparent 50%)',
                         animation: 'ambient-pulse 8s ease-in-out infinite'
-                    }} />
+                    }}/>
 
                     <div style={{
                         textAlign: 'center',
@@ -495,8 +480,12 @@ export default function TheEnd() {
 
                     <style jsx>{`
                         @keyframes ambient-pulse {
-                            0%, 100% { opacity: 0.3; }
-                            50% { opacity: 0.6; }
+                            0%, 100% {
+                                opacity: 0.3;
+                            }
+                            50% {
+                                opacity: 0.6;
+                            }
                         }
 
                         @keyframes title-glow {
@@ -509,8 +498,12 @@ export default function TheEnd() {
                         }
 
                         @keyframes error-pulse {
-                            0%, 100% { opacity: 1; }
-                            50% { opacity: 0.7; }
+                            0%, 100% {
+                                opacity: 1;
+                            }
+                            50% {
+                                opacity: 0.7;
+                            }
                         }
                     `}</style>
                 </div>
