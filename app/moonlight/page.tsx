@@ -2,185 +2,441 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
-import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
+import Cookies from "js-cookie";
+import {VNTextRenderer} from "@/components/text";
 
-const IMAGE_COUNT = 9;
+const POETIC_LINES = [
+    "In the beginning, there was only the void...",
+    "Time, like water, flows through fingers of eternity.",
+    "Each second a grain of sand, falling into the abyss.",
+    "The moon watches, silent witness to our fleeting existence.",
+    "In its pale light, shadows dance with memories.",
+    "What was, what is, what shall be—all converge in this moment.",
+    "The vessel of consciousness drifts through temporal seas.",
+    "Anchored to nothing, yet bound by everything.",
+    "Time dissolves... reality bends... the moon remembers all."
+];
+
+const CREEPY_LINES = [
+    "The crimson moon bleeds into the void...",
+    "Time fractures, spilling darkness across the sky.",
+    "In the red light, shadows writhe with malevolent purpose.",
+    "The vessel cracks, leaking nightmares into reality.",
+    "Each second drips like blood from a wound in time.",
+    "The moon's eye opens, and it sees... everything.",
+    "In its scarlet gaze, sanity withers and dies.",
+    "What lurks behind the veil grows stronger.",
+    "The red moon calls... and something answers."
+];
 
 export default function Moonlight() {
     const router = useRouter();
+
+    // Permissions & flow control
     const [allowed, setAllowed] = useState(false);
-    const [cutscenePlayed, setCutscenePlayed] = useState(false);
+    const [cutsceneActive, setCutsceneActive] = useState(false);
     const [moonRed, setMoonRed] = useState(false);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-    const intervalRef = useRef<number | null>(null);
+    const [showMoon, setShowMoon] = useState(false);
 
-    // Check if user came from 404 or has cookie
+    // Cutscene state
+    const [currentLineIndex, setCurrentLineIndex] = useState(0);
+    const [lineComplete, setLineComplete] = useState(false);
+
+    // Prevent multiple onDone calls per line
+    const onDoneCalledRef = useRef(false);
+
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
+
+    // Check cookie once
     useEffect(() => {
-        let ran = false;
+        if ((window as any).__moonlight_cookie_check_ran) return;
+        (window as any).__moonlight_cookie_check_ran = true;
 
-        if (!ran) {
-            const cameFrom = sessionStorage.getItem("legalMoon");
-            if (cameFrom === "true") {
-                setAllowed(true);
-                sessionStorage.removeItem("legalMoon");
-            }
-            // noinspection JSUnusedAssignment
-            ran = true;
+        const hasMoonCookie = Cookies.get("themoon");
+
+        if (hasMoonCookie) {
+            Cookies.remove("themoon");
+            setAllowed(true);
         } else {
             router.replace("/404");
         }
-    }, []);
+    }, [router]);
 
-    // Decide moon color on mount (1/666 chance red)
+    // Decide moon color once
     useEffect(() => {
         if (Math.random() < 1 / 666) {
             setMoonRed(true);
         }
     }, []);
 
-    // Play cutscene if not played
+    // Generate stars once
+    const [stars, setStars] = useState<
+        Array<{ x: number; y: number; size: number; opacity: number }>
+    >([]);
     useEffect(() => {
-        if (allowed) {
-            const played = Cookies.get("moonlight_time_cutscene_played");
-            if (!played) {
-                playCutscene();
-            } else {
-                setCutscenePlayed(true);
-            }
+        const newStars = [];
+        for (let i = 0; i < 200; i++) {
+            newStars.push({
+                x: Math.random() * 100,
+                y: Math.random() * 100,
+                size: Math.random() * 2 + 0.5,
+                opacity: Math.random() * 0.8 + 0.2,
+            });
         }
-    }, [allowed]);
+        setStars(newStars);
+    }, []);
 
-    function playCutscene() {
-        if (!window.speechSynthesis) {
-            setCutscenePlayed(true);
-            return;
-        }
+    // Start cutscene or show moon directly
+    useEffect(() => {
+        if (!allowed) return;
 
-        const text = "Time slips like sand...";
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.85;
-        utterance.pitch = 0.3;
-
-        utterance.onstart = () => {
-            const estimatedDuration = (text.length / (0.85 * 10)) * 1000;
-            const intervalTime = estimatedDuration / IMAGE_COUNT;
-
-            setCurrentImageIndex(0);
-            intervalRef.current = window.setInterval(() => {
-                setCurrentImageIndex((i) => {
-                    if (i + 1 >= IMAGE_COUNT) {
-                        if (intervalRef.current !== null) {
-                            clearInterval(intervalRef.current);
-                            intervalRef.current = null;
-                        }
-                        return i;
-                    }
-                    return i + 1;
+        const played = Cookies.get("moonlight_time_cutscene_played");
+        if (!played) {
+            setCutsceneActive(true);
+            // Setup audio
+            const audio = new Audio(
+                moonRed ? "/sfx/doestimeexist.mp3" : "/audio/contemplation.mp3"
+            );
+            audio.loop = true;
+            audio.volume = 0.6;
+            audioRef.current = audio;
+            audio
+                .play()
+                .catch(() => {
+                    // ignore autoplay block
                 });
-            }, intervalTime);
-        };
+        } else {
+            setShowMoon(true);
+        }
+    }, [allowed, moonRed]);
 
-        utterance.onend = async () => {
-            if (intervalRef.current !== null) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
+    // Cleanup audio on unmount
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.src = "";
             }
-            await signCookie("moonlight_time_cutscene_played=true");
-            setCutscenePlayed(true);
         };
+    }, []);
 
-        utteranceRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-    }
+    // Reset onDoneCalledRef and lineComplete when line changes
+    useEffect(() => {
+        onDoneCalledRef.current = false;
+        setLineComplete(false);
+    }, [currentLineIndex]);
 
-    function onMoonClick() {
-        if (!moonRed) return; // no action if not red
+    // Handle advancing lines on click *only* if line is complete
+    const handleClick = () => {
+        if (!cutsceneActive) return;
+        if (!lineComplete) return;
 
-        const link = document.createElement("a");
-        link.href = "/moonlight/riddle.hex";
-        link.download = "riddle.hex";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    }
+        // Advance to next line or finish
+        if (currentLineIndex < lines.length - 1) {
+            setCurrentLineIndex((i) => i + 1);
+            setLineComplete(false); // Reset for next line
+        } else {
+            finishCutscene().catch(console.error);
+        }
+    };
+
+    // Finish cutscene
+    const finishCutscene = async () => {
+        try {
+            await signCookie("moonlight_time_cutscene_played=true");
+        } catch {
+        }
+        setCutsceneActive(false);
+        setShowMoon(true);
+    };
 
     if (!allowed) return null;
 
     return (
         <div
+            onClick={handleClick}
             style={{
                 height: "100vh",
-                backgroundColor: "#001011",
+                width: "100vw",
+                background: moonRed
+                    ? "radial-gradient(ellipse at center, #2d0a0a 0%, #1a0000 50%, #000000 100%)"
+                    : "radial-gradient(ellipse at center, #0a1a2d 0%, #001122 50%, #000000 100%)",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "lightcyan",
+                color: moonRed ? "#ff9999" : "#cce6ff",
                 fontFamily: "'Courier New', Courier, monospace",
                 overflow: "hidden",
-                padding: 20,
-                gap: 30,
+                position: "relative",
                 userSelect: "none",
+                cursor: cutsceneActive ? "pointer" : "default",
             }}
         >
-            {!cutscenePlayed && (
+            {/* Stars */}
+            {stars.map((star, index) => (
+                <div
+                    key={index}
+                    style={{
+                        position: "absolute",
+                        left: `${star.x}%`,
+                        top: `${star.y}%`,
+                        width: `${star.size}px`,
+                        height: `${star.size}px`,
+                        backgroundColor: moonRed ? "#ff6666" : "#ffffff",
+                        borderRadius: "50%",
+                        opacity: star.opacity,
+                        animation: `twinkle ${2 + Math.random() * 3}s infinite`,
+                        boxShadow: moonRed
+                            ? `0 0 ${star.size * 2}px #ff6666`
+                            : `0 0 ${star.size * 2}px #ffffff`,
+                    }}
+                />
+            ))}
+
+            {/* Cutscene Text */}
+            {cutsceneActive && (
                 <div
                     style={{
-                        width: 300,
-                        height: 300,
-                        borderRadius: "12px",
-                        backgroundColor: "#112233",
-                        boxShadow: "0 0 15px 5px #336699",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        position: "absolute",
+                        top: "20%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "80%",
+                        maxWidth: "800px",
+                        textAlign: "center",
+                        fontSize: "1.8rem",
+                        lineHeight: "1.6",
+                        textShadow: moonRed
+                            ? "0 0 20px #ff0000, 0 0 40px #ff0000"
+                            : "0 0 20px #00aaff, 0 0 40px #00aaff",
+                        animation: moonRed
+                            ? "creepyGlow 2s ease-in-out infinite alternate"
+                            : "soothingGlow 3s ease-in-out infinite alternate",
+                        zIndex: 10,
                     }}
                 >
-                    <img
-                        src={`/TIME/happy${currentImageIndex + 1}.png`}
-                        alt={`Cutscene image ${currentImageIndex + 1}`}
-                        style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
-                            borderRadius: 12,
-                            userSelect: "none",
-                            pointerEvents: "none",
-                        }}
-                        draggable={false}
-                    />
+                    {!lineComplete ? (
+                        <VNTextRenderer
+                            key={currentLineIndex}
+                            text={lines[currentLineIndex]}
+                            onDone={() => {
+                                if (!onDoneCalledRef.current) {
+                                    setLineComplete(true);
+                                    onDoneCalledRef.current = true;
+                                }
+                            }}
+                        />
+                    ) : (
+                        // Render static text when line is complete
+                        <span>{lines[currentLineIndex]}</span>
+                    )}
                 </div>
             )}
 
-            <div
-                onClick={onMoonClick}
-                style={{
-                    cursor: moonRed ? "pointer" : "default",
-                    width: 300,
-                    height: 300,
-                    borderRadius: "50%",
-                    background: moonRed
-                        ? "radial-gradient(circle, #8B0000 40%, #4B0000 80%)"
-                        : "radial-gradient(circle, #CCE6FF 40%, #335577 80%)",
-                    boxShadow: moonRed
-                        ? "0 0 40px 10px #8B0000"
-                        : "0 0 40px 10px #99ccff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 80,
-                    color: moonRed ? "#FF9999" : "#E0F7FF",
-                    textShadow: "0 0 15px #000000",
-                    transition: "background 1s ease",
-                    userSelect: "none",
-                }}
-                title={moonRed ? "Click the red moon to download riddle.hex" : undefined}
-                aria-label="Moon"
-            >
-                🌕
-            </div>
+            {/* Click to continue */}
+            {cutsceneActive && lineComplete && (
+                <div
+                    style={{
+                        position: "absolute",
+                        bottom: "15%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        fontSize: "1rem",
+                        color: moonRed ? "#ff9999" : "#cce6ff",
+                        opacity: 0.7,
+                        animation: "pulse 2s ease-in-out infinite",
+                        zIndex: 10,
+                        pointerEvents: "none", // Ensure this does not block clicks
+                    }}
+                >
+                    Click to continue...
+                </div>
+            )}
+
+            {/* Skip Button */}
+            {cutsceneActive && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        finishCutscene().catch(console.error);
+                    }}
+                    style={{
+                        position: "absolute",
+                        bottom: "20px",
+                        right: "20px",
+                        background: "rgba(0, 0, 0, 0.7)",
+                        border: `2px solid ${moonRed ? "#ff6666" : "#66aaff"}`,
+                        color: moonRed ? "#ff9999" : "#cce6ff",
+                        padding: "10px 20px",
+                        borderRadius: "5px",
+                        fontFamily: "inherit",
+                        fontSize: "0.9rem",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        zIndex: 10,
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = moonRed
+                            ? "rgba(255, 0, 0, 0.2)"
+                            : "rgba(0, 100, 255, 0.2)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
+                    }}
+                >
+                    Skip Cutscene
+                </button>
+            )}
+
+            {/* Moon */}
+            {showMoon && (
+                <div
+                    onClick={() => {
+                        if (!moonRed) return;
+
+                        const link = document.createElement("a");
+                        link.href = "/moonlight/riddle.hex";
+                        link.download = "riddle.hex";
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                    }}
+                    style={{
+                        cursor: moonRed ? "pointer" : "default",
+                        width: "400px",
+                        height: "400px",
+                        borderRadius: "50%",
+                        background: moonRed
+                            ? "radial-gradient(circle at 30% 30%, #ff4444 0%, #cc0000 40%, #660000 80%, #330000 100%)"
+                            : "radial-gradient(circle at 30% 30%, #ffffff 0%, #e6f3ff 40%, #cce6ff 80%, #99ccff 100%)",
+                        boxShadow: moonRed
+                            ? "0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3)"
+                            : "0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "120px",
+                        textShadow: moonRed ? "0 0 30px #ff0000" : "0 0 30px #ffffff",
+                        transition: "all 1s ease",
+                        animation: moonRed
+                            ? "redMoonPulse 3s ease-in-out infinite"
+                            : "moonGlow 4s ease-in-out infinite alternate",
+                        position: "relative",
+                        userSelect: "none",
+                    }}
+                    title={
+                        moonRed
+                            ? "The crimson moon holds secrets... click to unveil them."
+                            : "The peaceful moon watches over the night."
+                    }
+                >
+                    {/* Moon craters/texture */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            background: moonRed
+                                ? "radial-gradient(circle at 60% 40%, rgba(0, 0, 0, 0.3) 5%, transparent 15%), radial-gradient(circle at 20% 70%, rgba(0, 0, 0, 0.2) 3%, transparent 10%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.25) 4%, transparent 12%)"
+                                : "radial-gradient(circle at 60% 40%, rgba(0, 0, 0, 0.1) 5%, transparent 15%), radial-gradient(circle at 20% 70%, rgba(0, 0, 0, 0.08) 3%, transparent 10%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.12) 4%, transparent 12%)",
+                            pointerEvents: "none",
+                        }}
+                    />
+                    🌕
+                </div>
+            )}
+
+            {/* Atmospheric particles */}
+            {showMoon && (
+                <div
+                    style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        background: moonRed
+                            ? "radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.05) 0%, transparent 70%)"
+                            : "radial-gradient(circle at 50% 50%, rgba(0, 150, 255, 0.03) 0%, transparent 70%)",
+                        animation: "atmosphericFlow 8s ease-in-out infinite alternate",
+                        pointerEvents: "none",
+                    }}
+                />
+            )}
+
+            <style jsx>{`
+                @keyframes twinkle {
+                    0%, 100% {
+                        opacity: 0.3;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 1;
+                        transform: scale(1.2);
+                    }
+                }
+
+                @keyframes soothingGlow {
+                    0% {
+                        text-shadow: 0 0 20px #00aaff, 0 0 40px #00aaff;
+                    }
+                    100% {
+                        text-shadow: 0 0 30px #00aaff, 0 0 60px #00aaff, 0 0 80px #0088cc;
+                    }
+                }
+
+                @keyframes creepyGlow {
+                    0% {
+                        text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+                    }
+                    100% {
+                        text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000, 0 0 80px #cc0000;
+                    }
+                }
+
+                @keyframes moonGlow {
+                    0% {
+                        box-shadow: 0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
+                        transform: scale(1);
+                    }
+                    100% {
+                        box-shadow: 0 0 150px 30px #66aaff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
+                        transform: scale(1.05);
+                    }
+                }
+
+                @keyframes redMoonPulse {
+                    0%, 100% {
+                        box-shadow: 0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
+                        transform: scale(1);
+                    }
+                    50% {
+                        box-shadow: 0 0 150px 40px #ff0000, 0 0 200px 60px #cc0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
+                        transform: scale(1.1);
+                    }
+                }
+
+                @keyframes atmosphericFlow {
+                    0% {
+                        transform: rotate(0deg) scale(1);
+                    }
+                    100% {
+                        transform: rotate(360deg) scale(1.1);
+                    }
+                }
+
+                @keyframes pulse {
+                    0%, 100% {
+                        opacity: 0.7;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

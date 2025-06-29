@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
         const ignoreAlreadyPressed = req.headers.get('ignore-already-pressed') === 'true';
 
         if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromCookie !== csrfTokenFromHeader) {
-            return createSecureResponse({ error: 'Invalid CSRF token' }, 403);
+            return createSecureResponse({error: 'Invalid CSRF token'}, 403);
         }
 
-        const { browser } = await req.json();
+        const {browser} = await req.json();
 
         if (!browser) {
-            return createSecureResponse({ error: 'Browser not specified' }, 400);
+            return createSecureResponse({error: 'Browser not specified'}, 400);
         }
 
         const client = await pool.connect();
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
         if (result.rowCount === 0) {
             client.release();
-            return createSecureResponse({ error: 'Browser not found' }, 404);
+            return createSecureResponse({error: 'Browser not found'}, 404);
         }
 
         const currentState = result.rows[0].clicked;
@@ -61,6 +61,6 @@ export async function POST(req: NextRequest) {
         return createSecureResponse({success: true, clicked: newClickedState});
     } catch (error) {
         console.error('Error pressing button:', error);
-        return createSecureResponse({ error: 'Internal server error' }, 500);
+        return createSecureResponse({error: 'Internal server error'}, 500);
     }
 }
