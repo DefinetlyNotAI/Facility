@@ -149,7 +149,7 @@ export default function H0m3() {
                 };
 
                 // Play static noise audio
-                const staticAudio = new Audio('/sfx/choices/static.mp3');
+                const staticAudio = new Audio('/sfx/all/static.mp3');
                 staticAudio.volume = 0.6;
                 staticAudio.play().catch(() => {
                 });

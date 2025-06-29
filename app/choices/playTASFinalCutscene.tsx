@@ -109,7 +109,7 @@ export function TASCutscene({onFinish}: CutsceneProps) {
 
     // Setup static sound once
     useEffect(() => {
-        const staticAudio = new Audio('/sfx/choices/static.mp3');
+        const staticAudio = new Audio('/sfx/all/static.mp3');
         staticAudio.loop = true;
         staticAudio.volume = 0.3;
         staticSoundRef.current = staticAudio;

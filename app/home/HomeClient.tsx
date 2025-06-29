@@ -502,7 +502,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                             </div>
 
                             <div className="logs-container">
-                                {researchLogs.slice(0, 6).map((log) => (
+                                {researchLogs.slice(0, 8).map((log) => (
                                     <div
                                         key={log.id}
                                         onClick={() => openLog(log)}
