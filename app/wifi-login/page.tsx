@@ -2,23 +2,15 @@
 
 import React, {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import CryptoJS from 'crypto-js'; // SHA1 hashing
-
-// Helpers for cookies
-const getCookie = (name: string) =>
-    document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1];
-
-const setCookie = (name: string, value: string, days = 365) => {
-    const expires = new Date(Date.now() + days * 86400000).toUTCString();
-    document.cookie = `${name}=${value}; path=/; expires=${expires}`;
-};
+import CryptoJS from 'crypto-js';
+import Cookies from "js-cookie"; // SHA1 hashing
+import {signCookie} from "@/lib/cookie-utils";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
         const timer = setTimeout(onDismiss, 6000);
         return () => clearTimeout(timer);
     }, [onDismiss]);
-
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -27,7 +19,7 @@ const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
             zIndex: 10000, flexDirection: 'column', padding: '2rem', textAlign: 'center'
         }}>
             <div style={{fontSize: '1.4rem', whiteSpace: 'pre-line'}}>
-                {'ACCESS GRANTED.\n\nBUT SOMETHING\nSTILL WATCHES...\n\nTRY CURLING THIS PAGE WITH PREFIX /api'}
+                {'ACCESS GRANTED.\n\nBUT SOMETHING\nSTILL WATCHES...\n\n54 52 59 20 41 4E 44 20 50 52 45 46 49 58 20 2F 61 70 69 2F 20 41 4E 44 20 46 4F 4C 4C 4F 57 20 54 48 45 20 50 52 45 56 49 4F 55 53 20 54 49 50 2E'}
             </div>
             <TypingCursor active={true}/>
         </div>
@@ -89,19 +81,19 @@ const WifiLoginPage: React.FC = () => {
     const [showCurlHint, setShowCurlHint] = useState(false);
 
     useEffect(() => {
-        const wifiUnlocked = getCookie('Wifi Unlocked');
+        const wifiUnlocked = Cookies.get('Wifi_Unlocked');
         if (!wifiUnlocked) {
             router.replace('/404');
             return;
         }
 
-        const wifiPassed = getCookie('wifi passed');
+        const wifiPassed = Cookies.get('wifi_passed');
         if (wifiPassed) {
             setShowCurlHint(true);
             return;
         }
 
-        if (!getCookie('Interference_cutscene_seen')) {
+        if (!Cookies.get('Interference_cutscene_seen')) {
             setShowCutscene(true);
         }
     }, [router]);
@@ -126,16 +118,16 @@ const WifiLoginPage: React.FC = () => {
         }
 
         setLoading(true);
-        setTimeout(() => {
-            setCookie('wifi passed', 'true');
+        setTimeout(async () => {
+            await signCookie('wifi_passed=true');
             setShowCurlHint(true);
         }, 1000);
     };
 
     if (showCutscene) {
         return (
-            <InterferenceCutscene onFinish={() => {
-                setCookie('Interference_cutscene_seen', 'true');
+            <InterferenceCutscene onFinish={async () => {
+                await signCookie('Interference_cutscene_seen=true');
                 setShowCutscene(false);
             }}/>
         );
@@ -147,12 +139,15 @@ const WifiLoginPage: React.FC = () => {
 
     return (
         <>
-            <div dangerouslySetInnerHTML={{
-                __html: `
-                &lt;!-- If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s --&gt;<br/>
-                &lt;!-- Hash of the sha1 e6d7a4c1389cffecac2b41b4645a305dcc137e81 --&gt;
-            `
-            }}/>
+            <span
+                dangerouslySetInnerHTML={{
+                    __html: `<!--
+            If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s
+            Hash of the sha1 e6d7a4c1389cffecac2b41b4645a305dcc137e81
+            -->`
+                }}
+                style={{display: 'none'}}
+            />
             <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 height: '100vh', backgroundColor: '#111', color: '#0f0', fontFamily: 'monospace',

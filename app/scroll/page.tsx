@@ -22,11 +22,19 @@ export default function ScrollPage() {
     const [escapeHovered, setEscapeHovered] = useState(false);
     const [ipAddress, setIpAddress] = useState('...loading...');
     const faviconRef = useRef<HTMLLinkElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const hasInteractedRef = useRef(false);
+    const ttsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const unlocked = Cookies.get('Scroll_unlocked');
+        const repeater = Cookies.get('BnW_unlocked');
         if (!unlocked) {
             router.replace('/404');
+            return;
+        }
+        if (repeater) {
+            router.replace('/black-and-white');
             return;
         }
         setScrollUnlocked(true);
@@ -41,20 +49,22 @@ export default function ScrollPage() {
 
         fetch('https://api.ipify.org?format=json')
             .then(res => res.json())
-            .then(data => setIpAddress(data.ip || 'Unknown IP'))
-            .catch(() => setIpAddress('Unknown IP'));
+            .then(data => setIpAddress(data.ip || 'ESCAPE'))
+            .catch(() => setIpAddress('ESCAPE'));
     }, [router]);
 
     useEffect(() => {
         if (!scrollUnlocked) return;
 
-        const scrollHandler = () => {
-            const scrollTop = window.scrollY;
-            const windowHeight = window.innerHeight;
-            const bodyHeight = document.body.scrollHeight;
+        const container = document.querySelector('.scroll-container');
+        if (!container) return;
 
-            // Extend page height if near bottom
-            if (scrollTop + windowHeight >= bodyHeight - 500) {
+        const scrollHandler = () => {
+            const scrollTop = container.scrollTop;
+            const containerHeight = container.clientHeight;
+            const contentHeight = container.scrollHeight;
+
+            if (scrollTop + containerHeight >= contentHeight - 500) {
                 setContentHeight(prev => prev + 1500);
             }
 
@@ -62,14 +72,21 @@ export default function ScrollPage() {
                 const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'white'];
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" fill="${color}" />
-        </svg>`;
+              <circle cx="50" cy="50" r="40" fill="${color}" />
+            </svg>`;
                 faviconRef.current.href = `data:image/svg+xml;base64,${btoa(svg)}`;
+            }
+
+            // Trigger audio playback on first scroll
+            if (!hasInteractedRef.current && audioRef.current) {
+                audioRef.current.play().catch(() => {
+                });
+                hasInteractedRef.current = true;
             }
         };
 
-        window.addEventListener('scroll', scrollHandler);
-        return () => window.removeEventListener('scroll', scrollHandler);
+        container.addEventListener('scroll', scrollHandler);
+        return () => container.removeEventListener('scroll', scrollHandler);
     }, [scrollUnlocked]);
 
     useEffect(() => {
@@ -114,27 +131,42 @@ export default function ScrollPage() {
     }, [scrollUnlocked]);
 
     useEffect(() => {
-        if (!scrollUnlocked) return;
+        if (!scrollUnlocked || !hasInteractedRef.current) return;
 
-        const ttsTimeout = setTimeout(() => {
+        ttsTimeoutRef.current = setTimeout(() => {
             const utterance = new SpeechSynthesisUtterance(
-                'Do you feel your legs go numb yet? This is all you now. Your IP. Your identity. Your scrolling. It’s mine now.'
+                'Do you feel your legs go numb yet? This is all you now. Your IP. Your identity. Your scrolling. It’s mine now. So go back to the beginning and then, maybe, you’ll find the escape you’re looking for.'
             );
             utterance.lang = 'en-US';
             window.speechSynthesis.speak(utterance);
             utterance.onend = () => setShowEscape(true);
-        }, 5000);
+        }, 95000);
 
         return () => {
-            clearTimeout(ttsTimeout);
+            if (ttsTimeoutRef.current) clearTimeout(ttsTimeoutRef.current);
             window.speechSynthesis.cancel();
         };
-    }, [scrollUnlocked]);
+    }, [scrollUnlocked, hasInteractedRef.current]);
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.load();
+            audioRef.current.play().catch(() => {
+            });
+        }
+    }, [showEscape]);
 
     if (scrollUnlocked === null) return null;
 
     return (
         <div className="scroll-container">
+            <audio
+                ref={audioRef}
+                src={showEscape ? "/sfx/scroll/█.mp3" : "/sfx/scroll/nowhereissafesowillyouscroll.mp3"}
+                autoPlay
+                loop={showEscape}
+                hidden
+            />
             <div
                 className="scroll-glitch"
                 style={{

@@ -1179,6 +1179,8 @@ body {
 .scroll-container {
     position: relative;
     background: black;
+    height: 100vh;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 

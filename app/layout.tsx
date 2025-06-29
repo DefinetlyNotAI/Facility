@@ -1,6 +1,7 @@
 import type React from "react"
 import type {Metadata} from "next"
 import "./globals.css"
+import TAS from "@/components/TAS"
 
 export const metadata: Metadata = {
     title: "Facility Terminal Access",
@@ -76,6 +77,7 @@ export default function RootLayout({
         </div>
         <div className="scanlines crt-effect">
             {children}
+            <TAS/>
         </div>
         <script dangerouslySetInnerHTML={{
             __html: `

@@ -19,7 +19,7 @@ export async function signCookie(data: string): Promise<{ success: boolean; erro
 
 
 export const cookiesList = [
-    'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'Corrupt',
+    'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'wifi_passed', 'Corrupt',
     'wifi_login', 'Media_Unlocked', 'Button_Unlocked', 'File_Unlocked',
     'corrupting', 'No_corruption', 'BnW_unlocked', 'Choice_Unlocked',
     'terminal_unlocked', 'End?', 'End',

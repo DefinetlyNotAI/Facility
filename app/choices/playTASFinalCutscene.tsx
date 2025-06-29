@@ -109,25 +109,8 @@ export function TASCutscene({onFinish}: CutsceneProps) {
 
     // Setup static sound once
     useEffect(() => {
-        const staticAudio = new Audio('/sfx/all/static.mp3');
-        staticAudio.loop = true;
-        staticAudio.volume = 0.3;
-        staticSoundRef.current = staticAudio;
-
-        // Preload other sounds
-        glitchSoundRef.current = new Audio('/sfx/choices/file_delete.m4a');
-        glitchSoundRef.current.loop = true;
-        glitchSoundRef.current.volume = 0.5;
-
-        heartbeatSoundRef.current = new Audio('/sfx/choices/heartbeat.mp3');
-        heartbeatSoundRef.current.loop = true;
-        heartbeatSoundRef.current.volume = 0.3;
-
-        censorSoundRef.current = new Audio('/sfx/choices/censorbeep.mp3');
-
         return () => {
-            staticAudio.pause();
-            staticAudio.src = '';
+            staticSoundRef.current?.pause();
             glitchSoundRef.current?.pause();
             heartbeatSoundRef.current?.pause();
             censorSoundRef.current?.pause();
@@ -194,47 +177,72 @@ export function TASCutscene({onFinish}: CutsceneProps) {
     }, [index, onFinish, router]);
 
     return (
-        <div
-            style={{
-                position: 'fixed',
-                inset: 0,
-                zIndex: 9999,
-                backgroundColor: '#000',
-                color: '#0f0',
-                fontFamily: 'monospace',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2rem',
-                animation: 'cutsceneFlicker 0.15s infinite alternate',
-                pointerEvents: 'none',
-            }}
-        >
+        <>
             <div
                 style={{
-                    fontSize: '1.5rem',
-                    lineHeight: 1.6,
-                    whiteSpace: 'pre-wrap',
-                    textAlign: 'center',
-                    maxWidth: '800px',
-                    filter: 'drop-shadow(0 0 2px #0f0)',
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 9999,
+                    backgroundColor: '#000',
+                    color: '#0f0',
+                    fontFamily: 'monospace',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2rem',
+                    animation: 'cutsceneFlicker 0.15s infinite alternate',
+                    pointerEvents: 'none',
                 }}
             >
-                <VNTextRenderer text={currentText}/>
-            </div>
+                <div
+                    style={{
+                        fontSize: '1.5rem',
+                        lineHeight: 1.6,
+                        whiteSpace: 'pre-wrap',
+                        textAlign: 'center',
+                        maxWidth: '800px',
+                        filter: 'drop-shadow(0 0 2px #0f0)',
+                    }}
+                >
+                    <VNTextRenderer text={currentText}/>
+                </div>
 
-            <style jsx>{`
-                @keyframes cutsceneFlicker {
-                    from {
-                        background-color: #000;
-                        filter: blur(0px) brightness(1) contrast(1.2);
+                <style jsx>{`
+                    @keyframes cutsceneFlicker {
+                        from {
+                            background-color: #000;
+                            filter: blur(0px) brightness(1) contrast(1.2);
+                        }
+                        to {
+                            background-color: #010101;
+                            filter: blur(1px) brightness(0.9) contrast(1.5);
+                        }
                     }
-                    to {
-                        background-color: #010101;
-                        filter: blur(1px) brightness(0.9) contrast(1.5);
-                    }
-                }
-            `}</style>
-        </div>
+                `}</style>
+            </div>
+            <audio
+                ref={staticSoundRef}
+                src="/sfx/all/static.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}/>
+            <audio
+                ref={glitchSoundRef}
+                src="/sfx/choices/file_delete.m4a"
+                loop
+                preload="auto"
+                style={{display: 'none'}}/>
+            <audio
+                ref={heartbeatSoundRef}
+                src="/sfx/choices/heartbeat.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}/>
+            <audio
+                ref={censorSoundRef}
+                src="/sfx/choices/censorbeep.mp3"
+                preload="auto"
+                style={{display: 'none'}}/>
+        </>
     );
 }

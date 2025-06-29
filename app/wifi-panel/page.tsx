@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
 import {signCookie} from "@/lib/cookie-utils";
 
-const KEYWORD_1 = 'Whispers';  // From your flow
+const KEYWORD_1 = 'Whispers';
 
 export default function WifiPanel() {
     const router = useRouter();
@@ -40,8 +40,7 @@ export default function WifiPanel() {
 
     // Generate the encoded question
     const handleReceive = () => {
-        // Encoded phrase example: Base64 of "What is 3+15+25?"
-        const q = btoa('What is 3+15+25?');
+        const q = btoa('PROVE YOU ARE NOT A ROBOT: What is 3, 15 and 25 summed up?');
         setQuestion(q);
         setMode('receive');
     };
@@ -108,7 +107,7 @@ export default function WifiPanel() {
                     </p>
                     <input
                         type="text"
-                        placeholder="Provide the keyword[1]"
+                        placeholder="Provide keyword[1] to access."
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />

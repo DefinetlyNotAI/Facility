@@ -4,4 +4,8 @@ choices
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
 - add favicon.ico
-ADD TAS???
+
+Update: Wifi Login, Wifi Panel css (maybe terminal, file-console, buttons)
+
+
+Make sure all audio is IN AUDIO TAGS in jsx, and never pure tsx code

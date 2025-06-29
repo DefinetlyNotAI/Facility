@@ -156,19 +156,20 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         };
     }, [refreshCount, mounted]);
 
-    // Initialize ambient audio
+    // Initialize ambient audio using the audio tag below
     useEffect(() => {
         if (!mounted) return;
 
-        const audio = new Audio('/sfx/home/sweethome.mp3');
-        audio.loop = true;
-        audio.volume = 0.3;
-        ambientAudioRef.current = audio;
+        const audioEl = ambientAudioRef.current;
+        if (!audioEl) return;
+
+        audioEl.loop = true;
+        audioEl.volume = 0.7;
 
         const playAudio = () => {
-            audio.play().catch(() => {
+            audioEl.play().catch(() => {
                 const handleInteraction = () => {
-                    audio.play().catch(console.warn);
+                    audioEl.play().catch(console.warn);
                     document.removeEventListener('click', handleInteraction);
                     document.removeEventListener('keydown', handleInteraction);
                 };
@@ -180,8 +181,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         playAudio();
 
         return () => {
-            audio.pause();
-            audio.src = '';
+            audioEl.pause();
+            audioEl.currentTime = 0;
         };
     }, [mounted]);
 
@@ -260,7 +261,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
             if (timeNow === '15:25') {
                 await signCookie('Wifi_Unlocked=true');
-                setModalMessage('Network access granted. Use curl/wget for a prize to the next ;)');
+                setModalMessage('Network access granted. Use curl/wget there with the prefix /api/ for a prize to the next ;)');
                 setShowModal(true);
                 setTimeout(() => router.push('/wifi-panel'), 3000);
             }
@@ -778,6 +779,13 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                     </div>
                 </div>
             )}
+
+            <audio
+                ref={ambientAudioRef}
+                src="/sfx/home/sweethome.mp3"
+                loop={true}
+                style={{display: 'none'}}
+            />
 
             {/* System Modal */}
             {showModal && (
