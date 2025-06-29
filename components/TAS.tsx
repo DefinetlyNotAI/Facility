@@ -93,6 +93,10 @@ export default function TAS({className = ''}: TASProps) {
     const [mouseOutside, setMouseOutside] = useState(false);
     const [isAFK, setIsAFK] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+    // Track when each state started
+    const [mouseLeftAt, setMouseLeftAt] = useState<number | null>(null);
+    const [afkStartedAt, setAfkStartedAt] = useState<number | null>(null);
+    const [mutedStartedAt, setMutedStartedAt] = useState<number | null>(null);
     const [startTime] = useState(Date.now());
     const [isCorrupted, setIsCorrupted] = useState(false);
     const [lastSnarkyComment, setLastSnarkyComment] = useState(0);
@@ -126,7 +130,7 @@ export default function TAS({className = ''}: TASProps) {
         const updateAudioElements = () => {
             const audioElements = document.querySelectorAll('audio');
             backgroundAudioRef.current = Array.from(audioElements);
-            
+
             // Store original volumes
             backgroundAudioRef.current.forEach(audio => {
                 if (!originalVolumesRef.current.has(audio)) {
@@ -136,7 +140,7 @@ export default function TAS({className = ''}: TASProps) {
         };
 
         updateAudioElements();
-        
+
         // Update audio list when DOM changes
         const observer = new MutationObserver(updateAudioElements);
         observer.observe(document.body, { childList: true, subtree: true });
@@ -157,33 +161,33 @@ export default function TAS({className = ''}: TASProps) {
         setCurrentHint(hints[0]);
     }, [pathname, isVisible]);
 
-    // Enhanced speech queue management with ALL audio dimming to 20%
     const processNextSpeech = () => {
         if (speechQueueRef.current.length === 0) {
             isSpeakingRef.current = false;
-            // Restore all audio elements to their original volumes
-            backgroundAudioRef.current.forEach(audio => {
-                const originalVolume = originalVolumesRef.current.get(audio) || 1;
-                if (!audio.paused) {
-                    audio.volume = originalVolume;
-                }
+
+            // Restore ALL audio volumes on the page
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.volume = originalVolumesRef.current.get(audio) || 1;
             });
+
             return;
         }
 
         const nextText = speechQueueRef.current.shift()!;
         isSpeakingRef.current = true;
 
-        // Dim ALL audio elements to 20% volume
-        backgroundAudioRef.current.forEach(audio => {
-            if (!audio.paused) {
-                const originalVolume = originalVolumesRef.current.get(audio) || audio.volume;
-                originalVolumesRef.current.set(audio, originalVolume);
-                audio.volume = originalVolume * 0.2;
-            }
+        // Dim ALL <audio> elements on the page to 20%
+        requestAnimationFrame(() => {
+            document.querySelectorAll('audio').forEach(audio => {
+                if (!audio.paused && !audio.muted && audio.volume > 0) {
+                    const originalVolume = originalVolumesRef.current.get(audio) || audio.volume;
+                    originalVolumesRef.current.set(audio, originalVolume);
+                    audio.volume = originalVolume * 0.2;
+                }
+            });
         });
 
-        // Cancel any existing speech
+        // Cancel existing speech if any
         speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(nextText);
@@ -191,7 +195,7 @@ export default function TAS({className = ''}: TASProps) {
         utterance.pitch = 0.8;
         utterance.volume = 0.8;
 
-        // Try to find a friendly voice
+        // Select a friendly voice
         const voices = speechSynthesis.getVoices();
         const friendlyVoice = voices.find(voice =>
             voice.name.includes('Google') ||
@@ -204,10 +208,18 @@ export default function TAS({className = ''}: TASProps) {
             utterance.voice = friendlyVoice;
         }
 
+        // When speech ends, restore audio and proceed
         utterance.onend = () => {
-            setTimeout(processNextSpeech, 500); // Small delay between speeches
+            setTimeout(processNextSpeech, 500);
         };
 
+        // For debugging: speech start, error
+        utterance.onerror = e => {
+            // Ignore interruption errors (code 5 or 'interrupted'), log others
+            if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                console.error("Speech error", e);
+            }
+        };
         speechRef.current = utterance;
         speechSynthesis.speak(utterance);
     };
@@ -215,35 +227,38 @@ export default function TAS({className = ''}: TASProps) {
     const queueSpeech = (text: string, priority: 'normal' | 'high' = 'normal') => {
         if (!isVisible || isCorrupted) return;
 
-        // Replace [TIME] placeholder with actual time
         const timeMinutes = Math.floor((Date.now() - startTime) / 60000);
         const finalText = text.replace('[TIME]', timeMinutes.toString());
 
         if (priority === 'high') {
-            // For high priority, skip to the latest message and clear snarky comments
-            speechQueueRef.current = speechQueueRef.current.filter(msg => 
-                !SNARKY_COMMENTS.some(snarky => msg.includes(snarky.split('.')[0]))
-            );
-            speechQueueRef.current = [finalText]; // Replace with latest
-        } else {
-            speechQueueRef.current.push(finalText);
-        }
-
-        if (!isSpeakingRef.current) {
+            speechSynthesis.cancel();
+            speechQueueRef.current = [finalText];
+            isSpeakingRef.current = false;
             processNextSpeech();
+        } else {
+            // Normal priority: just enqueue
+            speechQueueRef.current.push(finalText);
+
+            // Only start if nothing is speaking
+            if (!isSpeakingRef.current) {
+                processNextSpeech();
+            }
         }
     };
 
-    // Mouse tracking for outside detection (disabled if TAS is dead, reduced frequency)
+
+    // Mouse tracking for outside detection (disabled if TAS is dead)
     useEffect(() => {
         if (!isVisible || isCorrupted) return;
 
         const handleMouseLeave = () => {
             setMouseOutside(true);
+            setMouseLeftAt(Date.now());
             setTimeout(() => {
                 const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
-                if (timeSinceLastSnarky > 120000 && Math.random() < 0.2) { // 2 min cooldown, 20% chance
-                    queueSpeech("Mouse left the site? Taking a breather? I get it, this place can be intense.");
+                if (timeSinceLastSnarky > 300000 && Math.random() < 0.2) {
+                    // Always normal priority for this snarky remark
+                    queueSpeech("Mouse left the site? Taking a breather? I get it, this place can be intense.", 'normal');
                     setLastSnarkyComment(Date.now());
                 }
             }, 3000);
@@ -251,6 +266,7 @@ export default function TAS({className = ''}: TASProps) {
 
         const handleMouseEnter = () => {
             setMouseOutside(false);
+            setMouseLeftAt(null);
         };
 
         document.addEventListener('mouseleave', handleMouseLeave);
@@ -260,7 +276,7 @@ export default function TAS({className = ''}: TASProps) {
             document.removeEventListener('mouseleave', handleMouseLeave);
             document.removeEventListener('mouseenter', handleMouseEnter);
         };
-    }, [isVisible, isCorrupted, lastSnarkyComment]);
+    }, [isVisible, isCorrupted, lastSnarkyComment, mouseLeftAt]);
 
     // AFK detection (disabled if TAS is dead, reduced frequency)
     useEffect(() => {
@@ -269,6 +285,7 @@ export default function TAS({className = ''}: TASProps) {
         const resetAFKTimer = () => {
             lastActivityRef.current = Date.now();
             setIsAFK(false);
+            setAfkStartedAt(null);
 
             if (afkTimeoutRef.current) {
                 clearTimeout(afkTimeoutRef.current);
@@ -276,9 +293,11 @@ export default function TAS({className = ''}: TASProps) {
 
             afkTimeoutRef.current = setTimeout(() => {
                 setIsAFK(true);
+                setAfkStartedAt(Date.now());
                 const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
-                if (timeSinceLastSnarky > 120000 && Math.random() < 0.3) { // 2 min cooldown, 30% chance
-                    queueSpeech("AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.");
+                if (timeSinceLastSnarky > 120000 && Math.random() < 0.3) {
+                    // Always normal priority for this snarky remark
+                    queueSpeech("AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.", 'normal');
                     setLastSnarkyComment(Date.now());
                 }
             }, 120000); // 2 minutes instead of 1
@@ -299,7 +318,7 @@ export default function TAS({className = ''}: TASProps) {
                 clearTimeout(afkTimeoutRef.current);
             }
         };
-    }, [isVisible, isCorrupted, lastSnarkyComment]);
+    }, [isVisible, isCorrupted, lastSnarkyComment, afkStartedAt]);
 
     // Audio context detection for muting (disabled if TAS is dead)
     useEffect(() => {
@@ -312,21 +331,24 @@ export default function TAS({className = ''}: TASProps) {
 
             if (anyMuted && !isMuted) {
                 setIsMuted(true);
+                setMutedStartedAt(Date.now());
                 const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
-                if (timeSinceLastSnarky > 120000) { // 2 min cooldown
+                if (timeSinceLastSnarky > 120000) {
                     setTimeout(() => {
-                        showAlert("Muted the audio? You might miss some important stuff.");
+                        // Always normal priority for this snarky remark
+                        showAlert("Muted the audio? Smart move, though you might miss some important stuff.");
                         setLastSnarkyComment(Date.now());
                     }, 1000);
                 }
             } else if (!anyMuted && isMuted) {
                 setIsMuted(false);
+                setMutedStartedAt(null);
             }
         };
 
         const interval = setInterval(checkAudioContext, 5000); // Check every 5 seconds
         return () => clearInterval(interval);
-    }, [isVisible, isMuted, isCorrupted, lastSnarkyComment]);
+    }, [isVisible, isMuted, isCorrupted, lastSnarkyComment, mutedStartedAt]);
 
     const showAlert = (message: string) => {
         alert(`TAS: ${message}`);
@@ -343,7 +365,7 @@ export default function TAS({className = ''}: TASProps) {
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
             setCurrentHint(randomHint);
 
-            // Queue the hint for TTS with high priority
+            // Always high priority for hints
             queueSpeech(randomHint, 'high');
         }
     };
@@ -432,15 +454,19 @@ export default function TAS({className = ''}: TASProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            const timeSinceLastSnarky = Date.now() - lastSnarkyComment;
-                                            if (timeSinceLastSnarky > 120000) { // 2 min cooldown
-                                                const comment = getRandomSnarkyComment();
-                                                queueSpeech(comment);
-                                                setLastSnarkyComment(Date.now());
-                                            } else {
-                                                const remainingTime = Math.ceil((120000 - timeSinceLastSnarky) / 1000);
-                                                queueSpeech(`Hold on, I need ${remainingTime} more seconds to think of something witty!`, 'high');
-                                            }
+
+                                            const comment = getRandomSnarkyComment();
+                                                // Check if comment is one of the three special ones
+                                                if (
+                                                    comment.startsWith("Mouse left the site?") ||
+                                                    comment.startsWith("Muted the audio?") ||
+                                                    comment.startsWith("AFK for a bit?")
+                                                ) {
+                                                    queueSpeech(comment, 'normal');
+                                                } else {
+                                                    queueSpeech(comment, 'high');
+                                                }
+
                                         }}
                                         className="bg-blue-700 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors"
                                     >
