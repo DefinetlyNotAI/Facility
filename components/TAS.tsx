@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import React, {useEffect, useRef, useState} from 'react';
+import {usePathname} from 'next/navigation';
 import Cookies from 'js-cookie';
 
 interface TASProps {
@@ -81,7 +81,7 @@ const SNARKY_COMMENTS = [
     "We've been at this for [TIME] minutes now. Time flies when you're having fun, right?"
 ];
 
-export default function TAS({ className = '' }: TASProps) {
+export default function TAS({className = ''}: TASProps) {
     const pathname = usePathname();
     const [isVisible, setIsVisible] = useState(false);
     const [currentHint, setCurrentHint] = useState('');
@@ -138,10 +138,10 @@ export default function TAS({ className = '' }: TASProps) {
     const processNextSpeech = () => {
         if (speechQueueRef.current.length === 0) {
             isSpeakingRef.current = false;
-            // Restore background audio volume
+            // Restore all audio elements' volume
             backgroundAudioRef.current.forEach(audio => {
                 if (!audio.paused) {
-                    audio.volume = Math.min(audio.volume / 0.3, 1); // Restore from 30%
+                    audio.volume = Math.min(audio.volume / 0.3, 1);
                 }
             });
             return;
@@ -150,10 +150,10 @@ export default function TAS({ className = '' }: TASProps) {
         const nextText = speechQueueRef.current.shift()!;
         isSpeakingRef.current = true;
 
-        // Dim background audio to 30%
+        // Dim all audio elements to 30% volume
         backgroundAudioRef.current.forEach(audio => {
             if (!audio.paused) {
-                audio.volume = audio.volume * 0.3;
+                audio.volume = 0.3;
             }
         });
 
@@ -185,7 +185,6 @@ export default function TAS({ className = '' }: TASProps) {
         speechRef.current = utterance;
         speechSynthesis.speak(utterance);
     };
-
     const queueSpeech = (text: string) => {
         if (!isVisible) return;
 
@@ -328,16 +327,16 @@ export default function TAS({ className = '' }: TASProps) {
                         bg-black border-2 rounded-lg p-3 cursor-pointer
                         transition-all duration-300 hover:bg-green-900/20
                         ${isExpanded ? 'w-80' : 'w-16 h-16'}
-                        ${isCorrupted ? 
-                            'border-red-500 animate-pulse bg-red-900/20 hover:bg-red-800/30' : 
-                            `border-green-400 hover:border-green-300 
+                        ${isCorrupted ?
+                        'border-red-500 animate-pulse bg-red-900/20 hover:bg-red-800/30' :
+                        `border-green-400 hover:border-green-300 
                              ${mouseOutside ? 'animate-pulse border-yellow-400' : ''}
                              ${isAFK ? 'animate-bounce border-blue-400' : ''}`
-                        }
+                    }
                     `}
                     style={{
-                        boxShadow: isCorrupted ? 
-                            '0 0 20px rgba(255, 0, 0, 0.5)' : 
+                        boxShadow: isCorrupted ?
+                            '0 0 20px rgba(255, 0, 0, 0.5)' :
                             '0 0 20px rgba(0, 255, 0, 0.3)',
                         backdropFilter: 'blur(10px)',
                         filter: isCorrupted ? 'contrast(1.5) brightness(0.7) hue-rotate(180deg)' : 'none'
@@ -352,7 +351,8 @@ export default function TAS({ className = '' }: TASProps) {
                     ) : (
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className={`font-bold text-lg ${isCorrupted ? 'text-red-400' : 'text-green-400'}`}>
+                                <span
+                                    className={`font-bold text-lg ${isCorrupted ? 'text-red-400' : 'text-green-400'}`}>
                                     {isCorrupted ? '█AS - ER█OR' : 'TAS - Your Buddy'}
                                 </span>
                                 <button
@@ -366,7 +366,8 @@ export default function TAS({ className = '' }: TASProps) {
                                 </button>
                             </div>
 
-                            <div className={`text-sm leading-relaxed ${isCorrupted ? 'text-red-300' : 'text-green-300'}`}>
+                            <div
+                                className={`text-sm leading-relaxed ${isCorrupted ? 'text-red-300' : 'text-green-300'}`}>
                                 {isCorrupted ? '█████ ████ ███ ████████' : currentHint}
                             </div>
 
@@ -397,50 +398,34 @@ export default function TAS({ className = '' }: TASProps) {
                                     </button>
                                 </div>
                             )}
-
-                            {/* Status indicators (only show if not corrupted) */}
-                            {!isCorrupted && (
-                                <div className="flex gap-2 text-xs">
-                                    {mouseOutside && (
-                                        <span className="text-yellow-400">🖱️ Mouse wandering</span>
-                                    )}
-                                    {isAFK && (
-                                        <span className="text-blue-400">😴 Taking a break</span>
-                                    )}
-                                    {isMuted && (
-                                        <span className="text-orange-400">🔇 Audio muted</span>
-                                    )}
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Floating status indicators (only show if not corrupted) */}
-            {!isCorrupted && mouseOutside && (
-                <div className="fixed top-4 left-4 bg-yellow-900/80 border border-yellow-400 text-yellow-300 px-3 py-2 rounded-lg text-sm font-mono z-40">
-                    🖱️ Mouse taking a little trip outside
-                </div>
-            )}
-
-            {!isCorrupted && isAFK && (
-                <div className="fixed top-4 right-4 bg-blue-900/80 border border-blue-400 text-blue-300 px-3 py-2 rounded-lg text-sm font-mono z-40">
-                    😴 Taking a breather? I'll be here when you get back
-                </div>
-            )}
-
             <style jsx>{`
                 @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.7; }
+                    0%, 100% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.7;
+                    }
                 }
-                
+
                 @keyframes bounce {
-                    0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-                    40%, 43% { transform: translateY(-10px); }
-                    70% { transform: translateY(-5px); }
-                    90% { transform: translateY(-2px); }
+                    0%, 20%, 53%, 80%, 100% {
+                        transform: translateY(0);
+                    }
+                    40%, 43% {
+                        transform: translateY(-10px);
+                    }
+                    70% {
+                        transform: translateY(-5px);
+                    }
+                    90% {
+                        transform: translateY(-2px);
+                    }
                 }
             `}</style>
         </>
