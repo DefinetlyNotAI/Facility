@@ -9,11 +9,7 @@ the end:
 - REMAKE
 - add the comments
 
-moonlight:
-- remake the moon
-- remake the cutscene as it doesn't work
-- cookie should expire after an hour
-
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
-- add cheat detection and a callout for that
+
+ADD TAS???

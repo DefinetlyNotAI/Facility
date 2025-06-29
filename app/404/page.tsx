@@ -2,6 +2,7 @@
 
 import React, {useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
+import {signCookie} from "@/lib/cookie-utils";
 
 const WINGDINGS_LOCKED = "✋︎⧫︎ ♓︎⬧︎ ■︎□︎⧫︎ ⧫︎♓︎❍︎♏︎";
 const WINGDINGS_NOT_ALLOWED = "✡︎□︎◆︎ ♎︎□︎■︎🕯︎⧫︎ ♌︎♏︎●︎□︎■︎♑︎ ♒︎♏︎❒︎♏︎";
@@ -21,8 +22,10 @@ export default function Glitchy404() {
 
     useEffect(() => {
         if (showMoonlight) {
-            sessionStorage.setItem("legalMoon", "true");
-            router.push("/moonlight");
+            (async () => {
+                await signCookie("themoon=true");
+                router.push("/moonlight");
+            })();
         }
     }, [showMoonlight, router]);
 
@@ -70,9 +73,6 @@ export default function Glitchy404() {
 
                     <div className="terminal mb-8">
                         <div className="terminal-header">
-                            <div className="terminal-dot red"></div>
-                            <div className="terminal-dot red"></div>
-                            <div className="terminal-dot red"></div>
                             <span className="text-xs text-red-400 ml-2">SECURITY BREACH</span>
                         </div>
                         <div className="terminal-content">
