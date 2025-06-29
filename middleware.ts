@@ -57,6 +57,12 @@ async function verifyRelevantCookies(request: NextRequest): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
     const {pathname} = request.nextUrl;
+    const accepted = request.cookies.get('accepted')?.value;
+    const end = request.cookies.get('End');
+    const corrupting = request.cookies.get('corrupting');
+    const noCorruption = request.cookies.get('No_corruption');
+    const corrupt = request.cookies.get('Corrupt');
+    const endQ = request.cookies.get('End?');
 
     // Skip static + API routes
     if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
@@ -70,11 +76,6 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/CHEATER', request.url));
         }
     }
-
-
-    const accepted = request.cookies.get('accepted')?.value;
-    const end = request.cookies.get('End');
-    const corrupting = request.cookies.get('corrupting');
 
     // Redirection logic (no refresh loops)
     if (pathname !== '/smileking' && pathname !== '/smileking-auth' && pathname !== '/CHEATER') {
@@ -101,6 +102,24 @@ export async function middleware(request: NextRequest) {
         response.headers.set('Referrer-Policy', 'no-referrer');
         response.headers.set('Permissions-Policy', 'geolocation=(), microphone=()');
     }
+
+    // === Begin Conflict Resolution ===
+    if (noCorruption) {
+        if (corrupt) {
+            console.debug('[middleware] Conflict: Corrupt + No_corruption -> deleting Corrupt');
+            response.cookies.delete('Corrupt');
+        }
+        if (corrupting) {
+            console.debug('[middleware] Conflict: corrupting + No_corruption -> deleting corrupting');
+            response.cookies.delete('corrupting');
+        }
+    }
+
+    if (endQ && end) {
+        console.debug('[middleware] Conflict: End? + End -> deleting End?');
+        response.cookies.delete('End?');
+    }
+    // === End Conflict Resolution ===
 
     return response;
 }
