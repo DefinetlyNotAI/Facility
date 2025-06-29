@@ -38,25 +38,26 @@ export default function Moonlight() {
     const [displayedText, setDisplayedText] = useState('');
     const [showMoon, setShowMoon] = useState(false);
     const [stars, setStars] = useState<Array<{x: number, y: number, size: number, opacity: number}>>([]);
-    
+
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const lineTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Check if user came from 404 or black-and-white
+    // Check if "themoon" cookie exists
     useEffect(() => {
-        const cameFromLegal = sessionStorage.getItem("legalMoon");
-        const cameFromBnW = sessionStorage.getItem("fromBnW");
-        
-        if (cameFromLegal === "true" || cameFromBnW === "true") {
-            setAllowed(true);
-            // Clean up session storage
-            sessionStorage.removeItem("legalMoon");
-            sessionStorage.removeItem("fromBnW");
-        } else {
-            router.replace("/404");
-        }
-    }, [router]);
+            const hasRun = (window as any).__moonlight_cookie_check_ran;
+            if (hasRun) return;
+            (window as any).__moonlight_cookie_check_ran = true;
+
+            const hasMoonCookie = Cookies.get("themoon");
+
+            if (hasMoonCookie) {
+                Cookies.remove("themoon");
+                setAllowed(true);
+            } else {
+                router.replace("/404");
+            }
+            }, []);
 
     // Decide moon color on mount (1/666 chance red)
     useEffect(() => {
@@ -88,7 +89,7 @@ export default function Moonlight() {
 
         const played = Cookies.get("moonlight_time_cutscene_played");
         if (!played) {
-            startCutscene();
+            startCutscene().catch(console.error);
         } else {
             setShowMoon(true);
         }
@@ -96,13 +97,13 @@ export default function Moonlight() {
 
     const startCutscene = async () => {
         setCutsceneActive(true);
-        
+
         // Initialize audio
         const audio = new Audio(moonRed ? '/audio/moonlight-creepy.mp3' : '/audio/moonlight-soothing.mp3');
         audio.loop = true;
         audio.volume = 0.6;
         audioRef.current = audio;
-        
+
         try {
             await audio.play();
         } catch (e) {
@@ -115,9 +116,9 @@ export default function Moonlight() {
 
     const playPoetrySequence = () => {
         const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
-        
+
         if (currentLineIndex >= lines.length) {
-            finishCutscene();
+            finishCutscene().catch(console.error);
             return;
         }
 
@@ -134,7 +135,7 @@ export default function Moonlight() {
     const typeText = (text: string, onComplete: () => void) => {
         let charIndex = 0;
         setDisplayedText('');
-        
+
         typingIntervalRef.current = setInterval(() => {
             if (charIndex < text.length) {
                 setDisplayedText(prev => prev + text[charIndex]);
@@ -157,7 +158,7 @@ export default function Moonlight() {
     const skipCutscene = () => {
         if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
         if (lineTimeoutRef.current) clearTimeout(lineTimeoutRef.current);
-        finishCutscene();
+        finishCutscene().catch(console.error);
     };
 
     // Watch for line changes during cutscene
@@ -197,7 +198,7 @@ export default function Moonlight() {
             style={{
                 height: "100vh",
                 width: "100vw",
-                background: moonRed 
+                background: moonRed
                     ? "radial-gradient(ellipse at center, #2d0a0a 0%, #1a0000 50%, #000000 100%)"
                     : "radial-gradient(ellipse at center, #0a1a2d 0%, #001122 50%, #000000 100%)",
                 display: "flex",
@@ -225,7 +226,7 @@ export default function Moonlight() {
                         borderRadius: "50%",
                         opacity: star.opacity,
                         animation: `twinkle ${2 + Math.random() * 3}s infinite`,
-                        boxShadow: moonRed 
+                        boxShadow: moonRed
                             ? `0 0 ${star.size * 2}px #ff6666`
                             : `0 0 ${star.size * 2}px #ffffff`,
                     }}
@@ -245,7 +246,7 @@ export default function Moonlight() {
                         textAlign: "center",
                         fontSize: "1.8rem",
                         lineHeight: "1.6",
-                        textShadow: moonRed 
+                        textShadow: moonRed
                             ? "0 0 20px #ff0000, 0 0 40px #ff0000"
                             : "0 0 20px #00aaff, 0 0 40px #00aaff",
                         animation: moonRed ? "creepyGlow 2s ease-in-out infinite alternate" : "soothingGlow 3s ease-in-out infinite alternate",
@@ -253,7 +254,7 @@ export default function Moonlight() {
                     }}
                 >
                     {displayedText}
-                    <span 
+                    <span
                         style={{
                             opacity: Math.sin(Date.now() / 500) > 0 ? 1 : 0,
                             marginLeft: "5px"
@@ -313,7 +314,7 @@ export default function Moonlight() {
                         alignItems: "center",
                         justifyContent: "center",
                         fontSize: "120px",
-                        textShadow: moonRed 
+                        textShadow: moonRed
                             ? "0 0 30px #ff0000"
                             : "0 0 30px #ffffff",
                         transition: "all 1s ease",
