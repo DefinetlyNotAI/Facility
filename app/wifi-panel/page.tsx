@@ -3,7 +3,7 @@
 import {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/extra.module.css';
+import styles from '../../styles/WifiPanel.module.css';
 import {signCookie} from "@/lib/cookie-utils";
 
 const KEYWORD_1 = 'Whispers';
@@ -86,61 +86,81 @@ export default function WifiPanel() {
 
     return (
         <div className={styles.container}>
-            <h1>Wi‑Fi Panel</h1>
-            <div className={styles.buttons}>
-                <button onClick={handleReceive} disabled={mode !== 'locked'}>
+            <h1 className={styles.title}>Wi‑Fi Panel</h1>
+            
+            <div className={styles.buttonContainer}>
+                <button 
+                    onClick={handleReceive} 
+                    disabled={mode !== 'locked'}
+                    className={styles.actionButton}
+                >
                     Receive
                 </button>
                 <button
                     onClick={() => password ? handleUnlockSend() : null}
                     disabled={!password}
+                    className={styles.actionButton}
                 >
                     Send
                 </button>
             </div>
 
             {mode === 'receive' && (
-                <div className={styles.box}>
-                    <p><em>I ASK THEE </em> <code>{question}</code></p>
-                    <p className={styles.hint} /* <== hint inside HTML comments in real code */>
+                <div className={styles.contentBox}>
+                    <h2>Incoming Transmission</h2>
+                    <p><em>I ASK THEE:</em></p>
+                    <div className={styles.codeBlock}>
+                        {question}
+                    </div>
+                    <div className={styles.hint}>
                         {/* Algorithm: Base64 decode this string */}
-                    </p>
+                        Decode the transmission to reveal the challenge
+                    </div>
                     <input
                         type="text"
-                        placeholder="Provide keyword[1] to access."
+                        placeholder="Provide keyword[1] to access Send function"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className={styles.input}
                     />
                 </div>
             )}
 
             {mode === 'send' && sendUnlocked && (
-                <div className={styles.box}>
-                    <p>Password accepted. Submit thee answer:</p>
+                <div className={styles.contentBox}>
+                    <h2>Send Response</h2>
+                    <p>Password accepted. Submit your answer to the decoded challenge:</p>
                     <input
                         type="text"
-                        placeholder="Your answer"
+                        placeholder="Your numerical answer"
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
+                        className={styles.input}
                     />
-                    <button onClick={handleSendAnswer}>Submit Answer</button>
+                    <button onClick={handleSendAnswer} className={styles.submitButton}>
+                        Submit Answer
+                    </button>
                 </div>
             )}
 
             {mode === 'caesar' && (
-                <div className={styles.box}>
-                    <p>Submit thee answer:</p>
+                <div className={styles.contentBox}>
+                    <h2>Encryption Required</h2>
+                    <p>Transmission error detected. Apply Caesar cipher (shift -3) to your answer:</p>
                     <input
                         type="text"
                         placeholder="Caesar-shifted answer"
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
+                        className={styles.input}
                     />
-                    <button onClick={handleCaesarSubmit}>Finalize</button>
+                    <button onClick={handleCaesarSubmit} className={styles.submitButton}>
+                        Finalize Transmission
+                    </button>
                 </div>
             )}
 
-            {errorMsg && <p className={styles.error}>{errorMsg}</p>}
+            {errorMsg && <div className={styles.error}>{errorMsg}</div>}
         </div>
     );
 }

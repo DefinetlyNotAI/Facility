@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookie-utils";
+import styles from '../../styles/Buttons.module.css';
 
 const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'] as const;
 type BrowserName = typeof BROWSERS[number];
@@ -35,66 +36,20 @@ function HiddenFooter() {
     }
 
     return (
-        <>
-            <footer
-                id="hidden-footer"
-                style={{
-                    position: 'fixed',
-                    bottom: 0,
-                    width: '100%',
-                    padding: '1rem',
-                    backgroundColor: 'black',
-                    color: 'white',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    fontFamily: 'monospace',
-                    fontSize: '1.2rem',
-                    cursor: 'pointer',
-                    opacity: 0,
-                    pointerEvents: 'none',
-                    userSelect: 'none',
-                    transition: 'opacity 0.5s ease',
+        <footer
+            className={`${styles.hiddenFooter} ${visible ? styles.visible : ''}`}
+            onClick={handleUnlock}
+        >
+            <a
+                href="/file-console"
+                onClick={async (e) => {
+                    e.stopPropagation();
+                    await signCookie('File_Unlocked=true');
                 }}
-                onClick={handleUnlock}
-                className={visible ? 'visible' : ''}
             >
-                <a
-                    href="/file-console"
-                    style={{
-                        color: 'white',
-                        textDecoration: 'underline',
-                        userSelect: 'text',
-                        pointerEvents: visible ? 'auto' : 'none',
-                    }}
-                    onClick={async (e) => {
-                        e.stopPropagation();
-                        await signCookie('File_Unlocked=true');
-                    }}
-                >
-                    /file-console
-                </a>
-            </footer>
-
-            <style jsx>{`
-                @keyframes blink {
-                    0%,
-                    50% {
-                        opacity: 1;
-                    }
-                    50.01%,
-                    100% {
-                        opacity: 0;
-                    }
-                }
-
-                #hidden-footer.visible {
-                    opacity: 1 !important;
-                    pointer-events: auto !important;
-                    user-select: text !important;
-                    animation: blink 1s step-start infinite;
-                }
-            `}</style>
-        </>
+                /file-console
+            </a>
+        </footer>
     );
 }
 
@@ -112,6 +67,7 @@ export default function ButtonsPage() {
     const [userBrowser, setUserBrowser] = useState<BrowserName | null>(null);
 
     const allPressed = Object.values(buttonStates).every(Boolean);
+    const pressedCount = Object.values(buttonStates).filter(Boolean).length;
 
     useEffect(() => {
         axios.get('/api/csrf-token').catch(() => {
@@ -178,44 +134,45 @@ export default function ButtonsPage() {
     }
 
     return (
-        <div
-            style={{
-                fontFamily: allPressed ? 'Wingdings, monospace' : 'sans-serif',
-                padding: '2rem',
-            }}
-        >
-            <h1>Global Browser Buttons</h1>
-            <p>Click the button matching your browser to activate it globally.</p>
+        <div className={styles.container}>
+            <h1 className={styles.title}>Global Browser Buttons</h1>
+            <p className={styles.subtitle}>
+                Click the button matching your browser to activate it globally.<br/>
+                Collaboration required - each browser can only be pressed once.
+            </p>
 
-            <div>
-                {BROWSERS.map((b) => {
-                    const isDisabled = b !== userBrowser || buttonStates[b];
+            {/* Progress Indicator */}
+            <div className={styles.progressIndicator}>
+                <div>Progress: {pressedCount}/5</div>
+                <div className={styles.progressBar}>
+                    <div 
+                        className={styles.progressFill} 
+                        style={{width: `${(pressedCount / 5) * 100}%`}}
+                    />
+                </div>
+            </div>
+
+            <div className={styles.buttonGrid}>
+                {BROWSERS.map((browser) => {
+                    const isDisabled = browser !== userBrowser || buttonStates[browser];
+                    const isPressed = buttonStates[browser];
+                    
                     return (
                         <button
-                            key={b}
-                            onClick={() => pressButton(b)}
+                            key={browser}
+                            onClick={() => pressButton(browser)}
                             disabled={isDisabled}
+                            className={`${styles.browserButton} ${isPressed ? styles.pressed : ''}`}
                             title={
                                 isDisabled
-                                    ? b !== userBrowser
-                                        ? `This button is for ${b} browser only`
+                                    ? browser !== userBrowser
+                                        ? `This button is for ${browser} browser only`
                                         : 'Button already pressed'
-                                    : `Press to activate ${b} button`
+                                    : `Press to activate ${browser} button`
                             }
-                            style={{
-                                margin: '0.5rem',
-                                padding: '0.7rem 1.2rem',
-                                fontWeight: buttonStates[b] ? 'bold' : 'normal',
-                                backgroundColor: buttonStates[b] ? '#888' : '#0cf',
-                                cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                borderRadius: 4,
-                                border: 'none',
-                                color: 'white',
-                                userSelect: 'none',
-                                transition: 'background-color 0.3s',
-                            }}
                         >
-                            {b}
+                            {browser}
+                            {isPressed && <div style={{fontSize: '0.8rem', marginTop: '0.5rem'}}>✓ ACTIVATED</div>}
                         </button>
                     );
                 })}
@@ -223,28 +180,18 @@ export default function ButtonsPage() {
 
             {allPressed && (
                 <>
-                    <div className="secret-message" aria-live="polite" role="alert">
+                    <div className={styles.secretMessage}>
                         👍︎♒︎♏︎♍︎🙵 ⧫︎♒︎♏︎ 👍︎💧︎💧︎ ⬧︎♏︎♍︎❒︎♏︎⧫︎
+                        <div style={{
+                            fontSize: '1rem',
+                            marginTop: '1rem',
+                            fontStyle: 'italic',
+                            color: '#666',
+                            fontFamily: 'JetBrains Mono, monospace'
+                        }}>
+                            Remove css tag from hidden-footer.visible to find the next link
+                        </div>
                     </div>
-
-                    <style jsx>{`
-                        .secret-message {
-                            font-size: 1.5rem;
-                            margin-top: 2rem;
-                            user-select: none;
-                            color: #400;
-                            letter-spacing: 0.05em;
-                        }
-
-                        .secret::after {
-                            content: 'Remove css tag from hidden-footer.visible to find the next link';
-                            display: block;
-                            margin-top: 1rem;
-                            font-style: italic;
-                            color: #666;
-                        }
-                    `}</style>
-                    {/* Include hidden footer here */}
                     <HiddenFooter/>
                 </>
             )}
