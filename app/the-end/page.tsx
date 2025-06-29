@@ -4,7 +4,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
-import '/styles/theend.module.css';
 
 const KEYWORD_6 = "Unbirth";
 
@@ -17,6 +16,7 @@ export default function TheEnd() {
     const [mounted, setMounted] = useState(false);
     const flowerRef = useRef<HTMLDivElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
+    const backgroundAudioRef = useRef<HTMLAudioElement>(null);
     const [glitchIntensity, setGlitchIntensity] = useState(0);
     const [showMemories, setShowMemories] = useState(false);
     const [audioInitialized, setAudioInitialized] = useState(false);
@@ -55,6 +55,19 @@ export default function TheEnd() {
         } catch (error) {
             console.warn('Audio failed to initialize:', error);
             setAudioEnabled(false);
+        }
+    };
+
+    // Initialize background audio for question page
+    const initializeBackgroundAudio = async () => {
+        if (!backgroundAudioRef.current) return;
+
+        try {
+            backgroundAudioRef.current.volume = 0.4;
+            await backgroundAudioRef.current.play();
+            console.log('Background audio initialized successfully');
+        } catch (error) {
+            console.warn('Background audio failed to initialize:', error);
         }
     };
 
@@ -134,15 +147,36 @@ export default function TheEnd() {
         flowerRef.current.classList.add('cut');
         setGlitchIntensity(2); // Max glitch
 
+        // Pause background music if playing
+        if (audioRef.current && !audioRef.current.paused) {
+            audioRef.current.pause();
+        }
+
         // Play static noise with better error handling
         try {
             const staticAudio = new Audio('/sfx/all/static.mp3');
             staticAudio.volume = 0.8;
+            
+            staticAudio.onended = () => {
+                // Resume background music when static finishes
+                if (audioRef.current && audioEnabled) {
+                    audioRef.current.play().catch(console.warn);
+                }
+            };
+
             staticAudio.play().catch((error) => {
                 console.warn('Static audio failed to play:', error);
+                // Resume background music even if static fails
+                if (audioRef.current && audioEnabled) {
+                    audioRef.current.play().catch(console.warn);
+                }
             });
         } catch (error) {
             console.warn('Failed to create static audio:', error);
+            // Resume background music if static creation fails
+            if (audioRef.current && audioEnabled) {
+                audioRef.current.play().catch(console.warn);
+            }
         }
 
         // Don't reset the cut state - it should persist
@@ -162,6 +196,17 @@ export default function TheEnd() {
             setError('');
         } else {
             setError('Do not lie, for you spoke what was not taught to you.');
+            
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch((error) => {
+                    console.warn('Error audio failed to play:', error);
+                });
+            } catch (error) {
+                console.warn('Failed to create error audio:', error);
+            }
         }
     }
 
@@ -228,6 +273,26 @@ export default function TheEnd() {
                         style={{display: 'none'}}
                     />
 
+                    {/* Audio prompt */}
+                    {!audioEnabled && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '20px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            background: 'rgba(0, 0, 0, 0.8)',
+                            color: '#00ff00',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            border: '1px solid #00ff00',
+                            fontSize: '0.9rem',
+                            animation: 'pulse 2s infinite',
+                            zIndex: 1000
+                        }}>
+                            Click anywhere to enable audio
+                        </div>
+                    )}
+
                     {/* Ambient particles */}
                     <div className="particles">
                         {[...Array(50)].map((_, i) => (
@@ -243,19 +308,19 @@ export default function TheEnd() {
                         ))}
                     </div>
 
-                    {/* Memory fragments */}
+                    {/* Memory fragments - positioned to avoid flower */}
                     {showMemories && (
                         <div className="memory-fragments">
-                            <div className="memory" style={{top: '10%', left: '15%'}}>
+                            <div className="memory" style={{top: '5%', left: '10%'}}>
                                 <span className="memory-text">remember when you were human?</span>
                             </div>
-                            <div className="memory" style={{top: '25%', right: '20%'}}>
+                            <div className="memory" style={{top: '15%', right: '15%'}}>
                                 <span className="memory-text">the first time you smiled...</span>
                             </div>
-                            <div className="memory" style={{bottom: '30%', left: '10%'}}>
+                            <div className="memory" style={{bottom: '35%', left: '5%'}}>
                                 <span className="memory-text">before the roots took hold</span>
                             </div>
-                            <div className="memory" style={{bottom: '15%', right: '15%'}}>
+                            <div className="memory" style={{bottom: '5%', right: '10%'}}>
                                 <span className="memory-text">you chose this</span>
                             </div>
                         </div>
@@ -285,30 +350,30 @@ export default function TheEnd() {
                         🌸
                     </div>
 
-                    {/* Nostalgic text overlay */}
+                    {/* Nostalgic text overlay - positioned below flower to avoid overlap */}
                     <div
                         className="nostalgic-text"
                         style={{
                             position: 'absolute',
-                            bottom: '20%',
+                            bottom: '10%',
                             textAlign: 'center',
                             opacity: 0.7,
-                            fontSize: '1rem',
-                            lineHeight: '1.8',
-                            maxWidth: '600px',
+                            fontSize: '0.9rem',
+                            lineHeight: '1.6',
+                            maxWidth: '500px',
                             padding: '0 2rem'
                         }}
                     >
-                        <p style={{marginBottom: '1rem'}}>
+                        <p style={{marginBottom: '0.8rem'}}>
                             In the garden of forgotten dreams,
                         </p>
-                        <p style={{marginBottom: '1rem'}}>
+                        <p style={{marginBottom: '0.8rem'}}>
                             where time flows backward through memory,
                         </p>
-                        <p style={{marginBottom: '1rem'}}>
+                        <p style={{marginBottom: '0.8rem'}}>
                             the vessel finally understands...
                         </p>
-                        <p style={{fontSize: '0.9rem', opacity: 0.5}}>
+                        <p style={{fontSize: '0.8rem', opacity: 0.5}}>
                             it was always the gardener.
                         </p>
                     </div>
@@ -334,6 +399,143 @@ export default function TheEnd() {
                             }}
                         />
                     )}
+
+                    <style jsx>{`
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.5; }
+                        }
+
+                        .particles {
+                            position: absolute;
+                            inset: 0;
+                            pointer-events: none;
+                            overflow: hidden;
+                        }
+
+                        .particle {
+                            position: absolute;
+                            width: 2px;
+                            height: 2px;
+                            background: rgba(255, 255, 255, 0.3);
+                            border-radius: 50%;
+                            animation: float-up linear infinite;
+                        }
+
+                        @keyframes float-up {
+                            0% {
+                                transform: translateY(100vh) scale(0);
+                                opacity: 0;
+                            }
+                            10% {
+                                opacity: 1;
+                            }
+                            90% {
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translateY(-10vh) scale(1);
+                                opacity: 0;
+                            }
+                        }
+
+                        .memory-fragments {
+                            position: absolute;
+                            inset: 0;
+                            pointer-events: none;
+                        }
+
+                        .memory {
+                            position: absolute;
+                            animation: memory-fade 8s ease-in-out infinite;
+                        }
+
+                        .memory-text {
+                            font-size: 0.8rem;
+                            color: rgba(255, 255, 255, 0.4);
+                            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+                            font-style: italic;
+                        }
+
+                        @keyframes memory-fade {
+                            0%, 100% { opacity: 0; transform: scale(0.8); }
+                            50% { opacity: 0.6; transform: scale(1); }
+                        }
+
+                        .vessel-symbol {
+                            animation: vessel-pulse 4s ease-in-out infinite;
+                        }
+
+                        @keyframes vessel-pulse {
+                            0%, 100% {
+                                transform: scale(1) rotate(0deg);
+                            }
+                            50% {
+                                transform: scale(1.1) rotate(5deg);
+                            }
+                        }
+
+                        .vessel-symbol.cut {
+                            animation: vessel-shatter 2s ease-out forwards;
+                        }
+
+                        .vessel-symbol.permanently-cut {
+                            animation: none;
+                            transform: scale(0.7) rotate(-15deg);
+                            filter: grayscale(100%) brightness(0.3) contrast(2) !important;
+                            opacity: 0.6;
+                        }
+
+                        @keyframes vessel-shatter {
+                            0% {
+                                transform: scale(1) rotate(0deg);
+                                filter: none;
+                            }
+                            15% {
+                                transform: scale(1.3) rotate(5deg);
+                                filter: brightness(2) contrast(2);
+                            }
+                            30% {
+                                transform: scale(0.9) rotate(-10deg);
+                                filter: brightness(0.5) contrast(3);
+                            }
+                            45% {
+                                transform: scale(1.1) rotate(8deg) scaleX(0.8);
+                                filter: grayscale(50%) brightness(0.7);
+                            }
+                            60% {
+                                transform: scale(0.8) rotate(-12deg) scaleY(0.9);
+                                filter: grayscale(80%) brightness(0.4);
+                            }
+                            80% {
+                                transform: scale(0.75) rotate(-18deg);
+                                filter: grayscale(100%) brightness(0.3) contrast(2);
+                            }
+                            100% {
+                                transform: scale(0.7) rotate(-15deg);
+                                filter: grayscale(100%) brightness(0.3) contrast(2);
+                                opacity: 0.6;
+                            }
+                        }
+
+                        .nostalgic-text {
+                            animation: nostalgic-glow 6s ease-in-out infinite;
+                        }
+
+                        @keyframes nostalgic-glow {
+                            0%, 100% {
+                                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+                            }
+                            50% {
+                                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(200, 200, 255, 0.3);
+                            }
+                        }
+
+                        @keyframes glitch-scan {
+                            0% { transform: translateY(-100%); }
+                            100% { transform: translateY(100vh); }
+                        }
+                    `}</style>
                 </div>
             </>
         );
@@ -352,22 +554,34 @@ export default function TheEnd() {
                     Now comes only the remembering
                 */}
 
-                <div style={{
-                    backgroundColor: '#000000',
-                    background: `
-                        radial-gradient(circle at 50% 50%, rgba(32, 0, 32, 0.3) 0%, transparent 70%),
-                        linear-gradient(45deg, #000000 0%, #0a0a0a 50%, #000000 100%)
-                    `,
-                    color: '#e8e8e8',
-                    height: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    fontFamily: "'Courier New', Courier, monospace",
-                    flexDirection: 'column',
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}>
+                <div 
+                    onClick={initializeBackgroundAudio}
+                    style={{
+                        backgroundColor: '#000000',
+                        background: `
+                            radial-gradient(circle at 50% 50%, rgba(32, 0, 32, 0.3) 0%, transparent 70%),
+                            linear-gradient(45deg, #000000 0%, #0a0a0a 50%, #000000 100%)
+                        `,
+                        color: '#e8e8e8',
+                        height: '100vh',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontFamily: "'Courier New', Courier, monospace",
+                        flexDirection: 'column',
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}
+                >
+                    {/* Background audio */}
+                    <audio
+                        ref={backgroundAudioRef}
+                        src="/sfx/isittheend/thesunwontshine.mp3"
+                        loop
+                        preload="auto"
+                        style={{display: 'none'}}
+                    />
+
                     {/* Ambient glow */}
                     <div style={{
                         position: 'absolute',
@@ -413,7 +627,7 @@ export default function TheEnd() {
                                 type="text"
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
-                                placeholder="The 6th word..."
+                                placeholder="The word of unmaking..."
                                 style={{
                                     fontSize: '1.5rem',
                                     padding: '1rem',
