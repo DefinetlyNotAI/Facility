@@ -1,10 +1,10 @@
 "use client";
 
-import React, {useEffect, useRef, useState} from "react";
-import {useRouter} from "next/navigation";
-import {signCookie} from "@/lib/cookie-utils";
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signCookie } from "@/lib/cookie-utils";
 import Cookies from "js-cookie";
-import {VNTextRenderer} from "@/components/text";
+import { VNTextRenderer } from "@/components/text";
 
 const POETIC_LINES = [
     "In the beginning, there was only the void...",
@@ -32,21 +32,27 @@ const CREEPY_LINES = [
 
 export default function Moonlight() {
     const router = useRouter();
+
+    // Permissions & flow control
     const [allowed, setAllowed] = useState(false);
     const [cutsceneActive, setCutsceneActive] = useState(false);
     const [moonRed, setMoonRed] = useState(false);
-    const [currentLineIndex, setCurrentLineIndex] = useState(0);
     const [showMoon, setShowMoon] = useState(false);
-    const [stars, setStars] = useState<Array<{x: number, y: number, size: number, opacity: number}>>([]);
+
+    // Cutscene state
+    const [currentLineIndex, setCurrentLineIndex] = useState(0);
     const [lineComplete, setLineComplete] = useState(false);
-    const [currentText, setCurrentText] = useState('');
+
+    // Prevent multiple onDone calls per line
+    const onDoneCalledRef = useRef(false);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Check if "themoon" cookie exists
+    const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
+
+    // Check cookie once
     useEffect(() => {
-        const hasRun = (window as any).__moonlight_cookie_check_ran;
-        if (hasRun) return;
+        if ((window as any).__moonlight_cookie_check_ran) return;
         (window as any).__moonlight_cookie_check_ran = true;
 
         const hasMoonCookie = Cookies.get("themoon");
@@ -59,117 +65,92 @@ export default function Moonlight() {
         }
     }, [router]);
 
-    // Decide moon color on mount (1/666 chance red)
+    // Decide moon color once
     useEffect(() => {
         if (Math.random() < 1 / 666) {
             setMoonRed(true);
         }
     }, []);
 
-    // Generate stars
+    // Generate stars once
+    const [stars, setStars] = useState<
+        Array<{ x: number; y: number; size: number; opacity: number }>
+    >([]);
     useEffect(() => {
-        const generateStars = () => {
-            const newStars = [];
-            for (let i = 0; i < 200; i++) {
-                newStars.push({
-                    x: Math.random() * 100,
-                    y: Math.random() * 100,
-                    size: Math.random() * 2 + 0.5,
-                    opacity: Math.random() * 0.8 + 0.2
-                });
-            }
-            setStars(newStars);
-        };
-        generateStars();
+        const newStars = [];
+        for (let i = 0; i < 200; i++) {
+            newStars.push({
+                x: Math.random() * 100,
+                y: Math.random() * 100,
+                size: Math.random() * 2 + 0.5,
+                opacity: Math.random() * 0.8 + 0.2,
+            });
+        }
+        setStars(newStars);
     }, []);
 
-    // Start cutscene if not played
+    // Start cutscene or show moon directly
     useEffect(() => {
         if (!allowed) return;
 
         const played = Cookies.get("moonlight_time_cutscene_played");
         if (!played) {
-            startCutscene().catch(console.error);
+            setCutsceneActive(true);
+            // Setup audio
+            const audio = new Audio(
+                moonRed ? "/audio/moonlight-creepy.mp3" : "/audio/moonlight-soothing.mp3"
+            );
+            audio.loop = true;
+            audio.volume = 0.6;
+            audioRef.current = audio;
+            audio
+                .play()
+                .catch(() => {
+                    // ignore autoplay block
+                });
         } else {
             setShowMoon(true);
         }
-    }, [allowed]);
+    }, [allowed, moonRed]);
 
-    const startCutscene = async () => {
-        setCutsceneActive(true);
+    // Cleanup audio on unmount
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.src = "";
+            }
+        };
+    }, []);
 
-        // Initialize audio
-        const audio = new Audio(moonRed ? '/audio/moonlight-creepy.mp3' : '/audio/moonlight-soothing.mp3');
-        audio.loop = true;
-        audio.volume = 0.6;
-        audioRef.current = audio;
-
-        try {
-            await audio.play();
-        } catch (e) {
-            console.warn('Audio autoplay blocked:', e);
-        }
-
-        // Set first line
-        const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
-        setCurrentText(lines[0]);
-        setCurrentLineIndex(0);
+    // Reset onDoneCalledRef and lineComplete when line changes
+    useEffect(() => {
+        onDoneCalledRef.current = false;
         setLineComplete(false);
-    };
+    }, [currentLineIndex]);
 
-    const nextLine = () => {
-        const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
-        
+    // Handle advancing lines on click *only* if line is complete
+    const handleClick = () => {
+        if (!cutsceneActive) return;
+        if (!lineComplete) return;
+
+        // Advance to next line or finish
         if (currentLineIndex < lines.length - 1) {
-            const nextIndex = currentLineIndex + 1;
-            setCurrentLineIndex(nextIndex);
-            setCurrentText(lines[nextIndex]);
-            setLineComplete(false);
+            setCurrentLineIndex((i) => i + 1);
+            setLineComplete(false); // Reset for next line
         } else {
             finishCutscene().catch(console.error);
         }
     };
 
-    const onLineComplete = () => {
-        setLineComplete(true);
-    };
-
-    const handleClick = () => {
-        if (cutsceneActive && lineComplete) {
-            nextLine();
-        }
-    };
-
+    // Finish cutscene
     const finishCutscene = async () => {
-        await signCookie("moonlight_time_cutscene_played=true");
+        try {
+            await signCookie("moonlight_time_cutscene_played=true");
+        } catch {}
         setCutsceneActive(false);
         setShowMoon(true);
     };
-
-    const skipCutscene = () => {
-        finishCutscene().catch(console.error);
-    };
-
-    const onMoonClick = () => {
-        if (!moonRed) return;
-
-        const link = document.createElement("a");
-        link.href = "/moonlight/riddle.hex";
-        link.download = "riddle.hex";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    };
-
-    // Cleanup
-    useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = '';
-            }
-        };
-    }, []);
 
     if (!allowed) return null;
 
@@ -231,19 +212,31 @@ export default function Moonlight() {
                         textShadow: moonRed
                             ? "0 0 20px #ff0000, 0 0 40px #ff0000"
                             : "0 0 20px #00aaff, 0 0 40px #00aaff",
-                        animation: moonRed ? "creepyGlow 2s ease-in-out infinite alternate" : "soothingGlow 3s ease-in-out infinite alternate",
+                        animation: moonRed
+                            ? "creepyGlow 2s ease-in-out infinite alternate"
+                            : "soothingGlow 3s ease-in-out infinite alternate",
                         zIndex: 10,
                     }}
                 >
-                    <VNTextRenderer 
-                        key={`line-${currentLineIndex}`}
-                        text={currentText} 
-                        onDone={onLineComplete}
-                    />
+                    {!lineComplete ? (
+                        <VNTextRenderer
+                            key={currentLineIndex}
+                            text={lines[currentLineIndex]}
+                            onDone={() => {
+                                if (!onDoneCalledRef.current) {
+                                    setLineComplete(true);
+                                    onDoneCalledRef.current = true;
+                                }
+                            }}
+                        />
+                    ) : (
+                        // Render static text when line is complete
+                        <span>{lines[currentLineIndex]}</span>
+                    )}
                 </div>
             )}
 
-            {/* Click to continue indicator */}
+            {/* Click to continue */}
             {cutsceneActive && lineComplete && (
                 <div
                     style={{
@@ -256,6 +249,7 @@ export default function Moonlight() {
                         opacity: 0.7,
                         animation: "pulse 2s ease-in-out infinite",
                         zIndex: 10,
+                        pointerEvents: "none", // Ensure this does not block clicks
                     }}
                 >
                     Click to continue...
@@ -267,7 +261,7 @@ export default function Moonlight() {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        skipCutscene();
+                        finishCutscene().catch(console.error);
                     }}
                     style={{
                         position: "absolute",
@@ -285,7 +279,9 @@ export default function Moonlight() {
                         zIndex: 10,
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = moonRed ? "rgba(255, 0, 0, 0.2)" : "rgba(0, 100, 255, 0.2)";
+                        e.currentTarget.style.background = moonRed
+                            ? "rgba(255, 0, 0, 0.2)"
+                            : "rgba(0, 100, 255, 0.2)";
                     }}
                     onMouseLeave={(e) => {
                         e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
@@ -298,7 +294,16 @@ export default function Moonlight() {
             {/* Moon */}
             {showMoon && (
                 <div
-                    onClick={onMoonClick}
+                    onClick={() => {
+                        if (!moonRed) return;
+
+                        const link = document.createElement("a");
+                        link.href = "/moonlight/riddle.hex";
+                        link.download = "riddle.hex";
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                    }}
                     style={{
                         cursor: moonRed ? "pointer" : "default",
                         width: "400px",
@@ -314,15 +319,19 @@ export default function Moonlight() {
                         alignItems: "center",
                         justifyContent: "center",
                         fontSize: "120px",
-                        textShadow: moonRed
-                            ? "0 0 30px #ff0000"
-                            : "0 0 30px #ffffff",
+                        textShadow: moonRed ? "0 0 30px #ff0000" : "0 0 30px #ffffff",
                         transition: "all 1s ease",
-                        animation: moonRed ? "redMoonPulse 3s ease-in-out infinite" : "moonGlow 4s ease-in-out infinite alternate",
+                        animation: moonRed
+                            ? "redMoonPulse 3s ease-in-out infinite"
+                            : "moonGlow 4s ease-in-out infinite alternate",
                         position: "relative",
                         userSelect: "none",
                     }}
-                    title={moonRed ? "The crimson moon holds secrets... click to unveil them." : "The peaceful moon watches over the night."}
+                    title={
+                        moonRed
+                            ? "The crimson moon holds secrets... click to unveil them."
+                            : "The peaceful moon watches over the night."
+                    }
                 >
                     {/* Moon craters/texture */}
                     <div
@@ -359,50 +368,72 @@ export default function Moonlight() {
 
             <style jsx>{`
                 @keyframes twinkle {
-                    0%, 100% { opacity: 0.3; transform: scale(1); }
-                    50% { opacity: 1; transform: scale(1.2); }
+                    0%, 100% {
+                        opacity: 0.3;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 1;
+                        transform: scale(1.2);
+                    }
                 }
 
                 @keyframes soothingGlow {
-                    0% { text-shadow: 0 0 20px #00aaff, 0 0 40px #00aaff; }
-                    100% { text-shadow: 0 0 30px #00aaff, 0 0 60px #00aaff, 0 0 80px #0088cc; }
+                    0% {
+                        text-shadow: 0 0 20px #00aaff, 0 0 40px #00aaff;
+                    }
+                    100% {
+                        text-shadow: 0 0 30px #00aaff, 0 0 60px #00aaff, 0 0 80px #0088cc;
+                    }
                 }
 
                 @keyframes creepyGlow {
-                    0% { text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
-                    100% { text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000, 0 0 80px #cc0000; }
+                    0% {
+                        text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+                    }
+                    100% {
+                        text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000, 0 0 80px #cc0000;
+                    }
                 }
 
                 @keyframes moonGlow {
-                    0% { 
+                    0% {
                         box-shadow: 0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
                         transform: scale(1);
                     }
-                    100% { 
+                    100% {
                         box-shadow: 0 0 150px 30px #66aaff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
                         transform: scale(1.05);
                     }
                 }
 
                 @keyframes redMoonPulse {
-                    0%, 100% { 
+                    0%, 100% {
                         box-shadow: 0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
                         transform: scale(1);
                     }
-                    50% { 
+                    50% {
                         box-shadow: 0 0 150px 40px #ff0000, 0 0 200px 60px #cc0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
                         transform: scale(1.1);
                     }
                 }
 
                 @keyframes atmosphericFlow {
-                    0% { transform: rotate(0deg) scale(1); }
-                    100% { transform: rotate(360deg) scale(1.1); }
+                    0% {
+                        transform: rotate(0deg) scale(1);
+                    }
+                    100% {
+                        transform: rotate(360deg) scale(1.1);
+                    }
                 }
 
                 @keyframes pulse {
-                    0%, 100% { opacity: 0.7; }
-                    50% { opacity: 1; }
+                    0%, 100% {
+                        opacity: 0.7;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
                 }
             `}</style>
         </div>
