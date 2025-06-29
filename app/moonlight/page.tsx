@@ -96,18 +96,17 @@ export default function Moonlight() {
         const played = Cookies.get("moonlight_time_cutscene_played");
         if (!played) {
             setCutsceneActive(true);
-            // Setup audio
-            const audio = new Audio(
-                moonRed ? "/sfx/doestimeexist.mp3" : "/audio/contemplation.mp3"
-            );
-            audio.loop = true;
-            audio.volume = 0.6;
-            audioRef.current = audio;
-            audio
-                .play()
-                .catch(() => {
-                    // ignore autoplay block
-                });
+            // Setup audio element
+            if (audioRef.current) {
+                audioRef.current.src = moonRed ? "/sfx/moon/doestimeexist.mp3" : "/sfx/moon/contemplation.mp3";
+                audioRef.current.loop = true;
+                audioRef.current.volume = 0.6;
+                audioRef.current
+                    .play()
+                    .catch(() => {
+                        // ignore autoplay block
+                    });
+            }
         } else {
             setShowMoon(true);
         }
@@ -156,287 +155,287 @@ export default function Moonlight() {
     if (!allowed) return null;
 
     return (
-        <div
-            onClick={handleClick}
-            style={{
-                height: "100vh",
-                width: "100vw",
-                background: moonRed
-                    ? "radial-gradient(ellipse at center, #2d0a0a 0%, #1a0000 50%, #000000 100%)"
-                    : "radial-gradient(ellipse at center, #0a1a2d 0%, #001122 50%, #000000 100%)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                color: moonRed ? "#ff9999" : "#cce6ff",
-                fontFamily: "'Courier New', Courier, monospace",
-                overflow: "hidden",
-                position: "relative",
-                userSelect: "none",
-                cursor: cutsceneActive ? "pointer" : "default",
-            }}
-        >
-            {/* Stars */}
-            {stars.map((star, index) => (
-                <div
-                    key={index}
-                    style={{
-                        position: "absolute",
-                        left: `${star.x}%`,
-                        top: `${star.y}%`,
-                        width: `${star.size}px`,
-                        height: `${star.size}px`,
-                        backgroundColor: moonRed ? "#ff6666" : "#ffffff",
-                        borderRadius: "50%",
-                        opacity: star.opacity,
-                        animation: `twinkle ${2 + Math.random() * 3}s infinite`,
-                        boxShadow: moonRed
-                            ? `0 0 ${star.size * 2}px #ff6666`
-                            : `0 0 ${star.size * 2}px #ffffff`,
-                    }}
-                />
-            ))}
+        <>
+            <audio
+                ref={audioRef}
+                style={{display: "none"}}
+                preload="auto"/>
+            <div
+                onClick={handleClick}
+                style={{
+                    height: "100vh",
+                    width: "100vw",
+                    background: moonRed
+                        ? "radial-gradient(ellipse at center, #2d0a0a 0%, #1a0000 50%, #000000 100%)"
+                        : "radial-gradient(ellipse at center, #0a1a2d 0%, #001122 50%, #000000 100%)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: moonRed ? "#ff9999" : "#cce6ff",
+                    fontFamily: "'Courier New', Courier, monospace",
+                    overflow: "hidden",
+                    position: "relative",
+                    userSelect: "none",
+                    cursor: cutsceneActive ? "pointer" : "default",
+                }}
+            >
+                {/* Stars */}
+                {stars.map((star, index) => (
+                    <div
+                        key={index}
+                        style={{
+                            position: "absolute",
+                            left: `${star.x}%`,
+                            top: `${star.y}%`,
+                            width: `${star.size}px`,
+                            height: `${star.size}px`,
+                            backgroundColor: moonRed ? "#ff6666" : "#ffffff",
+                            borderRadius: "50%",
+                            opacity: star.opacity,
+                            animation: `twinkle ${2 + Math.random() * 3}s infinite`,
+                            boxShadow: moonRed
+                                ? `0 0 ${star.size * 2}px #ff6666`
+                                : `0 0 ${star.size * 2}px #ffffff`,
+                        }}/>
+                ))}
 
-            {/* Cutscene Text */}
-            {cutsceneActive && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "20%",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: "80%",
-                        maxWidth: "800px",
-                        textAlign: "center",
-                        fontSize: "1.8rem",
-                        lineHeight: "1.6",
-                        textShadow: moonRed
-                            ? "0 0 20px #ff0000, 0 0 40px #ff0000"
-                            : "0 0 20px #00aaff, 0 0 40px #00aaff",
-                        animation: moonRed
-                            ? "creepyGlow 2s ease-in-out infinite alternate"
-                            : "soothingGlow 3s ease-in-out infinite alternate",
-                        zIndex: 10,
-                    }}
-                >
-                    {!lineComplete ? (
-                        <VNTextRenderer
-                            key={currentLineIndex}
-                            text={lines[currentLineIndex]}
-                            onDone={() => {
-                                if (!onDoneCalledRef.current) {
-                                    setLineComplete(true);
-                                    onDoneCalledRef.current = true;
-                                }
-                            }}
-                        />
-                    ) : (
-                        // Render static text when line is complete
-                        <span>{lines[currentLineIndex]}</span>
-                    )}
-                </div>
-            )}
+                {/* Cutscene Text */}
+                {cutsceneActive && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "20%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: "80%",
+                            maxWidth: "800px",
+                            textAlign: "center",
+                            fontSize: "1.8rem",
+                            lineHeight: "1.6",
+                            textShadow: moonRed
+                                ? "0 0 20px #ff0000, 0 0 40px #ff0000"
+                                : "0 0 20px #00aaff, 0 0 40px #00aaff",
+                            animation: moonRed
+                                ? "creepyGlow 2s ease-in-out infinite alternate"
+                                : "soothingGlow 3s ease-in-out infinite alternate",
+                            zIndex: 10,
+                        }}
+                    >
+                        {!lineComplete ? (
+                            <VNTextRenderer
+                                key={currentLineIndex}
+                                text={lines[currentLineIndex]}
+                                onDone={() => {
+                                    if (!onDoneCalledRef.current) {
+                                        setLineComplete(true);
+                                        onDoneCalledRef.current = true;
+                                    }
+                                }}/>
+                        ) : (
+                            // Render static text when line is complete
+                            <span>{lines[currentLineIndex]}</span>
+                        )}
+                    </div>
+                )}
 
-            {/* Click to continue */}
-            {cutsceneActive && lineComplete && (
-                <div
-                    style={{
-                        position: "absolute",
-                        bottom: "15%",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        fontSize: "1rem",
-                        color: moonRed ? "#ff9999" : "#cce6ff",
-                        opacity: 0.7,
-                        animation: "pulse 2s ease-in-out infinite",
-                        zIndex: 10,
-                        pointerEvents: "none", // Ensure this does not block clicks
-                    }}
-                >
-                    Click to continue...
-                </div>
-            )}
+                {/* Click to continue */}
+                {cutsceneActive && lineComplete && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            bottom: "15%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            fontSize: "1rem",
+                            color: moonRed ? "#ff9999" : "#cce6ff",
+                            opacity: 0.7,
+                            animation: "pulse 2s ease-in-out infinite",
+                            zIndex: 10,
+                            pointerEvents: "none", // Ensure this does not block clicks
+                        }}
+                    >
+                        Click to continue...
+                    </div>
+                )}
 
-            {/* Skip Button */}
-            {cutsceneActive && (
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        finishCutscene().catch(console.error);
-                    }}
-                    style={{
-                        position: "absolute",
-                        bottom: "20px",
-                        right: "20px",
-                        background: "rgba(0, 0, 0, 0.7)",
-                        border: `2px solid ${moonRed ? "#ff6666" : "#66aaff"}`,
-                        color: moonRed ? "#ff9999" : "#cce6ff",
-                        padding: "10px 20px",
-                        borderRadius: "5px",
-                        fontFamily: "inherit",
-                        fontSize: "0.9rem",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease",
-                        zIndex: 10,
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = moonRed
-                            ? "rgba(255, 0, 0, 0.2)"
-                            : "rgba(0, 100, 255, 0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
-                    }}
-                >
-                    Skip Cutscene
-                </button>
-            )}
+                {/* Skip Button */}
+                {cutsceneActive && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            finishCutscene().catch(console.error);
+                        }}
+                        style={{
+                            position: "absolute",
+                            bottom: "20px",
+                            right: "20px",
+                            background: "rgba(0, 0, 0, 0.7)",
+                            border: `2px solid ${moonRed ? "#ff6666" : "#66aaff"}`,
+                            color: moonRed ? "#ff9999" : "#cce6ff",
+                            padding: "10px 20px",
+                            borderRadius: "5px",
+                            fontFamily: "inherit",
+                            fontSize: "0.9rem",
+                            cursor: "pointer",
+                            transition: "all 0.3s ease",
+                            zIndex: 10,
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = moonRed
+                                ? "rgba(255, 0, 0, 0.2)"
+                                : "rgba(0, 100, 255, 0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
+                        }}
+                    >
+                        Skip Cutscene
+                    </button>
+                )}
 
-            {/* Moon */}
-            {showMoon && (
-                <div
-                    onClick={() => {
-                        if (!moonRed) return;
+                {/* Moon */}
+                {showMoon && (
+                    <div
+                        onClick={() => {
+                            if (!moonRed) return;
 
-                        const link = document.createElement("a");
-                        link.href = "/moonlight/riddle.hex";
-                        link.download = "riddle.hex";
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-                    }}
-                    style={{
-                        cursor: moonRed ? "pointer" : "default",
-                        width: "400px",
-                        height: "400px",
-                        borderRadius: "50%",
-                        background: moonRed
-                            ? "radial-gradient(circle at 30% 30%, #ff4444 0%, #cc0000 40%, #660000 80%, #330000 100%)"
-                            : "radial-gradient(circle at 30% 30%, #ffffff 0%, #e6f3ff 40%, #cce6ff 80%, #99ccff 100%)",
-                        boxShadow: moonRed
-                            ? "0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3)"
-                            : "0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "120px",
-                        textShadow: moonRed ? "0 0 30px #ff0000" : "0 0 30px #ffffff",
-                        transition: "all 1s ease",
-                        animation: moonRed
-                            ? "redMoonPulse 3s ease-in-out infinite"
-                            : "moonGlow 4s ease-in-out infinite alternate",
-                        position: "relative",
-                        userSelect: "none",
-                    }}
-                    title={
-                        moonRed
+                            const link = document.createElement("a");
+                            link.href = "/moonlight/riddle.hex";
+                            link.download = "riddle.hex";
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                        }}
+                        style={{
+                            cursor: moonRed ? "pointer" : "default",
+                            width: "400px",
+                            height: "400px",
+                            borderRadius: "50%",
+                            background: moonRed
+                                ? "radial-gradient(circle at 30% 30%, #ff4444 0%, #cc0000 40%, #660000 80%, #330000 100%)"
+                                : "radial-gradient(circle at 30% 30%, #ffffff 0%, #e6f3ff 40%, #cce6ff 80%, #99ccff 100%)",
+                            boxShadow: moonRed
+                                ? "0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3)"
+                                : "0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "120px",
+                            textShadow: moonRed ? "0 0 30px #ff0000" : "0 0 30px #ffffff",
+                            transition: "all 1s ease",
+                            animation: moonRed
+                                ? "redMoonPulse 3s ease-in-out infinite"
+                                : "moonGlow 4s ease-in-out infinite alternate",
+                            position: "relative",
+                            userSelect: "none",
+                        }}
+                        title={moonRed
                             ? "The crimson moon holds secrets... click to unveil them."
-                            : "The peaceful moon watches over the night."
-                    }
-                >
-                    {/* Moon craters/texture */}
+                            : "The peaceful moon watches over the night."}
+                    >
+                        {/* Moon craters/texture */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "50%",
+                                background: moonRed
+                                    ? "radial-gradient(circle at 60% 40%, rgba(0, 0, 0, 0.3) 5%, transparent 15%), radial-gradient(circle at 20% 70%, rgba(0, 0, 0, 0.2) 3%, transparent 10%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.25) 4%, transparent 12%)"
+                                    : "radial-gradient(circle at 60% 40%, rgba(0, 0, 0, 0.1) 5%, transparent 15%), radial-gradient(circle at 20% 70%, rgba(0, 0, 0, 0.08) 3%, transparent 10%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.12) 4%, transparent 12%)",
+                                pointerEvents: "none",
+                            }}/>
+                        🌕
+                    </div>
+                )}
+
+                {/* Atmospheric particles */}
+                {showMoon && (
                     <div
                         style={{
                             position: "absolute",
                             width: "100%",
                             height: "100%",
-                            borderRadius: "50%",
                             background: moonRed
-                                ? "radial-gradient(circle at 60% 40%, rgba(0, 0, 0, 0.3) 5%, transparent 15%), radial-gradient(circle at 20% 70%, rgba(0, 0, 0, 0.2) 3%, transparent 10%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.25) 4%, transparent 12%)"
-                                : "radial-gradient(circle at 60% 40%, rgba(0, 0, 0, 0.1) 5%, transparent 15%), radial-gradient(circle at 20% 70%, rgba(0, 0, 0, 0.08) 3%, transparent 10%), radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.12) 4%, transparent 12%)",
+                                ? "radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.05) 0%, transparent 70%)"
+                                : "radial-gradient(circle at 50% 50%, rgba(0, 150, 255, 0.03) 0%, transparent 70%)",
+                            animation: "atmosphericFlow 8s ease-in-out infinite alternate",
                             pointerEvents: "none",
-                        }}
-                    />
-                    🌕
-                </div>
-            )}
+                        }}/>
+                )}
 
-            {/* Atmospheric particles */}
-            {showMoon && (
-                <div
-                    style={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "100%",
-                        background: moonRed
-                            ? "radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.05) 0%, transparent 70%)"
-                            : "radial-gradient(circle at 50% 50%, rgba(0, 150, 255, 0.03) 0%, transparent 70%)",
-                        animation: "atmosphericFlow 8s ease-in-out infinite alternate",
-                        pointerEvents: "none",
-                    }}
-                />
-            )}
+                <style jsx>{`
+                    @keyframes twinkle {
+                        0%, 100% {
+                            opacity: 0.3;
+                            transform: scale(1);
+                        }
+                        50% {
+                            opacity: 1;
+                            transform: scale(1.2);
+                        }
+                    }
 
-            <style jsx>{`
-                @keyframes twinkle {
-                    0%, 100% {
-                        opacity: 0.3;
-                        transform: scale(1);
+                    @keyframes soothingGlow {
+                        0% {
+                            text-shadow: 0 0 20px #00aaff, 0 0 40px #00aaff;
+                        }
+                        100% {
+                            text-shadow: 0 0 30px #00aaff, 0 0 60px #00aaff, 0 0 80px #0088cc;
+                        }
                     }
-                    50% {
-                        opacity: 1;
-                        transform: scale(1.2);
-                    }
-                }
 
-                @keyframes soothingGlow {
-                    0% {
-                        text-shadow: 0 0 20px #00aaff, 0 0 40px #00aaff;
+                    @keyframes creepyGlow {
+                        0% {
+                            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+                        }
+                        100% {
+                            text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000, 0 0 80px #cc0000;
+                        }
                     }
-                    100% {
-                        text-shadow: 0 0 30px #00aaff, 0 0 60px #00aaff, 0 0 80px #0088cc;
-                    }
-                }
 
-                @keyframes creepyGlow {
-                    0% {
-                        text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+                    @keyframes moonGlow {
+                        0% {
+                            box-shadow: 0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
+                            transform: scale(1);
+                        }
+                        100% {
+                            box-shadow: 0 0 150px 30px #66aaff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
+                            transform: scale(1.05);
+                        }
                     }
-                    100% {
-                        text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000, 0 0 80px #cc0000;
-                    }
-                }
 
-                @keyframes moonGlow {
-                    0% {
-                        box-shadow: 0 0 100px 20px #99ccff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
-                        transform: scale(1);
+                    @keyframes redMoonPulse {
+                        0%, 100% {
+                            box-shadow: 0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
+                            transform: scale(1);
+                        }
+                        50% {
+                            box-shadow: 0 0 150px 40px #ff0000, 0 0 200px 60px #cc0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
+                            transform: scale(1.1);
+                        }
                     }
-                    100% {
-                        box-shadow: 0 0 150px 30px #66aaff, inset -20px -20px 50px rgba(0, 0, 0, 0.1);
-                        transform: scale(1.05);
-                    }
-                }
 
-                @keyframes redMoonPulse {
-                    0%, 100% {
-                        box-shadow: 0 0 100px 20px #ff0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
-                        transform: scale(1);
+                    @keyframes atmosphericFlow {
+                        0% {
+                            transform: rotate(0deg) scale(1);
+                        }
+                        100% {
+                            transform: rotate(360deg) scale(1.1);
+                        }
                     }
-                    50% {
-                        box-shadow: 0 0 150px 40px #ff0000, 0 0 200px 60px #cc0000, inset -20px -20px 50px rgba(0, 0, 0, 0.3);
-                        transform: scale(1.1);
-                    }
-                }
 
-                @keyframes atmosphericFlow {
-                    0% {
-                        transform: rotate(0deg) scale(1);
+                    @keyframes pulse {
+                        0%, 100% {
+                            opacity: 0.7;
+                        }
+                        50% {
+                            opacity: 1;
+                        }
                     }
-                    100% {
-                        transform: rotate(360deg) scale(1.1);
-                    }
-                }
-
-                @keyframes pulse {
-                    0%, 100% {
-                        opacity: 0.7;
-                    }
-                    50% {
-                        opacity: 1;
-                    }
-                }
-            `}</style>
-        </div>
+                `}</style>
+            </div>
+        </>
     );
 }
