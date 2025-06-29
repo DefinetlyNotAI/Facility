@@ -57,6 +57,12 @@ async function verifyRelevantCookies(request: NextRequest): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
     const {pathname} = request.nextUrl;
+    const accepted = request.cookies.get('accepted')?.value;
+    const end = request.cookies.get('End');
+    const corrupting = request.cookies.get('corrupting');
+    const noCorruption = request.cookies.get('No_corruption');
+    const corrupt = request.cookies.get('Corrupt');
+    const endQ = request.cookies.get('End?');
 
     // Skip static + API routes
     if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
@@ -71,18 +77,23 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-
-    const accepted = request.cookies.get('accepted')?.value;
-    const end = request.cookies.get('End');
-    const corrupting = request.cookies.get('corrupting');
-
     // Redirection logic (no refresh loops)
-    if (pathname !== '/smileking' && pathname !== '/smileking-auth' && pathname !== '/CHEATER') {
+if (
+        pathname !== '/smileking' &&
+        pathname !== '/smileking-auth' &&
+        pathname !== '/CHEATER' &&
+        !pathname.match(
+            /^(\/styles\/|\/public\/|.*\.(?:js|css|png|jpg|jpeg|gif|svg|ico|webp|mp3|mp4|m4a|woff2?|ttf|eot|map))$/
+        )
+    ) {
         if (!accepted && pathname !== '/') {
+            console.debug('[middleware] Redirecting to / due to missing accepted cookie');
             return NextResponse.redirect(new URL('/', request.url));
         } else if (corrupting && pathname !== '/h0m3') {
+            console.debug('[middleware] Redirecting to /h0m3 due to Corrupting cookie');
             return NextResponse.redirect(new URL('/h0m3', request.url));
         } else if (end && pathname !== '/the-end') {
+            console.debug('[middleware] Redirecting to /the-end due to End cookie');
             return NextResponse.redirect(new URL('/the-end', request.url));
         }
     }
@@ -101,6 +112,24 @@ export async function middleware(request: NextRequest) {
         response.headers.set('Referrer-Policy', 'no-referrer');
         response.headers.set('Permissions-Policy', 'geolocation=(), microphone=()');
     }
+
+    // === Begin Conflict Resolution ===
+    if (noCorruption) {
+        if (corrupt) {
+            console.debug('[middleware] Conflict: Corrupt + No_corruption -> deleting Corrupt');
+            response.cookies.delete('Corrupt');
+        }
+        if (corrupting) {
+            console.debug('[middleware] Conflict: corrupting + No_corruption -> deleting corrupting');
+            response.cookies.delete('corrupting');
+        }
+    }
+
+    if (endQ && end) {
+        console.debug('[middleware] Conflict: End? + End -> deleting End?');
+        response.cookies.delete('End?');
+    }
+    // === End Conflict Resolution ===
 
     return response;
 }
