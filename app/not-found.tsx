@@ -1,4 +1,4 @@
-import Custom404 from './404/page'; // Your custom 404 UI
+import Custom404 from './404/page';
 
 export default function CatchAllNotFoundPage() {
     return <Custom404/>;

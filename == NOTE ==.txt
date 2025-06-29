@@ -1,35 +1,7 @@
-All pages:
-- add favicon.ico
-
-Home:
-- Time doesn't exist here keeps on looping??? Audio
-- Make it when time hits 0 it becomes infinity sign
-- Hovering over "Data" shows binary
-- Add fake logs, and text and shit, like make it populated
-- time to be taken from USER viewpoint, aka users time
-- Hydration failed because the server-rendered timestamp (09/06/2025, 14:28:12) didn't match the client-rendered one (09/06/2025, 14:28:13), likely due to dynamic data like Date.now() being used in a component rendered during SSR.
-- when No corruption -> after user presses acknowledge, redirect them to /scroll
-- when corrupt -> the acknowledge button should wait for a press before redirect to h0m3
-- when cookie the end always redirect to the end
-
-h0m3:
-- Copy HOME but with those changes of h0m3
-- Don't replace letters/3rd person words added by h0m3, aka only replace/jumble the normal words not additional text
-- actually make it scroll/loop back and keep corrupting itself...
-
 choices
-todo: the audio is weird and repeating, and cutscene dialogue is just not progressing, audio should play when needed
-
-the end:
-- add the required media
-- REMAKE
-- add the comments
-
-moonlight:
-- remake the moon
-- remake the cutscene as it doesn't work
-- cookie should expire after an hour
+- the audio is weird and repeating, and cutscene dialogue is just not progressing, audio should play when needed
 
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
-- add cheat detection and a callout for that
+- add favicon.ico
+ADD TAS???
