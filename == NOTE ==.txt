@@ -1,15 +1,7 @@
-All pages:
-- add favicon.ico
-
 choices
 - the audio is weird and repeating, and cutscene dialogue is just not progressing, audio should play when needed
 
-the end:
-- add the required media
-- REMAKE
-- add the comments
-
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
-
+- add favicon.ico
 ADD TAS???

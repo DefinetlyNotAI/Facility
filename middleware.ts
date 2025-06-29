@@ -78,12 +78,22 @@ export async function middleware(request: NextRequest) {
     }
 
     // Redirection logic (no refresh loops)
-    if (pathname !== '/smileking' && pathname !== '/smileking-auth' && pathname !== '/CHEATER') {
+    if (
+        pathname !== '/smileking' &&
+        pathname !== '/smileking-auth' &&
+        pathname !== '/CHEATER' &&
+        !pathname.match(
+            /^(\/styles\/|\/public\/|.*\.(?:js|css|png|jpg|jpeg|gif|svg|ico|webp|mp3|mp4|m4a|woff2?|ttf|eot|map))$/
+        )
+    ) {
         if (!accepted && pathname !== '/') {
+            console.debug('[middleware] Redirecting to / due to missing accepted cookie');
             return NextResponse.redirect(new URL('/', request.url));
         } else if (corrupting && pathname !== '/h0m3') {
+            console.debug('[middleware] Redirecting to /h0m3 due to Corrupting cookie');
             return NextResponse.redirect(new URL('/h0m3', request.url));
         } else if (end && pathname !== '/the-end') {
+            console.debug('[middleware] Redirecting to /the-end due to End cookie');
             return NextResponse.redirect(new URL('/the-end', request.url));
         }
     }
