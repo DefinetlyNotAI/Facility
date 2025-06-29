@@ -44,12 +44,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     const [selectedLog, setSelectedLog] = useState<ResearchLog | null>(null);
     const [currentTime, setCurrentTime] = useState<string>('');
     const [mounted, setMounted] = useState(false);
-    
+
     // Easter Egg States - Refresh Based Only
     const [refreshCount, setRefreshCount] = useState(0);
     const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
     const [isInverted, setIsInverted] = useState(false);
-    
+
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
     const indexRef = useRef(0);
     const ttsTriggeredRef = useRef(false);
@@ -155,7 +155,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
     useEffect(() => {
         if (!mounted) return;
 
-        const audio = new Audio('/audio/sweethome.mp3');
+        const audio = new Audio('/sfx/home/sweethome.mp3');
         audio.loop = true;
         audio.volume = 0.3;
         ambientAudioRef.current = audio;
@@ -194,7 +194,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
             if (initialCookies.noCorruption && !initialCookies.fileUnlocked) {
-                setModalMessage('System integrity verified. Proceed to diagnostic scroll.');
+                setModalMessage('System integrity verified. Proceed to the void.');
                 setShowModal(true);
                 await signCookie('Scroll_unlocked=true');
             }
@@ -284,7 +284,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                 if (indexRef.current === sequence.length) {
                     if (initialCookies.fileUnlocked) {
                         await signCookie('Corrupt=true');
-                        setModalMessage('CRITICAL ERROR: System corruption detected. Initiating emergency protocols...');
+                        setModalMessage('You listened... So reap what you sowed.');
                         setShowModal(true);
                         setTimeout(() => window.location.reload(), 3000);
                     }
@@ -320,9 +320,9 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
             {/* Scrolling Classification Banner */}
             <div className="classification-banner">
                 <div className="classification-content">
-                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
-                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
-                    <span>TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+                    <span>TOP SECRET//SCI//E - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+                    <span>TOP SECRET//SCI//E - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+                    <span>TOP SECRET//SCI//E - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
                 </div>
             </div>
 
@@ -349,7 +349,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 {currentTime}
                             </div>
                             <div className="text-xs text-gray-400">
-                                FACILITY LOCAL TIME
+                                VESSEL TIME
                             </div>
                         </div>
                     </div>
@@ -384,10 +384,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                             <span className="prompt">FACILITY:</span> Neural Interface Research Complex 05-B
                                         </div>
                                         <div className="terminal-line">
-                                            <span className="prompt">PROJECT:</span> VESSEL - Consciousness Transfer Protocol
+                                            <span className="prompt">PROJECT:</span> VESSEL - Connected as Subject 31525
                                         </div>
                                         <div className="terminal-line">
-                                            <span className="prompt">SUBJECT:</span> 31525 - Neural compatibility: 97.3%
+                                            <span className="prompt">SUBJECT:</span> 31525 - Neural compatibility: ??.?%
                                         </div>
                                         <div className="terminal-line">
                                             <span className="prompt">STATUS:</span> Transfer sequence initiated
@@ -405,7 +405,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                         <div className="terminal-line warning">
                                             <span className="prompt">WARNING:</span>
                                             <span className="warning-text">
-                                                Temporal displacement detected in Test Chamber 3
+                                                Temporal displacement detected in Terminal 5
                                             </span>
                                         </div>
                                     </div>
@@ -413,7 +413,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
 
                                 <div className="metrics-grid">
                                     <div className="metric-card consciousness">
-                                        <div className="metric-label">CONSCIOUSNESS TIMER</div>
+                                        <div className="metric-label">SHUTDOWN TIMER</div>
                                         <div className="metric-value">
                                             {countdown === null ? '∞' : countdown}
                                         </div>
@@ -424,7 +424,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <div className="metric-card temporal">
                                         <div className="metric-label">TEMPORAL REFERENCE</div>
                                         <div className="metric-value">{hexCode}</div>
-                                        <div className="metric-unit">Reality Anchor Timestamp</div>
+                                        <div className="metric-unit">Timestamp Anchor</div>
                                     </div>
                                 </div>
                             </div>
@@ -471,11 +471,11 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 </div>
                                 <div className="indicator active">
                                     <div className="indicator-dot"></div>
-                                    <span>Consciousness Monitor: ACTIVE</span>
+                                    <span>Consciousness Monitor: DEACTIVATED</span>
                                 </div>
                                 <div className="indicator warning">
                                     <div className="indicator-dot"></div>
-                                    <span>Reality Anchors: DEGRADED</span>
+                                    <span>Vessel Anchors: DEGRADED</span>
                                 </div>
                             </div>
                         </div>
@@ -530,22 +530,22 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
 
                                 <div className="security-grid">
                                     <div className="security-metric">
-                                        <span className="metric-label">Biometric Scans</span>
+                                        <span className="metric-label">Scans</span>
                                         <span className="metric-value">1,247</span>
                                     </div>
                                     <div className="security-metric">
-                                        <span className="metric-label">Page Refreshes</span>
+                                        <span className="metric-label">How many will you see?</span>
                                         <span className={`metric-value ${refreshCount >= 25 ? 'text-red-400' : refreshCount >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
                                             {refreshCount}
                                         </span>
                                     </div>
                                     <div className="security-metric">
                                         <span className="metric-label">Breach Alerts</span>
-                                        <span className="metric-value">0</span>
+                                        <span className="metric-value">43</span>
                                     </div>
                                     <div className="security-metric">
                                         <span className="metric-label">Active Personnel</span>
-                                        <span className="metric-value">156</span>
+                                        <span className="metric-value">0</span>
                                     </div>
                                 </div>
                             </div>
@@ -602,19 +602,19 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                             <div className="alerts-container">
                                 <div className="alert-item critical">
                                     <div className="alert-dot"></div>
-                                    <span>Organic growth detected in Sector 7 ventilation</span>
+                                    <span>Organic growth detected in [redacted]</span>
                                 </div>
                                 <div className="alert-item critical">
                                     <div className="alert-dot"></div>
-                                    <span>Subject 31525 consciousness fragmentation detected</span>
+                                    <span>Subject 31525 connected to terminal [redacted]</span>
                                 </div>
                                 <div className="alert-item warning">
                                     <div className="alert-dot"></div>
-                                    <span>Temporal displacement events in Test Chamber 3</span>
+                                    <span>Displacement events in Test Chamber 3</span>
                                 </div>
                                 <div className="alert-item critical">
                                     <div className="alert-dot"></div>
-                                    <span>Reality anchor stability: 23% and falling</span>
+                                    <span>Reality anchor stability: Failing</span>
                                 </div>
                                 <div className="alert-item critical">
                                     <div className="alert-dot"></div>
@@ -622,12 +622,12 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 </div>
                                 <div className="alert-item critical">
                                     <div className="alert-dot"></div>
-                                    <span>Staff reporting shared consciousness events</span>
+                                    <span>??? reporting shared consciousness events</span>
                                 </div>
                                 {refreshCount >= 15 && (
                                     <div className="alert-item critical">
                                         <div className="alert-dot"></div>
-                                        <span>Persistent refresh pattern detected - Entity awareness confirmed</span>
+                                        <span>Persistent refresh pattern detected - [redacted] awareness confirmed</span>
                                     </div>
                                 )}
                             </div>
@@ -637,7 +637,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                         <div className="facility-panel contacts-panel">
                             <div className="panel-header">
                                 <h2 className="panel-title">EMERGENCY CONTACTS</h2>
-                                <div className="panel-subtitle">24/7 Response Teams</div>
+                                <div className="panel-subtitle">Response Teams</div>
                             </div>
 
                             <div className="contacts-list">
@@ -663,7 +663,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                 </div>
                                 {refreshCount >= 25 && (
                                     <div className="contact-item emergency">
-                                        <span>Smile King Protocol:</span>
+                                        <span>Will you smile:</span>
                                         <span className="contact-number">Ext. ∞</span>
                                     </div>
                                 )}
@@ -680,10 +680,10 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                             <div className="classification-info">
                                 <div className="class-item">
                                     <span>Security Level:</span>
-                                    <span className="class-value cosmic">COSMIC</span>
+                                    <span className="class-value cosmic">HIGH</span>
                                 </div>
                                 <div className="class-item">
-                                    <span>Compartment:</span>
+                                    <span>Compartment Accessing:</span>
                                     <span className="class-value">SCI//VESSEL</span>
                                 </div>
                                 <div className="class-item">
@@ -695,7 +695,7 @@ export default function HomeClient({initialCookies}: {initialCookies: InitialCoo
                                     <span className="class-value">05-B</span>
                                 </div>
                                 <div className="class-item">
-                                    <span>Tree Protocol:</span>
+                                    <span>TREE Protocol:</span>
                                     <span className={`class-value ${refreshCount >= 15 ? 'text-red-400' : 'text-green-400'}`}>
                                         {refreshCount >= 15 ? 'AWAKENING' : 'ACTIVE'}
                                     </span>
