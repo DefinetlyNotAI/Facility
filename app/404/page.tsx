@@ -70,9 +70,6 @@ export default function Glitchy404() {
 
                     <div className="terminal mb-8">
                         <div className="terminal-header">
-                            <div className="terminal-dot red"></div>
-                            <div className="terminal-dot red"></div>
-                            <div className="terminal-dot red"></div>
                             <span className="text-xs text-red-400 ml-2">SECURITY BREACH</span>
                         </div>
                         <div className="terminal-content">
