@@ -56,7 +56,7 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
-                        sessionStorage.setItem("legalMoon", "true");
+                        sessionStorage.setItem("fromBnW", "true");
                         router.push('/moonlight');
                     } else {
                         router.push('/404');
