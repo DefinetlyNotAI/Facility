@@ -5,8 +5,8 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
 
-const binaryCorruptText = "Last time thou hesitated, it found thine";
-const hexCorruptText = "0x4242"; // 66:66 in hex
+const binaryCorruptText = "01001100 01100001 01110011 01110100 00100000 01110100 01101001 01101101 01100101 00100000 01110100 01101000 01101111 01110101 00100000 01101000 01100101 01110011 01101001 01110100 01100001 01110100 01100101 01100100 00101100 00100000 01101001 01110100 00100000 01100110 01101111 01110101 01101110 01100100 00100000 01110100 01101000 01101001 01101110 01100101";
+const hexCorruptText = "36363A3636"; // 66:66 in hex
 
 const sessionIdGenerator = () =>
     `SID-${Math.random().toString(36).slice(2, 11)}`;
@@ -38,13 +38,13 @@ export default function H0m3() {
     const [currentTime, setCurrentTime] = useState<string>('');
     const [mounted, setMounted] = useState(false);
     const [isInverted, setIsInverted] = useState(false);
-    const [facilityDataDynamic, setFacilityDataDynamic] = useState({
+    const [, setFacilityDataDynamic] = useState({
         temperature: '22.7°C',
         pressure: '1013.42 hPa',
         humidity: '43%',
         radiation: '0.09 μSv/h',
         powerOutput: '2.4 MW',
-        networkStatus: 'SECURE'
+        networkStatus: 'NONE EXISTANT'
     });
 
     // Corruption states
@@ -87,7 +87,7 @@ export default function H0m3() {
         const noCorrupt = Cookies.get('No_corruption');
 
         if ((!corrupt && !corrupting) || noCorrupt) {
-            router.replace('/');
+            router.replace('/home');
             return;
         }
 
@@ -101,7 +101,7 @@ export default function H0m3() {
             ttsAudioRef.current = ttsAudio;
 
             // Use TTS for "RUN STOP ESCAPE"
-            const utterance = new SpeechSynthesisUtterance("RUN STOP ESCAPE");
+            const utterance = new SpeechSynthesisUtterance("RUN FROM HERE. STOP WHAT YOU ARE DOING. ESCAPE");
             utterance.rate = 0.5;
             utterance.pitch = 0.3;
             utterance.volume = 0.8;
@@ -133,23 +133,23 @@ export default function H0m3() {
                 }, 200);
 
                 // TTS the creepy message instead of showing it
-                const creepyMessage = `Y0U $H0ULDNT B3 H3R3 ${sessionId}`;
+                const creepyMessage = `Y0U SHOULD NOT BE HERE ${sessionId}`;
                 const creepyUtterance = new SpeechSynthesisUtterance(creepyMessage);
                 creepyUtterance.rate = 0.4;
                 creepyUtterance.pitch = 0.2;
                 creepyUtterance.volume = 0.9;
-                
+
                 // Pause main TTS, speak creepy message, then resume
                 speechSynthesis.cancel();
                 speechSynthesis.speak(creepyUtterance);
-                
+
                 creepyUtterance.onend = () => {
                     // Resume the main TTS loop
                     setTimeout(speakLoop, 1000);
                 };
 
                 // Play static noise audio
-                const staticAudio = new Audio('/sfx/static.mp3');
+                const staticAudio = new Audio('/sfx/choices/static.mp3');
                 staticAudio.volume = 0.6;
                 staticAudio.play().catch(() => {});
             }, 60_000);
@@ -176,14 +176,14 @@ export default function H0m3() {
             const documentHeight = document.documentElement.scrollHeight;
 
             // Check if user reached bottom
-            if (scrollTop + windowHeight >= documentHeight - 100) {
+            if (scrollTop + windowHeight >= documentHeight) {
                 const newCount = scrollCount + 1;
                 setScrollCount(newCount);
                 setCorruptionLevel(newCount);
 
                 // Add progressive corruption
                 addCorruption(newCount);
-                
+
                 // Seamlessly scroll back to top to create infinite loop effect
                 setTimeout(() => {
                     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -292,15 +292,12 @@ export default function H0m3() {
         );
     }
 
-    // Calculate blur amount: 6% base + 3% per scroll
-    const blurAmount = 6 + (scrollCount * 3);
-
     // Glitch mode — render corrupted Home
     return (
         <div
             ref={containerRef}
             style={{
-                filter: `blur(${blurAmount}px) ${brokenElements.includes('colors-inverted') || isInverted ? 'invert(1) hue-rotate(180deg)' : ''}`,
+                filter: `${brokenElements.includes('colors-inverted') || isInverted ? 'invert(1) hue-rotate(180deg)' : ''}`,
                 transition: 'filter 0.3s ease',
                 backgroundColor: 'black',
                 minHeight: '500vh', // Make it very long for seamless scrolling
@@ -353,16 +350,13 @@ export default function H0m3() {
                     animation: brokenElements.includes('text-scrambled') ? 'scroll-broken 5s linear infinite' : 'scroll-left 30s linear infinite',
                     lineHeight: brokenElements.includes('layout-broken') ? '80px' : '40px'
                 }}>
-                    <span style={{ paddingRight: '100px' }}>
-                        {letterReplace(brokenElements.includes('text-scrambled') ? 
-                            "T0P $3CR3T//ERROR//C0$M1C - F@C1L1TY 05-B - PR0J3CT V3$$3L - @UTH0R1Z3D P3R$0NN3L 0NLY" :
-                            "TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY")}
-                    </span>
-                    <span style={{ paddingRight: '100px' }}>
-                        {letterReplace(brokenElements.includes('text-scrambled') ? 
-                            "T0P $3CR3T//ERROR//C0$M1C - F@C1L1TY 05-B - PR0J3CT V3$$3L - @UTH0R1Z3D P3R$0NN3L 0NLY" :
-                            "TOP SECRET//SCI//COSMIC - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY")}
-                    </span>
+                <span style={{ paddingRight: '100px' }}>
+                    {letterReplace(
+                        brokenElements.includes('text-scrambled')
+                            ? "T0P $3CR3T//3RR0R//??? - F@C1L1TY 05-B - PR0J3CT V3$$3L - @UTH0R1Z3D P3R$0NN3L 0NLY"
+                            : "T0P $3CR3T//SC1//??? - F@C1L1TY 05-B - PR0J3CT V3$$3L - @UTH0R1Z3D P3R$0NN3L 0NLY"
+                    )}
+                </span>
                 </div>
             </div>
 
@@ -378,9 +372,9 @@ export default function H0m3() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
                             <div>
-                                <div style={{ 
-                                    fontSize: brokenElements.includes('fonts-corrupted') ? '4rem' : '2.5rem', 
-                                    fontWeight: 'bold', 
+                                <div style={{
+                                    fontSize: brokenElements.includes('fonts-corrupted') ? '4rem' : '2.5rem',
+                                    fontWeight: 'bold',
                                     color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#00ff00',
                                     textShadow: brokenElements.includes('complete-chaos') ? '5px 5px 0px #ff0000' : 'none'
                                 }}>
@@ -412,8 +406,8 @@ export default function H0m3() {
                         <div style={{
                             transform: brokenElements.includes('layout-broken') ? 'rotate(-5deg)' : 'none'
                         }}>
-                            <div style={{ 
-                                color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#00ff00', 
+                            <div style={{
+                                color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#00ff00',
                                 fontSize: brokenElements.includes('fonts-corrupted') ? '2rem' : '1.25rem',
                                 fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                             }}>
@@ -433,7 +427,7 @@ export default function H0m3() {
                     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
                         {/* Primary Terminal */}
                         <div style={{
-                            background: brokenElements.includes('colors-inverted') || isInverted ? 
+                            background: brokenElements.includes('colors-inverted') || isInverted ?
                                 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(245, 245, 245, 0.9) 100%)' :
                                 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%)',
                             border: `1px solid ${brokenElements.includes('colors-inverted') || isInverted ? 'rgba(255, 0, 0, 0.4)' : 'rgba(0, 255, 0, 0.4)'}`,
@@ -442,16 +436,16 @@ export default function H0m3() {
                             marginBottom: '2rem',
                             transform: brokenElements.includes('layout-broken') ? `rotate(${index * 2}deg)` : 'none'
                         }}>
-                            <div style={{ 
-                                marginBottom: '1.5rem', 
-                                borderBottom: '1px solid rgba(0, 255, 0, 0.2)', 
+                            <div style={{
+                                marginBottom: '1.5rem',
+                                borderBottom: '1px solid rgba(0, 255, 0, 0.2)',
                                 paddingBottom: '1rem',
                                 transform: brokenElements.includes('complete-chaos') ? 'scaleX(-1)' : 'none'
                             }}>
-                                <h2 style={{ 
-                                    fontSize: brokenElements.includes('fonts-corrupted') ? '2rem' : '1.125rem', 
-                                    fontWeight: '700', 
-                                    color: brokenElements.includes('complete-chaos') ? '#ff0000' : '#10b981', 
+                                <h2 style={{
+                                    fontSize: brokenElements.includes('fonts-corrupted') ? '2rem' : '1.125rem',
+                                    fontWeight: '700',
+                                    color: brokenElements.includes('complete-chaos') ? '#ff0000' : '#10b981',
                                     marginBottom: '0.25rem',
                                     fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                                 }}>
@@ -480,23 +474,23 @@ export default function H0m3() {
                                     borderBottom: '1px solid rgba(0, 255, 0, 0.2)'
                                 }}>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <div style={{ 
-                                            width: '12px', 
-                                            height: '12px', 
-                                            borderRadius: '50%', 
-                                            background: brokenElements.includes('complete-chaos') ? '#00ff00' : '#ef4444' 
+                                        <div style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            background: brokenElements.includes('complete-chaos') ? '#00ff00' : '#ef4444'
                                         }}></div>
-                                        <div style={{ 
-                                            width: '12px', 
-                                            height: '12px', 
-                                            borderRadius: '50%', 
-                                            background: brokenElements.includes('complete-chaos') ? '#ff0000' : '#f59e0b' 
+                                        <div style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            background: brokenElements.includes('complete-chaos') ? '#ff0000' : '#f59e0b'
                                         }}></div>
-                                        <div style={{ 
-                                            width: '12px', 
-                                            height: '12px', 
-                                            borderRadius: '50%', 
-                                            background: brokenElements.includes('complete-chaos') ? '#0000ff' : '#10b981' 
+                                        <div style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            background: brokenElements.includes('complete-chaos') ? '#0000ff' : '#10b981'
                                         }}></div>
                                     </div>
                                     <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
@@ -533,14 +527,14 @@ export default function H0m3() {
                                         <span style={{ color: '#10b981', fontWeight: '600', minWidth: '80px' }}>
                                             {letterReplace(brokenElements.includes('text-scrambled') ? "D@T@:" : "DATA:")}
                                         </span>
-                                        <span style={{ 
-                                            color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#ef4444', 
-                                            background: 'rgba(255, 0, 0, 0.1)', 
-                                            padding: '0.25rem 0.5rem', 
+                                        <span style={{
+                                            color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#ef4444',
+                                            background: 'rgba(255, 0, 0, 0.1)',
+                                            padding: '0.25rem 0.5rem',
                                             borderRadius: '4px',
                                             fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                                         }}>
-                                            {brokenElements.includes('text-scrambled') ? "L@$t t1m3 th0u h3$1t@t3d, 1t f0und th1n3" : binaryCorruptText}
+                                            {binaryCorruptText}
                                         </span>
                                     </div>
                                     <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b' }}>
@@ -566,10 +560,10 @@ export default function H0m3() {
                                     <div style={{ fontSize: '0.75rem', color: '#10b981', marginBottom: '0.5rem' }}>
                                         {letterReplace(brokenElements.includes('text-scrambled') ? "C0N$C10U$N3$$ T1M3R" : "CONSCIOUSNESS TIMER")}
                                     </div>
-                                    <div style={{ 
-                                        fontSize: brokenElements.includes('fonts-corrupted') ? '4rem' : '2rem', 
-                                        fontWeight: '700', 
-                                        color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#ffffff', 
+                                    <div style={{
+                                        fontSize: brokenElements.includes('fonts-corrupted') ? '4rem' : '2rem',
+                                        fontWeight: '700',
+                                        color: brokenElements.includes('complete-chaos') ? '#ff00ff' : '#ffffff',
                                         marginBottom: '0.25rem',
                                         fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                                     }}>
@@ -590,10 +584,10 @@ export default function H0m3() {
                                     <div style={{ fontSize: '0.75rem', color: '#10b981', marginBottom: '0.5rem' }}>
                                         {letterReplace(brokenElements.includes('text-scrambled') ? "T3MP0R@L R3F3R3NC3" : "TEMPORAL REFERENCE")}
                                     </div>
-                                    <div style={{ 
-                                        fontSize: brokenElements.includes('fonts-corrupted') ? '4rem' : '2rem', 
-                                        fontWeight: '700', 
-                                        color: brokenElements.includes('complete-chaos') ? '#00ffff' : '#06b6d4', 
+                                    <div style={{
+                                        fontSize: brokenElements.includes('fonts-corrupted') ? '4rem' : '2rem',
+                                        fontWeight: '700',
+                                        color: brokenElements.includes('complete-chaos') ? '#00ffff' : '#06b6d4',
                                         marginBottom: '0.25rem',
                                         fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                                     }}>
@@ -617,9 +611,9 @@ export default function H0m3() {
                             animation: brokenElements.includes('complete-chaos') ? 'chaos 0.1s infinite' : 'flash 1s infinite',
                             transform: brokenElements.includes('layout-broken') ? `translateY(${index * 20}px)` : 'none'
                         }}>
-                            <div style={{ 
-                                fontSize: brokenElements.includes('fonts-corrupted') ? '3rem' : '1.5rem', 
-                                color: '#ef4444', 
+                            <div style={{
+                                fontSize: brokenElements.includes('fonts-corrupted') ? '3rem' : '1.5rem',
+                                color: '#ef4444',
                                 marginBottom: '1rem',
                                 fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                             }}>
@@ -654,7 +648,7 @@ export default function H0m3() {
                         fontSize: '1.1rem',
                         lineHeight: '1.6'
                     }}>
-                        なぜ (Why) • لماذا (Why) • Pourquoi (DO) • Warum (THIS)
+                        なぜ • لماذا • Pourquoi • Warum
                     </div>
                     <button
                         style={{
@@ -689,7 +683,7 @@ export default function H0m3() {
                             Cookies.remove('Corrupt');
                             Cookies.remove('corrupting');
                             await signCookie('No_corruption=true');
-                            router.replace('/');
+                            router.replace('/home');
                         }}
                     >
                         RESET
@@ -699,52 +693,91 @@ export default function H0m3() {
 
             <style jsx>{`
                 @keyframes scroll-left {
-                    0% { transform: translateX(100%); }
-                    100% { transform: translateX(-100%); }
+                    0% {
+                        transform: translateX(100%);
+                    }
+                    100% {
+                        transform: translateX(-100%);
+                    }
                 }
+
                 @keyframes scroll-broken {
-                    0% { transform: translateX(100%) rotate(0deg); }
-                    50% { transform: translateX(0%) rotate(180deg); }
-                    100% { transform: translateX(-100%) rotate(360deg); }
+                    0% {
+                        transform: translateX(100%) rotate(0deg);
+                    }
+                    50% {
+                        transform: translateX(0%) rotate(180deg);
+                    }
+                    100% {
+                        transform: translateX(-100%) rotate(360deg);
+                    }
                 }
+
                 @keyframes flash {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.7; }
+                    0%, 100% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.7;
+                    }
                 }
+
                 @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.5; }
+                    0%, 100% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.5;
+                    }
                 }
+
                 @keyframes chaos {
-                    0% { transform: translate(0px, 0px) rotate(0deg); }
-                    25% { transform: translate(-2px, 2px) rotate(1deg); }
-                    50% { transform: translate(2px, -2px) rotate(-1deg); }
-                    75% { transform: translate(-1px, 1px) rotate(0.5deg); }
-                    100% { transform: translate(0px, 0px) rotate(0deg); }
+                    0% {
+                        transform: translate(0px, 0px) rotate(0deg);
+                    }
+                    25% {
+                        transform: translate(-2px, 2px) rotate(1deg);
+                    }
+                    50% {
+                        transform: translate(2px, -2px) rotate(-1deg);
+                    }
+                    75% {
+                        transform: translate(-1px, 1px) rotate(0.5deg);
+                    }
+                    100% {
+                        transform: translate(0px, 0px) rotate(0deg);
+                    }
                 }
+
                 @keyframes chaos-pulse {
-                    0% { opacity: 1; transform: scale(1); }
-                    50% { opacity: 0.3; transform: scale(1.5); }
-                    100% { opacity: 1; transform: scale(1); }
+                    0% {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 0.3;
+                        transform: scale(1.5);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
                 }
+
                 @keyframes blink {
-                    0%, 50% { opacity: 1; }
-                    51%, 100% { opacity: 0; }
+                    0%, 50% {
+                        opacity: 1;
+                    }
+                    51%, 100% {
+                        opacity: 0;
+                    }
                 }
-                
-                .header-broken {
-                    animation: chaos 0.2s infinite;
-                }
-                
+
+
                 .text-scrambled * {
-                    text-shadow: 2px 2px 0px #ff0000, -2px -2px 0px #00ff00;
+                    text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #00ff00;
                 }
-                
-                .final-breakdown {
-                    filter: contrast(200%) saturate(300%) hue-rotate(90deg);
-                    animation: chaos 0.05s infinite;
-                }
-                
+
                 .final-breakdown * {
                     font-family: 'Impact', 'Arial Black', serif !important;
                     text-transform: uppercase;
