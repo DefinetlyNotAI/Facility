@@ -135,6 +135,12 @@ export default function ScrollPage() {
 
     return (
         <div className="scroll-container">
+            <audio
+                src={showEscape ? "/sfx/scroll/█.mp3" : "/sfx/scroll/nowhereissafesowillyouscroll.mp3"}
+                autoPlay
+                loop
+                hidden
+            />
             <div
                 className="scroll-glitch"
                 style={{
