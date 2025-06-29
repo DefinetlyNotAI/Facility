@@ -18,16 +18,10 @@ export default function Moonlight() {
 
     // Check if user came from 404 or has cookie
     useEffect(() => {
-        let ran = false;
-
-        if (!ran) {
-            const cameFrom = sessionStorage.getItem("legalMoon");
-            if (cameFrom === "true") {
-                setAllowed(true);
-                sessionStorage.removeItem("legalMoon");
-            }
-            // noinspection JSUnusedAssignment
-            ran = true;
+        const cameFrom = sessionStorage.getItem("legalMoon");
+        if (cameFrom === "true") {
+            setAllowed(true);
+            sessionStorage.removeItem("legalMoon");
         } else {
             router.replace("/404");
         }
