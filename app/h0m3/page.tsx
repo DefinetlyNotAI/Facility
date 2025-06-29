@@ -37,6 +37,7 @@ export default function H0m3() {
     const [sessionId] = useState(sessionIdGenerator());
     const [currentTime, setCurrentTime] = useState<string>('');
     const [mounted, setMounted] = useState(false);
+    const [isInverted, setIsInverted] = useState(false);
     const [facilityDataDynamic, setFacilityDataDynamic] = useState({
         temperature: '22.7°C',
         pressure: '1013.42 hPa',
@@ -114,6 +115,11 @@ export default function H0m3() {
 
             speakLoop();
 
+            // Color inversion after 30 seconds
+            const inversionTimeout = setTimeout(() => {
+                setIsInverted(true);
+            }, 30000);
+
             // Static flash and smiley faces every minute
             const staticInterval = setInterval(() => {
                 if (!containerRef.current) return;
@@ -126,27 +132,21 @@ export default function H0m3() {
                     }
                 }, 200);
 
-                // Show creepy message
-                const messageDiv = document.createElement('div');
-                messageDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-size: 3rem;
-                    color: red;
-                    font-family: monospace;
-                    z-index: 9999;
-                    text-align: center;
-                    text-shadow: 0 0 20px red;
-                    animation: flash 0.5s infinite;
-                `;
-                messageDiv.innerHTML = `😈🌳😈<br/>Y0U $H0ULDNT B3 H3R3<br/>${sessionId}`;
-                document.body.appendChild(messageDiv);
-
-                setTimeout(() => {
-                    document.body.removeChild(messageDiv);
-                }, 3000);
+                // TTS the creepy message instead of showing it
+                const creepyMessage = `Y0U $H0ULDNT B3 H3R3 ${sessionId}`;
+                const creepyUtterance = new SpeechSynthesisUtterance(creepyMessage);
+                creepyUtterance.rate = 0.4;
+                creepyUtterance.pitch = 0.2;
+                creepyUtterance.volume = 0.9;
+                
+                // Pause main TTS, speak creepy message, then resume
+                speechSynthesis.cancel();
+                speechSynthesis.speak(creepyUtterance);
+                
+                creepyUtterance.onend = () => {
+                    // Resume the main TTS loop
+                    setTimeout(speakLoop, 1000);
+                };
 
                 // Play static noise audio
                 const staticAudio = new Audio('/sfx/static.mp3');
@@ -156,6 +156,7 @@ export default function H0m3() {
 
             return () => {
                 clearInterval(staticInterval);
+                clearTimeout(inversionTimeout);
                 speechSynthesis.cancel();
                 if (ttsAudioRef.current) {
                     ttsAudioRef.current.pause();
@@ -299,11 +300,11 @@ export default function H0m3() {
         <div
             ref={containerRef}
             style={{
-                filter: `blur(${blurAmount}px) ${brokenElements.includes('colors-inverted') ? 'invert(1) hue-rotate(180deg)' : ''}`,
+                filter: `blur(${blurAmount}px) ${brokenElements.includes('colors-inverted') || isInverted ? 'invert(1) hue-rotate(180deg)' : ''}`,
                 transition: 'filter 0.3s ease',
                 backgroundColor: 'black',
                 minHeight: '500vh', // Make it very long for seamless scrolling
-                color: brokenElements.includes('colors-inverted') ? '#ff0000' : '#00ff00',
+                color: brokenElements.includes('colors-inverted') || isInverted ? '#ff0000' : '#00ff00',
                 fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact, Arial Black, serif' : 'monospace',
                 transform: brokenElements.includes('layout-broken') ? 'skew(-2deg, 1deg)' : 'none',
                 animation: brokenElements.includes('complete-chaos') ? 'chaos 0.1s infinite' : 'none'
@@ -367,7 +368,7 @@ export default function H0m3() {
 
             {/* Main Header */}
             <header style={{
-                background: brokenElements.includes('colors-inverted') ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
+                background: brokenElements.includes('colors-inverted') || isInverted ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
                 borderBottom: '1px solid rgba(0, 255, 0, 0.3)',
                 backdropFilter: 'blur(10px)',
                 padding: '1.5rem 0',
@@ -395,8 +396,8 @@ export default function H0m3() {
                                 gap: '0.5rem',
                                 padding: '0.5rem 1rem',
                                 borderRadius: '0.5rem',
-                                background: brokenElements.includes('colors-inverted') ? 'rgba(255, 0, 0, 0.1)' : 'rgba(0, 255, 0, 0.1)',
-                                color: brokenElements.includes('colors-inverted') ? '#ff0000' : '#10b981'
+                                background: brokenElements.includes('colors-inverted') || isInverted ? 'rgba(255, 0, 0, 0.1)' : 'rgba(0, 255, 0, 0.1)',
+                                color: brokenElements.includes('colors-inverted') || isInverted ? '#ff0000' : '#10b981'
                             }}>
                                 <div style={{
                                     width: '8px',
@@ -432,10 +433,10 @@ export default function H0m3() {
                     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
                         {/* Primary Terminal */}
                         <div style={{
-                            background: brokenElements.includes('colors-inverted') ? 
+                            background: brokenElements.includes('colors-inverted') || isInverted ? 
                                 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(245, 245, 245, 0.9) 100%)' :
                                 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%)',
-                            border: `1px solid ${brokenElements.includes('colors-inverted') ? 'rgba(255, 0, 0, 0.4)' : 'rgba(0, 255, 0, 0.4)'}`,
+                            border: `1px solid ${brokenElements.includes('colors-inverted') || isInverted ? 'rgba(255, 0, 0, 0.4)' : 'rgba(0, 255, 0, 0.4)'}`,
                             borderRadius: brokenElements.includes('layout-broken') ? '50px' : '12px',
                             padding: '1.5rem',
                             marginBottom: '2rem',
