@@ -18,6 +18,7 @@ export default function TheEnd() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [glitchIntensity, setGlitchIntensity] = useState(0);
     const [showMemories, setShowMemories] = useState(false);
+    const [audioInitialized, setAudioInitialized] = useState(false);
 
     // Check cookies on mount
     useEffect(() => {
@@ -34,15 +35,44 @@ export default function TheEnd() {
         setHasEndQuestionCookie(!!endQuestion);
     }, [router]);
 
+    // Initialize audio with user interaction
+    const initializeAudio = async () => {
+        if (!audioRef.current || audioInitialized) return;
+        
+        try {
+            audioRef.current.volume = 0.3;
+            await audioRef.current.play();
+            setAudioInitialized(true);
+            console.log('Audio initialized successfully');
+        } catch (error) {
+            console.warn('Audio autoplay blocked, waiting for user interaction:', error);
+            
+            // Add click listener to initialize audio on first user interaction
+            const handleFirstClick = async () => {
+                if (audioRef.current && !audioInitialized) {
+                    try {
+                        await audioRef.current.play();
+                        setAudioInitialized(true);
+                        console.log('Audio started after user interaction');
+                    } catch (e) {
+                        console.warn('Audio failed to start:', e);
+                    }
+                }
+                document.removeEventListener('click', handleFirstClick);
+                document.removeEventListener('keydown', handleFirstClick);
+            };
+            
+            document.addEventListener('click', handleFirstClick);
+            document.addEventListener('keydown', handleFirstClick);
+        }
+    };
+
     // If End cookie present, start the final experience
     useEffect(() => {
         if (!hasEndCookie || !mounted) return;
 
-        // Initialize ambient audio
-        if (audioRef.current) {
-            audioRef.current.volume = 0.3;
-            audioRef.current.play().catch(() => {});
-        }
+        // Initialize audio
+        initializeAudio();
 
         // Gradual glitch intensity increase
         const glitchTimer = setInterval(() => {
@@ -112,10 +142,12 @@ export default function TheEnd() {
         flowerRef.current.classList.add('cut');
         setGlitchIntensity(2); // Max glitch
 
-        // Play static noise
-        const staticAudio = new Audio('/sfx/all/static.mp3');
+        // Play static noise with better error handling
+        const staticAudio = new Audio('/sfx/static.mp3');
         staticAudio.volume = 0.8;
-        staticAudio.play().catch(() => {});
+        staticAudio.play().catch((error) => {
+            console.warn('Static audio failed to play:', error);
+        });
 
         // Reset after effect
         setTimeout(() => {
@@ -169,6 +201,7 @@ export default function TheEnd() {
             />
 
                 <div
+                    onClick={initializeAudio} // Try to initialize audio on any click
                     style={{
                         backgroundColor: '#000000',
                         background: `
@@ -187,10 +220,30 @@ export default function TheEnd() {
                         alignItems: 'center',
                         flexDirection: 'column',
                         fontFamily: "'Courier New', Courier, monospace",
-                        fontSize: '1.2rem'
+                        fontSize: '1.2rem',
+                        cursor: audioInitialized ? 'default' : 'pointer'
                     }}
                     className={glitchIntensity > 0.5 ? 'reality-distortion' : ''}
                 >
+                    {/* Audio initialization hint */}
+                    {!audioInitialized && (
+                        <div style={{
+                            position: 'fixed',
+                            top: '20px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            background: 'rgba(0, 0, 0, 0.8)',
+                            color: '#888',
+                            padding: '10px 20px',
+                            borderRadius: '5px',
+                            fontSize: '0.9rem',
+                            zIndex: 1000,
+                            animation: 'fade-in-out 3s ease-in-out infinite'
+                        }}>
+                            Click anywhere to enable audio
+                        </div>
+                    )}
+
                     {/* Ambient particles */}
                     <div className="particles">
                         {[...Array(50)].map((_, i) => (
@@ -298,13 +351,25 @@ export default function TheEnd() {
                         />
                     )}
 
-                    {/* Hidden audio */}
-                    <audio ref={audioRef} loop>
+                    {/* Audio element with better setup */}
+                    <audio 
+                        ref={audioRef} 
+                        loop 
+                        preload="auto"
+                        style={{ display: 'none' }}
+                    >
                         <source src="/sfx/isittheend/hopeformehopeforyou.mp3" type="audio/mpeg" />
+                        <source src="/audio/hopeformehopeforyou.mp3" type="audio/mpeg" />
+                        <source src="/sounds/hopeformehopeforyou.mp3" type="audio/mpeg" />
                     </audio>
                 </div>
 
                 <style jsx>{`
+                    @keyframes fade-in-out {
+                        0%, 100% { opacity: 0.3; }
+                        50% { opacity: 0.8; }
+                    }
+
                     .particles {
                         position: absolute;
                         inset: 0;
