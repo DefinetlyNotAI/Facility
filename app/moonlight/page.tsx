@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import {signCookie} from "@/lib/cookie-utils";
 import Cookies from "js-cookie";
+import {VNTextRenderer} from "@/components/text";
 
 const POETIC_LINES = [
     "In the beginning, there was only the void...",
@@ -35,29 +36,26 @@ export default function Moonlight() {
     const [cutsceneActive, setCutsceneActive] = useState(false);
     const [moonRed, setMoonRed] = useState(false);
     const [currentLineIndex, setCurrentLineIndex] = useState(0);
-    const [displayedText, setDisplayedText] = useState('');
     const [showMoon, setShowMoon] = useState(false);
     const [stars, setStars] = useState<Array<{x: number, y: number, size: number, opacity: number}>>([]);
 
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const lineTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Check if "themoon" cookie exists
     useEffect(() => {
-            const hasRun = (window as any).__moonlight_cookie_check_ran;
-            if (hasRun) return;
-            (window as any).__moonlight_cookie_check_ran = true;
+        const hasRun = (window as any).__moonlight_cookie_check_ran;
+        if (hasRun) return;
+        (window as any).__moonlight_cookie_check_ran = true;
 
-            const hasMoonCookie = Cookies.get("themoon");
+        const hasMoonCookie = Cookies.get("themoon");
 
-            if (hasMoonCookie) {
-                Cookies.remove("themoon");
-                setAllowed(true);
-            } else {
-                router.replace("/404");
-            }
-            }, []);
+        if (hasMoonCookie) {
+            Cookies.remove("themoon");
+            setAllowed(true);
+        } else {
+            router.replace("/404");
+        }
+    }, [router]);
 
     // Decide moon color on mount (1/666 chance red)
     useEffect(() => {
@@ -111,42 +109,17 @@ export default function Moonlight() {
         }
 
         // Start the poetic sequence
-        playPoetrySequence();
+        setCurrentLineIndex(0);
     };
 
-    const playPoetrySequence = () => {
+    const nextLine = () => {
         const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
-
-        if (currentLineIndex >= lines.length) {
+        
+        if (currentLineIndex < lines.length - 1) {
+            setCurrentLineIndex(prev => prev + 1);
+        } else {
             finishCutscene().catch(console.error);
-            return;
         }
-
-        const currentLine = lines[currentLineIndex];
-        typeText(currentLine, () => {
-            // Wait 3 seconds before next line
-            lineTimeoutRef.current = setTimeout(() => {
-                setCurrentLineIndex(prev => prev + 1);
-                setDisplayedText('');
-            }, 3000);
-        });
-    };
-
-    const typeText = (text: string, onComplete: () => void) => {
-        let charIndex = 0;
-        setDisplayedText('');
-
-        typingIntervalRef.current = setInterval(() => {
-            if (charIndex < text.length) {
-                setDisplayedText(prev => prev + text[charIndex]);
-                charIndex++;
-            } else {
-                if (typingIntervalRef.current) {
-                    clearInterval(typingIntervalRef.current);
-                }
-                onComplete();
-            }
-        }, 50);
     };
 
     const finishCutscene = async () => {
@@ -156,17 +129,8 @@ export default function Moonlight() {
     };
 
     const skipCutscene = () => {
-        if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
-        if (lineTimeoutRef.current) clearTimeout(lineTimeoutRef.current);
         finishCutscene().catch(console.error);
     };
-
-    // Watch for line changes during cutscene
-    useEffect(() => {
-        if (cutsceneActive && currentLineIndex < (moonRed ? CREEPY_LINES : POETIC_LINES).length) {
-            playPoetrySequence();
-        }
-    }, [currentLineIndex, cutsceneActive, moonRed]);
 
     const onMoonClick = () => {
         if (!moonRed) return;
@@ -182,8 +146,6 @@ export default function Moonlight() {
     // Cleanup
     useEffect(() => {
         return () => {
-            if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
-            if (lineTimeoutRef.current) clearTimeout(lineTimeoutRef.current);
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current.src = '';
@@ -192,6 +154,8 @@ export default function Moonlight() {
     }, []);
 
     if (!allowed) return null;
+
+    const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
 
     return (
         <div
@@ -253,15 +217,10 @@ export default function Moonlight() {
                         zIndex: 10,
                     }}
                 >
-                    {displayedText}
-                    <span
-                        style={{
-                            opacity: Math.sin(Date.now() / 500) > 0 ? 1 : 0,
-                            marginLeft: "5px"
-                        }}
-                    >
-                        |
-                    </span>
+                    <VNTextRenderer 
+                        text={lines[currentLineIndex]} 
+                        onDone={nextLine}
+                    />
                 </div>
             )}
 
