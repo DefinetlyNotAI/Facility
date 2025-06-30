@@ -4,8 +4,9 @@ choices
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
 - add favicon.ico
+- make some pages have custom titles on tab
 
-Update: Wifi Login, Wifi Panel css (maybe terminal, file-console, buttons)
+ALSO CHECK TAS HINTS ARE NOT TOO EASY
 
-
-Make sure all audio is IN AUDIO TAGS in jsx, and never pure tsx code
+NOTE: Make sure all audio is IN AUDIO TAGS in jsx, and never pure tsx code
+NOTE: The YouTube vid is private, do unprivate when releasing

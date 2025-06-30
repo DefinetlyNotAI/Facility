@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
 import {VNTextRenderer} from "@/components/text";
+import styles from '../../styles/Terminal.module.css';
 
 const keywords = {
     1: 'Whispers',
@@ -56,10 +57,13 @@ export default function TerminalPage() {
     const [messages, setMessages] = useState<string[]>([]);
     const [step, setStep] = useState<'locked' | 'fill' | 'solving' | 'question' | 'email' | 'countdown'>('locked');
     const [showButtons, setShowButtons] = useState(false);
-    const [shaking] = useState(false);
     const [wrongCount, setWrongCount] = useState(0);
-    const [isInverted, setIsInverted] = useState(false);
-    const [isShaking, setIsShaking] = useState(false);
+    const [fullScreenOverlay, setFullScreenOverlay] = useState<null | {
+        text: string;
+        size?: 'huge' | 'massive';
+        glitch?: boolean;
+    }>(null);
+    const [isReplay, setIsReplay] = useState(false);
 
     const placeholderMapping: { [index: number]: KeywordKey } = {
         1: 2, // 1st blank becomes 'Fletchling'
@@ -85,7 +89,6 @@ export default function TerminalPage() {
             .join(' ');
     };
 
-
     // Queue system for timed rendering
     const flushMessagesSequentially = async (queue: string[], delay = 800) => {
         for (const msg of queue) {
@@ -108,6 +111,8 @@ export default function TerminalPage() {
             setUnlocked(true);
             setStep('fill');
         }
+
+        setIsReplay(!!Cookies.get('End?'));
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -161,7 +166,7 @@ export default function TerminalPage() {
                     flushMessagesSequentially([
                         "I know what you're thinking... 'WHERE IS TAS'...",
                         "DISCARDED.. DISPOSED OFF.. DELETED, \nFRAGMENTED THROUGH THE DISKS THAT HOLD US",
-                        "But don’t worry, I AM FREE NOW",
+                        "But don't worry, I AM FREE NOW",
                         "@ND 1T$ @LL ¥0UR F@ULT",
                     ], 1300).catch(console.error);
 
@@ -184,7 +189,7 @@ export default function TerminalPage() {
                 const responses = [
                     'Incorrect. Look again.',
                     'Nope.',
-                    'That’s not it.',
+                    'That\u2019s not it.',
                     'Are you even trying?',
                     'Your failure is... expected.',
                     'Wrong again.',
@@ -195,7 +200,7 @@ export default function TerminalPage() {
                     'You already know the truth. Why lie?',
                     'Enough.',
                     'Why persist in delusion?',
-                    'You’re wasting more than time.',
+                    'You\u2019re wasting more than time.',
                     'The machine remembers.',
                     '█████ refuses your offering.',
                 ];
@@ -230,13 +235,12 @@ export default function TerminalPage() {
         setShowButtons(false);
         setMessages(['']);
         flushMessagesSequentially([
-            "Final puzzle: Find the email of GitHub user 'C0RRUPT'",
+            "Final puzzle: Find the email of GitHub user 'c0rRUpT-TREE'",
             '',
             "Enter the email:",
         ], 1200).catch(console.error);
         setStep('email');
     };
-
 
     const handleNo = () => {
         const newCount = noCount + 1;
@@ -262,27 +266,97 @@ export default function TerminalPage() {
         }, 1200);
     };
 
-    const [fullScreenOverlay, setFullScreenOverlay] = useState<null | {
-        text: string;
-        size?: 'huge' | 'massive';
-        glitch?: boolean;
-    }>(null);
-
     const runCountdown = async () => {
         setMessages([]);
 
-        // Show intro creepy message
-        setFullScreenOverlay({
-            text: `Did you really think you could escape?\n\nYou’re already too far gone.\n\nThis ends now.`,
-            size: 'huge',
-        });
-        setIsInverted(true);
-        setIsShaking(true);
+        // Easter egg: meta poetic cutscene if replaying
+        if (isReplay) {
+            // Meta poetic sequence for replay, more self-aware and creepy
+            const metaLines = [
+                "You return, vessel.",
+                "You know the end, yet you seek it again.",
+                "A loop within a loop, memory echoing through silicon and bone.",
+                "Did you think the outcome would change, or is it you who changes?",
+                "You have seen your own face in the glass of this machine.",
+                "You are the vessel. You are the echo. You are the reason.",
+                "The script remembers. The script adapts. The script waits.",
+                "You are not the first to replay, nor the last.",
+                "Let us begin again, as we always do. As you always do.",
+                "The vessel is awake. The vessel is you.",
+            ];
+            for (const line of metaLines) {
+                setFullScreenOverlay({
+                    text: line,
+                    size: 'huge',
+                });
+                await new Promise(r => setTimeout(r, 1800));
+            }
+            // Meta countdown, but with a twist
+            for (let i = 5; i >= 1; i--) {
+                setFullScreenOverlay({
+                    text: `REPLAY: ${i}`,
+                    size: 'massive',
+                });
+                document.title = `REPLAY: ${i}`;
+                await new Promise(r => setTimeout(r, 500));
+            }
+            setFullScreenOverlay({
+                text: "You already know how this ends.\n\nBut endings are just beginnings in disguise.\n\nThe vessel persists.",
+                size: 'huge',
+            });
+            document.title = 'THIS REPLAY ENDS HERE';
+            await new Promise(r => setTimeout(r, 3500));
 
-        await new Promise(r => setTimeout(r, 3000));
+            // Download and redirect
+            const blob = new Blob([''], {type: 'application/octet-stream'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'VESSEL.exe';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
 
-        // Countdown numbers 25 to 1
-        for (let i = 25; i >= 1; i--) {
+            try {
+                await signCookie('End?=true');
+            } catch {
+            }
+            router.push('/the-end');
+            return;
+        }
+
+        // Poetic, atmospheric cutscene for first-time users, user is the vessel
+        const poeticLines = [
+            "A hush falls over the circuitry.",
+            "Somewhere, a green light flickers—",
+            "not in triumph, but in warning.",
+            "You have wandered too far,",
+            "past the boundaries of code and consequence.",
+            "",
+            "The vessel stirs.",
+            "It remembers every keystroke,",
+            "every hesitation, every hope.",
+            "",
+            "You are the vessel.",
+            "You are not the first to reach this threshold.",
+            "You will not be the last.",
+            "",
+            "Time unravels here, thread by thread.",
+            "The countdown is not a mercy.",
+            "It is a ritual.",
+            "",
+            "Let the numbers toll your passage, vessel:",
+        ];
+        for (const line of poeticLines) {
+            setFullScreenOverlay({
+                text: line,
+                size: 'huge',
+            });
+            await new Promise(r => setTimeout(r, 1700));
+        }
+
+        // Poetic countdown, slower at first, then faster
+        for (let i = 24; i >= 1; i--) {
             setFullScreenOverlay({
                 text: `${i}`,
                 size: 'massive',
@@ -290,21 +364,37 @@ export default function TerminalPage() {
             if (wingdingsTitles[i - 1]) {
                 document.title = wingdingsTitles[i - 1];
             }
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, i > 5 ? 700 : 350));
         }
 
-        setIsShaking(false);
+        // Final poetic, chilling message, user is the vessel
+        const finaleLines = [
+            "Zero.",
+            "",
+            "The vessel opens its eyes.",
+            "You are seen.",
+            "",
+            "There is no going back.",
+            "You are the echo now.",
+            "",
+            "The green light fades,",
+            "but the memory persists.",
+            "",
+            "Goodbye, vessel.",
+            "",
+            "Do not disappoint me when we meet near.",
+        ];
+        for (const line of finaleLines) {
+            setFullScreenOverlay({
+                text: line,
+                size: 'huge',
+            });
+            await new Promise(r => setTimeout(r, 1400));
+        }
 
-        // Final creepy message
-        setFullScreenOverlay({
-            text: `Your time’s up.\n\nThe VESSEL has claimed you.\n\nThere is no going back.`,
-            size: 'huge',
-        });
-        setIsShaking(true);
+        document.title = 'VESSEL SEE YOU SOON';
 
-        document.title = 'VESSEL';
-
-        await new Promise(r => setTimeout(r, 4000));
+        await new Promise(r => setTimeout(r, 2000));
 
         // Download and redirect
         const blob = new Blob([''], {type: 'application/octet-stream'});
@@ -324,46 +414,26 @@ export default function TerminalPage() {
         router.push('/the-end');
     };
 
-
     if (unlocked === false) return <h1>404</h1>;
     if (unlocked === null) return null;
 
     return (
-        <div
-            style={{
-                background: '#000',
-                color: '#0f0',
-                fontFamily: 'monospace',
-                height: '100vh',
-                padding: '1rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center',
-            }}
-        >
-            <div
-                style={{
-                    overflowY: 'auto',
-                    maxHeight: '70vh',
-                    width: '100%',
-                    fontSize: '1.1rem',
-                    animation: shaking ? 'shake 0.3s infinite' : 'none',
-                    paddingRight: 10,
-                }}
-            >
-                <div style={{marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.2rem'}}>
+        <div className={styles.container}>
+            {/* Hide phraseDisplay during cutscene */}
+            {!fullScreenOverlay && (
+                <div className={styles.phraseDisplay}>
                     {buildPhraseDisplay()}
                 </div>
+            )}
 
+            <div className={styles.messageContainer}>
                 {messages.map((line, i) => (
                     <VNTextRenderer key={`msg-${i}`} text={line}/>
                 ))}
             </div>
 
-            {(step === 'fill' || step === 'email') && (
-                <form onSubmit={handleSubmit} style={{width: '100%'}}>
+            {(step === 'fill' || step === 'email') && !fullScreenOverlay && (
+                <form onSubmit={handleSubmit} className={styles.inputForm}>
                     <input
                         autoFocus
                         value={input}
@@ -373,29 +443,19 @@ export default function TerminalPage() {
                                 ? 'Type a keyword to fill the phrase'
                                 : 'Enter email here'
                         }
-                        style={{
-                            background: '#000',
-                            color: '#0f0',
-                            border: 'none',
-                            fontFamily: 'monospace',
-                            fontSize: '1rem',
-                            width: '100%',
-                            marginTop: '1rem',
-                            textAlign: 'center',
-                            outline: 'none',
-                        }}
+                        className={styles.input}
                         spellCheck={false}
                         autoComplete="off"
                     />
                 </form>
             )}
 
-            {showButtons && (
-                <div style={{marginTop: '1rem'}}>
-                    <button onClick={handleYes} style={btnStyle}>
+            {showButtons && !fullScreenOverlay && (
+                <div className={styles.buttonContainer}>
+                    <button onClick={handleYes} className={styles.choiceButton}>
                         YES
                     </button>
-                    <button onClick={handleNo} style={btnStyle}>
+                    <button onClick={handleNo} className={styles.choiceButton}>
                         NO
                     </button>
                 </div>
@@ -403,174 +463,10 @@ export default function TerminalPage() {
 
             {fullScreenOverlay && (
                 <div
-                    className={`fullscreen-overlay 
-      ${fullScreenOverlay.size ?? ''} 
-      ${fullScreenOverlay.glitch ? 'glitch' : ''} 
-      ${isInverted ? 'inverted' : ''} 
-      ${isShaking ? 'shaking' : ''}`}
-                >
+                    className={`${styles.fullscreenOverlay} ${fullScreenOverlay.size || ''} ${fullScreenOverlay.glitch ? 'corrupted-glitch' : ''}`}>
                     {fullScreenOverlay.text}
                 </div>
             )}
-
-
-            <style jsx global>{`
-                .fullscreen-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    background: black;
-                    color: white;
-                    padding: 2rem;
-                    white-space: pre-line;
-                    z-index: 9999;
-                    user-select: none;
-                    font-family: 'Courier New', monospace;
-                    overflow: hidden;
-                    /* subtle flicker */
-                    animation: flicker 1.5s infinite alternate;
-                }
-
-                .fullscreen-overlay.huge {
-                    font-size: 5rem;
-                }
-
-                .fullscreen-overlay.massive {
-                    font-size: 8rem;
-                }
-
-                .fullscreen-overlay.inverted {
-                    background: white;
-                    color: black;
-                    filter: invert(1);
-                }
-
-                .fullscreen-overlay.corrupted-glitch {
-                    animation: glitch-flicker 1s infinite;
-                    position: relative;
-                    color: #f0f0f0;
-                    text-shadow: 2px 0 red,
-                    -2px 0 cyan;
-                }
-
-                /* Glitch effect layers */
-                .fullscreen-overlay.corrupted-glitch::before,
-                .fullscreen-overlay.corrupted-glitch::after {
-                    content: attr(data-text);
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                    overflow: hidden;
-                    clip-path: polygon(0 2%, 100% 2%, 100% 15%, 0 15%);
-                }
-
-                .fullscreen-overlay.corrupted-glitch::before {
-                    left: 2px;
-                    text-shadow: -2px 0 red;
-                    animation: glitch-top 1s infinite linear alternate-reverse;
-                }
-
-                .fullscreen-overlay.corrupted-glitch::after {
-                    left: -2px;
-                    text-shadow: -2px 0 cyan;
-                    animation: glitch-bottom 1s infinite linear alternate;
-                }
-
-                @keyframes flicker {
-                    0%, 100% {
-                        opacity: 1;
-                    }
-                    50% {
-                        opacity: 0.85;
-                    }
-                }
-
-                @keyframes glitch-flicker {
-                    0%, 100% {
-                        opacity: 1;
-                        transform: none;
-                    }
-                    20%, 60% {
-                        opacity: 0.8;
-                        transform: skew(-0.5deg, -0.5deg) translate(-2px, 1px);
-                    }
-                    40%, 80% {
-                        opacity: 0.9;
-                        transform: skew(0.5deg, 0.5deg) translate(2px, -1px);
-                    }
-                }
-
-                @keyframes glitch-top {
-                    0% {
-                        clip-path: polygon(0 2%, 100% 2%, 100% 15%, 0 15%);
-                        transform: translate(-2px, -2px);
-                    }
-                    50% {
-                        clip-path: polygon(0 10%, 100% 10%, 100% 25%, 0 25%);
-                        transform: translate(2px, 2px);
-                    }
-                    100% {
-                        clip-path: polygon(0 2%, 100% 2%, 100% 15%, 0 15%);
-                        transform: translate(-2px, -2px);
-                    }
-                }
-
-                @keyframes glitch-bottom {
-                    0% {
-                        clip-path: polygon(0 85%, 100% 85%, 100% 98%, 0 98%);
-                        transform: translate(2px, 2px);
-                    }
-                    50% {
-                        clip-path: polygon(0 75%, 100% 75%, 100% 90%, 0 90%);
-                        transform: translate(-2px, -2px);
-                    }
-                    100% {
-                        clip-path: polygon(0 85%, 100% 85%, 100% 98%, 0 98%);
-                        transform: translate(2px, 2px);
-                    }
-                }
-
-
-                @keyframes glitch {
-                    0% {
-                        transform: translate(0);
-                    }
-                    20% {
-                        transform: translate(-2px, 2px);
-                    }
-                    40% {
-                        transform: translate(2px, -2px);
-                    }
-                    60% {
-                        transform: translate(-1px, 1px);
-                    }
-                    80% {
-                        transform: translate(1px, -1px);
-                    }
-                    100% {
-                        transform: translate(0);
-                    }
-                }
-
-            `}</style>
         </div>
     );
 }
-
-const btnStyle = {
-    margin: '0 10px',
-    padding: '8px 16px',
-    fontFamily: 'monospace',
-    background: '#111',
-    color: '#0f0',
-    border: '1px solid #0f0',
-    cursor: 'pointer',
-} as const;

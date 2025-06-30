@@ -1,15 +1,3 @@
-/*
-URL[Media] -> FOR HERE If not cookie[Media Unlocked] then 404
-  Will ask for KEYWORD[2] to access the page,
-  Will have 1 audio in site and 2 download buttons:
-  - Audio: Has morse code that gives KEYWORD[3]
-  - Download1: ZIP file that is pass protected with KEYWORD[3], has a txt file with invis ascii which is keyword[4]
-  - Download2: Another ZIP file that is pass protected with KEYWORD[4], has a audio file with reversed audio that says to "Use your eyes for what you hear" where a QR is embedded in the audio that gives URL[Buttons]
-  If all 3 items were interacted with, then create cookie[Button Unlocked]
-
-  The files are in public/media - they are morse.wav, Password_Is_Keyword[3].zip, Password_Is_Keyword[4].zip
-*/
-
 'use client';
 
 import {useEffect, useState} from 'react';
@@ -67,12 +55,12 @@ export default function MediaPage() {
                         onChange={e => setInputKey(e.target.value)}
                     />
                     <button onClick={checkKey}>Unlock</button>
-                    <p className={styles.error}>{msg}</p>
+                    {msg && <p className={styles.error}>{msg}</p>}
                 </div>
             ) : (
                 <div className={styles.content}>
                     <div className={styles.item}>
-                        <label>Morse Audio (play to reveal keyword):</label>
+                        <label>Audio File [3]:</label>
                         <audio controls onPlay={() => setPlayed(true)}>
                             <source src="/media/morse.wav" type="audio/wav"/>
                             Your browser does not support audio playback.
@@ -80,7 +68,7 @@ export default function MediaPage() {
                     </div>
 
                     <div className={styles.item}>
-                        <label>Download File 1:</label>
+                        <label>File 1 [4] - First letter is caps!:</label>
                         <a
                             href="/media/Password_Is_Keyword%5B3%5D.zip"
                             download
@@ -91,7 +79,7 @@ export default function MediaPage() {
                     </div>
 
                     <div className={styles.item}>
-                        <label>Download File 2:</label>
+                        <label>File 2 [To go next] - First letter is caps!:</label>
                         <a
                             href="/media/Password_Is_Keyword%5B4%5D.zip"
                             download
@@ -102,8 +90,8 @@ export default function MediaPage() {
                     </div>
 
                     <p>
-                        Current status: played audio – {played ? '✅' : '❌'}, downloaded #1 – {dl1 ? '✅' : '❌'},
-                        downloaded #2 – {dl2 ? '✅' : '❌'}
+                        Current status: Audio – {played ? '✅' : '❌'}, Zip1 – {dl1 ? '✅' : '❌'},
+                        Zip2 – {dl2 ? '✅' : '❌'}
                     </p>
                 </div>
             )}

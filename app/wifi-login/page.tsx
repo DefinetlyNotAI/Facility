@@ -3,25 +3,29 @@
 import React, {useEffect, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import CryptoJS from 'crypto-js';
-import Cookies from "js-cookie"; // SHA1 hashing
+import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
+import styles from '../../styles/WifiLogin.module.css';
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
         const timer = setTimeout(onDismiss, 6000);
         return () => clearTimeout(timer);
     }, [onDismiss]);
+
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.85)', color: '#0f0', fontFamily: 'monospace',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            zIndex: 10000, flexDirection: 'column', padding: '2rem', textAlign: 'center'
-        }}>
-            <div style={{fontSize: '1.4rem', whiteSpace: 'pre-line'}}>
-                {'ACCESS GRANTED.\n\nBUT SOMETHING\nSTILL WATCHES...\n\n54 52 59 20 41 4E 44 20 50 52 45 46 49 58 20 2F 61 70 69 2F 20 41 4E 44 20 46 4F 4C 4C 4F 57 20 54 48 45 20 50 52 45 56 49 4F 55 53 20 54 49 50 2E'}
+        <div className={styles.container}>
+            <div className={styles.loginForm}>
+                <div className={styles.title} style={{fontSize: '1.8rem', marginBottom: '2rem'}}>
+                    ACCESS GRANTED
+                </div>
+                <div style={{fontSize: '1.2rem', whiteSpace: 'pre-line', textAlign: 'center', lineHeight: '1.6'}}>
+                    {'BUT SOMETHING\nSTILL WATCHES...\n\n54 52 59 20 41 4E 44 20 50 52 45 46 49 58 20 2F 61 70 69 2F 20 41 4E 44 20 46 4F 4C 4C 4F 57 20 54 48 45 20 50 52 45 56 49 4F 55 53 20 54 49 50 2E'}
+                </div>
+                <div className={styles.loading} style={{marginTop: '2rem'}}>
+                    Redirecting...
+                </div>
             </div>
-            <TypingCursor active={true}/>
         </div>
     );
 };
@@ -45,30 +49,29 @@ const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({onFinish}) =>
     }, [step, onFinish]);
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'black', color: '#00FF00', fontFamily: 'monospace',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            flexDirection: 'column', userSelect: 'none', zIndex: 9999,
+        <div className={styles.container} style={{
             filter: 'contrast(1.5) brightness(0.7)',
-            overflow: 'hidden',
+            background: 'black'
         }}>
-            <div style={{fontSize: '2rem', whiteSpace: 'pre-line', minHeight: '4rem'}}>
-                {step > 0 ? messages.slice(0, step).join('\n\n') : ''}
-                <TypingCursor active={step < messages.length}/>
+            <div className={styles.loginForm} style={{
+                border: '2px solid #ff0000',
+                boxShadow: '0 0 30px rgba(255, 0, 0, 0.5)'
+            }}>
+                <div style={{
+                    fontSize: '2rem',
+                    whiteSpace: 'pre-line',
+                    minHeight: '4rem',
+                    color: '#ff0000',
+                    textShadow: '0 0 15px #ff0000'
+                }}>
+                    {step > 0 ? messages.slice(0, step).join('\n\n') : ''}
+                    <span style={{animation: 'blink 0.5s infinite'}}>
+                        {step < messages.length ? '|' : ''}
+                    </span>
+                </div>
             </div>
         </div>
     );
-};
-
-const TypingCursor: React.FC<{ active: boolean }> = ({active}) => {
-    const [visible, setVisible] = useState(true);
-    useEffect(() => {
-        if (!active) return;
-        const interval = setInterval(() => setVisible(v => !v), 500);
-        return () => clearInterval(interval);
-    }, [active]);
-    return <span>{visible ? '|' : ' '}</span>;
 };
 
 const WifiLoginPage: React.FC = () => {
@@ -148,25 +151,24 @@ const WifiLoginPage: React.FC = () => {
                 }}
                 style={{display: 'none'}}
             />
-            <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                height: '100vh', backgroundColor: '#111', color: '#0f0', fontFamily: 'monospace',
-            }}>
-                <h1>Wifi Login</h1>
-                <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', width: '280px'}}>
-                    <label>
-                        Username:
+            <div className={styles.container}>
+                <h1 className={styles.title}>Wifi Login</h1>
+                <form onSubmit={handleSubmit} className={styles.loginForm}>
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>Username:</label>
                         <input
                             type="text"
                             value={username}
                             onChange={e => setUsername(e.target.value)}
+                            className={styles.input}
+                            placeholder="Enter username"
                             autoComplete="off"
                             spellCheck={false}
                             required
                         />
-                    </label>
-                    <label>
-                        Password:
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>Password:</label>
                         <input
                             type="password"
                             value={password}
@@ -175,18 +177,20 @@ const WifiLoginPage: React.FC = () => {
                                     setPassword(e.target.value);
                                 }
                             }}
+                            className={styles.input}
+                            placeholder="Enter password (max 6 chars)"
                             minLength={1}
                             maxLength={6}
                             autoComplete="off"
                             spellCheck={false}
                             required
                         />
-                    </label>
-                    <button type="submit" style={{marginTop: '1rem', cursor: 'pointer'}}>
-                        Login
+                    </div>
+                    <button type="submit" className={styles.submitButton} disabled={loading}>
+                        {loading ? 'Authenticating...' : 'Login'}
                     </button>
-                    {error && <p style={{color: 'red', marginTop: '0.5rem'}}>{error}</p>}
-                    {loading && <p style={{color: '#0f0', marginTop: '0.5rem'}}>Logging in...</p>}
+                    {error && <div className={styles.error}>{error}</div>}
+                    {loading && <div className={styles.loading}>Establishing secure connection...</div>}
                 </form>
             </div>
         </>
