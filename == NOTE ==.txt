@@ -1,5 +1,4 @@
-choices
-- the audio is weird and repeating, and cutscene dialogue is just not progressing, audio should play when needed
+FIXME: Choice page loops after input, doesnt work
 
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)

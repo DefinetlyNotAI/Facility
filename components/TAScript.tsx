@@ -57,7 +57,11 @@ export const PAGE_HINTS: Record<string, string[]> = {
         "...",
     ],
     '/scroll': [
-        "..."
+        "...",
+    ],
+    '/choices': [
+        "...",
+        "I have a bad feeling here.",
     ]
 };
 

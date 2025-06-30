@@ -10,6 +10,7 @@ export default function RootPage() {
     const [accepted, setAccepted] = useState<boolean | null>(null);
     const [showConsoleWarning, setShowConsoleWarning] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [countdown, setCountdown] = useState(25);
 
     useEffect(() => {
         // Simulate system boot
@@ -28,9 +29,17 @@ export default function RootPage() {
         await signCookie("accepted=true");
         setAccepted(true);
         setShowConsoleWarning(true);
+        setCountdown(25); // reset countdown
 
-        setTimeout(() => {
-            router.replace("/home");
+        const interval = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    router.replace("/home");
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
     }
 
@@ -150,7 +159,7 @@ export default function RootPage() {
                                 </div>
                                 <div className="terminal-line text-red-400">
                                     <span className="terminal-prompt">WARNING:</span> DO NOT MANUALLY MODIFY COOKIES TO
-                                    SKIP CERTAIN ASPECTS OF THE FACILITY
+                                    SKIP CERTAIN ASPECTS OF THE FACILITY - NOR SHOULD DELETE SOME COOKIES
                                 </div>
                                 <div className="terminal-line text-yellow-400">
                                     <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when
@@ -164,11 +173,19 @@ export default function RootPage() {
                                     cookies for SAVE data. Please do not use incognito or delete the cookies or your
                                     progress may be reset.
                                 </div>
+                                <div className="terminal-line text-green-700">
+                                    <span className="terminal-prompt">TIP:</span> TAS is your friend. Use it if you are
+                                    stuck, I don't recommend using TAS however.
+                                </div>
+                                <div className="terminal-line text-green-700">
+                                    <span className="terminal-prompt">TIP:</span> Use headphones, it is part of the
+                                    experience!.
+                                </div>
                             </div>
                         </div>
                         <p className="text-gray-300 mb-4">
                             Redirecting to secure terminal in <span
-                            className="text-green-400 font-mono">8</span> seconds...
+                            className="text-green-400 font-mono">{countdown}</span> seconds...
                         </p>
                         <div className="loading-bar w-full"></div>
                     </div>

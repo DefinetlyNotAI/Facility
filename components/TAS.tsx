@@ -33,10 +33,9 @@ export default function TAS({className = ''}: TASProps) {
 
     // Check if TAS should exist and if he should be corrupted
     useEffect(() => {
-        const choiceUnlocked = Cookies.get('Choice_Unlocked');
         const killTasSeen = Cookies.get('KILLTAS_cutscene_seen');
 
-        if (choiceUnlocked || killTasSeen || pathname === '/smileking' || pathname === '/smileking-auth') {
+        if (killTasSeen || pathname === '/smileking' || pathname === '/smileking-auth') {
             setIsVisible(false);
             return;
         }

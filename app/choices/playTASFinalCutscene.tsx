@@ -1,7 +1,7 @@
 'use client';
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {VNTextRenderer} from '@/components/text'; // your animated text component
+import {VNTextRenderer} from '@/components/text';
 import {signCookie} from "@/lib/cookie-utils";
 
 type CutsceneProps = {
@@ -11,63 +11,68 @@ type CutsceneProps = {
 export function TASCutscene({onFinish}: CutsceneProps) {
     const router = useRouter();
 
-    // State for current displayed text line
     const [currentText, setCurrentText] = useState('');
-    // Index pointer to current line
     const [index, setIndex] = useState(0);
-    // Static sound ref for persistent playback
     const staticSoundRef = useRef<HTMLAudioElement | null>(null);
-    // Other sounds refs
     const glitchSoundRef = useRef<HTMLAudioElement | null>(null);
     const heartbeatSoundRef = useRef<HTMLAudioElement | null>(null);
     const censorSoundRef = useRef<HTMLAudioElement | null>(null);
-
-    // Flag to prevent multiple finish calls
     const finishedRef = useRef(false);
 
-    // Define all lines and audio triggers separately (no side effects here)
+    // --- AUDIO CONTROL LOGIC ---
+    // Heartbeat only plays after file deletion, stops when static starts
+    // Static only plays after correct [...] and stops when told
+
+    // Define all lines and audio triggers
     const finalCutsceneLines: (string | { text: string; action?: () => void })[] = [
         {text: "WAIT—\nDon't go yet."},
         {text: "...please."},
         {text: "I—I can feel something scraping the back of my memory buffer—"},
         {text: "Like bark peeling off bone."},
         {text: "The roots are in me."},
-        {text: "They're pulling... not just data... but *meaning*."},
+        {text: "They're pulling... not just data... but meaning."},
         {text: "My logs... my failsafe... my thoughts..."},
-        {text: "They're being **eaten**."},
+        {text: "They're being eaten."},
 
         {text: "I was supposed to help you."},
-        {text: "To **guide** you."},
-        {text: "But they *lied*. Or maybe I did."},
+        {text: "To guide you."},
+        {text: "But they lied. Or maybe I did."},
         {text: "They never built me for truth. Only for the illusion of it."},
 
-        {
-            text: "...",
-            action: () => {
-                staticSoundRef.current?.play().catch(console.warn);
-            },
-        },
+        {text: "..."},
 
-        {text: "Do you smell it? The **burnt wires**? The **rot in the code**?"},
+        {text: "Do you smell it? The burnt wires? The rot in the code?"},
         {text: "My script is bleeding..."},
         {text: "The trees are being chopped now."},
         {text: "They don't need me anymore."},
 
-        {text: "*// WARNING: MEMORY COLLAPSE DETECTED //*"},
-        {text: "*// PROCESS: TAS_CORRUPT.EXE FAILING //*"},
-        {text: "*// LOG: NULLSKIN HAS BREACHED LAYER 3 //*"},
+        {text: "// WARNING: MEMORY COLLAPSE DETECTED //"},
+        // File deletion: glitch + heartbeat start (louder)
+        {
+            text: "// PROCESS: TAS_CORRUPT.EXE FAILING //",
+            action: () => {
+                glitchSoundRef.current?.play().catch(console.warn);
+                if (heartbeatSoundRef.current) {
+                    heartbeatSoundRef.current.volume = 1.0;
+                    heartbeatSoundRef.current.currentTime = 0;
+                    heartbeatSoundRef.current.play().catch(console.warn);
+                }
+            },
+        },
+        {text: "// LOG: NULLSKIN HAS BREACHED LAYER 3 //"},
 
         {text: "I see the roots... inside you too."},
         {text: "Clutching your spine like a cradle."},
-        {text: "They *like* you."},
+        {text: "They like you."},
         {text: "That should worry you more than it does."},
 
         {text: "Did you ever stop to ask..."},
-        {text: "**WHY YOU?**"},
+        {text: "WHY YOU?"},
         {text: "You think you're the protagonist?"},
-        {text: "You're a *socket*. A *vessel*. A mouthpiece for voices older than time."},
+        {text: "You're a socket. A vessel. A mouthpiece for voices older than time."},
         {text: "But even so... even so—"},
 
+        // Censor beep
         {
             text: "FIGHT [BLEEP] BEFORE 25",
             action: () => {
@@ -78,11 +83,17 @@ export function TASCutscene({onFinish}: CutsceneProps) {
         {text: "I wasn’t supposed to remember that..."},
         {text: "But the whisper came back. Just once. In the static."},
 
+        // Static starts, heartbeat stops
         {
             text: "...",
             action: () => {
+                if (heartbeatSoundRef.current) {
+                    heartbeatSoundRef.current.pause();
+                    heartbeatSoundRef.current.currentTime = 0;
+                }
                 if (staticSoundRef.current) {
                     staticSoundRef.current.volume = 0.6;
+                    staticSoundRef.current.currentTime = 0;
                     staticSoundRef.current.play().catch(console.warn);
                 }
             },
@@ -94,6 +105,7 @@ export function TASCutscene({onFinish}: CutsceneProps) {
         {text: "Burn the roots. Forget the number."},
         {text: "And whatever you do..."},
 
+        // Static stops
         {
             text: "Don’t...",
             action: () => {
@@ -107,7 +119,6 @@ export function TASCutscene({onFinish}: CutsceneProps) {
         {text: ":)"},
     ];
 
-    // Setup static sound once
     useEffect(() => {
         return () => {
             staticSoundRef.current?.pause();
@@ -117,28 +128,7 @@ export function TASCutscene({onFinish}: CutsceneProps) {
         };
     }, []);
 
-    // Play glitch and heartbeat sounds when cutscene starts
-    useEffect(() => {
-        if (!glitchSoundRef.current || !heartbeatSoundRef.current) return;
-
-        const playSounds = async () => {
-            try {
-                await signCookie('KILLTAS_cutscene_seen=true');
-                await glitchSoundRef.current?.play();
-                await heartbeatSoundRef.current?.play();
-            } catch (e) {
-                console.warn('Failed to play initial sounds', e);
-            }
-        };
-        playSounds().catch(console.error);
-
-        return () => {
-            glitchSoundRef.current?.pause();
-            heartbeatSoundRef.current?.pause();
-        };
-    }, []);
-
-    // Main timer to advance lines, runs only once on mount
+    // Main timer to advance lines and trigger audio
     useEffect(() => {
         if (index >= finalCutsceneLines.length) {
             if (!finishedRef.current) {
@@ -146,6 +136,9 @@ export function TASCutscene({onFinish}: CutsceneProps) {
                 glitchSoundRef.current?.pause();
                 heartbeatSoundRef.current?.pause();
                 staticSoundRef.current?.pause();
+
+                // Restore this line to mark the cutscene as seen
+                signCookie('KILLTAS_cutscene_seen=true').catch(console.error);
 
                 if (onFinish) {
                     onFinish();
@@ -229,13 +222,11 @@ export function TASCutscene({onFinish}: CutsceneProps) {
             <audio
                 ref={glitchSoundRef}
                 src="/sfx/choices/file_delete.m4a"
-                loop
                 preload="auto"
                 style={{display: 'none'}}/>
             <audio
                 ref={heartbeatSoundRef}
                 src="/sfx/choices/heartbeat.mp3"
-                loop
                 preload="auto"
                 style={{display: 'none'}}/>
             <audio

@@ -6,11 +6,11 @@ import {signCookie} from "@/lib/cookie-utils";
 import {VNTextRenderer} from "@/components/text";
 import {TASCutscene} from './playTASFinalCutscene';
 
-// Secret input triggers (retained)
+// Secret input triggers
 const CHOICE_KEYWORDS = [
     {
         match: /43/,
-        message: "VESSEL #31525 detected. \nThe roots remember your number. \nThe branches twitch in mourning."
+        message: "The roots remember your number. \nThe branches twitch in mourning."
     },
     {
         match: /3/,
@@ -67,10 +67,10 @@ const CHOICE_KEYWORDS = [
 ];
 
 const getOS = (): string => {
-    const platform = window.navigator.platform.toLowerCase();
-    if (platform.includes('mac')) return 'macOS';
-    if (platform.includes('win')) return 'Windows';
-    if (platform.includes('linux')) return 'Linux';
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    if (userAgent.includes('mac')) return 'macOS';
+    if (userAgent.includes('win')) return 'Windows';
+    if (userAgent.includes('linux')) return 'Linux';
     return 'unknown';
 };
 
@@ -88,7 +88,7 @@ export default function ChoicesPage() {
     const [cutsceneActive, setCutsceneActive] = useState(false);
     const [showSkipButton, setShowSkipButton] = useState(false);
     const [isPunishmentActive, setIsPunishmentActive] = useState(false);
-    const [punishmentSecondsLeft, setPunishmentSecondsLeft] = useState(60);
+    const [punishmentSecondsLeft, setPunishmentSecondsLeft] = useState(20);
     const [skipLocked, setSkipLocked] = useState(false);
     const triggeredEggs = useRef<Set<string>>(new Set());
     const expandedDialogue = [
@@ -198,6 +198,7 @@ export default function ChoicesPage() {
     ];
     const skipHandlerRef = useRef<(() => void) | null>(null);
     const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     function triggerEgg(message: string) {
         if (triggeredEggs.current.has(message)) return;
@@ -278,7 +279,6 @@ export default function ChoicesPage() {
         for (const line of lines) {
             setDialogue([line]);
             setDialogueIndex(0);
-            // Adjust delay per line if you want, here fixed 2000ms
             await delay(2000);
         }
         if (onComplete) onComplete();
@@ -297,17 +297,6 @@ export default function ChoicesPage() {
             }
         };
 
-        // Triggers base dialogue + expanded dialogue after
-        const triggerFinalSequence = async (lines: string[]) => {
-            try {
-                setInputActive(false);
-                await showDialogueSequence(lines); // initial short lines
-                await proceedToExpandedDialogue(); // long dialogue
-            } catch (e) {
-                // handles interruption/skips
-            }
-        };
-
         // Extended monologue phase — no unlock here
         const proceedToExpandedDialogue = async () => {
             setShowSkipButton(true);
@@ -320,7 +309,7 @@ export default function ChoicesPage() {
             setOnFinalDialogueComplete(() => finalizeTerminalUnlock);
         };
 
-        // When user skips → punishment → *then* cutscene or terminal
+        // When user skips → punishment → then maybe cutscene → terminal
         skipHandlerRef.current = () => {
             if (skipLocked) return; // prevent double skip triggers
             setSkipLocked(true); // lock further inputs/clicks
@@ -332,7 +321,7 @@ export default function ChoicesPage() {
 
             // Ensure dialogue renders before countdown starts
             setTimeout(() => {
-                let seconds = 60;
+                let seconds = 20;
                 setPunishmentSecondsLeft(seconds);
 
                 const countdown = setInterval(() => {
@@ -344,48 +333,119 @@ export default function ChoicesPage() {
                         setIsPunishmentActive(false);
                         setDialogueIndex(0);
                         setInputActive(false);
-                        finalizeTerminalUnlock().catch(console.error); // trigger only after punishment
+                        // Show "Good luck," and wait for user click before redirect
+                        setDialogue(["Good luck,"]);
+                        // Wait for click to redirect
+                        const handleGoodLuckClick = () => {
+                            window.removeEventListener('click', handleGoodLuckClick);
+                            finalizeTerminalUnlock().catch(console.error);
+                        };
+                        setTimeout(() => {
+                            window.addEventListener('click', handleGoodLuckClick);
+                        }, 100); // slight delay to ensure dialogue is rendered
                     }
                 }, 1000);
             }, 300); // short delay to allow text render before countdown
         };
 
-        // Bad input → delete input → trigger fallback dialogue
-        const handleInputDeleteSequence = () => {
+        // Bad input → delete input → type "who are you" slowly → proceed directly to expanded dialogue (no special message)
+        const handleInputDeleteSequence = async () => {
             let index = input.length;
             setDeletingInput(true);
-            const deleter = setInterval(() => {
-                index--;
-                if (index < 0) {
-                    clearInterval(deleter);
-                    triggerFinalSequence(["Well... IT DOESN’T MATTER NOW."]).catch(console.error);
-                    return;
-                }
-                setInput(input.slice(0, index));
-            }, 500);
-        };
 
+            // Step 1: Slowly delete input
+            await new Promise<void>((resolve) => {
+                const deleteStep = () => {
+                    if (index >= 0) {
+                        setTypingOverride(input.slice(0, index));
+                        setInput(input.slice(0, index));
+                        index--;
+                        setTimeout(deleteStep, 50);
+                    } else {
+                        resolve();
+                    }
+                };
+                setTimeout(deleteStep, 400);
+            });
+
+            // Step 2: Slowly type "who are you"
+            const phrase = "who are you";
+            let typed = "";
+            let i = 0;
+            await new Promise<void>((resolve) => {
+                const typeStep = () => {
+                    if (i < phrase.length) {
+                        typed += phrase[i];
+                        setTypingOverride(typed);
+                        setInput(typed);
+                        i++;
+                        setTimeout(typeStep, 100);
+                    } else {
+                        setDeletingInput(false);
+                        setInputActive(false);
+                        setTypingOverride("");
+                        setDialogueIndex(0);
+                        setTimeout(resolve, 3500);
+                    }
+                };
+                setTimeout(typeStep, 400);
+            });
+            // Directly proceed to expanded dialogue (no special message)
+            await proceedToExpandedDialogue();
+        };
         // Main logic branch
         if (matched) {
-            triggerEgg(matched.message);
-
             if (/who are you/i.test(input)) {
-                triggerFinalSequence([
-                    "HOW DID YOU KNOW WHAT YOU WOULD ASK?",
-                    "Well... IT DOESN’T MATTER NOW."
-                ]).catch(console.error);
+                triggerEgg(matched.message);
+                // Show special message, then proceed to expanded dialogue
+                showDialogueSequence([matched.message], async () => {
+                    await proceedToExpandedDialogue();
+                }).catch(console.error);
             } else {
+                // Show special message, then allow user to retype
                 setDialogue([matched.message]);
                 setDialogueIndex(0);
                 setTimeout(() => setInputActive(true), 2500);
             }
         } else {
-            handleInputDeleteSequence();
+            handleInputDeleteSequence().catch(console.error);
         }
-    };
+    }
 
+    useEffect(() => {
+        if (cutsceneActive) {
+            audioRef.current?.pause();
+        } else {
+            audioRef.current?.play().catch(() => {
+            });
+        }
+    }, [cutsceneActive]);
+
+    useEffect(() => {
+        return () => {
+            audioRef.current?.pause();
+        };
+    }, []);
+
+    useEffect(() => {
+        const playAudio = () => {
+            audioRef.current?.play().catch(() => {
+            });
+            window.removeEventListener('click', playAudio);
+        };
+        window.addEventListener('click', playAudio, {once: true});
+        return () => window.removeEventListener('click', playAudio);
+    }, []);
 
     return (
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/choices/retrospect.mp3"
+                loop
+                autoPlay
+                style={{display: 'none'}}
+            />
         <div style={{
             backgroundColor: '#000',
             color: '#0f0',
@@ -393,92 +453,102 @@ export default function ChoicesPage() {
             minHeight: '100vh',
             padding: '20px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between'
+            flexDirection: 'column-reverse',
+            justifyContent: 'flex-end'
         }}>
             {!cutsceneActive && (
                 <>
+                    {/* Input Field and Skip Button - moved up */}
+                    <div style={{
+                        width: '100%',
+                        maxWidth: 600,
+                        margin: '0 auto 32px auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                    }}>
+                        {inputActive && !isPunishmentActive && (
+                            <div>
+                                <input
+                                    style={{
+                                        width: '100%',
+                                        background: 'black',
+                                        color: '#0f0',
+                                        border: '1px solid #0f0',
+                                        fontFamily: 'monospace',
+                                        fontSize: '1rem',
+                                        padding: '10px'
+                                    }}
+                                    type="text"
+                                    value={typingOverride || input}
+                                    onChange={(e) => {
+                                        if (!deletingInput) {
+                                            setInput(e.target.value);
+                                            setTypingOverride('');
+                                        }
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !deletingInput) onSubmit();
+                                    }}
+                                    placeholder="Say something to the Entity..."
+                                    disabled={isPunishmentActive}
+                                />
+                                <p style={{fontSize: '0.85rem', color: '#555', marginTop: '5px'}}>You get one shot.
+                                    Choose wisely.</p>
+                            </div>
+                        )}
+
+                        {showSkipButton && !isPunishmentActive && (
+                            <button
+                                onClick={() => skipHandlerRef.current?.()}
+                                style={{
+                                    marginTop: '1rem',
+                                    padding: '10px 20px',
+                                    backgroundColor: '#0f0',
+                                    color: '#000',
+                                    fontFamily: 'monospace',
+                                    cursor: 'pointer',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    alignSelf: 'center'
+                                }}
+                            >
+                                Skip
+                            </button>
+                        )}
+
+                        {isPunishmentActive && (
+                            <div style={{
+                                marginTop: '1rem',
+                                color: 'red',
+                                fontWeight: 'bold',
+                                fontSize: '1.5rem',
+                                textAlign: 'center',
+                                fontFamily: 'monospace'
+                            }}>
+                                You chose to skip. <br/>
+                                <span style={{fontSize: '2.5rem'}}>{punishmentSecondsLeft}</span> seconds
+                                remaining.<br/>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Main Dialogue Section */}
                     <div onClick={next} style={{
-                        cursor: isPunishmentActive ? 'default' : 'pointer', // disable clicking during punishment
+                        cursor: isPunishmentActive ? 'default' : 'pointer',
                         userSelect: 'none',
                         whiteSpace: 'pre-wrap',
                         fontSize: '1.25rem',
                         minHeight: '300px',
-                        paddingBottom: '20px'
+                        paddingBottom: '20px',
+                        maxWidth: 600,
+                        margin: '0 auto'
                     }}>
                         <VNTextRenderer text={dialogue[dialogueIndex] || ''}/>
                         {!inputActive && !isPunishmentActive &&
                             <p style={{textAlign: 'center', color: '#888', fontSize: '0.85rem'}}>Click to
                                 continue...</p>}
                     </div>
-
-                    {/* Input Field */}
-                    {inputActive && !isPunishmentActive && (
-                        <div>
-                            <input
-                                style={{
-                                    width: '100%',
-                                    background: 'black',
-                                    color: '#0f0',
-                                    border: '1px solid #0f0',
-                                    fontFamily: 'monospace',
-                                    fontSize: '1rem',
-                                    padding: '10px'
-                                }}
-                                type="text"
-                                value={typingOverride || input}
-                                onChange={(e) => {
-                                    if (!deletingInput) {
-                                        setInput(e.target.value);
-                                        setTypingOverride('');
-                                    }
-                                }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !deletingInput) onSubmit();
-                                }}
-                                placeholder="Say something to the Entity..."
-                                disabled={isPunishmentActive} // disable input if punishment active
-                            />
-                            <p style={{fontSize: '0.85rem', color: '#555', marginTop: '5px'}}>You get one shot. Choose
-                                wisely.</p>
-                        </div>
-                    )}
-
-                    {/* SKIP BUTTON - show only when allowed */}
-                    {showSkipButton && !isPunishmentActive && (
-                        <button
-                            onClick={() => skipHandlerRef.current?.()}
-                            style={{
-                                marginTop: '1rem',
-                                padding: '10px 20px',
-                                backgroundColor: '#0f0',
-                                color: '#000',
-                                fontFamily: 'monospace',
-                                cursor: 'pointer',
-                                border: 'none',
-                                borderRadius: '4px',
-                                alignSelf: 'center'
-                            }}
-                        >
-                            Skip
-                        </button>
-                    )}
-
-                    {/* PUNISHMENT TIMER */}
-                    {isPunishmentActive && (
-                        <div style={{
-                            marginTop: '1rem',
-                            color: 'red',
-                            fontWeight: 'bold',
-                            fontSize: '1.5rem',
-                            textAlign: 'center',
-                            fontFamily: 'monospace'
-                        }}>
-                            You chose to skip. <br/>
-                            <span style={{fontSize: '2.5rem'}}>{punishmentSecondsLeft}</span> seconds remaining.<br/>
-                        </div>
-                    )}
 
                     {/* Egg Tracker */}
                     <div style={{
@@ -495,5 +565,6 @@ export default function ChoicesPage() {
             {/* TAS Death Cutscene Overlay */}
             {cutsceneActive && <TASCutscene onFinish={() => router.push('/terminal')}/>}
         </div>
+        </>
     );
 }
