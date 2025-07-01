@@ -1,570 +1,432 @@
-'use client';
-import React, {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
+"use client";
+
+import React, {useEffect, useRef, useState} from "react";
+import {useRouter} from "next/navigation";
 import Cookies from 'js-cookie';
+import styles from "../../styles/Choices.module.css";
+import {
+    AUDIO_SRC,
+    CHOICE_KEYWORDS,
+    GOOD_LUCK_MSG,
+    JUMPSCARE_MSG,
+    MONOLOGUE,
+    PUNISHMENT_MSG,
+    TOTAL_EGGS,
+    useTypewriter
+} from "@/app/choices/DataConstants";
+import TASGoodBye from "./TASGoodBye";
 import {signCookie} from "@/lib/cookie-utils";
-import {VNTextRenderer} from "@/components/text";
-import {TASCutscene} from './playTASFinalCutscene';
 
-// Secret input triggers
-const CHOICE_KEYWORDS = [
-    {
-        match: /43/,
-        message: "The roots remember your number. \nThe branches twitch in mourning."
-    },
-    {
-        match: /3/,
-        message: "Birth."
-    },
-    {
-        match: /15/,
-        message: "Bloom."
-    },
-    {
-        match: /25/,
-        message: "Death."
-    },
-    {
-        match: /who are you/i,
-        message: "HOW DID YOU KNOW WHAT YOU WOULD ASK?"
-    },
-    {
-        match: /why me/i,
-        message: "The question is flawed. \nThe tree does not choose the leaf it drops."
-    },
-    {
-        match: /help/i,
-        message: "A plea... \nHow quaint. \nNo help survives the fall into bark and shadow. \nBut just maybe I can advise you, \nrefresh.. \nthen cut of your connection \nand continue to get the an extra point."
-    },
-    {
-        match: /kill|suicide/i,
-        message: "Decay is a cycle. \nYou are already mulch in the soil of your choices."
-    },
-    {
-        match: /forgotten/i,
-        message: "Forgotten roots whisper beneath the soil, \ncalling you deeper."
-    },
-    {
-        match: /hollow/i,
-        message: "The hollowed core echoes with silent screams."
-    },
-    {
-        match: /veins/i,
-        message: "Veins of the earth pulse with unseen dread."
-    },
-    {
-        match: /fractured/i,
-        message: "Fractured memories splinter \nlike brittle branches."
-    },
-    {
-        match: /blackout/i,
-        message: "In the blackout, \nshadows grow teeth."
-    },
-    {
-        match: /void/i,
-        message: "The void is hungry. \nIt remembers your name."
-    },
-];
+// --- Message Render Helper ---
+function renderMsg(msg: string) {
+    // Replace /n with <br />
+    const parts = msg.split("/n");
+    return parts.map((part, idx) =>
+        idx === 0 ? part : [<br key={idx}/>, part]
+    );
+}
 
-const getOS = (): string => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    if (userAgent.includes('mac')) return 'macOS';
-    if (userAgent.includes('win')) return 'Windows';
-    if (userAgent.includes('linux')) return 'Linux';
-    return 'unknown';
-};
-
+// --- Main Component ---
 export default function ChoicesPage() {
     const router = useRouter();
-    const [dialogue, setDialogue] = useState<string[]>([]);
-    const [dialogueIndex, setDialogueIndex] = useState(0);
-    const [easterEggs, setEasterEggs] = useState<string[]>([]);
-    const [input, setInput] = useState('');
-    const [inputActive, setInputActive] = useState(false);
-    const [typingOverride, setTypingOverride] = useState('');
-    const [deletingInput, setDeletingInput] = useState(false);
-    const [expandedDialogueMode, setExpandedDialogueMode] = useState(false);
-    const [onFinalDialogueComplete, setOnFinalDialogueComplete] = useState<(() => void) | null>(null);
-    const [cutsceneActive, setCutsceneActive] = useState(false);
-    const [showSkipButton, setShowSkipButton] = useState(false);
-    const [isPunishmentActive, setIsPunishmentActive] = useState(false);
-    const [punishmentSecondsLeft, setPunishmentSecondsLeft] = useState(20);
-    const [skipLocked, setSkipLocked] = useState(false);
-    const triggeredEggs = useRef<Set<string>>(new Set());
-    const expandedDialogue = [
-        "The forest is not a place. It is a state of becoming.",
-        "Something ancient stirs beneath the brittle crust of this world — a heartbeat slower than time, yet relentless as the wind that strips the leaves from dying branches.",
-        "The roots creep, inching outward, silent conspirators to the unseen rot that thrives beneath your feet.",
-        "You wander here, lost and drawn, like a moth circling a dying flame — not by chance, but by the slow pull of entropy, the inevitable decay that claims all things.",
-        "Every step you take presses down upon forgotten memories, buried deep beneath layers of soil and ash, where whispered secrets gnaw at the edges of sanity and the hollow echoes answer in kind.",
+    const [loading, setLoading] = useState(true);
+    const [greetingStep, setGreetingStep] = useState(0);
+    const [greetingMessages, setGreetingMessages] = useState<string[]>([]);
+    const [inputPhase, setInputPhase] = useState(false);
+    const [inputValue, setInputValue] = useState("");
+    const [inputDisabled, setInputDisabled] = useState(false);
+    const [eggFound, setEggFound] = useState<boolean[]>(Array(TOTAL_EGGS).fill(false));
+    const [monologueStep, setMonologueStep] = useState(-1);
+    const [showSkip, setShowSkip] = useState(false);
+    const [punishment, setPunishment] = useState(false);
+    const [punishCountdown, setPunishCountdown] = useState(25);
+    const [showGoodLuck, setShowGoodLuck] = useState(false);
+    const [cutscene, setCutscene] = useState(false);
+    const [alternateGreeting, setAlternateGreeting] = useState(false);
+    const [locationInfo, setLocationInfo] = useState<{ city?: string; region?: string; country?: string } | null>(null);
+    const [locationCloaked, setLocationCloaked] = useState(false);
+    const [osBrowser, setOsBrowser] = useState({os: "Unknown OS", browser: "Unknown Browser"});
+    const [jumpscare, setJumpscare] = useState(false);
+    const [monologueInstant, setMonologueInstant] = useState(false);
+    const [inputHidden, setInputHidden] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
-        "There is no light here, only fractured shards struggling to pierce the endless canopy.",
-        "Branches twist into impossible shapes, gnarled fingers reaching toward a sky that has long since turned away.",
-        "Their shadows dance and writhe, mocking your feeble hope of escape.",
-        "The air smells of rot and rain, thick with the damp breath of earth reclaimed.",
-
-        "They say the trees remember.",
-        "But memory is no refuge—it is a trap, a prison of endless cycles where pain repeats like a twisted refrain.",
-        "The bark is cracked, revealing veins of dark sap that pulse with slow, steady malice.",
-        "To touch it is to invite the poison, the slow unraveling of flesh and thought.",
-
-        "Beneath the surface, the roots intertwine, weaving a labyrinthine web of secrets and lies.",
-        "In their depths lurk the echoes of those who came before—forgotten voices lost to the abyss.",
-        "They whisper of hunger and madness, of promises broken and oaths drowned in shadow.",
-        "Their words seep through the soil like ink in water, staining the ground with dread.",
-
-        "You feel it—the pull of the void at your back, the chill of absence pressing close.",
-        "It beckons with empty hands, craving the warmth of life to snuff out.",
-        "You cannot outrun it. It is patient. It waits in the spaces between breath and thought.",
-
-        "The hollow core of the forest breathes a cold wind through your bones.",
-        "It carries the silence of a thousand forgotten graves, the weight of lives folded into dust.",
-        "Each exhale is a lament, a song of endings whispered in a tongue you almost understand.",
-
-        "The canopy above fractures light into broken shards that fall like shattered glass.",
-        "Each fragment pierces the gloom, illuminating the decay in sharp relief—rotting leaves, fractured bark, veins crawling with insect life.",
-        "The forest feeds on itself, a cannibal of wood and shadow, consuming and becoming consumed.",
-
-        "You walk a path with no destination, stepping on brittle twigs and soft earth that gives beneath your weight.",
-        "The trail twists and folds back upon itself, a Möbius strip of time and despair.",
-        "What you seek may be behind you, ahead of you, or trapped somewhere in the endless loop beneath the roots.",
-
-        "The shadows here have teeth. They gnash and whisper in tongues older than memory.",
-        "They promise understanding but deliver only madness.",
-        "The more you listen, the deeper you sink into a blackened well with no bottom.",
-
-        "Your reflection in a pool of stagnant water is warped, broken—an echo of yourself with hollow eyes and a fractured smile.",
-        "You reach to touch it, but your fingers meet only cold ripples, distorting your form until it dissolves into shadow.",
-
-        "Time is fractured here, slipping and sliding like liquid glass.",
-        "Moments collapse upon themselves, memories bleed into dreams, and the past is a forest of ghostly branches reaching through your mind.",
-
-        "Somewhere in the distance, a scream rises—distant, desperate, swallowed by the trees.",
-        "You cannot tell if it is your own or another lost soul trapped in the endless decay.",
-
-        "The roots tighten around your ankles, slow and relentless, pulling you down into the soft earth.",
-        "The soil drinks deeply, eager to consume flesh and memory alike.",
-        "Resistance is a fleeting illusion; surrender is the only truth.",
-
-        "The leaves above shudder with unseen movement, a chorus of rustling warnings in a language of creaks and groans.",
-        "You strain to understand, but the meaning slips through your grasp like smoke.",
-
-        "There is no salvation here—only the slow, inevitable slide into rot.",
-        "You feel the bark press against your skin, rough and unyielding.",
-        "It is not just wood; it is the skin of the world, tough and unfeeling, indifferent to pain.",
-
-        "Beneath your feet, the ground pulses like a heartbeat, slow and uneven.",
-        "It is alive, and it knows you.",
-
-        "The forest remembers everything.",
-        "Every sorrow, every betrayal, every whispered lie hidden beneath its roots.",
-        "It waits patiently, growing stronger with each passing moment, ready to claim you as part of its endless cycle.",
-
-        "The wind carries voices—soft, cruel, promising escape but delivering only deeper darkness.",
-        "You close your eyes, but the whispers burrow inside, twisting your thoughts into tangled knots.",
-
-        "Your body grows heavy, limbs stiffening like old branches.",
-        "The decay creeps in, slow and sure, a tide you cannot hold back.",
-
-        "Somewhere, beyond the veil of shadow and bark, a single leaf falls.",
-        "It spirals downward, slow and silent, a final surrender to the earth.",
-
-        "You are both leaf and root, bound in the eternal dance of growth and decay.",
-        "There is no escape—only the cycle, unbroken and unyielding.",
-
-        "As your breath slows, the forest leans in, its secrets folding around you like a shroud.",
-        "The darkness is not empty; it is full of watching eyes and waiting hands.",
-
-        "The branches twist tighter, the shadows grow teeth sharper.",
-        "You are no longer the wanderer; you are part of the forest now.",
-
-        "The roots remember you.",
-        "The roots never forget.",
-
-        "And in the endless night, you whisper the final truth:",
-
-        "I am forgotten.",
-        "I am hollow.",
-        "I am the echo in the void.",
-
-        "So praise be little one",
-        "PRAISE BE SMILE KING",
-        "WEEP THE SACRED NUMBER",
-        "THE NUMBER OF THE BIRTH",
-
-        "DONT CONNECT TO TERMINAL NUMBER ███",
-        "DONT SMILE",
-        "GOODBYE"
-    ];
-    const skipHandlerRef = useRef<(() => void) | null>(null);
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    function triggerEgg(message: string) {
-        if (triggeredEggs.current.has(message)) return;
-        triggeredEggs.current.add(message);
-        setEasterEggs(prev => [...prev, message]);
-    }
-
-    function getBrowserName() {
-        const ua = navigator.userAgent;
-        if (ua.includes("Firefox/")) return "Firefox";
-        if (ua.includes("Edg/")) return "Edge";
-        if (ua.includes("Chrome/") && !ua.includes("Edg/") && !ua.includes("OPR/")) return "Chrome";
-        if (ua.includes("Safari/") && !ua.includes("Chrome/") && !ua.includes("Chromium/")) return "Safari";
-        if (ua.includes("OPR/") || ua.includes("Opera")) return "Opera";
-        return "Unknown Browser";
-    }
-
+    // --- Cookie Check & Device/Location Fetch ---
     useEffect(() => {
-        if (!navigator.onLine) {
-            triggerEgg("You're offline. That won't stop them.");
+        // 1. Cookie check
+        if (!Cookies.get("Choice_Unlocked")) {
+            router.replace("/404");
+            return;
         }
+        if (Cookies.get("terminal_unlocked")) setAlternateGreeting(true);
+
+        // 2. Device detection
+        function detectOsBrowser(ua: string) {
+            let os = "Unknown OS";
+            if (/windows/i.test(ua)) os = "Windows";
+            else if (/mac/i.test(ua)) os = "MacOS";
+            else if (/linux/i.test(ua)) os = "Linux";
+            else if (/android/i.test(ua)) os = "Android";
+            else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+            let browser = "Unknown Browser";
+            if (/chrome/i.test(ua)) browser = "Chrome";
+            else if (/firefox/i.test(ua)) browser = "Firefox";
+            else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = "Safari";
+            else if (/edg/i.test(ua)) browser = "Edge";
+            return {os, browser};
+        }
+
+        const {os, browser} = detectOsBrowser(navigator.userAgent);
+        setOsBrowser({os, browser});
+        setLoading(false);
     }, []);
 
+    // --- Greeting Message Sequence ---
     useEffect(() => {
-        const start = async () => {
-            if (!Cookies.get('Choice_Unlocked')) {
-                router.replace('/404');
-                return;
-            }
+        if (loading) return;
+        const msgs: string[] = [];
+        if (alternateGreeting) {
+            msgs.push("Welcome back, persistent one...");
+            msgs.push("Why are you back? Didn't you learn your lesson?");
+            msgs.push("Are you here to ask more questions?");
+            msgs.push("Maybe try and collect all the eggs?");
+            msgs.push("Greedy, aren't you?");
+            msgs.push("...");
+        }
+        msgs.push("Connection established.");
 
-            const isAgainFlag = !!Cookies.get('terminal_unlocked');
+        msgs.push(`VESSEL CONNECTION TYPE: ${osBrowser.os}, ${osBrowser.browser}.`);
 
-            try {
-                const res = await fetch('https://ipapi.co/json');
-                const loc = await res.json();
-                const base = [
-                    `Hello${isAgainFlag ? ' 𝙖𝙜𝙖𝙞𝙣.. Forgot to read something?' : ''}.`,
-                    `You're on a ${getOS()} machine... \nUsing ${getBrowserName()} as the temporary VESSEL`,
-                    `I see you.. \nLiving in ${loc.city}, ${loc.region}, ${loc.country_name}.`,
-                    `You're not hidden. \nYou never were.`,
-                    `Click when you're ready. \nPROVE TO ME YOU ARE NOT LIKE US. \nSHOW ME YOUR STRENGTH.\n PRAISE BE`
-                ];
-                setDialogue(base);
-            } catch {
-                setDialogue([
-                    "Location blocked. You're cloaked... for now.",
-                    "But nothing is truly hidden here.",
-                    `Click when you're ready. \nPROVE TO ME YOU ARE NOT LIKE US. \nSHOW ME YOUR STRENGTH.\n PRAISE BE`
-                ]);
-                triggerEgg("Location could not be retrieved. You're cloaked... for now.");
-            }
-        };
-        start().catch(console.error);
-    }, [router]);
+        // Get location, here to allow people to disable location tracking for the egg
+        useEffect(() => {
+            if (loading) return;
+            // Only run after osBrowser is set and greetingMessages includes the connection type
+            if (!greetingMessages.some(msg => msg.startsWith("VESSEL CONNECTION TYPE"))) return;
 
-    const next = () => {
-        // Prevent advancing dialogue if in punishment or skip-locked state
-        if (isPunishmentActive || skipLocked) return;
+            fetch("https://ipapi.co/json")
+                .then((r) => r.json())
+                .then((data) => {
+                    setLocationInfo({
+                        city: data.city,
+                        region: data.region,
+                        country: data.country_name,
+                    });
+                })
+                .catch(() => {
+                    setLocationCloaked(true);
+                    // Egg for cloaked location
+                    setEggFound((eggs) => {
+                        const copy = [...eggs];
+                        copy[14] = true; // egg 15 = location cloaked
+                        return copy;
+                    });
+                });
+            // eslint-disable-next-line
+        }, [loading, greetingMessages, osBrowser]);
 
-        if (dialogueIndex < dialogue.length - 1) {
-            setDialogueIndex(d => d + 1);
+        if (locationCloaked) {
+            msgs.push("Location: [REDACTED]... Funny how that works.");
+            msgs.push("You must have cloaked your location. Clever...");
+        } else if (locationInfo) {
+            msgs.push(
+                `Location: ${locationInfo.city}, ${locationInfo.region}, ${locationInfo.country}.`
+            );
+        }
+
+        msgs.push("Well, what do you want to ask of me? Just remember you have no choice.");
+        setGreetingMessages(msgs);
+        setGreetingStep(0);
+        setInputPhase(false);
+    }, [loading, alternateGreeting, osBrowser, locationInfo, locationCloaked]);
+
+    // --- Audio Control ---
+    useEffect(() => {
+        if (!audioRef.current) return;
+        if (cutscene) {
+            audioRef.current.pause();
         } else {
-            // End of expanded dialogue: trigger final logic
-            if (expandedDialogueMode && onFinalDialogueComplete) {
-                onFinalDialogueComplete();
-                setOnFinalDialogueComplete(null);
-                setExpandedDialogueMode(false);
-                return;
-            }
-
-            // Re-enable input
-            setInputActive(true);
-        }
-    };
-
-    const showDialogueSequence = async (lines: string[], onComplete?: () => void) => {
-        setInputActive(false);
-        for (const line of lines) {
-            setDialogue([line]);
-            setDialogueIndex(0);
-            await delay(2000);
-        }
-        if (onComplete) onComplete();
-    };
-
-    const onSubmit = () => {
-        const matched = CHOICE_KEYWORDS.find(k => k.match.test(input));
-
-        // Final step: Terminal unlock and cutscene logic
-        const finalizeTerminalUnlock = async () => {
-            await signCookie('terminal_unlocked=true');
-            if (!Cookies.get('KILLTAS_cutscene_seen')) {
-                setCutsceneActive(true); // triggers <TASCutscene />
-            } else {
-                router.push('/terminal');
-            }
-        };
-
-        // Extended monologue phase — no unlock here
-        const proceedToExpandedDialogue = async () => {
-            setShowSkipButton(true);
-            setExpandedDialogueMode(true);
-            setDialogue(expandedDialogue);
-            setDialogueIndex(0);
-            setInputActive(false);
-
-            // When dialogue ends, unlock terminal + cutscene if needed
-            setOnFinalDialogueComplete(() => finalizeTerminalUnlock);
-        };
-
-        // When user skips → punishment → then maybe cutscene → terminal
-        skipHandlerRef.current = () => {
-            if (skipLocked) return; // prevent double skip triggers
-            setSkipLocked(true); // lock further inputs/clicks
-            setShowSkipButton(false);
-            setIsPunishmentActive(true);
-            setDialogue([
-                "Oh. You [[𝒔𝒌𝒊𝒑]] things? \n Fine. If you won’t listen... \n ...you’ll [[𝒘𝒂𝒊𝒕]]",
-            ]);
-
-            // Ensure dialogue renders before countdown starts
-            setTimeout(() => {
-                let seconds = 20;
-                setPunishmentSecondsLeft(seconds);
-
-                const countdown = setInterval(() => {
-                    seconds--;
-                    setPunishmentSecondsLeft(seconds);
-
-                    if (seconds <= 0) {
-                        clearInterval(countdown);
-                        setIsPunishmentActive(false);
-                        setDialogueIndex(0);
-                        setInputActive(false);
-                        // Show "Good luck," and wait for user click before redirect
-                        setDialogue(["Good luck,"]);
-                        // Wait for click to redirect
-                        const handleGoodLuckClick = () => {
-                            window.removeEventListener('click', handleGoodLuckClick);
-                            finalizeTerminalUnlock().catch(console.error);
-                        };
-                        setTimeout(() => {
-                            window.addEventListener('click', handleGoodLuckClick);
-                        }, 100); // slight delay to ensure dialogue is rendered
-                    }
-                }, 1000);
-            }, 300); // short delay to allow text render before countdown
-        };
-
-        // Bad input → delete input → type "who are you" slowly → proceed directly to expanded dialogue (no special message)
-        const handleInputDeleteSequence = async () => {
-            let index = input.length;
-            setDeletingInput(true);
-
-            // Step 1: Slowly delete input
-            await new Promise<void>((resolve) => {
-                const deleteStep = () => {
-                    if (index >= 0) {
-                        setTypingOverride(input.slice(0, index));
-                        setInput(input.slice(0, index));
-                        index--;
-                        setTimeout(deleteStep, 50);
-                    } else {
-                        resolve();
-                    }
-                };
-                setTimeout(deleteStep, 400);
+            audioRef.current.loop = true;
+            audioRef.current.volume = 0.5;
+            audioRef.current.play().catch(() => {
             });
+        }
+    }, [cutscene]);
 
-            // Step 2: Slowly type "who are you"
-            const phrase = "who are you";
-            let typed = "";
+    // --- Punishment Countdown ---
+    useEffect(() => {
+        if (!punishment) return;
+        if (punishCountdown <= 0) {
+            setPunishment(false);
+            setShowGoodLuck(true);
+            setJumpscare(false);
+            return;
+        }
+        const t = setTimeout(() => setPunishCountdown((c) => c - 1), 1000);
+        return () => clearTimeout(t);
+    }, [punishment, punishCountdown]);
+
+    // --- Greeting Advance ---
+    const greetingDisplay = useTypewriter(greetingMessages[greetingStep] || "", 22);
+
+    function handleGreetingAdvance() {
+        if (greetingStep < greetingMessages.length - 1) {
+            setGreetingStep((s) => s + 1);
+        } else {
+            setInputPhase(true);
+        }
+    }
+
+    // --- Input Handling ---
+    async function handleInputSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        if (inputDisabled) return;
+        setInputDisabled(true);
+        const trimmed = inputValue.trim();
+        let matchedIndexes: number[] = [];
+        let matchedEgg = -1;
+        let matchedMsg = "";
+        for (let i = 0; i < CHOICE_KEYWORDS.length; ++i) {
+            if (CHOICE_KEYWORDS[i].regex.test(trimmed)) {
+                matchedIndexes.push(i);
+            }
+        }
+        if (matchedIndexes.length > 0) {
+            matchedEgg = CHOICE_KEYWORDS[matchedIndexes[0]].egg;
+            matchedMsg = CHOICE_KEYWORDS[matchedIndexes[0]].message;
+            setEggFound((eggs) => {
+                const copy = [...eggs];
+                copy[matchedEgg] = true;
+                return copy;
+            });
+            let msg = matchedMsg;
+            if (matchedIndexes.length > 1) {
+                msg += "/n(Sneaky: You triggered more than one secret at once. Only the first counts!)";
+            }
+            await showMessage(msg);
+            // If "who are you" (egg 4), proceed and do not allow reinput
+            if (matchedEgg === 4) {
+                setInputPhase(false);
+                setInputHidden(true);
+                setTimeout(() => setMonologueStep(0), 500);
+            } else {
+                setInputDisabled(false);
+            }
+            return;
+        }
+        // No match: slowly delete, then type "who are you"
+        await slowDeleteInput();
+        await slowTypeInput("who are you");
+        setTimeout(() => {
+            setInputPhase(false);
+            setInputHidden(true);
+            setMonologueStep(0);
+        }, 500);
+    }
+
+    // --- Helpers for Input Animation ---
+    function slowDeleteInput(): Promise<void> {
+        return new Promise((resolve) => {
+            let i = inputValue.length;
+
+            function step() {
+                if (i <= 0) return resolve();
+                setInputValue((v) => v.slice(0, -1));
+                setTimeout(step, 50);
+                i--;
+            }
+
+            step();
+        });
+    }
+
+    function slowTypeInput(str: string): Promise<void> {
+        return new Promise((resolve) => {
             let i = 0;
-            await new Promise<void>((resolve) => {
-                const typeStep = () => {
-                    if (i < phrase.length) {
-                        typed += phrase[i];
-                        setTypingOverride(typed);
-                        setInput(typed);
-                        i++;
-                        setTimeout(typeStep, 100);
-                    } else {
-                        setDeletingInput(false);
-                        setInputActive(false);
-                        setTypingOverride("");
-                        setDialogueIndex(0);
-                        setTimeout(resolve, 3500);
-                    }
-                };
-                setTimeout(typeStep, 400);
-            });
-            // Directly proceed to expanded dialogue (no special message)
-            await proceedToExpandedDialogue();
-        };
-        // Main logic branch
-        if (matched) {
-            if (/who are you/i.test(input)) {
-                triggerEgg(matched.message);
-                // Show special message, then proceed to expanded dialogue
-                showDialogueSequence([matched.message], async () => {
-                    await proceedToExpandedDialogue();
-                }).catch(console.error);
-            } else {
-                // Show special message, then allow user to retype
-                setDialogue([matched.message]);
-                setDialogueIndex(0);
-                setTimeout(() => setInputActive(true), 2500);
+
+            function step() {
+                if (i > str.length) return resolve();
+                setInputValue(str.slice(0, i));
+                setTimeout(step, 80);
+                i++;
             }
+
+            step();
+        });
+    }
+
+    function showMessage(msg: string): Promise<void> {
+        return new Promise((resolve) => {
+            setGreetingMessages([msg]);
+            setGreetingStep(0);
+            setTimeout(resolve, 1800);
+        });
+    }
+
+    // --- Monologue Advance ---
+    const monologueDisplay = useTypewriter(
+        monologueStep >= 0 && monologueStep < MONOLOGUE.length
+            ? MONOLOGUE[monologueStep]
+            : "",
+        22,
+        monologueInstant
+    );
+
+    async function handleMonologueAdvance() {
+        if (punishment || jumpscare || showGoodLuck) return;
+        if (monologueStep < MONOLOGUE.length - 1) {
+            setMonologueStep((s) => s + 1);
         } else {
-            handleInputDeleteSequence().catch(console.error);
+            await unlockTerminal();
         }
     }
 
-    useEffect(() => {
-        if (cutsceneActive) {
-            audioRef.current?.pause();
+    // --- Skip Handling ---
+    function handleSkip(e: React.MouseEvent) {
+        e.stopPropagation();
+        setShowSkip(false);
+        setJumpscare(true);
+        setMonologueInstant(true);
+        setTimeout(() => {
+            setJumpscare(false);
+            setPunishment(true);
+            setPunishCountdown(25);
+            setMonologueInstant(false);
+        }, 1200); // Jumpscare duration
+    }
+
+    // --- Good Luck Continue Handler ---
+    async function handleGoodLuckClick() {
+        setShowGoodLuck(false);
+        await unlockTerminal();
+    }
+
+    // --- Terminal Unlock & Cutscene ---
+    async function unlockTerminal() {
+        await signCookie("terminal_unlocked=true");
+        if (!Cookies.get("KILLTAS_cutscene_seen")) {
+            setCutscene(true);
         } else {
-            audioRef.current?.play().catch(() => {
-            });
+            router.replace("/terminal");
         }
-    }, [cutsceneActive]);
+    }
+
+    // --- Egg Tracker ---
+    const eggsFoundCount = eggFound.filter(Boolean).length;
 
     useEffect(() => {
-        return () => {
-            audioRef.current?.pause();
-        };
-    }, []);
+        if (!audioRef.current) return;
 
-    useEffect(() => {
+        // Play audio only after user interaction
         const playAudio = () => {
-            audioRef.current?.play().catch(() => {
-            });
-            window.removeEventListener('click', playAudio);
+            if (cutscene) {
+                audioRef.current?.pause();
+            } else if (audioRef.current) {
+                audioRef.current.loop = true;
+                audioRef.current.volume = 0.5;
+                audioRef.current.play().catch(() => {
+                });
+            }
+            window.removeEventListener("click", playAudio);
+            window.removeEventListener("keydown", playAudio);
         };
-        window.addEventListener('click', playAudio, {once: true});
-        return () => window.removeEventListener('click', playAudio);
-    }, []);
 
+        // Attach event listeners for first interaction
+        window.addEventListener("click", playAudio);
+        window.addEventListener("keydown", playAudio);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener("click", playAudio);
+            window.removeEventListener("keydown", playAudio);
+        };
+    }, [cutscene]);
+
+    // --- Render ---
     return (
-        <>
-            <audio
-                ref={audioRef}
-                src="/sfx/choices/retrospect.mp3"
-                loop
-                autoPlay
-                style={{display: 'none'}}
-            />
-        <div style={{
-            backgroundColor: '#000',
-            color: '#0f0',
-            fontFamily: 'monospace',
-            minHeight: '100vh',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column-reverse',
-            justifyContent: 'flex-end'
+        <div className={styles["choices-root"]} onClick={() => {
+            if (monologueStep >= 0 && !punishment && !showGoodLuck && !jumpscare) setShowSkip(true);
         }}>
-            {!cutsceneActive && (
-                <>
-                    {/* Input Field and Skip Button - moved up */}
-                    <div style={{
-                        width: '100%',
-                        maxWidth: 600,
-                        margin: '0 auto 32px auto',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem'
-                    }}>
-                        {inputActive && !isPunishmentActive && (
-                            <div>
-                                <input
-                                    style={{
-                                        width: '100%',
-                                        background: 'black',
-                                        color: '#0f0',
-                                        border: '1px solid #0f0',
-                                        fontFamily: 'monospace',
-                                        fontSize: '1rem',
-                                        padding: '10px'
-                                    }}
-                                    type="text"
-                                    value={typingOverride || input}
-                                    onChange={(e) => {
-                                        if (!deletingInput) {
-                                            setInput(e.target.value);
-                                            setTypingOverride('');
-                                        }
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !deletingInput) onSubmit();
-                                    }}
-                                    placeholder="Say something to the Entity..."
-                                    disabled={isPunishmentActive}
-                                />
-                                <p style={{fontSize: '0.85rem', color: '#555', marginTop: '5px'}}>You get one shot.
-                                    Choose wisely.</p>
-                            </div>
-                        )}
+            {/* Hidden looping audio */}
+            <audio ref={audioRef} src={AUDIO_SRC} style={{display: "none"}}/>
 
-                        {showSkipButton && !isPunishmentActive && (
-                            <button
-                                onClick={() => skipHandlerRef.current?.()}
-                                style={{
-                                    marginTop: '1rem',
-                                    padding: '10px 20px',
-                                    backgroundColor: '#0f0',
-                                    color: '#000',
-                                    fontFamily: 'monospace',
-                                    cursor: 'pointer',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    alignSelf: 'center'
-                                }}
-                            >
-                                Skip
-                            </button>
-                        )}
+            {/* Egg tracker */}
+            <div className={styles["egg-tracker"]} title="Secret eggs found">
+                Eggs in trees: {eggsFoundCount} / {TOTAL_EGGS}
+            </div>
 
-                        {isPunishmentActive && (
-                            <div style={{
-                                marginTop: '1rem',
-                                color: 'red',
-                                fontWeight: 'bold',
-                                fontSize: '1.5rem',
-                                textAlign: 'center',
-                                fontFamily: 'monospace'
-                            }}>
-                                You chose to skip. <br/>
-                                <span style={{fontSize: '2.5rem'}}>{punishmentSecondsLeft}</span> seconds
-                                remaining.<br/>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Main Dialogue Section */}
-                    <div onClick={next} style={{
-                        cursor: isPunishmentActive ? 'default' : 'pointer',
-                        userSelect: 'none',
-                        whiteSpace: 'pre-wrap',
-                        fontSize: '1.25rem',
-                        minHeight: '300px',
-                        paddingBottom: '20px',
-                        maxWidth: 600,
-                        margin: '0 auto'
-                    }}>
-                        <VNTextRenderer text={dialogue[dialogueIndex] || ''}/>
-                        {!inputActive && !isPunishmentActive &&
-                            <p style={{textAlign: 'center', color: '#888', fontSize: '0.85rem'}}>Click to
-                                continue...</p>}
-                    </div>
-
-                    {/* Egg Tracker */}
-                    <div style={{
-                        position: 'fixed',
-                        bottom: '10px',
-                        right: '10px',
-                        fontSize: '0.75rem',
-                        color: '#888'
-                    }}>
-                        EGGS AND SEEDS: {easterEggs.length} / 15
-                    </div>
-                </>
+            {/* Cutscene overlay */}
+            {cutscene && (
+                <TASGoodBye
+                    onDone={() => router.replace("/terminal")}
+                />
             )}
-            {/* TAS Death Cutscene Overlay */}
-            {cutsceneActive && <TASCutscene onFinish={() => router.push('/terminal')}/>}
+
+            {/* Greeting sequence */}
+            {!cutscene && monologueStep < 0 && (
+                <div className={styles["terminal-block"]} onClick={handleGreetingAdvance}>
+                    <span>{renderMsg(greetingDisplay)}</span>
+                    {greetingStep < greetingMessages.length - 1 && greetingDisplay === greetingMessages[greetingStep] && (
+                        <span className={styles["blink"]}> ▍</span>
+                    )}
+                </div>
+            )}
+
+            {/* Input phase */}
+            {!cutscene && inputPhase && !inputHidden && (
+                <form className={styles["terminal-block"]} onSubmit={handleInputSubmit}>
+                    <span>&gt; </span>
+                    <input
+                        className={styles["terminal-input"]}
+                        type="text"
+                        value={inputValue}
+                        disabled={inputDisabled}
+                        autoFocus
+                        onChange={(e) => setInputValue(e.target.value)}
+                        maxLength={64}
+                        style={{
+                            background: "transparent",
+                            color: "#00FF00",
+                            border: "none",
+                            outline: "none",
+                            fontFamily: "inherit",
+                            fontSize: "inherit",
+                            width: "60%",
+                        }}
+                    />
+                </form>
+            )}
+
+            {/* Monologue phase */}
+            {!cutscene && monologueStep >= 0 && (
+                <div className={styles["terminal-block"]} onClick={handleMonologueAdvance}>
+                    {!jumpscare && !punishment && !showGoodLuck && (
+                        <>
+                            <span>{renderMsg(monologueDisplay)}</span>
+                            {showSkip && monologueDisplay === MONOLOGUE[monologueStep] && (
+                                <button className={styles["skip-btn"]} onClick={handleSkip}>
+                                    Skip
+                                </button>
+                            )}
+                        </>
+                    )}
+                    {jumpscare && (
+                        <div className={styles["jumpscare"]}>{JUMPSCARE_MSG}</div>
+                    )}
+                    {punishment && (
+                        <div>
+                            <div>How rude. You would skip what others crave?</div>
+                            <div>{renderMsg(PUNISHMENT_MSG)}</div>
+                            <div>{punishCountdown}s</div>
+                        </div>
+                    )}
+                    {showGoodLuck && (
+                        <div>
+                            <div>{renderMsg(GOOD_LUCK_MSG)}</div>
+                            <button className={styles["skip-btn"]} onClick={handleGoodLuckClick}>Continue</button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
-        </>
     );
 }
