@@ -1,7 +1,5 @@
 extra:
-- add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
-- add favicon.ico
-- make some pages have custom titles on tab
+- add more images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
 
 ALSO CHECK TAS HINTS ARE NOT TOO EASY
 

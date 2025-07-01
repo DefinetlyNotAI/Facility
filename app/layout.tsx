@@ -33,24 +33,7 @@ export default function RootLayout({
             <meta name="classification" content="RESTRICTED"/>
             <meta name="clearance-level" content="LEVEL-5"/>
             <meta name="facility-id" content="05-B"/>
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                body { background: #000; overflow: hidden; }
-                .loading-screen {
-                    position: fixed;
-                    top: 0; left: 0;
-                    width: 100%; height: 100%;
-                    background: #000;
-                    display: flex; align-items: center; justify-content: center;
-                    z-index: 9999;
-                    transition: opacity 0.5s ease-out;
-                }
-                .loading-screen.hidden {
-                    opacity: 0;
-                    pointer-events: none;
-                }
-            `
-            }}/>
+            <link rel="icon" href="/favicon.ico"/>
             <title></title>
         </head>
         <body className="font-sans antialiased bg-black text-white min-h-screen">
