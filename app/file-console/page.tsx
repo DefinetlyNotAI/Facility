@@ -158,7 +158,7 @@ export default function FileConsole() {
                             append('clear: Clears the terminal screen');
                             break;
                         case '████':
-                            append('████: Don't. Just don't.');
+                            append('████: Don\'t. Just don't.');
                             break;
                         default:
                             append(`help: no manual entry for ${topic}`);
@@ -234,7 +234,7 @@ export default function FileConsole() {
                         '\n' +
                         '# If you are NOT meant to read this... stop.\n' +
                         '# If you ARE meant to read this: search the noise.\n' +
-                        '# That's where it echoes. It always echoes. It *always* echoes.\n' +
+                        '# That\'s where it echoes. It always echoes. It *always* echoes.\n' +
                         '\n' +
                         '# END: SYSTEM BOUNDARY\n' +
                         '\n' +
@@ -242,7 +242,7 @@ export default function FileConsole() {
                         '# meta-handshake: vessel-key:[VESSEL_31525]\n' +
                         '# handoff phrase: pswd_recovery --> XOR(Δ43,Δ31) --> \'bark&rot\'\n' +
                         '# Access Key for /███/███/riddle.pdf → \'bark&rot\'\n' +
-                        '# Don't say we didn't warn you\n' +
+                        '# Don\'t say we didn't warn you\n' +
                         '# @@@@ END AUTH @@@@\n');
                 } else if (cwd === '/code' && fn === 'LETITGROW.tree') {
                     append(
@@ -255,7 +255,7 @@ export default function FileConsole() {
                         '> GROWTH LOG #25:\n' +
                         'It hums when no one listens.\n' +
                         'It stretches when the eyes are closed.\n' +
-                        'It KNOWS when you're watching.\n'
+                        'It KNOWS when you\'re watching.\n'
                     );
                 } else if (cwd === '/code' && fn === '.backup') {
                     append(
