@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/extra.module.css';
@@ -16,6 +16,37 @@ export default function MediaPage() {
     const [played, setPlayed] = useState(false);
     const [dl1, setDl1] = useState(false);
     const [dl2, setDl2] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        initializeAudio();
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (!Cookies.get('Media_Unlocked')) {
@@ -44,57 +75,66 @@ export default function MediaPage() {
     };
 
     return (
-        <div className={styles.container}>
-            <h1>🔐 Media Repository</h1>
-            {!accessGranted ? (
-                <div className={styles.access}>
-                    <p>Enter access keyword[2]:</p>
-                    <input
-                        type="text"
-                        value={inputKey}
-                        onChange={e => setInputKey(e.target.value)}
-                    />
-                    <button onClick={checkKey}>Unlock</button>
-                    {msg && <p className={styles.error}>{msg}</p>}
-                </div>
-            ) : (
-                <div className={styles.content}>
-                    <div className={styles.item}>
-                        <label>Audio File [3]:</label>
-                        <audio controls onPlay={() => setPlayed(true)}>
-                            <source src="/media/morse.wav" type="audio/wav"/>
-                            Your browser does not support audio playback.
-                        </audio>
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/music/doangelsexist.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
+            <div className={styles.container}>
+                <h1>🔐 Media Repository</h1>
+                {!accessGranted ? (
+                    <div className={styles.access}>
+                        <p>Enter access keyword[2]:</p>
+                        <input
+                            type="text"
+                            value={inputKey}
+                            onChange={e => setInputKey(e.target.value)}
+                        />
+                        <button onClick={checkKey}>Unlock</button>
+                        {msg && <p className={styles.error}>{msg}</p>}
                     </div>
+                ) : (
+                    <div className={styles.content}>
+                        <div className={styles.item}>
+                            <label>Audio File [3]:</label>
+                            <audio controls onPlay={() => setPlayed(true)}>
+                                <source src="/media/morse.wav" type="audio/wav"/>
+                                Your browser does not support audio playback.
+                            </audio>
+                        </div>
 
-                    <div className={styles.item}>
-                        <label>File 1 [4] - First letter is caps!:</label>
-                        <a
-                            href="/media/Password_Is_Keyword%5B3%5D.zip"
-                            download
-                            onClick={() => setDl1(true)}
-                        >
-                            Download ZIP 1
-                        </a>
+                        <div className={styles.item}>
+                            <label>File 1 [4] - First letter is caps!:</label>
+                            <a
+                                href="/media/Password_Is_Keyword%5B3%5D.zip"
+                                download
+                                onClick={() => setDl1(true)}
+                            >
+                                Download ZIP 1
+                            </a>
+                        </div>
+
+                        <div className={styles.item}>
+                            <label>File 2 [To go next] - First letter is caps!:</label>
+                            <a
+                                href="/media/Password_Is_Keyword%5B4%5D.zip"
+                                download
+                                onClick={() => setDl2(true)}
+                            >
+                                Download ZIP 2
+                            </a>
+                        </div>
+
+                        <p>
+                            Current status: Audio – {played ? '✅' : '❌'}, Zip1 – {dl1 ? '✅' : '❌'},
+                            Zip2 – {dl2 ? '✅' : '❌'}
+                        </p>
                     </div>
-
-                    <div className={styles.item}>
-                        <label>File 2 [To go next] - First letter is caps!:</label>
-                        <a
-                            href="/media/Password_Is_Keyword%5B4%5D.zip"
-                            download
-                            onClick={() => setDl2(true)}
-                        >
-                            Download ZIP 2
-                        </a>
-                    </div>
-
-                    <p>
-                        Current status: Audio – {played ? '✅' : '❌'}, Zip1 – {dl1 ? '✅' : '❌'},
-                        Zip2 – {dl2 ? '✅' : '❌'}
-                    </p>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+        </>
     );
 }
