@@ -1,5 +1,3 @@
-Test that TIME cutscene plays happy1 to 9 fullscreen with audio sfx/all/static.mp3 for the imgs durations, where img are 0.5s long and loop 3 times, thus 13.5s long audio plays as well
-
 extra:
 - add images, media etc. as needed (check sans fight images NECROPTOSIS - SP!Dusttale)
 - add favicon.ico

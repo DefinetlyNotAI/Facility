@@ -1,34 +1,30 @@
-import type React from "react"
-import type {Metadata} from "next"
-import "./globals.css"
-import TAS from "@/components/TAS"
+"use client"
 
-export const metadata: Metadata = {
-    title: "Facility Terminal Access",
-    description: "Secure Research Facility Terminal - Authorized Personnel Only",
-    icons: {
-        icon: "/favicon.ico",
-    },
-    generator: 'Facility OS v3.15.25',
-    robots: "noindex, nofollow",
-    other: {
-        'classification': 'RESTRICTED',
-        'clearance-level': 'LEVEL-5',
-        'facility-id': '05-B'
-    }
+import React, {useEffect} from "react";
+import {usePathname} from "next/navigation";
+import "./globals.css";
+import TAS from "@/components/TAS";
+
+function getTitle(pathname: string) {
+    if (pathname === "/") return "Hope you have fun";
+    if (pathname === "/moonlight") return "A night so cold he forgot to smile";
+    if (pathname === "/smileking") return ":)";
+    if (pathname === "/smileking-auth") return "Authorized Access Only - Smile King Terminal";
+    return "Facility Terminal Access";
 }
-
-export const viewport = {
-    width: "device-width",
-    initialScale: 1,
-    themeColor: "#000000",
-};
 
 export default function RootLayout({
                                        children,
                                    }: {
-    children: React.ReactNode
+    children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+
+    useEffect(() => {
+        const title = getTitle(pathname);
+        document.title = title === pathname ? "Loading" : title;
+    }, [pathname]);
+
     return (
         <html lang="en" className="dark">
         <head>
@@ -37,42 +33,31 @@ export default function RootLayout({
             <meta name="classification" content="RESTRICTED"/>
             <meta name="clearance-level" content="LEVEL-5"/>
             <meta name="facility-id" content="05-B"/>
-            <title>Facility Terminal Access</title>
             <style dangerouslySetInnerHTML={{
                 __html: `
-            body { 
-              background: #000; 
-              overflow: hidden; 
-            }
-            .loading-screen {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: #000;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              z-index: 9999;
-              transition: opacity 0.5s ease-out;
-            }
-            .loading-screen.hidden {
-              opacity: 0;
-              pointer-events: none;
-            }
-          `
+                body { background: #000; overflow: hidden; }
+                .loading-screen {
+                    position: fixed;
+                    top: 0; left: 0;
+                    width: 100%; height: 100%;
+                    background: #000;
+                    display: flex; align-items: center; justify-content: center;
+                    z-index: 9999;
+                    transition: opacity 0.5s ease-out;
+                }
+                .loading-screen.hidden {
+                    opacity: 0;
+                    pointer-events: none;
+                }
+            `
             }}/>
+            <title></title>
         </head>
         <body className="font-sans antialiased bg-black text-white min-h-screen">
         <div id="loading-screen" className="loading-screen">
             <div className="text-center">
                 <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
-                <div className="loading-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+                <div className="loading-dots"><span></span><span></span><span></span></div>
             </div>
         </div>
         <div className="scanlines crt-effect">
@@ -97,5 +82,5 @@ export default function RootLayout({
         }}/>
         </body>
         </html>
-    )
+    );
 }

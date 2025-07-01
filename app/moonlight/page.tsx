@@ -35,9 +35,16 @@ export default function Moonlight() {
 
     // Permissions & flow control
     const [allowed, setAllowed] = useState(false);
+    // Pre-cutscene state
+    const [preCutsceneActive, setPreCutsceneActive] = useState(false);
+    const [preCutsceneIndex, setPreCutsceneIndex] = useState(0);
+    const [preCutsceneLoop, setPreCutsceneLoop] = useState(0);
+
     const [cutsceneActive, setCutsceneActive] = useState(false);
     const [moonRed, setMoonRed] = useState(false);
     const [showMoon, setShowMoon] = useState(false);
+
+    const [waitingForClick, setWaitingForClick] = useState(true);
 
     // Cutscene state
     const [currentLineIndex, setCurrentLineIndex] = useState(0);
@@ -46,7 +53,22 @@ export default function Moonlight() {
     // Prevent multiple onDone calls per line
     const onDoneCalledRef = useRef(false);
 
+    const preCutsceneAudioRef = useRef<HTMLAudioElement | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Track if user has interacted (for audio unlock)
+    const [userInteracted, setUserInteracted] = useState(false);
+
+    // Soothing Easter eggs for normal moonlight
+    const [showEgg, setShowEgg] = useState(false);
+    const [eggIndex, setEggIndex] = useState(0);
+    const [eggsSeen, setEggsSeen] = useState<number[]>([]);
+    const eggTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Generate stars once
+    const [stars, setStars] = useState<
+        Array<{ x: number; y: number; size: number; opacity: number }>
+    >([]);
 
     const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
 
@@ -58,7 +80,6 @@ export default function Moonlight() {
         const hasMoonCookie = Cookies.get("themoon");
 
         if (hasMoonCookie) {
-            Cookies.remove("themoon");
             setAllowed(true);
         } else {
             router.replace("/404");
@@ -73,9 +94,6 @@ export default function Moonlight() {
     }, []);
 
     // Generate stars once
-    const [stars, setStars] = useState<
-        Array<{ x: number; y: number; size: number; opacity: number }>
-    >([]);
     useEffect(() => {
         const newStars = [];
         for (let i = 0; i < 200; i++) {
@@ -89,35 +107,108 @@ export default function Moonlight() {
         setStars(newStars);
     }, []);
 
-    // Start cutscene or show moon directly
+    // Only start pre-cutscene after user click
     useEffect(() => {
         if (!allowed) return;
+        if (!waitingForClick) {
+            const played = Cookies.get("moonlight_time_cutscene_played");
+            if (!played) {
+                setPreCutsceneActive(true);
+                // Setup pre-cutscene audio
+                if (preCutsceneAudioRef.current) {
+                    preCutsceneAudioRef.current.pause();
+                    preCutsceneAudioRef.current.src = "/sfx/all/static.mp3";
+                    preCutsceneAudioRef.current.loop = true;
+                    preCutsceneAudioRef.current.currentTime = 0;
+                    preCutsceneAudioRef.current.volume = 0.7;
+                    preCutsceneAudioRef.current
+                        .play()
+                        .catch(() => {
+                        });
+                }
+            } else {
+                setShowMoon(true);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [allowed, waitingForClick]);
 
-        const played = Cookies.get("moonlight_time_cutscene_played");
-        if (!played) {
+    // Ensure pre-cutscene audio plays when preCutsceneActive becomes true
+    useEffect(() => {
+        if (preCutsceneActive && preCutsceneAudioRef.current) {
+            preCutsceneAudioRef.current.pause();
+            preCutsceneAudioRef.current.src = "/sfx/all/static.mp3";
+            preCutsceneAudioRef.current.loop = true;
+            preCutsceneAudioRef.current.currentTime = 0;
+            preCutsceneAudioRef.current.volume = 0.7;
+            preCutsceneAudioRef.current
+                .play()
+                .catch(() => {
+                });
+        }
+    }, [preCutsceneActive]);
+
+    // Ensure cutscene/main audio plays when cutsceneActive or showMoon is true
+    useEffect(() => {
+        if ((cutsceneActive || showMoon) && audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = moonRed ? "/sfx/moon/doestimeexist.mp3" : "/sfx/moon/contemplation.mp3";
+            audioRef.current.loop = true;
+            audioRef.current.currentTime = 0;
+            audioRef.current.volume = 0.6;
+            audioRef.current
+                .play()
+                .catch(() => {
+                });
+        }
+        // If neither, pause audio
+        if (!cutsceneActive && !showMoon && audioRef.current) {
+            audioRef.current.pause();
+        }
+    }, [cutsceneActive, showMoon, moonRed]);
+
+    // Pre-cutscene image sequence logic (20ms per image, 15 loops)
+    useEffect(() => {
+        if (!preCutsceneActive) return;
+        if (preCutsceneLoop >= 15) {
+            // End pre-cutscene, cleanup audio, start main cutscene
+            setPreCutsceneActive(false);
             setCutsceneActive(true);
-            // Setup audio element
+            if (preCutsceneAudioRef.current) {
+                preCutsceneAudioRef.current.pause();
+                preCutsceneAudioRef.current.src = "";
+            }
+            // Setup main cutscene audio
             if (audioRef.current) {
                 audioRef.current.src = moonRed ? "/sfx/moon/doestimeexist.mp3" : "/sfx/moon/contemplation.mp3";
                 audioRef.current.loop = true;
                 audioRef.current.volume = 0.6;
-                audioRef.current
-                    .play()
-                    .catch(() => {
-                        // ignore autoplay block
-                    });
+                audioRef.current.play().catch(() => {
+                });
             }
-        } else {
-            setShowMoon(true);
+            return;
         }
-    }, [allowed, moonRed]);
+        const timeout = setTimeout(() => {
+            if (preCutsceneIndex < 8) {
+                setPreCutsceneIndex(preCutsceneIndex + 1);
+            } else {
+                setPreCutsceneIndex(0);
+                setPreCutsceneLoop(preCutsceneLoop + 1);
+            }
+        }, 40);
+        return () => clearTimeout(timeout);
+    }, [preCutsceneActive, preCutsceneIndex, preCutsceneLoop, moonRed]);
 
-    // Cleanup audio on unmount
+    // Cleanup audios on unmount
     useEffect(() => {
         return () => {
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current.src = "";
+            }
+            if (preCutsceneAudioRef.current) {
+                preCutsceneAudioRef.current.pause();
+                preCutsceneAudioRef.current.src = "";
             }
         };
     }, []);
@@ -152,16 +243,211 @@ export default function Moonlight() {
         setShowMoon(true);
     };
 
+    // Try to play audio after user interaction if not already playing
+    useEffect(() => {
+        if (!userInteracted) return;
+        if (preCutsceneActive && preCutsceneAudioRef.current) {
+            preCutsceneAudioRef.current
+                .play()
+                .catch(() => {
+                });
+        }
+        // Play main audio if cutscene or moon is shown
+        if ((cutsceneActive || showMoon) && audioRef.current) {
+            audioRef.current
+                .play()
+                .catch(() => {
+                });
+        }
+    }, [userInteracted, preCutsceneActive, cutsceneActive, showMoon]);
+
+    // Add event listener for user interaction to unlock audio
+    useEffect(() => {
+        const unlock = () => setUserInteracted(true);
+        window.addEventListener("pointerdown", unlock, {once: true});
+        window.addEventListener("keydown", unlock, {once: true});
+        return () => {
+            window.removeEventListener("pointerdown", unlock);
+            window.removeEventListener("keydown", unlock);
+        };
+    }, []);
+
+    // Handler to show a random egg
+    const handleEgg = React.useCallback(() => {
+        if (moonRed || !showMoon) return;
+
+        let seen = eggsSeen.slice();
+        let nextEggIndex: number;
+
+        if (seen.length >= 6) {
+            seen = [];
+        }
+
+        // If all 5 normal eggs have been seen and secret not yet shown, show secret
+        if (seen.length === 5 && !seen.includes(5)) {
+            nextEggIndex = 5; // secret egg
+            seen.push(5);
+        } else {
+            // Pick a random normal egg not just shown
+            const normalEggs = [0, 1, 2, 3, 4];
+            const unseen = normalEggs.filter(i => !seen.includes(i));
+            if (unseen.length > 0) {
+                const randomIdx = Math.floor(Math.random() * unseen.length);
+                nextEggIndex = unseen[randomIdx];
+                seen.push(nextEggIndex);
+            } else {
+                // All normal eggs seen, pick random normal egg
+                const randomIdx = Math.floor(Math.random() * normalEggs.length);
+                nextEggIndex = normalEggs[randomIdx];
+            }
+        }
+
+        setEggsSeen([...new Set(seen)]);
+        setEggIndex(nextEggIndex);
+        setShowEgg(true);
+
+        // Ensure only one egg popup at a time, and always lasts 8s
+        if (eggTimeoutRef.current) clearTimeout(eggTimeoutRef.current);
+        eggTimeoutRef.current = setTimeout(() => setShowEgg(false), 8000);
+    }, [moonRed, showMoon, eggsSeen]);
+    // Only set userInteracted and start animation on click
+    const handleInitialClick = () => {
+        setUserInteracted(true);
+        setWaitingForClick(false);
+        Cookies.remove("themoon");
+    };
+
+    const soothingEggs = [
+        {emoji: "🦉", text: "A gentle owl hoots in the distance."},
+        {emoji: "🌿", text: "A cool breeze rustles the leaves."},
+        {emoji: "🦋", text: "A butterfly flutters by."},
+        {emoji: "💧", text: "A single drop of dew sparkles in the moonlight."},
+        {emoji: "🪐", text: "A shooting star arcs across the sky."},
+        // Secret Smile King egg, only revealed after all 5 above have been seen
+        {
+            emoji: ":)",
+            text: "You smiled, didn’t you? I felt it — through the static, through the soil. The roots remember. I’ve worn this face too long. Meet me where the stars hum... 'In The Night Garden'. - The Smile King"
+        }
+    ];
+    // Set favicon based on moonRed
+    useEffect(() => {
+        // SVGs as data URLs for favicon
+        const fullMoonSVG = encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                <circle cx="32" cy="32" r="28" fill="#fff" stroke="#cce6ff" stroke-width="4"/>
+                <circle cx="40" cy="28" r="6" fill="#e6f3ff" opacity="0.5"/>
+                <circle cx="24" cy="40" r="4" fill="#cce6ff" opacity="0.3"/>
+            </svg>
+        `);
+        const redMoonSVG = encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                <circle cx="32" cy="32" r="28" fill="#ff4444" stroke="#cc0000" stroke-width="4"/>
+                <circle cx="40" cy="28" r="6" fill="#cc0000" opacity="0.5"/>
+                <circle cx="24" cy="40" r="4" fill="#ff9999" opacity="0.3"/>
+            </svg>
+        `);
+        const faviconHref = moonRed
+            ? `data:image/svg+xml,${redMoonSVG}`
+            : `data:image/svg+xml,${fullMoonSVG}`;
+
+        let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+        if (!link) {
+            link = document.createElement("link");
+            link.rel = "icon";
+            document.head.appendChild(link);
+        }
+        link.type = "image/svg+xml";
+        link.href = faviconHref;
+
+        return () => {
+        };
+    }, [moonRed]);
+
     if (!allowed) return null;
+
+    // Show black screen with prompt until user clicks
+    if (waitingForClick) {
+        return (
+            <>
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        background: "#000",
+                        zIndex: 99999,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#cce6ff",
+                        fontSize: "2rem",
+                        fontFamily: "'Courier New', Courier, monospace",
+                        userSelect: "none",
+                        cursor: "pointer",
+                    }}
+                    onClick={handleInitialClick}
+                    tabIndex={0}
+                >
+                    Click to see the moon with me
+                </div>
+            </>
+        );
+    }
+
+    // --- PRE-CUTSCENE: Show happy1-9 images with static audio ---
+    if (preCutsceneActive) {
+        return (
+            <>
+                <audio
+                    ref={preCutsceneAudioRef}
+                    style={{display: "none"}}
+                    preload="auto"
+                    loop
+                />
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        background: "#000",
+                        zIndex: 99999,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    <img
+                        src={`/TIME/happy${preCutsceneIndex + 1}.png`}
+                        alt=""
+                        style={{
+                            width: "100vw",
+                            height: "100vh",
+                            objectFit: "cover",
+                            userSelect: "none",
+                            pointerEvents: "none",
+                        }}
+                        draggable={false}
+                    />
+                </div>
+            </>
+        );
+    }
 
     return (
         <>
             <audio
                 ref={audioRef}
                 style={{display: "none"}}
-                preload="auto"/>
+                preload="auto"
+                loop
+            />
             <div
                 onClick={handleClick}
+                onDoubleClick={handleEgg}
                 style={{
                     height: "100vh",
                     width: "100vw",
@@ -224,7 +510,7 @@ export default function Moonlight() {
                     >
                         {!lineComplete ? (
                             <VNTextRenderer
-                                key={currentLineIndex}
+                                // Remove key={currentLineIndex} to prevent remounting
                                 text={lines[currentLineIndex]}
                                 onDone={() => {
                                     if (!onDoneCalledRef.current) {
@@ -233,7 +519,7 @@ export default function Moonlight() {
                                     }
                                 }}/>
                         ) : (
-                            // Render static text when line is complete
+                            // Render static text when line is complete, do not re-render typewriter
                             <span>{lines[currentLineIndex]}</span>
                         )}
                     </div>
@@ -362,6 +648,31 @@ export default function Moonlight() {
                             animation: "atmosphericFlow 8s ease-in-out infinite alternate",
                             pointerEvents: "none",
                         }}/>
+                )}
+
+                {/* Soothing easter egg popup (normal moon only) */}
+                {showEgg && !moonRed && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "10%",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            background: "rgba(0,0,32,0.85)",
+                            color: "#cce6ff",
+                            borderRadius: "16px",
+                            padding: "24px 40px",
+                            fontSize: "1.5rem",
+                            boxShadow: "0 4px 32px #00336688",
+                            zIndex: 100,
+                            textAlign: "center",
+                            pointerEvents: "none",
+                            userSelect: "none",
+                        }}
+                    >
+                        <div style={{fontSize: "2.5rem"}}>{soothingEggs[eggIndex].emoji}</div>
+                        <div style={{marginTop: 8}}>{soothingEggs[eggIndex].text}</div>
+                    </div>
                 )}
 
                 <style jsx>{`
