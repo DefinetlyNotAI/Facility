@@ -16,6 +16,15 @@ export default function SmilekingAuth() {
     const submit = async () => {
         setError('');
         if (!password) {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setError('Password cannot be empty');
             return;
         }
@@ -30,9 +39,27 @@ export default function SmilekingAuth() {
             });
 
             if (!res.ok) {
+                // Play error sound
+                try {
+                    const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                    errorAudio.volume = 0.6;
+                    errorAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play error audio:', error);
+                }
+
                 const data = await res.json();
                 setError(data.error || 'Authentication failed');
                 return;
+            }
+
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
             }
 
             const data = await res.json();
@@ -41,6 +68,15 @@ export default function SmilekingAuth() {
 
             router.push('/smileking');
         } catch (err) {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setError(`Auth API error ${err}`);
         }
     };

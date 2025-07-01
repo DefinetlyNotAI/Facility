@@ -192,24 +192,31 @@ export default function TheEnd() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (input.trim().toLowerCase() === KEYWORD_6.toLowerCase()) {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             Cookies.remove('End?');
             await signCookie('End=true');
             setHasEndCookie(true);
             setHasEndQuestionCookie(false);
             setError('');
         } else {
-            setError('Do not lie, for you spoke what was not taught to you.');
-
             // Play error sound
             try {
                 const errorAudio = new Audio('/sfx/all/computerboo.mp3');
                 errorAudio.volume = 0.6;
-                errorAudio.play().catch((error) => {
-                    console.warn('Error audio failed to play:', error);
-                });
+                errorAudio.play().catch(console.warn);
             } catch (error) {
-                console.warn('Failed to create error audio:', error);
+                console.warn('Failed to play error audio:', error);
             }
+
+            setError('Do not lie, for you spoke what was not taught to you.');
         }
     }
 

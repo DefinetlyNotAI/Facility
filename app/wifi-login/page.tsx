@@ -141,6 +141,15 @@ const WifiLoginPage: React.FC = () => {
         setError('');
 
         if (username.trim().toLowerCase() !== 'itgrowshere') {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setError('Invalid username.');
             return;
         }
@@ -149,8 +158,26 @@ const WifiLoginPage: React.FC = () => {
         const inputHash = sha1(password.trim().toLowerCase());
 
         if (inputHash !== correctHash) {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setError(`Invalid password. Your hash: ${inputHash}`);
             return;
+        }
+
+        // Play success sound
+        try {
+            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+            successAudio.volume = 0.6;
+            successAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play success audio:', error);
         }
 
         setLoading(true);

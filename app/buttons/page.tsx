@@ -153,13 +153,40 @@ export default function ButtonsPage() {
                 {headers: {'X-CSRF-Token': csrfToken ?? ''}}
             );
 
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             const updatedStates = {...buttonStates, [browser]: true};
             setButtonStates(updatedStates);
 
             if (Object.values(updatedStates).every(Boolean)) {
                 await signCookie('File_Unlocked=true');
+                
+                // Play completion sound
+                try {
+                    const completionAudio = new Audio('/sfx/all/computeryay.mp3');
+                    completionAudio.volume = 0.8;
+                    completionAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play completion audio:', error);
+                }
             }
         } catch {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             alert('This button has already been pressed or there was an error.');
         }
     }

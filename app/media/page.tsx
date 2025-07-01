@@ -3,8 +3,9 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/extra.module.css';
+import axios from 'axios';
 import {signCookie} from "@/lib/cookie-utils";
+import styles from '../../styles/extra.module.css';
 
 const KEYWORD_2 = 'Fletchling';
 
@@ -67,11 +68,59 @@ export default function MediaPage() {
 
     const checkKey = () => {
         if (inputKey.trim() === KEYWORD_2) {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             setAccessGranted(true);
             setMsg('');
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setMsg('Incorrect keyword.');
         }
+    };
+
+    const handleDownload = (filename: string, isFirst: boolean) => {
+        // Play download sound
+        try {
+            const downloadAudio = new Audio('/sfx/all/computeryay.mp3');
+            downloadAudio.volume = 0.5;
+            downloadAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play download audio:', error);
+        }
+
+        if (isFirst) {
+            setDl1(true);
+        } else {
+            setDl2(true);
+        }
+    };
+
+    const handleAudioPlay = () => {
+        // Play interaction sound
+        try {
+            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            interactionAudio.volume = 0.5;
+            interactionAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play interaction audio:', error);
+        }
+
+        setPlayed(true);
     };
 
     return (
@@ -100,7 +149,7 @@ export default function MediaPage() {
                     <div className={styles.content}>
                         <div className={styles.item}>
                             <label>Audio File [3]:</label>
-                            <audio controls onPlay={() => setPlayed(true)}>
+                            <audio controls onPlay={handleAudioPlay}>
                                 <source src="/media/morse.wav" type="audio/wav"/>
                                 Your browser does not support audio playback.
                             </audio>
@@ -111,7 +160,7 @@ export default function MediaPage() {
                             <a
                                 href="/media/Password_Is_Keyword%5B3%5D.zip"
                                 download
-                                onClick={() => setDl1(true)}
+                                onClick={() => handleDownload('Password_Is_Keyword%5B3%5D.zip', true)}
                             >
                                 Download ZIP 1
                             </a>
@@ -122,7 +171,7 @@ export default function MediaPage() {
                             <a
                                 href="/media/Password_Is_Keyword%5B4%5D.zip"
                                 download
-                                onClick={() => setDl2(true)}
+                                onClick={() => handleDownload('Password_Is_Keyword%5B4%5D.zip', false)}
                             >
                                 Download ZIP 2
                             </a>

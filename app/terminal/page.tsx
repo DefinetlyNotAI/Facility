@@ -161,6 +161,15 @@ export default function TerminalPage() {
                 handleWrongPhrase(val);
                 return;
             } else {
+                // Play success sound for correct keyword
+                try {
+                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                    successAudio.volume = 0.6;
+                    successAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play success audio:', error);
+                }
+
                 setMessages(['']);
             }
 
@@ -192,6 +201,15 @@ export default function TerminalPage() {
             }
         } else if (step === 'email') {
             if (val === 'echo.null@█.tree') {
+                // Play success sound
+                try {
+                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                    successAudio.volume = 0.6;
+                    successAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play success audio:', error);
+                }
+
                 setMessages(msgs => [...msgs, 'Correct...']);
 
                 // Wait before dumping the monologue
@@ -210,6 +228,15 @@ export default function TerminalPage() {
                 }, 1500); // Pause after 'Correct...'
 
             } else {
+                // Play error sound
+                try {
+                    const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                    errorAudio.volume = 0.6;
+                    errorAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play error audio:', error);
+                }
+
                 const nextWrong = wrongCount + 1;
                 setWrongCount(nextWrong);
 
@@ -244,7 +271,54 @@ export default function TerminalPage() {
         }
     };
 
+    // --- Helpers for Input Animation ---
+    function slowDeleteInput(): Promise<void> {
+        return new Promise((resolve) => {
+            let i = inputValue.length;
+
+            function step() {
+                if (i <= 0) return resolve();
+                setInputValue((v) => v.slice(0, -1));
+                setTimeout(step, 50);
+                i--;
+            }
+
+            step();
+        });
+    }
+
+    function slowTypeInput(str: string): Promise<void> {
+        return new Promise((resolve) => {
+            let i = 0;
+
+            function step() {
+                if (i > str.length) return resolve();
+                setInputValue(str.slice(0, i));
+                setTimeout(step, 80);
+                i++;
+            }
+
+            step();
+        });
+    }
+
+    function showMessage(msg: string): Promise<void> {
+        return new Promise((resolve) => {
+            setMessages([msg]);
+            setTimeout(resolve, 1800);
+        });
+    }
+
     const handleWrongPhrase = (val: string) => {
+        // Play error sound
+        try {
+            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+            errorAudio.volume = 0.6;
+            errorAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play error audio:', error);
+        }
+
         let newCount = wrongCount + 1;
         if (newCount > 20) newCount = 10;
         setWrongCount(newCount);
@@ -265,6 +339,15 @@ export default function TerminalPage() {
     };
 
     const handleYes = () => {
+        // Play interaction sound
+        try {
+            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            interactionAudio.volume = 0.5;
+            interactionAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play interaction audio:', error);
+        }
+
         setShowButtons(false);
         setMessages(['']);
         flushMessagesSequentially([
@@ -276,6 +359,15 @@ export default function TerminalPage() {
     };
 
     const handleNo = () => {
+        // Play error sound
+        try {
+            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+            errorAudio.volume = 0.5;
+            errorAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play error audio:', error);
+        }
+
         const newCount = noCount + 1;
         setNoCount(newCount);
 

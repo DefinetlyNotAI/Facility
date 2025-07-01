@@ -60,6 +60,15 @@ export default function RootPage() {
     }, [router]);
 
     async function handleAccept() {
+        // Play success sound
+        try {
+            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+            successAudio.volume = 0.6;
+            successAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play success audio:', error);
+        }
+
         await signCookie("accepted=true");
         setAccepted(true);
         setShowConsoleWarning(true);

@@ -72,6 +72,15 @@ export default function WifiPanel() {
 
     // Generate the encoded question
     const handleReceive = () => {
+        // Play interaction sound
+        try {
+            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            interactionAudio.volume = 0.5;
+            interactionAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play interaction audio:', error);
+        }
+
         const q = btoa('PROVE YOU ARE NOT A ROBOT: What is 3, 15 and 25 summed up?');
         setQuestion(q);
         setMode('receive');
@@ -79,19 +88,55 @@ export default function WifiPanel() {
 
     const handleUnlockSend = () => {
         if (password.trim().toLowerCase() === KEYWORD_1.trim().toLowerCase()) {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             setSendUnlocked(true);
             setMode('send');
             setErrorMsg(null);
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setErrorMsg('46 6F 6F 6C');
         }
     };
 
     const handleSendAnswer = () => {
         if (userAnswer.trim() === '43') {
+            // Play alert sound for transmission error
+            try {
+                const alertAudio = new Audio('/sfx/all/alert.mp3');
+                alertAudio.volume = 0.6;
+                alertAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play alert audio:', error);
+            }
+
             setErrorMsg('Transmission error: Encryption module failed — Caesar cipher your message for us.');
             setMode('caesar');
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setErrorMsg('49 64 69 6F 74');
         }
     };
@@ -109,12 +154,30 @@ export default function WifiPanel() {
             })
             .join('');
         if (decoded === '76') {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             setFadeOut(true);
             setTimeout(async () => {
                 await signCookie('Media_Unlocked=true');
                 router.push('/media');
             }, 650);
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setErrorMsg('42 6F 74 68 20 61 20 66 6F 6F 6C 20 61 6E 64 20 61 6E 20 69 64 69 6F 74');
         }
     };

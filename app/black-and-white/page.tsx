@@ -72,9 +72,27 @@ export default function BlackAndWhitePage() {
 
                 if (inputBufferRef.current.endsWith(KEYWORD_5.toLowerCase())) {
                     if (window.innerWidth === 666 && window.innerHeight === 666) {
+                        // Play success sound
+                        try {
+                            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                            successAudio.volume = 0.6;
+                            successAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play success audio:', error);
+                        }
+
                         await signCookie('Choice_Unlocked=true');
                         router.push('/choices');
                     } else {
+                        // Play error sound
+                        try {
+                            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                            errorAudio.volume = 0.6;
+                            errorAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play error audio:', error);
+                        }
+
                         setMessage('Incorrect screen size for unlocking choice.');
                     }
                 }
@@ -89,9 +107,27 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
+                        // Play mysterious sound for moonlight
+                        try {
+                            const mysteriousAudio = new Audio('/sfx/all/horror.mp3');
+                            mysteriousAudio.volume = 0.5;
+                            mysteriousAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play mysterious audio:', error);
+                        }
+
                         await signCookie("themoon=true");
                         router.push('/moonlight');
                     } else {
+                        // Play error sound
+                        try {
+                            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                            errorAudio.volume = 0.5;
+                            errorAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play error audio:', error);
+                        }
+
                         router.push('/404');
                     }
                 }
