@@ -6,6 +6,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio-config";
 
 const KEYWORD_6 = "Unbirth";
 
@@ -161,7 +162,7 @@ export default function TheEnd() {
 
         // Play static noise with better error handling
         try {
-            const staticAudio = new Audio('/sfx/all/static.mp3');
+            const staticAudio = new Audio(SFX_AUDIO.STATIC);
             staticAudio.volume = 0.8;
 
             staticAudio.onended = () => {
@@ -204,7 +205,7 @@ export default function TheEnd() {
 
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch((error) => {
                     console.warn('Error audio failed to play:', error);
@@ -272,7 +273,7 @@ export default function TheEnd() {
                 >
                     <audio
                         ref={audioRef}
-                        src="/sfx/isittheend/NeverendingNight_DELTARUNE_Chapter_3-4_Soundtrack_Toby_Fox.mp3"
+                        src={BACKGROUND_AUDIO.THE_END_FINAL}
                         loop
                         preload="auto"
                         style={{display: 'none'}}
@@ -575,7 +576,7 @@ export default function TheEnd() {
                     {/* Background audio */}
                     <audio
                         ref={backgroundAudioRef}
-                        src="/sfx/isittheend/thesunwontshine.mp3"
+                        src={BACKGROUND_AUDIO.THE_END_QUESTION}
                         loop
                         preload="auto"
                         style={{display: 'none'}}

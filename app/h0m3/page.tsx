@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO} from "@/lib/audio-config";
 
 const binaryCorruptText = "01001100 01100001 01110011 01110100 00100000 01110100 01101001 01101101 01100101 00100000 01110100 01101000 01101111 01110101 00100000 01101000 01100101 01110011 01101001 01110100 01100001 01110100 01100101 01100100 00101100 00100000 01101001 01110100 00100000 01100110 01101111 01110101 01101110 01100100 00100000 01110100 01101000 01101001 01101110 01100101";
 const hexCorruptText = "36363A3636"; // 66:66 in hex
@@ -44,7 +45,7 @@ export default function H0m3() {
         humidity: '43%',
         radiation: '0.09 μSv/h',
         powerOutput: '2.4 MW',
-        networkStatus: 'NONE EXISTANT'
+        networkStatus: 'NONE EXISTENT'
     });
 
     // Corruption states
@@ -149,7 +150,7 @@ export default function H0m3() {
                 };
 
                 // Play static noise audio
-                const staticAudio = new Audio('/sfx/all/static.mp3');
+                const staticAudio = new Audio(BACKGROUND_AUDIO.H0M3);
                 staticAudio.volume = 0.6;
                 staticAudio.play().catch(() => {
                 });

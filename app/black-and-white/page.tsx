@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, playAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 const KEYWORD_5 = 'Echoes';
 
@@ -17,35 +18,10 @@ export default function BlackAndWhitePage() {
 
     // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
-        if (bnwUnlocked) {
-            initializeAudio();
-        }
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
-    }, [bnwUnlocked]);
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.BNW);
+        initAudio();
+        return () => cleanupAudio(audioRef);
+    }, []);
 
     // On mount: check cookie, else redirect 404
     useEffect(() => {
@@ -72,27 +48,11 @@ export default function BlackAndWhitePage() {
 
                 if (inputBufferRef.current.endsWith(KEYWORD_5.toLowerCase())) {
                     if (window.innerWidth === 666 && window.innerHeight === 666) {
-                        // Play success sound
-                        try {
-                            const successAudio = new Audio('/sfx/all/computeryay.mp3');
-                            successAudio.volume = 0.6;
-                            successAudio.play().catch(console.warn);
-                        } catch (error) {
-                            console.warn('Failed to play success audio:', error);
-                        }
-
+                        playAudio(SFX_AUDIO.SUCCESS);
                         await signCookie('Choice_Unlocked=true');
                         router.push('/choices');
                     } else {
-                        // Play error sound
-                        try {
-                            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
-                            errorAudio.volume = 0.6;
-                            errorAudio.play().catch(console.warn);
-                        } catch (error) {
-                            console.warn('Failed to play error audio:', error);
-                        }
-
+                        playAudio(SFX_AUDIO.ERROR);
                         setMessage('Incorrect screen size for unlocking choice.');
                     }
                 }
@@ -107,27 +67,11 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
-                        // Play mysterious sound for moonlight
-                        try {
-                            const mysteriousAudio = new Audio('/sfx/all/eggcrack.mp3');
-                            mysteriousAudio.volume = 0.5;
-                            mysteriousAudio.play().catch(console.warn);
-                        } catch (error) {
-                            console.warn('Failed to play audio:', error);
-                        }
-
+                        playAudio(SFX_AUDIO.EGG_CRACK, {volume: 0.5});
                         await signCookie("themoon=true");
                         router.push('/moonlight');
                     } else {
-                        // Play error sound
-                        try {
-                            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
-                            errorAudio.volume = 0.5;
-                            errorAudio.play().catch(console.warn);
-                        } catch (error) {
-                            console.warn('Failed to play error audio:', error);
-                        }
-
+                        playAudio(SFX_AUDIO.ERROR, {volume: 0.5});
                         router.push('/404');
                     }
                 }
@@ -144,7 +88,7 @@ export default function BlackAndWhitePage() {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/music/thethirdcry.mp3"
+                src={BACKGROUND_AUDIO.BNW}
                 loop
                 preload="auto"
                 style={{display: 'none'}}
@@ -205,7 +149,7 @@ export default function BlackAndWhitePage() {
                         alignItems: 'center',
                     }}>
                         <img
-                            src="/black-and-white/qr.png"
+                            src="/static/black-and-white/qr.png"
                             alt="QR Code"
                             style={{
                                 width: '100%',
@@ -233,7 +177,7 @@ export default function BlackAndWhitePage() {
                         alignItems: 'center',
                     }}>
                         <img
-                            src="/black-and-white/qr-doppelganger.png"
+                            src="/static/black-and-white/qr-doppelganger.png"
                             alt="QR Code Doppelganger"
                             style={{
                                 width: '100%',

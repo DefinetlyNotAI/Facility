@@ -6,6 +6,7 @@ import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookie-utils";
 import styles from '../../styles/Buttons.module.css';
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'] as const;
 type BrowserName = typeof BROWSERS[number];
@@ -72,32 +73,9 @@ export default function ButtonsPage() {
 
     // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
-        initializeAudio();
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS);
+        initAudio();
+        return () => cleanupAudio(audioRef);
     }, []);
 
     useEffect(() => {
@@ -155,7 +133,7 @@ export default function ButtonsPage() {
 
             // Play success sound
             try {
-                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
                 successAudio.volume = 0.6;
                 successAudio.play().catch(console.warn);
             } catch (error) {
@@ -170,7 +148,7 @@ export default function ButtonsPage() {
 
                 // Play completion sound
                 try {
-                    const completionAudio = new Audio('/sfx/all/computeryay.mp3');
+                    const completionAudio = new Audio(SFX_AUDIO.SUCCESS);
                     completionAudio.volume = 0.8;
                     completionAudio.play().catch(console.warn);
                 } catch (error) {
@@ -180,7 +158,7 @@ export default function ButtonsPage() {
         } catch {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -195,7 +173,7 @@ export default function ButtonsPage() {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/music/hopeformehopeforyou.mp3"
+                src={BACKGROUND_AUDIO.BUTTONS}
                 loop
                 preload="auto"
                 style={{display: 'none'}}

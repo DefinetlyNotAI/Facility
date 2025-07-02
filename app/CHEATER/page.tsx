@@ -1,6 +1,7 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio} from "@/lib/audio-config";
 
 const narratorLines = [
     "So... you thought you could cheat the system.",
@@ -36,32 +37,9 @@ export default function CheaterTrap() {
 
     // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.4;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
-        initializeAudio();
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.CHEATER);
+        initAudio();
+        return () => cleanupAudio(audioRef);
     }, []);
 
     useEffect(() => {
@@ -84,7 +62,7 @@ export default function CheaterTrap() {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/music/doangelsexist.mp3"
+                src={BACKGROUND_AUDIO.CHEATER}
                 loop
                 preload="auto"
                 style={{display: 'none'}}

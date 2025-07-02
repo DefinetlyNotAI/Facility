@@ -6,6 +6,7 @@ import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
 import styles from '../../styles/WifiLogin.module.css';
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
@@ -84,37 +85,14 @@ const WifiLoginPage: React.FC = () => {
     const [showCurlHint, setShowCurlHint] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current && !showCutscene) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
         if (!showCutscene && !showCurlHint) {
-            initializeAudio();
+            initAudio();
         }
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        return () => cleanupAudio(audioRef);
     }, [showCutscene, showCurlHint]);
+
 
     useEffect(() => {
         const wifiUnlocked = Cookies.get('Wifi_Unlocked');
@@ -143,7 +121,7 @@ const WifiLoginPage: React.FC = () => {
         if (username.trim().toLowerCase() !== 'itgrowshere') {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -160,7 +138,7 @@ const WifiLoginPage: React.FC = () => {
         if (inputHash !== correctHash) {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -173,7 +151,7 @@ const WifiLoginPage: React.FC = () => {
 
         // Play success sound
         try {
-            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+            const successAudio = new Audio(SFX_AUDIO.SUCCESS);
             successAudio.volume = 0.6;
             successAudio.play().catch(console.warn);
         } catch (error) {
@@ -204,7 +182,7 @@ const WifiLoginPage: React.FC = () => {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/home/sweethome.mp3"
+                src={BACKGROUND_AUDIO.WIFI_LOGIN}
                 loop
                 preload="auto"
                 style={{display: 'none'}}

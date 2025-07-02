@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio-config";
 
 function getRandomFilename(length = 8) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -114,7 +115,7 @@ export default function ScrollPage() {
         const triggerFileDownload = () => {
             // Play file download sound
             try {
-                const downloadAudio = new Audio('/sfx/all/file_delete.m4a');
+                const downloadAudio = new Audio(SFX_AUDIO.FILE_DELETE);
                 downloadAudio.volume = 0.4;
                 downloadAudio.play().catch(console.warn);
             } catch (error) {
@@ -145,7 +146,7 @@ export default function ScrollPage() {
         ttsTimeoutRef.current = setTimeout(() => {
             // Play horror sound before TTS
             try {
-                const horrorAudio = new Audio('/sfx/all/horror.mp3');
+                const horrorAudio = new Audio(SFX_AUDIO.HORROR);
                 horrorAudio.volume = 0.5;
                 horrorAudio.play().catch(console.warn);
             } catch (error) {
@@ -182,7 +183,7 @@ export default function ScrollPage() {
                 ref={(el) => {
                     if (el) audioRef.current[0] = el;
                 }}
-                src={showEscape ? "/sfx/scroll/█.mp3" : "/sfx/scroll/nowhereissafesowillyouscroll.mp3"}
+                src={showEscape ? BACKGROUND_AUDIO.SCROLL_ESCAPE : BACKGROUND_AUDIO.SCROLL}
                 autoPlay
                 loop={showEscape}
                 hidden
@@ -216,7 +217,7 @@ export default function ScrollPage() {
                             onClick={async () => {
                                 // Play success sound
                                 try {
-                                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                                    const successAudio = new Audio(SFX_AUDIO.STATIC);
                                     successAudio.volume = 0.6;
                                     successAudio.play().catch(console.warn);
                                 } catch (error) {

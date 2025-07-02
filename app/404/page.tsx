@@ -3,6 +3,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 const WINGDINGS_LOCKED = "✋︎⧫︎ ♓︎⬧︎ ■︎□︎⧫︎ ⧫︎♓︎❍︎♏︎";
 const WINGDINGS_NOT_ALLOWED = "✡︎□︎◆︎ ♎︎□︎■︎🕯︎⧫︎ ♌︎♏︎●︎□︎■︎♑︎ ♒︎♏︎❒︎♏︎";
@@ -19,32 +20,9 @@ export default function Glitchy404() {
 
     // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
-        initializeAudio();
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.N404);
+        initAudio();
+        return () => cleanupAudio(audioRef);
     }, []);
 
     useEffect(() => {
@@ -76,7 +54,7 @@ export default function Glitchy404() {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/all/clockat3.mp3"
+                src={SFX_AUDIO.CLOCK3}
                 loop
                 preload="auto"
                 style={{display: 'none'}}

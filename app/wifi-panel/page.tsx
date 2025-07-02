@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/WifiPanel.module.css';
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 const KEYWORD_1 = 'Whispers';
 
@@ -21,32 +22,9 @@ export default function WifiPanel() {
 
     // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.4;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
-        initializeAudio();
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_PANEL);
+        initAudio();
+        return () => cleanupAudio(audioRef);
     }, []);
 
     // 404 and redirect logic
@@ -74,7 +52,7 @@ export default function WifiPanel() {
     const handleReceive = () => {
         // Play interaction sound
         try {
-            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            const interactionAudio = new Audio(SFX_AUDIO.SUCCESS);
             interactionAudio.volume = 0.5;
             interactionAudio.play().catch(console.warn);
         } catch (error) {
@@ -90,7 +68,7 @@ export default function WifiPanel() {
         if (password.trim().toLowerCase() === KEYWORD_1.trim().toLowerCase()) {
             // Play success sound
             try {
-                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
                 successAudio.volume = 0.6;
                 successAudio.play().catch(console.warn);
             } catch (error) {
@@ -103,7 +81,7 @@ export default function WifiPanel() {
         } else {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -118,7 +96,7 @@ export default function WifiPanel() {
         if (userAnswer.trim() === '43') {
             // Play alert sound for transmission error
             try {
-                const alertAudio = new Audio('/sfx/all/alert.mp3');
+                const alertAudio = new Audio(SFX_AUDIO.ALERT);
                 alertAudio.volume = 0.6;
                 alertAudio.play().catch(console.warn);
             } catch (error) {
@@ -130,7 +108,7 @@ export default function WifiPanel() {
         } else {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -156,7 +134,7 @@ export default function WifiPanel() {
         if (decoded === '76') {
             // Play success sound
             try {
-                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
                 successAudio.volume = 0.6;
                 successAudio.play().catch(console.warn);
             } catch (error) {
@@ -171,7 +149,7 @@ export default function WifiPanel() {
         } else {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -186,7 +164,7 @@ export default function WifiPanel() {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/music/isitreallyfine.mp3"
+                src={BACKGROUND_AUDIO.WIFI_PANEL}
                 loop
                 preload="auto"
                 style={{display: 'none'}}

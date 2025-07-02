@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {signCookie} from "@/lib/cookie-utils";
 import Cookies from "js-cookie";
 import {VNTextRenderer} from "@/components/text";
+import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio-config";
 
 const POETIC_LINES = [
     "In the beginning, there was only the void...",
@@ -117,7 +118,7 @@ export default function Moonlight() {
                 // Setup pre-cutscene audio
                 if (preCutsceneAudioRef.current) {
                     preCutsceneAudioRef.current.pause();
-                    preCutsceneAudioRef.current.src = "/sfx/all/static.mp3";
+                    preCutsceneAudioRef.current.src = SFX_AUDIO.STATIC;
                     preCutsceneAudioRef.current.loop = true;
                     preCutsceneAudioRef.current.currentTime = 0;
                     preCutsceneAudioRef.current.volume = 0.7;
@@ -137,7 +138,7 @@ export default function Moonlight() {
     useEffect(() => {
         if (preCutsceneActive && preCutsceneAudioRef.current) {
             preCutsceneAudioRef.current.pause();
-            preCutsceneAudioRef.current.src = "/sfx/all/static.mp3";
+            preCutsceneAudioRef.current.src = SFX_AUDIO.STATIC;
             preCutsceneAudioRef.current.loop = true;
             preCutsceneAudioRef.current.currentTime = 0;
             preCutsceneAudioRef.current.volume = 0.7;
@@ -152,7 +153,7 @@ export default function Moonlight() {
     useEffect(() => {
         if ((cutsceneActive || showMoon) && audioRef.current) {
             audioRef.current.pause();
-            audioRef.current.src = moonRed ? "/sfx/moon/doestimeexist.mp3" : "/sfx/moon/contemplation.mp3";
+            audioRef.current.src = moonRed ? BACKGROUND_AUDIO.MOONLIGHT_RED : BACKGROUND_AUDIO.MOONLIGHT_NORMAL;
             audioRef.current.loop = true;
             audioRef.current.currentTime = 0;
             audioRef.current.volume = 0.6;
@@ -180,7 +181,7 @@ export default function Moonlight() {
             }
             // Setup main cutscene audio
             if (audioRef.current) {
-                audioRef.current.src = moonRed ? "/sfx/moon/doestimeexist.mp3" : "/sfx/moon/contemplation.mp3";
+                audioRef.current.src = moonRed ? BACKGROUND_AUDIO.MOONLIGHT_RED : BACKGROUND_AUDIO.MOONLIGHT_NORMAL;
                 audioRef.current.loop = true;
                 audioRef.current.volume = 0.6;
                 audioRef.current.play().catch(() => {
@@ -421,7 +422,7 @@ export default function Moonlight() {
                     }}
                 >
                     <img
-                        src={`/TIME/happy${preCutsceneIndex + 1}.png`}
+                        src={`/static/moonlight/TIME/happy${preCutsceneIndex + 1}.png`}
                         alt=""
                         style={{
                             width: "100vw",
@@ -587,7 +588,7 @@ export default function Moonlight() {
                             if (!moonRed) return;
 
                             const link = document.createElement("a");
-                            link.href = "/moonlight/riddle.hex";
+                            link.href = "/static/moonlight/riddle.hex";
                             link.download = "riddle.hex";
                             document.body.appendChild(link);
                             link.click();

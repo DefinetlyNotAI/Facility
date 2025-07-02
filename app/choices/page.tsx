@@ -5,7 +5,6 @@ import {useRouter} from "next/navigation";
 import Cookies from 'js-cookie';
 import styles from "../../styles/Choices.module.css";
 import {
-    AUDIO_SRC,
     CHOICE_KEYWORDS,
     GOOD_LUCK_MSG,
     JUMPSCARE_MSG,
@@ -16,6 +15,7 @@ import {
 } from "@/app/choices/DataConstants";
 import TASGoodBye from "./TASGoodBye";
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO} from "@/lib/audio-config";
 
 // --- Message Render Helper ---
 function renderMsg(msg: string) {
@@ -347,7 +347,7 @@ export default function ChoicesPage() {
             if (monologueStep >= 0 && !punishment && !showGoodLuck && !jumpscare) setShowSkip(true);
         }}>
             {/* Hidden looping audio */}
-            <audio ref={audioRef} src={AUDIO_SRC} style={{display: "none"}}/>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.CHOICES} style={{display: "none"}}/>
 
             {/* Egg tracker */}
             <div className={styles["egg-tracker"]} title="Secret eggs found">

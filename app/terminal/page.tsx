@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookie-utils";
 import {VNTextRenderer} from "@/components/text";
 import styles from '../../styles/Terminal.module.css';
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 const keywords = {
     1: 'Whispers',
@@ -90,36 +91,12 @@ export default function TerminalPage() {
             .join(' ');
     };
 
-    // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current && !fullScreenOverlay) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.TERMINAL);
         if (unlocked && !fullScreenOverlay) {
-            initializeAudio();
+            initAudio();
         }
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        return () => cleanupAudio(audioRef);
     }, [unlocked, fullScreenOverlay]);
 
     // Queue system for timed rendering
@@ -163,7 +140,7 @@ export default function TerminalPage() {
             } else {
                 // Play success sound for correct keyword
                 try {
-                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                    const successAudio = new Audio(SFX_AUDIO.SUCCESS);
                     successAudio.volume = 0.6;
                     successAudio.play().catch(console.warn);
                 } catch (error) {
@@ -203,7 +180,7 @@ export default function TerminalPage() {
             if (val === 'echo.null@█.tree') {
                 // Play success sound
                 try {
-                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                    const successAudio = new Audio(SFX_AUDIO.SUCCESS);
                     successAudio.volume = 0.6;
                     successAudio.play().catch(console.warn);
                 } catch (error) {
@@ -230,7 +207,7 @@ export default function TerminalPage() {
             } else {
                 // Play error sound
                 try {
-                    const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                    const errorAudio = new Audio(SFX_AUDIO.ERROR);
                     errorAudio.volume = 0.6;
                     errorAudio.play().catch(console.warn);
                 } catch (error) {
@@ -275,7 +252,7 @@ export default function TerminalPage() {
     const handleWrongPhrase = (val: string) => {
         // Play error sound
         try {
-            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+            const errorAudio = new Audio(SFX_AUDIO.ERROR);
             errorAudio.volume = 0.6;
             errorAudio.play().catch(console.warn);
         } catch (error) {
@@ -304,7 +281,7 @@ export default function TerminalPage() {
     const handleYes = () => {
         // Play interaction sound
         try {
-            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            const interactionAudio = new Audio(SFX_AUDIO.SUCCESS);
             interactionAudio.volume = 0.5;
             interactionAudio.play().catch(console.warn);
         } catch (error) {
@@ -324,7 +301,7 @@ export default function TerminalPage() {
     const handleNo = () => {
         // Play error sound
         try {
-            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+            const errorAudio = new Audio(SFX_AUDIO.ERROR);
             errorAudio.volume = 0.5;
             errorAudio.play().catch(console.warn);
         } catch (error) {
@@ -514,7 +491,7 @@ export default function TerminalPage() {
         <>
             <audio
                 ref={audioRef}
-                src="/sfx/music/thethirdcry.mp3"
+                src={BACKGROUND_AUDIO.TERMINAL}
                 loop
                 preload="auto"
                 style={{display: 'none'}}

@@ -1,5 +1,6 @@
 // Expanded secret keywords and eggs
 import {useEffect, useState} from "react";
+import {SFX_AUDIO} from "@/lib/audio-config";
 
 export const CHOICE_KEYWORDS = [
     {
@@ -74,7 +75,6 @@ export const CHOICE_KEYWORDS = [
     },
 ];
 export const TOTAL_EGGS = 15; // egg #15 is failure to get your location
-export const AUDIO_SRC = "/sfx/choices/retrospect.mp3";
 
 // Expanded horror monologue
 export const MONOLOGUE = [
@@ -111,7 +111,6 @@ export const MONOLOGUE = [
     "So good luck in the terminal"
 ];
 
-
 export const PUNISHMENT_MSG = "You cannot run from what waits in the dark. So you will wait";
 export const GOOD_LUCK_MSG = "Good luck.";
 export const JUMPSCARE_MSG = "HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA"; // Replace with your jumpscare text or image if desired
@@ -134,10 +133,10 @@ export const CUTSCENE_LINES = [
     "... /n ... /n ...",
 ];
 export const CUTSCENE_AUDIO = [
-    "/sfx/all/heartbeat.mp3",     // 0
-    "/sfx/all/file_delete.m4a",   // 1
-    "/sfx/all/censorship.mp3",    // 2
-    "/sfx/all/static.mp3",        // 3
+    SFX_AUDIO.HEARTBEAT,     // 0
+    SFX_AUDIO.FILE_DELETE,   // 1
+    SFX_AUDIO.CENSORSHIP,    // 2
+    SFX_AUDIO.STATIC,        // 3
 ];
 
 export function useTypewriter(text: string, speed = 28, instant = false) {

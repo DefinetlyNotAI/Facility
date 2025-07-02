@@ -2,6 +2,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import {SFX_AUDIO} from "@/lib/audio-config";
 
 export default function SmilekingAuth() {
     const [password, setPassword] = useState('');
@@ -18,7 +19,7 @@ export default function SmilekingAuth() {
         if (!password) {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
@@ -41,7 +42,7 @@ export default function SmilekingAuth() {
             if (!res.ok) {
                 // Play error sound
                 try {
-                    const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                    const errorAudio = new Audio(SFX_AUDIO.ERROR);
                     errorAudio.volume = 0.6;
                     errorAudio.play().catch(console.warn);
                 } catch (error) {
@@ -55,7 +56,7 @@ export default function SmilekingAuth() {
 
             // Play success sound
             try {
-                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
                 successAudio.volume = 0.6;
                 successAudio.play().catch(console.warn);
             } catch (error) {
@@ -70,7 +71,7 @@ export default function SmilekingAuth() {
         } catch (err) {
             // Play error sound
             try {
-                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                const errorAudio = new Audio(SFX_AUDIO.ERROR);
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {

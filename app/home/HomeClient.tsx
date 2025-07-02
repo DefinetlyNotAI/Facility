@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookie-utils";
 import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
+import {BACKGROUND_AUDIO} from "@/lib/audio-config";
 
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
@@ -782,7 +783,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
             <audio
                 ref={ambientAudioRef}
-                src="/sfx/home/sweethome.mp3"
+                src={BACKGROUND_AUDIO.HOME}
                 loop={true}
                 style={{display: 'none'}}
             />

@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
 
 export default function RootPage() {
     const router = useRouter();
@@ -13,38 +14,14 @@ export default function RootPage() {
     const [countdown, setCountdown] = useState(25);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
-        // Start audio after loading screen
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
         if (!isLoading) {
-            setTimeout(initializeAudio, 1000);
+            setTimeout(initAudio, 1000);
         }
-
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        return () => cleanupAudio(audioRef);
     }, [isLoading]);
+
 
     useEffect(() => {
         // Simulate system boot
@@ -62,7 +39,7 @@ export default function RootPage() {
     async function handleAccept() {
         // Play success sound
         try {
-            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+            const successAudio = new Audio(SFX_AUDIO.ALERT);
             successAudio.volume = 0.6;
             successAudio.play().catch(console.warn);
         } catch (error) {
@@ -115,7 +92,7 @@ export default function RootPage() {
             <>
                 <audio
                     ref={audioRef}
-                    src="/sfx/music/doangelsexist.mp3"
+                    src={BACKGROUND_AUDIO.ROOT_PAGE}
                     loop
                     preload="auto"
                     style={{display: 'none'}}
@@ -207,7 +184,7 @@ export default function RootPage() {
             <>
                 <audio
                     ref={audioRef}
-                    src="/sfx/music/doangelsexist.mp3"
+                    src={BACKGROUND_AUDIO.ROOT_PAGE}
                     loop
                     preload="auto"
                     style={{display: 'none'}}
