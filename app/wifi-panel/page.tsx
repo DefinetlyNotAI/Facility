@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/WifiPanel.module.css';
@@ -17,6 +17,37 @@ export default function WifiPanel() {
     const [sendUnlocked, setSendUnlocked] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [fadeOut, setFadeOut] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.4;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        initializeAudio();
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, []);
 
     // 404 and redirect logic
     useEffect(() => {
@@ -41,6 +72,15 @@ export default function WifiPanel() {
 
     // Generate the encoded question
     const handleReceive = () => {
+        // Play interaction sound
+        try {
+            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            interactionAudio.volume = 0.5;
+            interactionAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play interaction audio:', error);
+        }
+
         const q = btoa('PROVE YOU ARE NOT A ROBOT: What is 3, 15 and 25 summed up?');
         setQuestion(q);
         setMode('receive');
@@ -48,19 +88,55 @@ export default function WifiPanel() {
 
     const handleUnlockSend = () => {
         if (password.trim().toLowerCase() === KEYWORD_1.trim().toLowerCase()) {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             setSendUnlocked(true);
             setMode('send');
             setErrorMsg(null);
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setErrorMsg('46 6F 6F 6C');
         }
     };
 
     const handleSendAnswer = () => {
         if (userAnswer.trim() === '43') {
+            // Play alert sound for transmission error
+            try {
+                const alertAudio = new Audio('/sfx/all/alert.mp3');
+                alertAudio.volume = 0.6;
+                alertAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play alert audio:', error);
+            }
+
             setErrorMsg('Transmission error: Encryption module failed — Caesar cipher your message for us.');
             setMode('caesar');
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setErrorMsg('49 64 69 6F 74');
         }
     };
@@ -78,106 +154,133 @@ export default function WifiPanel() {
             })
             .join('');
         if (decoded === '76') {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             setFadeOut(true);
             setTimeout(async () => {
                 await signCookie('Media_Unlocked=true');
                 router.push('/media');
             }, 650);
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setErrorMsg('42 6F 74 68 20 61 20 66 6F 6F 6C 20 61 6E 64 20 61 6E 20 69 64 69 6F 74');
         }
     };
 
     return (
-        <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
-            <h1 className={styles.title}>Wi‑Fi Panel</h1>
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/music/isitreallyfine.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
+            <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
+                <h1 className={styles.title}>Wi‑Fi Panel</h1>
 
-            <div className={styles.buttonContainer}>
-                <button
-                    onClick={handleReceive}
-                    disabled={mode !== 'locked'}
-                    className={styles.actionButton}
-                >
-                    Receive
-                </button>
-                <button
-                    onClick={() => password ? handleUnlockSend() : null}
-                    disabled={!password}
-                    className={styles.actionButton}
-                >
-                    Send
-                </button>
+                <div className={styles.buttonContainer}>
+                    <button
+                        onClick={handleReceive}
+                        disabled={mode !== 'locked'}
+                        className={styles.actionButton}
+                    >
+                        Receive
+                    </button>
+                    <button
+                        onClick={() => password ? handleUnlockSend() : null}
+                        disabled={!password}
+                        className={styles.actionButton}
+                    >
+                        Send
+                    </button>
+                </div>
+
+                {mode === 'receive' && (
+                    <div className={styles.contentBox}>
+                        <h2>Incoming Transmission</h2>
+                        <p><em>Answer:</em></p>
+                        <div className={styles.codeBlock}>
+                            {question}
+                        </div>
+                        <div className={styles.hint}>
+                            {/* Algorithm: Base64 decode this string */}
+                            The answer lies beneath the veil.
+                        </div>
+                        <label className={styles.inputLabel} htmlFor="wifi-code-input">
+                            To unlock networking functionality,<br/>
+                            Enter Keyword[1] Access Code first.
+                        </label>
+                        <input
+                            id="wifi-code-input"
+                            type="text"
+                            placeholder="Enter the secret phrase"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={styles.input}
+                        />
+                    </div>
+                )}
+
+                {mode === 'send' && sendUnlocked && (
+                    <div className={styles.contentBox}>
+                        <h2>Transmit Your Solution</h2>
+                        <p>Access granted. Input the sum, if you dare:</p>
+                        <label className={styles.inputLabel} htmlFor="wifi-answer-input">
+                            Response
+                        </label>
+                        <input
+                            id="wifi-answer-input"
+                            type="text"
+                            placeholder="Numerical value"
+                            value={userAnswer}
+                            onChange={(e) => setUserAnswer(e.target.value)}
+                            className={styles.input}
+                        />
+                        <button onClick={handleSendAnswer} className={styles.submitButton}>
+                            Submit
+                        </button>
+                    </div>
+                )}
+
+                {mode === 'caesar' && (
+                    <div className={styles.contentBox}>
+                        <h2>Encryption Protocol</h2>
+                        <p>Signal scrambled. Apply Caesar shift (-3) to your answer and try again:</p>
+                        <label className={styles.inputLabel} htmlFor="wifi-caesar-input">
+                            Ciphertext
+                        </label>
+                        <input
+                            id="wifi-caesar-input"
+                            type="text"
+                            placeholder="Caesar-shifted answer"
+                            value={userAnswer}
+                            onChange={(e) => setUserAnswer(e.target.value)}
+                            className={styles.input}
+                        />
+                        <button onClick={handleCaesarSubmit} className={styles.submitButton}>
+                            Finalize
+                        </button>
+                    </div>
+                )}
+
+                {errorMsg && <div className={styles.error}>{errorMsg}</div>}
             </div>
-
-            {mode === 'receive' && (
-                <div className={styles.contentBox}>
-                    <h2>Incoming Transmission</h2>
-                    <p><em>Answer:</em></p>
-                    <div className={styles.codeBlock}>
-                        {question}
-                    </div>
-                    <div className={styles.hint}>
-                        {/* Algorithm: Base64 decode this string */}
-                        The answer lies beneath the veil.
-                    </div>
-                    <label className={styles.inputLabel} htmlFor="wifi-code-input">
-                        To unlock networking functionality,<br/>
-                        Enter Keyword[1] Access Code first.
-                    </label>
-                    <input
-                        id="wifi-code-input"
-                        type="text"
-                        placeholder="Enter the secret phrase"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={styles.input}
-                    />
-                </div>
-            )}
-
-            {mode === 'send' && sendUnlocked && (
-                <div className={styles.contentBox}>
-                    <h2>Transmit Your Solution</h2>
-                    <p>Access granted. Input the sum, if you dare:</p>
-                    <label className={styles.inputLabel} htmlFor="wifi-answer-input">
-                        Response
-                    </label>
-                    <input
-                        id="wifi-answer-input"
-                        type="text"
-                        placeholder="Numerical value"
-                        value={userAnswer}
-                        onChange={(e) => setUserAnswer(e.target.value)}
-                        className={styles.input}
-                    />
-                    <button onClick={handleSendAnswer} className={styles.submitButton}>
-                        Submit
-                    </button>
-                </div>
-            )}
-
-            {mode === 'caesar' && (
-                <div className={styles.contentBox}>
-                    <h2>Encryption Protocol</h2>
-                    <p>Signal scrambled. Apply Caesar shift (-3) to your answer and try again:</p>
-                    <label className={styles.inputLabel} htmlFor="wifi-caesar-input">
-                        Ciphertext
-                    </label>
-                    <input
-                        id="wifi-caesar-input"
-                        type="text"
-                        placeholder="Caesar-shifted answer"
-                        value={userAnswer}
-                        onChange={(e) => setUserAnswer(e.target.value)}
-                        className={styles.input}
-                    />
-                    <button onClick={handleCaesarSubmit} className={styles.submitButton}>
-                        Finalize
-                    </button>
-                </div>
-            )}
-
-            {errorMsg && <div className={styles.error}>{errorMsg}</div>}
-        </div>
+        </>
     );
 }

@@ -22,7 +22,7 @@ export default function ScrollPage() {
     const [escapeHovered, setEscapeHovered] = useState(false);
     const [ipAddress, setIpAddress] = useState('...loading...');
     const faviconRef = useRef<HTMLLinkElement | null>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement[]>([]);
     const hasInteractedRef = useRef(false);
     const ttsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -78,8 +78,8 @@ export default function ScrollPage() {
             }
 
             // Trigger audio playback on first scroll
-            if (!hasInteractedRef.current && audioRef.current) {
-                audioRef.current.play().catch(() => {
+            if (!hasInteractedRef.current && audioRef.current[0]) {
+                audioRef.current[0].play().catch(() => {
                 });
                 hasInteractedRef.current = true;
             }
@@ -112,6 +112,15 @@ export default function ScrollPage() {
         if (!scrollUnlocked) return;
 
         const triggerFileDownload = () => {
+            // Play file download sound
+            try {
+                const downloadAudio = new Audio('/sfx/all/file_delete.m4a');
+                downloadAudio.volume = 0.4;
+                downloadAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play download audio:', error);
+            }
+
             const blob = new Blob(['PLEASE STOP'], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -134,8 +143,17 @@ export default function ScrollPage() {
         if (!scrollUnlocked || !hasInteractedRef.current) return;
 
         ttsTimeoutRef.current = setTimeout(() => {
+            // Play horror sound before TTS
+            try {
+                const horrorAudio = new Audio('/sfx/all/horror.mp3');
+                horrorAudio.volume = 0.5;
+                horrorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play horror audio:', error);
+            }
+
             const utterance = new SpeechSynthesisUtterance(
-                'Do you feel your legs go numb yet? This is all you now. Your IP. Your identity. Your scrolling. It’s mine now. So go back to the beginning and then, maybe, you’ll find the escape you’re looking for.'
+                'Do you feel your legs go numb yet? This is all you now. Your IP. Your identity. Your scrolling. It is mine now. So go back to the beginning and then, maybe, you will find the escape you are looking for.'
             );
             utterance.lang = 'en-US';
             window.speechSynthesis.speak(utterance);
@@ -149,9 +167,9 @@ export default function ScrollPage() {
     }, [scrollUnlocked, hasInteractedRef.current]);
 
     useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.load();
-            audioRef.current.play().catch(() => {
+        if (audioRef.current[0]) {
+            audioRef.current[0].load();
+            audioRef.current[0].play().catch(() => {
             });
         }
     }, [showEscape]);
@@ -161,7 +179,9 @@ export default function ScrollPage() {
     return (
         <div className="scroll-container">
             <audio
-                ref={audioRef}
+                ref={(el) => {
+                    if (el) audioRef.current[0] = el;
+                }}
                 src={showEscape ? "/sfx/scroll/█.mp3" : "/sfx/scroll/nowhereissafesowillyouscroll.mp3"}
                 autoPlay
                 loop={showEscape}
@@ -194,6 +214,15 @@ export default function ScrollPage() {
                             onMouseEnter={() => setEscapeHovered(true)}
                             onMouseLeave={() => setEscapeHovered(false)}
                             onClick={async () => {
+                                // Play success sound
+                                try {
+                                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                                    successAudio.volume = 0.6;
+                                    successAudio.play().catch(console.warn);
+                                } catch (error) {
+                                    console.warn('Failed to play success audio:', error);
+                                }
+
                                 await signCookie('BnW_unlocked=true');
                                 router.push('/black-and-white');
                             }}

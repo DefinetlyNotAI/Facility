@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
@@ -82,6 +82,39 @@ const WifiLoginPage: React.FC = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showCurlHint, setShowCurlHint] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current && !showCutscene) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        if (!showCutscene && !showCurlHint) {
+            initializeAudio();
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, [showCutscene, showCurlHint]);
 
     useEffect(() => {
         const wifiUnlocked = Cookies.get('Wifi_Unlocked');
@@ -108,6 +141,15 @@ const WifiLoginPage: React.FC = () => {
         setError('');
 
         if (username.trim().toLowerCase() !== 'itgrowshere') {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setError('Invalid username.');
             return;
         }
@@ -116,8 +158,26 @@ const WifiLoginPage: React.FC = () => {
         const inputHash = sha1(password.trim().toLowerCase());
 
         if (inputHash !== correctHash) {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setError(`Invalid password. Your hash: ${inputHash}`);
             return;
+        }
+
+        // Play success sound
+        try {
+            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+            successAudio.volume = 0.6;
+            successAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play success audio:', error);
         }
 
         setLoading(true);
@@ -142,6 +202,13 @@ const WifiLoginPage: React.FC = () => {
 
     return (
         <>
+            <audio
+                ref={audioRef}
+                src="/sfx/home/sweethome.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
             <span
                 dangerouslySetInnerHTML={{
                     __html: `<!--

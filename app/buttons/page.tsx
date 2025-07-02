@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
@@ -55,6 +55,7 @@ function HiddenFooter() {
 
 export default function ButtonsPage() {
     const router = useRouter();
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     const [buttonStates, setButtonStates] = useState<Record<BrowserName, boolean>>({
         Chrome: false,
@@ -68,6 +69,36 @@ export default function ButtonsPage() {
 
     const allPressed = Object.values(buttonStates).every(Boolean);
     const pressedCount = Object.values(buttonStates).filter(Boolean).length;
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        initializeAudio();
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         axios.get('/api/csrf-token').catch(() => {
@@ -122,79 +153,115 @@ export default function ButtonsPage() {
                 {headers: {'X-CSRF-Token': csrfToken ?? ''}}
             );
 
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             const updatedStates = {...buttonStates, [browser]: true};
             setButtonStates(updatedStates);
 
             if (Object.values(updatedStates).every(Boolean)) {
                 await signCookie('File_Unlocked=true');
+
+                // Play completion sound
+                try {
+                    const completionAudio = new Audio('/sfx/all/computeryay.mp3');
+                    completionAudio.volume = 0.8;
+                    completionAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play completion audio:', error);
+                }
             }
         } catch {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             alert('This button has already been pressed or there was an error.');
         }
     }
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Global Browser Buttons</h1>
-            <p className={styles.subtitle}>
-                Click the button matching your browser to activate it globally.<br/>
-                Collaboration required - each browser can only be pressed once.
-            </p>
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/music/hopeformehopeforyou.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
+            <div className={styles.container}>
+                <h1 className={styles.title}>Global Browser Buttons</h1>
+                <p className={styles.subtitle}>
+                    Click the button matching your browser to activate it globally.<br/>
+                    Collaboration required - each browser can only be pressed once.
+                </p>
 
-            {/* Progress Indicator */}
-            <div className={styles.progressIndicator}>
-                <div>Progress: {pressedCount}/5</div>
-                <div className={styles.progressBar}>
-                    <div
-                        className={styles.progressFill}
-                        style={{width: `${(pressedCount / 5) * 100}%`}}
-                    />
-                </div>
-            </div>
-
-            <div className={styles.buttonGrid}>
-                {BROWSERS.map((browser) => {
-                    const isDisabled = browser !== userBrowser || buttonStates[browser];
-                    const isPressed = buttonStates[browser];
-
-                    return (
-                        <button
-                            key={browser}
-                            onClick={() => pressButton(browser)}
-                            disabled={isDisabled}
-                            className={`${styles.browserButton} ${isPressed ? styles.pressed : ''}`}
-                            title={
-                                isDisabled
-                                    ? browser !== userBrowser
-                                        ? `This button is for ${browser} browser only`
-                                        : 'Button already pressed'
-                                    : `Press to activate ${browser} button`
-                            }
-                        >
-                            {browser}
-                            {isPressed && <div style={{fontSize: '0.8rem', marginTop: '0.5rem'}}>✓ ACTIVATED</div>}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {allPressed && (
-                <>
-                    <div className={styles.secretMessage}>
-                        👍︎♒︎♏︎♍︎🙵 ⧫︎♒︎♏︎ 👍︎💧︎💧︎ ⬧︎♏︎♍︎❒︎♏︎⧫︎
-                        <div style={{
-                            fontSize: '1rem',
-                            marginTop: '1rem',
-                            fontStyle: 'italic',
-                            color: '#666',
-                            fontFamily: 'JetBrains Mono, monospace'
-                        }}>
-                            Remove css tag from hidden-footer.visible to find the next link
-                        </div>
+                {/* Progress Indicator */}
+                <div className={styles.progressIndicator}>
+                    <div>Progress: {pressedCount}/5</div>
+                    <div className={styles.progressBar}>
+                        <div
+                            className={styles.progressFill}
+                            style={{width: `${(pressedCount / 5) * 100}%`}}
+                        />
                     </div>
-                    <HiddenFooter/>
-                </>
-            )}
-        </div>
+                </div>
+
+                <div className={styles.buttonGrid}>
+                    {BROWSERS.map((browser) => {
+                        const isDisabled = browser !== userBrowser || buttonStates[browser];
+                        const isPressed = buttonStates[browser];
+
+                        return (
+                            <button
+                                key={browser}
+                                onClick={() => pressButton(browser)}
+                                disabled={isDisabled}
+                                className={`${styles.browserButton} ${isPressed ? styles.pressed : ''}`}
+                                title={
+                                    isDisabled
+                                        ? browser !== userBrowser
+                                            ? `This button is for ${browser} browser only`
+                                            : 'Button already pressed'
+                                        : `Press to activate ${browser} button`
+                                }
+                            >
+                                {browser}
+                                {isPressed && <div style={{fontSize: '0.8rem', marginTop: '0.5rem'}}>✓ ACTIVATED</div>}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {allPressed && (
+                    <>
+                        <div className={styles.secretMessage}>
+                            👍︎♒︎♏︎♍︎🙵 ⧫︎♒︎♏︎ 👍︎💧︎💧︎ ⬧︎♏︎♍︎❒︎♏︎⧫︎
+                            <div style={{
+                                fontSize: '1rem',
+                                marginTop: '1rem',
+                                fontStyle: 'italic',
+                                color: '#666',
+                                fontFamily: 'JetBrains Mono, monospace'
+                            }}>
+                                Remove css tag from hidden-footer.visible to find the next link
+                            </div>
+                        </div>
+                        <HiddenFooter/>
+                    </>
+                )}
+            </div>
+        </>
     );
 }

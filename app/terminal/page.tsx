@@ -64,6 +64,7 @@ export default function TerminalPage() {
         glitch?: boolean;
     }>(null);
     const [isReplay, setIsReplay] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     const placeholderMapping: { [index: number]: KeywordKey } = {
         1: 2, // 1st blank becomes 'Fletchling'
@@ -88,6 +89,38 @@ export default function TerminalPage() {
             })
             .join(' ');
     };
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current && !fullScreenOverlay) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        if (unlocked && !fullScreenOverlay) {
+            initializeAudio();
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, [unlocked, fullScreenOverlay]);
 
     // Queue system for timed rendering
     const flushMessagesSequentially = async (queue: string[], delay = 800) => {
@@ -128,6 +161,15 @@ export default function TerminalPage() {
                 handleWrongPhrase(val);
                 return;
             } else {
+                // Play success sound for correct keyword
+                try {
+                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                    successAudio.volume = 0.6;
+                    successAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play success audio:', error);
+                }
+
                 setMessages(['']);
             }
 
@@ -159,6 +201,15 @@ export default function TerminalPage() {
             }
         } else if (step === 'email') {
             if (val === 'echo.null@█.tree') {
+                // Play success sound
+                try {
+                    const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                    successAudio.volume = 0.6;
+                    successAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play success audio:', error);
+                }
+
                 setMessages(msgs => [...msgs, 'Correct...']);
 
                 // Wait before dumping the monologue
@@ -177,6 +228,15 @@ export default function TerminalPage() {
                 }, 1500); // Pause after 'Correct...'
 
             } else {
+                // Play error sound
+                try {
+                    const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                    errorAudio.volume = 0.6;
+                    errorAudio.play().catch(console.warn);
+                } catch (error) {
+                    console.warn('Failed to play error audio:', error);
+                }
+
                 const nextWrong = wrongCount + 1;
                 setWrongCount(nextWrong);
 
@@ -211,7 +271,17 @@ export default function TerminalPage() {
         }
     };
 
+    // --- Helpers for Input Animation ---
     const handleWrongPhrase = (val: string) => {
+        // Play error sound
+        try {
+            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+            errorAudio.volume = 0.6;
+            errorAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play error audio:', error);
+        }
+
         let newCount = wrongCount + 1;
         if (newCount > 20) newCount = 10;
         setWrongCount(newCount);
@@ -232,6 +302,15 @@ export default function TerminalPage() {
     };
 
     const handleYes = () => {
+        // Play interaction sound
+        try {
+            const interactionAudio = new Audio('/sfx/all/computeryay.mp3');
+            interactionAudio.volume = 0.5;
+            interactionAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play interaction audio:', error);
+        }
+
         setShowButtons(false);
         setMessages(['']);
         flushMessagesSequentially([
@@ -243,6 +322,15 @@ export default function TerminalPage() {
     };
 
     const handleNo = () => {
+        // Play error sound
+        try {
+            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+            errorAudio.volume = 0.5;
+            errorAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play error audio:', error);
+        }
+
         const newCount = noCount + 1;
         setNoCount(newCount);
 
@@ -268,6 +356,11 @@ export default function TerminalPage() {
 
     const runCountdown = async () => {
         setMessages([]);
+
+        // Pause background audio during countdown
+        if (audioRef.current) {
+            audioRef.current.pause();
+        }
 
         // Easter egg: meta poetic cutscene if replaying
         if (isReplay) {
@@ -418,55 +511,64 @@ export default function TerminalPage() {
     if (unlocked === null) return null;
 
     return (
-        <div className={styles.container}>
-            {/* Hide phraseDisplay during cutscene */}
-            {!fullScreenOverlay && (
-                <div className={styles.phraseDisplay}>
-                    {buildPhraseDisplay()}
-                </div>
-            )}
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/music/thethirdcry.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
+            <div className={styles.container}>
+                {/* Hide phraseDisplay during cutscene */}
+                {!fullScreenOverlay && (
+                    <div className={styles.phraseDisplay}>
+                        {buildPhraseDisplay()}
+                    </div>
+                )}
 
-            <div className={styles.messageContainer}>
-                {messages.map((line, i) => (
-                    <VNTextRenderer key={`msg-${i}`} text={line}/>
-                ))}
+                <div className={styles.messageContainer}>
+                    {messages.map((line, i) => (
+                        <VNTextRenderer key={`msg-${i}`} text={line}/>
+                    ))}
+                </div>
+
+                {(step === 'fill' || step === 'email') && !fullScreenOverlay && (
+                    <form onSubmit={handleSubmit} className={styles.inputForm}>
+                        <input
+                            autoFocus
+                            value={input}
+                            onChange={e => setInput(e.target.value)}
+                            placeholder={
+                                step === 'fill'
+                                    ? 'Type a keyword to fill the phrase'
+                                    : 'Enter email here'
+                            }
+                            className={styles.input}
+                            spellCheck={false}
+                            autoComplete="off"
+                        />
+                    </form>
+                )}
+
+                {showButtons && !fullScreenOverlay && (
+                    <div className={styles.buttonContainer}>
+                        <button onClick={handleYes} className={styles.choiceButton}>
+                            YES
+                        </button>
+                        <button onClick={handleNo} className={styles.choiceButton}>
+                            NO
+                        </button>
+                    </div>
+                )}
+
+                {fullScreenOverlay && (
+                    <div
+                        className={`${styles.fullscreenOverlay} ${fullScreenOverlay.size || ''} ${fullScreenOverlay.glitch ? 'corrupted-glitch' : ''}`}>
+                        {fullScreenOverlay.text}
+                    </div>
+                )}
             </div>
-
-            {(step === 'fill' || step === 'email') && !fullScreenOverlay && (
-                <form onSubmit={handleSubmit} className={styles.inputForm}>
-                    <input
-                        autoFocus
-                        value={input}
-                        onChange={e => setInput(e.target.value)}
-                        placeholder={
-                            step === 'fill'
-                                ? 'Type a keyword to fill the phrase'
-                                : 'Enter email here'
-                        }
-                        className={styles.input}
-                        spellCheck={false}
-                        autoComplete="off"
-                    />
-                </form>
-            )}
-
-            {showButtons && !fullScreenOverlay && (
-                <div className={styles.buttonContainer}>
-                    <button onClick={handleYes} className={styles.choiceButton}>
-                        YES
-                    </button>
-                    <button onClick={handleNo} className={styles.choiceButton}>
-                        NO
-                    </button>
-                </div>
-            )}
-
-            {fullScreenOverlay && (
-                <div
-                    className={`${styles.fullscreenOverlay} ${fullScreenOverlay.size || ''} ${fullScreenOverlay.glitch ? 'corrupted-glitch' : ''}`}>
-                    {fullScreenOverlay.text}
-                </div>
-            )}
-        </div>
+        </>
     );
 }

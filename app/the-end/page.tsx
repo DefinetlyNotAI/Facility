@@ -1,3 +1,5 @@
+// noinspection CssUnusedSymbol
+
 'use client';
 
 import React, {useEffect, useRef, useState} from 'react';
@@ -270,7 +272,7 @@ export default function TheEnd() {
                 >
                     <audio
                         ref={audioRef}
-                        src="/sfx/isittheend/hopeformehopeforyou.mp3"
+                        src="/sfx/isittheend/NeverendingNight_DELTARUNE_Chapter_3-4_Soundtrack_Toby_Fox.mp3"
                         loop
                         preload="auto"
                         style={{display: 'none'}}

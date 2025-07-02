@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
@@ -11,6 +11,40 @@ export default function RootPage() {
     const [showConsoleWarning, setShowConsoleWarning] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [countdown, setCountdown] = useState(25);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        // Start audio after loading screen
+        if (!isLoading) {
+            setTimeout(initializeAudio, 1000);
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, [isLoading]);
 
     useEffect(() => {
         // Simulate system boot
@@ -26,6 +60,15 @@ export default function RootPage() {
     }, [router]);
 
     async function handleAccept() {
+        // Play success sound
+        try {
+            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+            successAudio.volume = 0.6;
+            successAudio.play().catch(console.warn);
+        } catch (error) {
+            console.warn('Failed to play success audio:', error);
+        }
+
         await signCookie("accepted=true");
         setAccepted(true);
         setShowConsoleWarning(true);
@@ -69,128 +112,159 @@ export default function RootPage() {
 
     if (!accepted) {
         return (
-            <main
-                className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
-                <div className="card max-w-2xl w-full">
-                    <div className="card-header">
-                        <h1 className="card-title text-red-400 text-center">
-                            ⚠️ RESTRICTED ACCESS TERMINAL ⚠️
-                        </h1>
-                        <p className="card-subtitle text-center">
-                            FACILITY 05-B • CLEARANCE LEVEL 5 REQUIRED
-                        </p>
-                    </div>
-
-                    <div className="space-y-6">
-                        <div className="terminal">
-                            <div className="terminal-header">
-                                <div className="terminal-dot red"></div>
-                                <div className="terminal-dot yellow"></div>
-                                <div className="terminal-dot green"></div>
-                                <span className="text-xs text-gray-400 ml-2">PERMISSIONS REQUIRED</span>
-                            </div>
-                            <div className="terminal-content">
-                                <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> This terminal requires elevated
-                                    permissions
-                                </div>
-                                <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications, camera
-                                    access, and
-                                    media permissions needed as well as allowance to download files.
-                                </div>
-                                <div className="terminal-line">
-                                    <span className="terminal-prompt">SYSTEM:</span> Psychological evaluation protocols
-                                    active
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
-                            <h2 className="text-red-400 font-bold mb-3 flex items-center gap-2">
-                                <span>⚠️</span> CONTENT WARNINGS
-                            </h2>
-                            <ul className="space-y-2 text-sm text-red-300">
-                                <li>• Psychological horror and disturbing content</li>
-                                <li>• Visual and audio disturbances</li>
-                                <li>• Possible flashing lights and rapid imagery</li>
-                                <li>• Content may be psychologically distressing</li>
-                                <li>• Immersive horror experience with audio cues</li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-                            <h3 className="text-yellow-400 font-bold mb-2">FACILITY PROTOCOLS</h3>
-                            <p className="text-sm text-yellow-300">
-                                By proceeding, you acknowledge understanding of all safety protocols and
-                                consent to psychological evaluation procedures. This experience is designed
-                                for mature audiences only.
+            <>
+                <audio
+                    ref={audioRef}
+                    src="/sfx/music/doangelsexist.mp3"
+                    loop
+                    preload="auto"
+                    style={{display: 'none'}}
+                />
+                <main
+                    className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
+                    <div className="card max-w-2xl w-full">
+                        <div className="card-header">
+                            <h1 className="card-title text-red-400 text-center">
+                                ⚠️ RESTRICTED ACCESS TERMINAL ⚠️
+                            </h1>
+                            <p className="card-subtitle text-center">
+                                FACILITY 05-B • CLEARANCE LEVEL 5 REQUIRED
                             </p>
                         </div>
 
-                        <div className="text-center">
-                            <button
-                                onClick={handleAccept}
-                                className="btn btn-danger text-lg px-8 py-4"
-                            >
-                                ACCEPT TERMS & ENTER FACILITY
-                            </button>
+                        <div className="space-y-6">
+                            <div className="terminal">
+                                <div className="terminal-header">
+                                    <div className="terminal-dot red"></div>
+                                    <div className="terminal-dot yellow"></div>
+                                    <div className="terminal-dot green"></div>
+                                    <span className="text-xs text-gray-400 ml-2">PERMISSIONS REQUIRED</span>
+                                </div>
+                                <div className="terminal-content">
+                                    <div className="terminal-line">
+                                        <span className="terminal-prompt">SYSTEM:</span> This terminal requires elevated
+                                        permissions
+                                    </div>
+                                    <div className="terminal-line">
+                                        <span className="terminal-prompt">SYSTEM:</span> Audio access, notifications,
+                                        camera
+                                        access, and
+                                        media permissions needed as well as allowance to download files.
+                                    </div>
+                                    <div className="terminal-line">
+                                        <span className="terminal-prompt">SYSTEM:</span> Psychological evaluation
+                                        protocols
+                                        active
+                                    </div>
+                                    <div className="terminal-line">
+                                        <span className="terminal-prompt">MORALITY:</span> None of the audio tracks
+                                        played are my own work, and [REDACTED] does not own them. Most are royalty-free
+                                        music and "Never Ending Night" is from the hit-game Deltarune by Toby Fox, [My
+                                        biggest inspo, tho he is taking TOO LONG].
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+                                <h2 className="text-red-400 font-bold mb-3 flex items-center gap-2">
+                                    <span>⚠️</span> CONTENT WARNINGS
+                                </h2>
+                                <ul className="space-y-2 text-sm text-red-300">
+                                    <li>• Psychological horror and disturbing content</li>
+                                    <li>• Visual and audio disturbances</li>
+                                    <li>• Possible flashing lights and rapid imagery</li>
+                                    <li>• Content may be psychologically distressing</li>
+                                    <li>• Immersive horror experience with audio cues</li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+                                <h3 className="text-yellow-400 font-bold mb-2">FACILITY PROTOCOLS</h3>
+                                <p className="text-sm text-yellow-300">
+                                    By proceeding, you acknowledge understanding of all safety protocols and
+                                    consent to psychological evaluation procedures. This experience is designed
+                                    for mature audiences only.
+                                </p>
+                            </div>
+
+                            <div className="text-center">
+                                <button
+                                    onClick={handleAccept}
+                                    className="btn btn-danger text-lg px-8 py-4"
+                                >
+                                    ACCEPT TERMS & ENTER FACILITY
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </>
         );
     }
 
     if (showConsoleWarning) {
         return (
-            <main className="min-h-screen bg-black flex items-center justify-center p-4">
-                <div className="card max-w-2xl w-full card-danger">
-                    <div className="text-center">
-                        <div className="text-6xl mb-6 animate-pulse">⚠️</div>
-                        <h1 className="text-3xl font-bold text-red-400 mb-6">
-                            CRITICAL WARNING
-                        </h1>
-                        <div className="terminal mb-6">
-                            <div className="terminal-content">
-                                <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> Developer console access STRICTLY
-                                    PROHIBITED - Unauthorized console usage may destroy the experience
-                                </div>
-                                <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">WARNING:</span> DO NOT MANUALLY MODIFY COOKIES TO
-                                    SKIP CERTAIN ASPECTS OF THE FACILITY - NOR SHOULD DELETE SOME COOKIES
-                                </div>
-                                <div className="terminal-line text-yellow-400">
-                                    <span className="terminal-prompt">NOTICE:</span> Console usage only permitted when
-                                    explicitly instructed by the system.
-                                </div>
-                                <div className="terminal-line text-yellow-400">
-                                    <span className="terminal-prompt">NOTICE:</span> THIS IS NOT FOR EPILEPTIC PEOPLE
-                                </div>
-                                <div className="terminal-line text-yellow-400">
-                                    <span className="terminal-prompt">NOTICE:</span> The Facility heavily relies on
-                                    cookies for SAVE data. Please do not use incognito or delete the cookies or your
-                                    progress may be reset.
-                                </div>
-                                <div className="terminal-line text-green-700">
-                                    <span className="terminal-prompt">TIP:</span> TAS is your friend. Use it if you are
-                                    stuck, I don't recommend using TAS however.
-                                </div>
-                                <div className="terminal-line text-green-700">
-                                    <span className="terminal-prompt">TIP:</span> Use headphones, it is part of the
-                                    experience!.
+            <>
+                <audio
+                    ref={audioRef}
+                    src="/sfx/music/doangelsexist.mp3"
+                    loop
+                    preload="auto"
+                    style={{display: 'none'}}
+                />
+                <main className="min-h-screen bg-black flex items-center justify-center p-4">
+                    <div className="card max-w-2xl w-full card-danger">
+                        <div className="text-center">
+                            <div className="text-6xl mb-6 animate-pulse">⚠️</div>
+                            <h1 className="text-3xl font-bold text-red-400 mb-6">
+                                CRITICAL WARNING
+                            </h1>
+                            <div className="terminal mb-6">
+                                <div className="terminal-content">
+                                    <div className="terminal-line text-red-400">
+                                        <span className="terminal-prompt">WARNING:</span> Developer console access
+                                        STRICTLY
+                                        PROHIBITED - Unauthorized console usage may destroy the experience
+                                    </div>
+                                    <div className="terminal-line text-red-400">
+                                        <span className="terminal-prompt">WARNING:</span> DO NOT MANUALLY MODIFY COOKIES
+                                        TO
+                                        SKIP CERTAIN ASPECTS OF THE FACILITY - NOR SHOULD DELETE SOME COOKIES
+                                    </div>
+                                    <div className="terminal-line text-yellow-400">
+                                        <span className="terminal-prompt">NOTICE:</span> Console usage only permitted
+                                        when
+                                        explicitly instructed by the system.
+                                    </div>
+                                    <div className="terminal-line text-yellow-400">
+                                        <span className="terminal-prompt">NOTICE:</span> THIS IS NOT FOR EPILEPTIC
+                                        PEOPLE
+                                    </div>
+                                    <div className="terminal-line text-yellow-400">
+                                        <span className="terminal-prompt">NOTICE:</span> The Facility heavily relies on
+                                        cookies for SAVE data. Please do not use incognito or delete the cookies or your
+                                        progress may be reset.
+                                    </div>
+                                    <div className="terminal-line text-green-700">
+                                        <span className="terminal-prompt">TIP:</span> TAS is your friend. Use it if you
+                                        are
+                                        stuck, I don't recommend using TAS however.
+                                    </div>
+                                    <div className="terminal-line text-green-700">
+                                        <span className="terminal-prompt">TIP:</span> Use headphones, it is part of the
+                                        experience!.
+                                    </div>
                                 </div>
                             </div>
+                            <p className="text-gray-300 mb-4">
+                                Redirecting to secure terminal in <span
+                                className="text-green-400 font-mono">{countdown}</span> seconds...
+                            </p>
+                            <div className="loading-bar w-full"></div>
                         </div>
-                        <p className="text-gray-300 mb-4">
-                            Redirecting to secure terminal in <span
-                            className="text-green-400 font-mono">{countdown}</span> seconds...
-                        </p>
-                        <div className="loading-bar w-full"></div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </>
         );
     }
 

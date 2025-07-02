@@ -1,10 +1,10 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/extra.module.css';
 import {signCookie} from "@/lib/cookie-utils";
+import styles from '../../styles/extra.module.css';
 
 const KEYWORD_2 = 'Fletchling';
 
@@ -16,6 +16,37 @@ export default function MediaPage() {
     const [played, setPlayed] = useState(false);
     const [dl1, setDl1] = useState(false);
     const [dl2, setDl2] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        initializeAudio();
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (!Cookies.get('Media_Unlocked')) {
@@ -35,10 +66,28 @@ export default function MediaPage() {
     }, [played, dl1, dl2]);
 
     const checkKey = () => {
-        if (inputKey.trim() === KEYWORD_2) {
+        if (inputKey.trim().toLowerCase() === KEYWORD_2.toLowerCase()) {
+            // Play success sound
+            try {
+                const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                successAudio.volume = 0.6;
+                successAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play success audio:', error);
+            }
+
             setAccessGranted(true);
             setMsg('');
         } else {
+            // Play error sound
+            try {
+                const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                errorAudio.volume = 0.6;
+                errorAudio.play().catch(console.warn);
+            } catch (error) {
+                console.warn('Failed to play error audio:', error);
+            }
+
             setMsg('Incorrect keyword.');
         }
     };

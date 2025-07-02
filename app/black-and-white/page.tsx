@@ -13,6 +13,39 @@ export default function BlackAndWhitePage() {
     const inputBufferRef = useRef('');
     const topLeftBufferRef = useRef('');
     const [message, setMessage] = useState<string | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.3;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        if (bnwUnlocked) {
+            initializeAudio();
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
+    }, [bnwUnlocked]);
 
     // On mount: check cookie, else redirect 404
     useEffect(() => {
@@ -39,9 +72,27 @@ export default function BlackAndWhitePage() {
 
                 if (inputBufferRef.current.endsWith(KEYWORD_5.toLowerCase())) {
                     if (window.innerWidth === 666 && window.innerHeight === 666) {
+                        // Play success sound
+                        try {
+                            const successAudio = new Audio('/sfx/all/computeryay.mp3');
+                            successAudio.volume = 0.6;
+                            successAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play success audio:', error);
+                        }
+
                         await signCookie('Choice_Unlocked=true');
                         router.push('/choices');
                     } else {
+                        // Play error sound
+                        try {
+                            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                            errorAudio.volume = 0.6;
+                            errorAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play error audio:', error);
+                        }
+
                         setMessage('Incorrect screen size for unlocking choice.');
                     }
                 }
@@ -56,9 +107,27 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
+                        // Play mysterious sound for moonlight
+                        try {
+                            const mysteriousAudio = new Audio('/sfx/all/eggcrack.mp3');
+                            mysteriousAudio.volume = 0.5;
+                            mysteriousAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play audio:', error);
+                        }
+
                         await signCookie("themoon=true");
                         router.push('/moonlight');
                     } else {
+                        // Play error sound
+                        try {
+                            const errorAudio = new Audio('/sfx/all/computerboo.mp3');
+                            errorAudio.volume = 0.5;
+                            errorAudio.play().catch(console.warn);
+                        } catch (error) {
+                            console.warn('Failed to play error audio:', error);
+                        }
+
                         router.push('/404');
                     }
                 }
@@ -72,129 +141,138 @@ export default function BlackAndWhitePage() {
     if (bnwUnlocked === null) return null;
 
     return (
-        <div
-            style={{
-                backgroundColor: 'black',
-                color: 'white',
-                height: '100vh',
-                padding: '1rem',
-                fontFamily: 'Courier New, monospace',
-                userSelect: 'none',
-                overflowY: 'auto',
-            }}
-        >
-            {/* Hidden 404 Corner */}
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/music/thethirdcry.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
             <div
                 style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    fontSize: '10px',
-                    color: 'rgba(255,255,255,0.05)',
-                    padding: '0.25rem',
-                    fontWeight: 'bold',
-                    pointerEvents: 'none',
-                    zIndex: 9999,
+                    backgroundColor: 'black',
+                    color: 'white',
+                    height: '100vh',
+                    padding: '1rem',
+                    fontFamily: 'Courier New, monospace',
+                    userSelect: 'none',
+                    overflowY: 'auto',
                 }}
             >
-                [Type 404]
-            </div>
-
-            <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>
-                Black like the Night, White like the day - Bleed child, Smile king - Weep thrice but feel twice
-            </h1>
-
-            {/* QR Codes Side-by-Side */}
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '2rem',
-                    flexWrap: 'wrap',
-                }}
-            >
-                {/* Image 1 */}
-                <figure style={{
-                    width: '500px',
-                    height: '500px',
-                    textAlign: 'center',
-                    backgroundColor: '#111',
-                    padding: '1rem',
-                    border: '2px solid #444',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <img
-                        src="/black-and-white/qr.png"
-                        alt="QR Code"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                            userSelect: 'none',
-                        }}
-                        draggable={false}
-                    />
-                    <figcaption style={{marginTop: '0.5rem'}}>QR code</figcaption>
-                </figure>
-
-                {/* Image 2 */}
-                <figure style={{
-                    width: '500px',
-                    height: '500px',
-                    textAlign: 'center',
-                    backgroundColor: '#fff',
-                    padding: '1rem',
-                    border: '2px solid #ccc',
-                    boxShadow: '0 0 10px rgba(0,0,0,0.4)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <img
-                        src="/black-and-white/qr-doppelganger.png"
-                        alt="QR Code Doppelganger"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                            userSelect: 'none',
-                        }}
-                        draggable={false}
-                    />
-                    <figcaption style={{marginTop: '0.5rem', fontSize: '0.9rem'}}>QR?</figcaption>
-                </figure>
-            </div>
-
-            {message && (
+                {/* Hidden 404 Corner */}
                 <div
                     style={{
-                        marginTop: '2rem',
-                        color: 'red',
-                        textAlign: 'center',
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        fontSize: '10px',
+                        color: 'rgba(255,255,255,0.05)',
+                        padding: '0.25rem',
                         fontWeight: 'bold',
+                        pointerEvents: 'none',
+                        zIndex: 9999,
                     }}
                 >
-                    {message}
+                    [Type 404]
                 </div>
-            )}
 
-            <p
-                style={{
-                    position: 'fixed',
-                    bottom: '1rem',
-                    right: '1rem',
-                    fontSize: '0.8rem',
-                    color: '#555',
-                    userSelect: 'none',
-                }}
-            >
-                Type the correct keyword when the condition is right.
-            </p>
-        </div>
+                <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>
+                    Black like the Night, White like the day - Bleed child, Smile king - Weep thrice but feel twice
+                </h1>
+
+                {/* QR Codes Side-by-Side */}
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '2rem',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    {/* Image 1 */}
+                    <figure style={{
+                        width: '500px',
+                        height: '500px',
+                        textAlign: 'center',
+                        backgroundColor: '#111',
+                        padding: '1rem',
+                        border: '2px solid #444',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <img
+                            src="/black-and-white/qr.png"
+                            alt="QR Code"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                userSelect: 'none',
+                            }}
+                            draggable={false}
+                        />
+                        <figcaption style={{marginTop: '0.5rem'}}>QR code</figcaption>
+                    </figure>
+
+                    {/* Image 2 */}
+                    <figure style={{
+                        width: '500px',
+                        height: '500px',
+                        textAlign: 'center',
+                        backgroundColor: '#fff',
+                        padding: '1rem',
+                        border: '2px solid #ccc',
+                        boxShadow: '0 0 10px rgba(0,0,0,0.4)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <img
+                            src="/black-and-white/qr-doppelganger.png"
+                            alt="QR Code Doppelganger"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                userSelect: 'none',
+                            }}
+                            draggable={false}
+                        />
+                        <figcaption style={{marginTop: '0.5rem', fontSize: '0.9rem'}}>QR?</figcaption>
+                    </figure>
+                </div>
+
+                {message && (
+                    <div
+                        style={{
+                            marginTop: '2rem',
+                            color: 'red',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        {message}
+                    </div>
+                )}
+
+                <p
+                    style={{
+                        position: 'fixed',
+                        bottom: '1rem',
+                        right: '1rem',
+                        fontSize: '0.8rem',
+                        color: '#555',
+                        userSelect: 'none',
+                    }}
+                >
+                    Type the correct keyword when the condition is right.
+                </p>
+            </div>
+        </>
     );
 }
