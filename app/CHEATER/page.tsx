@@ -21,6 +21,7 @@ export default function CheaterTrap() {
     const [displayedText, setDisplayedText] = useState("");
     const charIndex = useRef(0);
     const typingSpeed = 40;
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     // Clear cookies immediately on mount
     useEffect(() => {
@@ -31,6 +32,36 @@ export default function CheaterTrap() {
             document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
             document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
         }
+    }, []);
+
+    // Initialize background audio
+    useEffect(() => {
+        const initializeAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.volume = 0.4;
+                audioRef.current.play().catch(() => {
+                    // Auto-play failed, will try again on user interaction
+                    const handleInteraction = () => {
+                        if (audioRef.current) {
+                            audioRef.current.play().catch(console.warn);
+                        }
+                        document.removeEventListener('click', handleInteraction);
+                        document.removeEventListener('keydown', handleInteraction);
+                    };
+                    document.addEventListener('click', handleInteraction);
+                    document.addEventListener('keydown', handleInteraction);
+                });
+            }
+        };
+
+        initializeAudio();
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
     }, []);
 
     useEffect(() => {
@@ -50,22 +81,31 @@ export default function CheaterTrap() {
     }, []);
 
     return (
-        <main
-            style={{
-                backgroundColor: "black",
-                color: "limegreen",
-                height: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontFamily: "'Courier New', Courier, monospace",
-                whiteSpace: "pre-wrap",
-                fontSize: "1.5rem",
-                padding: "2rem",
-                userSelect: "none",
-            }}
-        >
-            {displayedText || "..."}
-        </main>
+        <>
+            <audio
+                ref={audioRef}
+                src="/sfx/music/doangelsexist.mp3"
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
+            <main
+                style={{
+                    backgroundColor: "black",
+                    color: "limegreen",
+                    height: "100vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontFamily: "'Courier New', Courier, monospace",
+                    whiteSpace: "pre-wrap",
+                    fontSize: "1.5rem",
+                    padding: "2rem",
+                    userSelect: "none",
+                }}
+            >
+                {displayedText || "..."}
+            </main>
+        </>
     );
 }
