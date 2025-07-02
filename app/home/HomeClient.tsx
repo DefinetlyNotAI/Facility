@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookie-utils";
 import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
+import {BACKGROUND_AUDIO, initializeBackgroundAudio, cleanupAudio} from "@/lib/audio-config";
 
 const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 const hexCode = "0x31353a3235"; // 15:25
@@ -158,32 +159,13 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
     // Initialize ambient audio using the audio tag below
     useEffect(() => {
-        if (!mounted) return;
+        const initAudio = initializeBackgroundAudio(ambientAudioRef, BACKGROUND_AUDIO.HOME, { volume: 0.7 });
+        
+        if (mounted) {
+            initAudio();
+        }
 
-        const audioEl = ambientAudioRef.current;
-        if (!audioEl) return;
-
-        audioEl.loop = true;
-        audioEl.volume = 0.7;
-
-        const playAudio = () => {
-            audioEl.play().catch(() => {
-                const handleInteraction = () => {
-                    audioEl.play().catch(console.warn);
-                    document.removeEventListener('click', handleInteraction);
-                    document.removeEventListener('keydown', handleInteraction);
-                };
-                document.addEventListener('click', handleInteraction);
-                document.addEventListener('keydown', handleInteraction);
-            });
-        };
-
-        playAudio();
-
-        return () => {
-            audioEl.pause();
-            audioEl.currentTime = 0;
-        };
+        return () => cleanupAudio(ambientAudioRef);
     }, [mounted]);
 
     // Cookie and redirect checks
@@ -782,7 +764,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
             <audio
                 ref={ambientAudioRef}
-                src="/sfx/home/sweethome.mp3"
+                src={BACKGROUND_AUDIO.HOME}
                 loop={true}
                 style={{display: 'none'}}
             />

@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, initializeBackgroundAudio, cleanupAudio} from "@/lib/audio-config";
 
 export default function RootPage() {
     const router = useRouter();
@@ -15,35 +16,14 @@ export default function RootPage() {
 
     // Initialize background audio
     useEffect(() => {
-        const initializeAudio = () => {
-            if (audioRef.current) {
-                audioRef.current.volume = 0.3;
-                audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
-                    const handleInteraction = () => {
-                        if (audioRef.current) {
-                            audioRef.current.play().catch(console.warn);
-                        }
-                        document.removeEventListener('click', handleInteraction);
-                        document.removeEventListener('keydown', handleInteraction);
-                    };
-                    document.addEventListener('click', handleInteraction);
-                    document.addEventListener('keydown', handleInteraction);
-                });
-            }
-        };
-
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
+        
         // Start audio after loading screen
         if (!isLoading) {
-            setTimeout(initializeAudio, 1000);
+            setTimeout(initAudio, 1000);
         }
 
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            }
-        };
+        return () => cleanupAudio(audioRef);
     }, [isLoading]);
 
     useEffect(() => {
@@ -115,7 +95,7 @@ export default function RootPage() {
             <>
                 <audio
                     ref={audioRef}
-                    src="/sfx/music/doangelsexist.mp3"
+                    src={BACKGROUND_AUDIO.ROOT_PAGE}
                     loop
                     preload="auto"
                     style={{display: 'none'}}
@@ -207,7 +187,7 @@ export default function RootPage() {
             <>
                 <audio
                     ref={audioRef}
-                    src="/sfx/music/doangelsexist.mp3"
+                    src={BACKGROUND_AUDIO.ROOT_PAGE}
                     loop
                     preload="auto"
                     style={{display: 'none'}}
