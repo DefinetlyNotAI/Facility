@@ -5,5 +5,3 @@ ALSO CHECK TAS HINTS ARE NOT TOO EASY
 
 NOTE: Make sure all audio is IN AUDIO TAGS in jsx, and never pure tsx code
 NOTE: The YouTube vid is private, do unprivate when releasing
-
-fixme: all hardcoded audio to be in a unified variable tsx, also remove all hardcoded keywords and sensitive data and replace with env var
