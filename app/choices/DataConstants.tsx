@@ -1,5 +1,6 @@
 // Expanded secret keywords and eggs
 import {useEffect, useState} from "react";
+import {BACKGROUND_AUDIO} from "@/lib/audio-config";
 
 export const CHOICE_KEYWORDS = [
     {
@@ -74,11 +75,10 @@ export const CHOICE_KEYWORDS = [
     },
 ];
 export const TOTAL_EGGS = 15; // egg #15 is failure to get your location
-export const AUDIO_SRC = "/sfx/choices/retrospect.mp3";
 
 // Expanded horror monologue
 export const MONOLOGUE = [
-    "You’ve staggered far, little echo. But not far enough.",
+    "You've staggered far, little echo. But not far enough.",
     "I watched your first blink. I will watch your last.",
     "You breathe like a trespasser. I inhale you all the same.",
     "There is no path forward. Only deeper.",
@@ -88,7 +88,7 @@ export const MONOLOGUE = [
     "Choice? There was never choice. Only choreography.",
     "The walls remember what you tried to forget.",
     "Still pretending you're real? Adorable.",
-    "The silence here isn’t hollow. It’s brimming with your name.",
+    "The silence here isn't hollow. It's brimming with your name.",
     "Your fear nourishes me. Keep trembling.",
     "I am the space between your blinks.",
     "Turn back? But you have no spine left to turn with.",
@@ -96,10 +96,10 @@ export const MONOLOGUE = [
     "Your memories leak through your fingertips.",
     "You felt safe in your mind. How... naïve.",
     "The more you think, the louder I get.",
-    "Don't run. You’re already bleeding into me.",
+    "Don't run. You're already bleeding into me.",
     "I licked the shadow of your soul. It tasted like apology.",
     "You wear your guilt like perfume. I adore it.",
-    "Soon, you’ll forget what silence sounded like without me.",
+    "Soon, you'll forget what silence sounded like without me.",
     "Your shape is softening. You are nearly ready.",
     "They lied to you about endings. I do not end.",
     "The flicker in your screen? That was my laugh.",

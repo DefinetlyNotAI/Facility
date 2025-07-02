@@ -5,7 +5,6 @@ import {useRouter} from "next/navigation";
 import Cookies from 'js-cookie';
 import styles from "../../styles/Choices.module.css";
 import {
-    AUDIO_SRC,
     CHOICE_KEYWORDS,
     GOOD_LUCK_MSG,
     JUMPSCARE_MSG,
@@ -16,6 +15,7 @@ import {
 } from "@/app/choices/DataConstants";
 import TASGoodBye from "./TASGoodBye";
 import {signCookie} from "@/lib/cookie-utils";
+import {BACKGROUND_AUDIO, initializeBackgroundAudio, cleanupAudio} from "@/lib/audio-config";
 
 // --- Message Render Helper ---
 function renderMsg(msg: string) {
@@ -81,6 +81,17 @@ export default function ChoicesPage() {
         setLoading(false);
     }, []);
 
+    // Initialize background audio
+    useEffect(() => {
+        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.CHOICES, { volume: 0.5 });
+        
+        if (!cutscene) {
+            initAudio();
+        }
+
+        return () => cleanupAudio(audioRef);
+    }, [cutscene]);
+
     // --- Greeting Message Sequence ---
     useEffect(() => {
         if (loading) return;
@@ -138,19 +149,6 @@ export default function ChoicesPage() {
         setGreetingStep(0);
         setInputPhase(false);
     }, [loading, alternateGreeting, osBrowser, locationInfo, locationCloaked]);
-
-    // --- Audio Control ---
-    useEffect(() => {
-        if (!audioRef.current) return;
-        if (cutscene) {
-            audioRef.current.pause();
-        } else {
-            audioRef.current.loop = true;
-            audioRef.current.volume = 0.5;
-            audioRef.current.play().catch(() => {
-            });
-        }
-    }, [cutscene]);
 
     // --- Punishment Countdown ---
     useEffect(() => {
@@ -313,41 +311,12 @@ export default function ChoicesPage() {
     // --- Egg Tracker ---
     const eggsFoundCount = eggFound.filter(Boolean).length;
 
-    useEffect(() => {
-        if (!audioRef.current) return;
-
-        // Play audio only after user interaction
-        const playAudio = () => {
-            if (cutscene) {
-                audioRef.current?.pause();
-            } else if (audioRef.current) {
-                audioRef.current.loop = true;
-                audioRef.current.volume = 0.5;
-                audioRef.current.play().catch(() => {
-                });
-            }
-            window.removeEventListener("click", playAudio);
-            window.removeEventListener("keydown", playAudio);
-        };
-
-        // Attach event listeners for first interaction
-        window.addEventListener("click", playAudio);
-        window.addEventListener("keydown", playAudio);
-
-        // Cleanup
-        return () => {
-            window.removeEventListener("click", playAudio);
-            window.removeEventListener("keydown", playAudio);
-        };
-    }, [cutscene]);
-
-    // --- Render ---
     return (
         <div className={styles["choices-root"]} onClick={() => {
             if (monologueStep >= 0 && !punishment && !showGoodLuck && !jumpscare) setShowSkip(true);
         }}>
             {/* Hidden looping audio */}
-            <audio ref={audioRef} src={AUDIO_SRC} style={{display: "none"}}/>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.CHOICES} style={{display: "none"}}/>
 
             {/* Egg tracker */}
             <div className={styles["egg-tracker"]} title="Secret eggs found">
@@ -374,7 +343,7 @@ export default function ChoicesPage() {
             {/* Input phase */}
             {!cutscene && inputPhase && !inputHidden && (
                 <form className={styles["terminal-block"]} onSubmit={handleInputSubmit}>
-                    <span>&gt; </span>
+                    <span>> </span>
                     <input
                         className={styles["terminal-input"]}
                         type="text"
