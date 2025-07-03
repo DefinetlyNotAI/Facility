@@ -66,7 +66,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Track page refreshes for easter eggs
+        // Track page refreshes for Easter eggs
         const savedRefreshCount = localStorage.getItem('facilityRefreshCount');
         if (savedRefreshCount) {
             const count = parseInt(savedRefreshCount, 10);

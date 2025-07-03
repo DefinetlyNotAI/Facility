@@ -8,9 +8,9 @@ KEYWORDS:
 COOKIES:
 accepted
 Scroll unlocked
-Wifi Unlocked
+Wi-Fi Unlocked
 Corrupt (if not No corruption)
-wifi login
+Wi-Fi login
 Media Unlocked
 Button Unlocked
 File Unlocked
@@ -37,22 +37,22 @@ URL[Home] -> FOR HERE If cookie[Corrupt] then redirect to URL[h0m3]
   Random countdown once done a random voice cries "No matter, Time doesn't exist here"
   Bunch of lab looking text and special facility looking things
   Hovering over a specific line of text shows a bin string, to base64 that gives KEYWORD[1]
-  A random place has a HEX code, which provides a TIME, if user changes their system time to that and refresh the HEX becomes a URL to redirect to URL[Wifi Panel], ofc once done create cookie[Wifi Unlocked] as well as hint to use curl/wget there
+  A random place has a HEX code, which provides a TIME, if user changes their system time to that and refresh the HEX becomes a URL to redirect to URL[Wi-Fi Panel], ofc once done create cookie[Wi-Fi Unlocked] as well as hint to use curl/wget there
   If KONAMI code is used and cookie[Files unlocked] then create a popup saying user messed up, and create cookie[Corrupt] and refresh
   If cookie[No Corrupt] then show a popup that says to go to URL[Scroll] and create cookie[Scroll unlocked]
 
-URL[Wifi Panel] -> FOR HERE If no cookie[wifi passed] but cookie[Wifi Unlocked] create cookie[wifi login] and redirect to URL[Wifi login], FOR HERE If not cookie[Wifi Unlocked] then 404
+URL[Wi-Fi Panel] -> FOR HERE If no cookie[Wi-Fi passed] but cookie[Wi-Fi Unlocked] create cookie[Wi-Fi login] and redirect to URL[Wi-Fi login], FOR HERE If not cookie[Wi-Fi Unlocked] then 404
   2 buttons -> [Receive] and [Send]
   - Receive outputs a encoded message, which the algorithm would be in the html comments to help decipher, the message is a question that must be answered via the send
   - Send is locked until user inputs KEYWORD[1] as the password, then the button unlocks, if pressed a popup asks for the answer to the question, if answered correctly simulate sending the answer but then simulate a error and ask the user to use ceaser cipher to answer, if correct and all simulate everything loading well, and finally show URL[Media] and create cookie[Media Unlocked]
   If curl/wget is used, the json should return KEYWORD[2]
 
-URL[Wifi Login] -> FOR HERE If not cookie[Wifi Unlocked] then 404, FOR HERE If cookie[wifi passed] redirect to URL[Wifi Panel]
+URL[Wi-Fi Login] -> FOR HERE If not cookie[Wi-Fi Unlocked] then 404, FOR HERE If cookie[Wi-Fi passed] redirect to URL[Wi-Fi Panel]
   * IF FIRST TIME -> CUTSCENE[Interference]
   Generic login page, asks for username and password: 
   - Pass is written in the JS code and is able to be seen by the people in inspect, the hash should be easy to crack
   - Username is in a html comment that says to go to a youtube vid to remember the username, the vid is just a basic reversed audio saying the username (itgrowshere)
-  When logged in create cookie[Wifi passed]
+  When logged in create cookie[Wi-Fi passed]
 
 URL[Media] -> FOR HERE If not cookie[Media Unlocked] then 404
   Will ask for KEYWORD[2] to access the page,

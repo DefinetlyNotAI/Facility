@@ -84,7 +84,7 @@ export const initializeBackgroundAudio = (
             audioRef.current.volume = volume;
             if (autoPlay) {
                 audioRef.current.play().catch(() => {
-                    // Auto-play failed, will try again on user interaction
+                    // Autoplay failed, will try again on user interaction
                     const handleInteraction = () => {
                         if (audioRef.current) {
                             audioRef.current.play().catch(console.warn);

@@ -5,3 +5,5 @@ ALSO CHECK TAS HINTS ARE NOT TOO EASY
 
 NOTE: Make sure all audio is IN AUDIO TAGS in jsx, and never pure tsx code
 NOTE: The YouTube vid is private, do unprivate when releasing
+
+Check to do's and make sure everything works with a test [esp audio and flow]

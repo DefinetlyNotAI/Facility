@@ -651,7 +651,7 @@ export default function Moonlight() {
                         }}/>
                 )}
 
-                {/* Soothing easter egg popup (normal moon only) */}
+                {/* Soothing Easter egg popup (normal moon only) */}
                 {showEgg && !moonRed && (
                     <div
                         style={{
