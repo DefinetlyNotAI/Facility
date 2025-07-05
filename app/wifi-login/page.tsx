@@ -4,9 +4,9 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/WifiLogin.module.css';
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
@@ -85,13 +85,7 @@ const WifiLoginPage: React.FC = () => {
     const [showCurlHint, setShowCurlHint] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
-        if (!showCutscene && !showCurlHint) {
-            initAudio();
-        }
-        return () => cleanupAudio(audioRef);
-    }, [showCutscene, showCurlHint]);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
 
 
     useEffect(() => {

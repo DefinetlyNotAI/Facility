@@ -3,11 +3,10 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/extra.module.css';
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
-
-const KEYWORD_2 = 'Fletchling';
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {checkKeyword} from "@/lib/utils";
 
 export default function MediaPage() {
     const router = useRouter();
@@ -20,11 +19,7 @@ export default function MediaPage() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.MEDIA);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.MEDIA);
 
 
     useEffect(() => {
@@ -44,8 +39,9 @@ export default function MediaPage() {
         }
     }, [played, dl1, dl2]);
 
-    const checkKey = () => {
-        if (inputKey.trim().toLowerCase() === KEYWORD_2.toLowerCase()) {
+    const checkKey = async () => {
+        const result = await checkKeyword(inputKey.trim().toLowerCase(), 2);
+        if (result) {
             // Play success sound
             try {
                 const successAudio = new Audio(SFX_AUDIO.SUCCESS);

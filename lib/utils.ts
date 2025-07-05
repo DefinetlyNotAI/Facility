@@ -19,3 +19,13 @@ export function createSecureResponse(body: any, status = 200) {
         },
     });
 }
+
+export const checkKeyword = async (keyword: string, number: number): Promise<boolean> => {
+    const res = await fetch('/api/keyword', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({keyword, number}),
+    });
+    const data = await res.json();
+    return !!data.match;
+};

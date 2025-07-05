@@ -2,11 +2,9 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
-
-const WINGDINGS_LOCKED = "✋︎⧫︎ ♓︎⬧︎ ■︎□︎⧫︎ ⧫︎♓︎❍︎♏︎";
-const WINGDINGS_NOT_ALLOWED = "✡︎□︎◆︎ ♎︎□︎■︎🕯︎⧫︎ ♌︎♏︎●︎□︎■︎♑︎ ♒︎♏︎❒︎♏︎";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {WINGDINGS_LOCKED, WINGDINGS_NOT_ALLOWED} from "@/lib/data";
 
 export default function Glitchy404() {
     const router = useRouter();
@@ -19,11 +17,7 @@ export default function Glitchy404() {
     const locked = pathname === "/404";
 
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.N404);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.N404)
 
     useEffect(() => {
         if (Math.random() < 1 / 666) setShowMoonlight(true);
@@ -35,6 +29,8 @@ export default function Glitchy404() {
                 await signCookie("themoon=true");
                 router.push("/moonlight");
             })();
+        } else {
+            playAudio(SFX_AUDIO.ERROR, {volume: 0.5});
         }
     }, [showMoonlight, router]);
 

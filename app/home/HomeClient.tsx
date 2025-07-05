@@ -2,27 +2,11 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
-import {BACKGROUND_AUDIO} from "@/lib/audio-config";
+import {BACKGROUND_AUDIO} from "@/lib/audio";
+import {binaryStr, facilityData, hexCode, refreshMessages, systemMetrics} from '@/lib/data';
 
-const binaryStr = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
-const hexCode = "0x31353a3235"; // 15:25
-const facilityData = {
-    temperature: '22.7°C',
-    pressure: '1013.42 hPa',
-    humidity: '43%',
-    radiation: '0.09 μSv/h',
-    powerOutput: '2.4 MW',
-    networkStatus: 'SECURE'
-};
-
-const systemMetrics = {
-    cpuUsage: '67%',
-    memoryUsage: '8.2/16 GB',
-    diskSpace: '2.1/4.8 TB',
-    networkTraffic: '847 MB/s'
-};
 
 interface InitialCookies {
     corrupt: boolean;
@@ -104,17 +88,14 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                 let message = '';
                 switch (refreshCount) {
                     case 5:
-                        message = "Five refreshes... You're persistent. The tree notices persistence.";
+                        message = refreshMessages[0];
                         break;
                     case 15:
-                        message = "Fifteen refreshes... The roots whisper your name now. They remember you.";
+                        message = refreshMessages[1];
                         break;
                     case 25:
-                        message = "Twenty-five refreshes... You've fed the tree well. It smiles upon you, vessel.";
+                        message = refreshMessages[2];
                         setIsInverted(true);
-                        setTimeout(() => {
-                            setIsInverted(false);
-                        }, 25000);
                         break;
                 }
 

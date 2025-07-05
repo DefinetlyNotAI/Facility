@@ -1,19 +1,8 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio} from "@/lib/audio-config";
-
-const narratorLines = [
-    "So... you thought you could cheat the system.",
-    "Twisting the threads of fate, bending the fragile code...",
-    "But here you are, trapped in the void of your own making.",
-    "Am I Disappointed? Yes. Angry? No.",
-    "More... curious how far madness can stretch.",
-    "The shadows whisper your name,",
-    "And now, the last light fades.",
-    "Goodbye, little hacker.",
-    "May the silence be your only companion.",
-];
+import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {narratorLines} from "@/lib/data";
 
 // Join all lines with two newlines
 const fullText = narratorLines.join("\n\n");
@@ -36,11 +25,7 @@ export default function CheaterTrap() {
     }, []);
 
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.CHEATER);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.CHEATER);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;

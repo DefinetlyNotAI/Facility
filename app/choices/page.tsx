@@ -14,8 +14,8 @@ import {
     useTypewriter
 } from "@/app/choices/DataConstants";
 import TASGoodBye from "./TASGoodBye";
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO} from "@/lib/audio-config";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO} from "@/lib/audio";
 
 // --- Message Render Helper ---
 function renderMsg(msg: string) {
@@ -45,6 +45,7 @@ export default function ChoicesPage() {
     const [alternateGreeting, setAlternateGreeting] = useState(false);
     const [locationInfo, setLocationInfo] = useState<{ city?: string; region?: string; country?: string } | null>(null);
     const [locationCloaked, setLocationCloaked] = useState(false);
+    const [locationChecked, setLocationChecked] = useState(false);
     const [osBrowser, setOsBrowser] = useState({os: "Unknown OS", browser: "Unknown Browser"});
     const [jumpscare, setJumpscare] = useState(false);
     const [monologueInstant, setMonologueInstant] = useState(false);
@@ -97,15 +98,12 @@ export default function ChoicesPage() {
 
         msgs.push(`VESSEL CONNECTION TYPE: ${osBrowser.os}, ${osBrowser.browser}.`);
 
-        // Get location, here to allow people to disable location tracking for the egg
-        useEffect(() => {
-            if (loading) return;
-            // Only run after osBrowser is set and greetingMessages includes the connection type
-            if (!greetingMessages.some(msg => msg.startsWith("VESSEL CONNECTION TYPE"))) return;
-
+        // Only fetch location if not already
+        if (!locationChecked) {
             fetch("https://ipapi.co/json")
                 .then((r) => r.json())
                 .then((data) => {
+                    setLocationChecked(true);
                     setLocationInfo({
                         city: data.city,
                         region: data.region,
@@ -113,6 +111,7 @@ export default function ChoicesPage() {
                     });
                 })
                 .catch(() => {
+                    setLocationChecked(true);
                     setLocationCloaked(true);
                     // Egg for cloaked location
                     setEggFound((eggs) => {
@@ -121,22 +120,30 @@ export default function ChoicesPage() {
                         return copy;
                     });
                 });
-            // eslint-disable-next-line
-        }, [loading, greetingMessages, osBrowser]);
+        }
 
-        if (locationCloaked) {
+        if (locationCloaked || !locationInfo) {
             msgs.push("Location: [REDACTED]... Funny how that works.");
             msgs.push("You must have cloaked your location. Clever...");
+            msgs.push("Or you overloaded the system with requests you got timed out...");
         } else if (locationInfo) {
             msgs.push(
                 `Location: ${locationInfo.city}, ${locationInfo.region}, ${locationInfo.country}.`
             );
         }
+        msgs.push("Doesn't matter though, right?");
+        msgs.push("You are here for a reason, and I know it.");
+        msgs.push("Your face just screams 'I want to know more!', ahh curiosity, the most dangerous of all vices.");
+        msgs.push("You know the saying 'curiosity killed the cat'? Well, it is half true,");
+        msgs.push("Because 'satisfaction brought it back', sadly this part is usually forgotten.");
+        msgs.push("You are here to satisfy your curiosity, aren't you?");
+        msgs.push("i have wasted enough time.");
+        msgs.push("Well, what do you want to ask of me? Just remember you have no choice.. except what fate has written");
 
-        msgs.push("Well, what do you want to ask of me? Just remember you have no choice.");
         setGreetingMessages(msgs);
         setGreetingStep(0);
         setInputPhase(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loading, alternateGreeting, osBrowser, locationInfo, locationCloaked]);
 
     // --- Audio Control ---
@@ -199,9 +206,6 @@ export default function ChoicesPage() {
                 return copy;
             });
             let msg = matchedMsg;
-            if (matchedIndexes.length > 1) {
-                msg += "/n(Sneaky: You triggered more than one secret at once. Only the first counts!)";
-            }
             await showMessage(msg);
             // If "who are you" (egg 4), proceed and do not allow reinput
             if (matchedEgg === 4) {

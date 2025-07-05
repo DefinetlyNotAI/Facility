@@ -1,27 +1,28 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, playAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {checkKeyword} from "@/lib/utils";
 
-const KEYWORD_5 = 'Echoes';
 
 export default function BlackAndWhitePage() {
     const router = useRouter();
     const [bnwUnlocked, setBnwUnlocked] = useState<boolean | null>(null);
-    const inputBufferRef = useRef('');
     const topLeftBufferRef = useRef('');
     const [message, setMessage] = useState<string | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
+    // New state for form visibility and input
+    const [showForm, setShowForm] = useState(false);
+    const [formInput, setFormInput] = useState('');
+    const [formError, setFormError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.BNW);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BNW)
 
     // On mount: check cookie, else redirect 404
     useEffect(() => {
@@ -33,31 +34,28 @@ export default function BlackAndWhitePage() {
         setBnwUnlocked(true);
     }, [router]);
 
-    // Keyboard listener for typed input (console input simulation)
+    // Watch for 666x666 screen size
+    useEffect(() => {
+        function checkSize() {
+            if (window.innerWidth === 666 && window.innerHeight === 666) {
+                setShowForm(true);
+            } else {
+                setShowForm(false);
+                setFormInput('');
+                setFormError(null);
+            }
+        }
+
+        checkSize();
+        window.addEventListener('resize', checkSize);
+        return () => window.removeEventListener('resize', checkSize);
+    }, []);
+
+    // 404 egg logic
     useEffect(() => {
         if (!bnwUnlocked) return;
-
-        const maxLength = 20;
-
         const onKeyDown = async (e: KeyboardEvent) => {
-            if (e.key.length === 1) {
-                inputBufferRef.current += e.key.toLowerCase();
-                if (inputBufferRef.current.length > maxLength) {
-                    inputBufferRef.current = inputBufferRef.current.slice(-maxLength);
-                }
-
-                if (inputBufferRef.current.endsWith(KEYWORD_5.toLowerCase())) {
-                    if (window.innerWidth === 666 && window.innerHeight === 666) {
-                        playAudio(SFX_AUDIO.SUCCESS);
-                        await signCookie('Choice_Unlocked=true');
-                        router.push('/choices');
-                    } else {
-                        playAudio(SFX_AUDIO.ERROR);
-                        setMessage('Incorrect screen size for unlocking choice.');
-                    }
-                }
-            }
-
+            // Only handle 404 egg logic
             if (e.key.length === 1) {
                 topLeftBufferRef.current += e.key;
                 if (topLeftBufferRef.current.length > 3) {
@@ -67,11 +65,9 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
-                        playAudio(SFX_AUDIO.EGG_CRACK, {volume: 0.5});
                         await signCookie("themoon=true");
                         router.push('/moonlight');
                     } else {
-                        playAudio(SFX_AUDIO.ERROR, {volume: 0.5});
                         router.push('/404');
                     }
                 }
@@ -81,6 +77,28 @@ export default function BlackAndWhitePage() {
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [bnwUnlocked, router]);
+
+    // Form submit handler
+    async function handleFormSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setSubmitting(true);
+        setFormError(null);
+        setMessage(null);
+        try {
+            const result = await checkKeyword(formInput.trim().toLowerCase(), 5);
+            if (result) {
+                playAudio(SFX_AUDIO.SUCCESS);
+                await signCookie('Choice_Unlocked=true');
+                router.push('/choices');
+            } else {
+                playAudio(SFX_AUDIO.ERROR);
+                setFormError('Sorry child.');
+            }
+        } catch (err) {
+            setFormError('Server Error checking keyword.');
+        }
+        setSubmitting(false);
+    }
 
     if (bnwUnlocked === null) return null;
 
@@ -204,17 +222,103 @@ export default function BlackAndWhitePage() {
                     </div>
                 )}
 
+                {/* Keyword form appears only at 666x666 */}
+                {showForm && (
+                    <form
+                        onSubmit={handleFormSubmit}
+                        style={{
+                            position: 'fixed',
+                            bottom: '2rem',
+                            left: 0,
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 10000,
+                        }}
+                    >
+                        <input
+                            type="text"
+                            value={formInput}
+                            onChange={e => setFormInput(e.target.value)}
+                            disabled={submitting}
+                            placeholder="What is it child?"
+                            style={{
+                                fontSize: '1.2rem',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '4px 0 0 4px',
+                                border: '1px solid #888',
+                                outline: 'none',
+                                width: '250px',
+                                background: '#222',
+                                color: '#fff',
+                            }}
+                            autoFocus
+                        />
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            style={{
+                                fontSize: '1.2rem',
+                                padding: '0.5rem 1.5rem',
+                                borderRadius: '0 4px 4px 0',
+                                border: '1px solid #888',
+                                background: '#444',
+                                color: '#fff',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Submit
+                        </button>
+                        {formError && (
+                            <div
+                                style={{
+                                    position: 'fixed',
+                                    top: '2rem',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    background: 'rgba(255,0,0,0.95)',
+                                    color: 'white',
+                                    padding: '1rem 2rem',
+                                    borderRadius: '8px',
+                                    fontWeight: 'bold',
+                                    zIndex: 20000,
+                                    boxShadow: '0 2px 16px rgba(0,0,0,0.2)',
+                                    opacity: 1,
+                                    transition: 'opacity 0.7s',
+                                    pointerEvents: 'none',
+                                }}
+                                className={formError ? 'fade-out-popup' : ''}
+                                onAnimationEnd={() => setFormError(null)}
+                            >
+                                {formError}
+                                <style>
+                                    {`
+                                        @keyframes fadeOutPopup {
+                                            to {
+                                                opacity: 0;
+                                            }
+                                        }
+                                    `}
+                                </style>
+                            </div>
+                        )}
+                    </form>
+                )}
+
                 <p
                     style={{
                         position: 'fixed',
-                        bottom: '1rem',
+                        bottom: showForm ? '4.5rem' : '1rem',
                         right: '1rem',
                         fontSize: '0.8rem',
                         color: '#555',
                         userSelect: 'none',
                     }}
                 >
-                    Type the correct keyword when the condition is right.
+                    {showForm
+                        ? ''
+                        : 'Type the correct keyword when the condition is right.'}
                 </p>
             </div>
         </>

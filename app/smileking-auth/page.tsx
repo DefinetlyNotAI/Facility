@@ -2,7 +2,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {SFX_AUDIO} from "@/lib/audio-config";
+import {SFX_AUDIO} from "@/lib/audio";
 
 export default function SmilekingAuth() {
     const [password, setPassword] = useState('');

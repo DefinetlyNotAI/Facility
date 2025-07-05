@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-import {cookiesList} from "@/lib/cookie-utils";
+import {cookiesList} from "@/lib/cookies";
 
 const SECRET = process.env.COOKIE_SECRET || 'Unsecure';
 
@@ -22,12 +22,12 @@ async function verifyRelevantCookies(request: NextRequest): Promise<boolean> {
 
     for (const cookie of relevant) {
         if (!cookie) continue;
-        console.debug(`[verifyRelevantCookies] Verifying cookie: ${cookie.name} = ${cookie.value}`);
+        //console.debug(`[verifyRelevantCookies] Verifying cookie: ${cookie.name} = ${cookie.value}`);
 
         const raw = cookie?.value || '';
         const lastDot = raw.lastIndexOf('.');
         if (lastDot === -1) {
-            console.debug(`[verifyRelevantCookies] Cookie ${cookie.name} missing signature, invalid`);
+            //console.debug(`[verifyRelevantCookies] Cookie ${cookie.name} missing signature, invalid`);
             return false;
         }
 
@@ -35,15 +35,15 @@ async function verifyRelevantCookies(request: NextRequest): Promise<boolean> {
         const signature = raw.slice(lastDot + 1);
 
         const expectedSignature = await sign(`${cookie.name}=${value}`);
-        console.debug(`[verifyRelevantCookies] Expected signature: ${expectedSignature} vs Actual signature: ${signature}`);
+        //console.debug(`[verifyRelevantCookies] Expected signature: ${expectedSignature} vs Actual signature: ${signature}`);
 
         if (signature !== expectedSignature) {
-            console.debug(`[verifyRelevantCookies] Signature mismatch on cookie ${cookie.name}, invalid`);
+            //console.debug(`[verifyRelevantCookies] Signature mismatch on cookie ${cookie.name}, invalid`);
             return false;
         }
     }
 
-    console.debug('[verifyRelevantCookies] All relevant cookies verified successfully');
+    //console.debug('[verifyRelevantCookies] All relevant cookies verified successfully');
     return true;
 }
 

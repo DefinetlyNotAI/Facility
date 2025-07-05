@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import styles from "../../styles/Choices.module.css";
 import {CUTSCENE_AUDIO, CUTSCENE_LINES, useTypewriter} from "@/app/choices/DataConstants";
 

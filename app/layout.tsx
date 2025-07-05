@@ -9,8 +9,12 @@ function getTitle(pathname: string) {
     if (pathname === "/") return "Hope you have fun";
     if (pathname === "/moonlight") return "A night so cold he forgot to smile";
     if (pathname === "/smileking") return ":)";
+    if (pathname === "/choices") return "So many choices..";
+    if (pathname === "/h0m3") return "HELP ME FIND HOME";
+    if (pathname === "/the-end") return "Thank you.. See you soon, may HE be with you, Praise Be";
+    if (pathname === "/CHEATER") return "HYPOCRITE";
     if (pathname === "/smileking-auth") return "Authorized Access Only - Smile King Terminal";
-    return "Facility Terminal Access";
+    return "The Facility";
 }
 
 export default function RootLayout({
@@ -21,8 +25,26 @@ export default function RootLayout({
     const pathname = usePathname();
 
     useEffect(() => {
+        // Set document title
         const title = getTitle(pathname);
         document.title = title === pathname ? "Loading" : title;
+
+        // Check if a favicon <link> already exists
+        const hasFavicon = !!document.querySelector('link[rel~="icon"]');
+
+        if (!hasFavicon) {
+            // Create and add the default favicon link element
+            const link = document.createElement("link");
+            link.rel = "icon";
+            link.href = "/favicon.ico";
+            document.head.appendChild(link);
+        }
+
+        return () => {
+            if (!hasFavicon) {
+                document.head.querySelector('link[rel="icon"][href="/favicon.ico"]')?.remove();
+            }
+        }
     }, [pathname]);
 
     return (
@@ -33,8 +55,9 @@ export default function RootLayout({
             <meta name="classification" content="RESTRICTED"/>
             <meta name="clearance-level" content="LEVEL-5"/>
             <meta name="facility-id" content="05-B"/>
-            <style dangerouslySetInnerHTML={{
-                __html: `
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
                 body { background: #000; overflow: hidden; }
                 .loading-screen {
                     position: fixed;
@@ -49,23 +72,29 @@ export default function RootLayout({
                     opacity: 0;
                     pointer-events: none;
                 }
-            `
-            }}/>
+            `,
+                }}
+            />
             <title></title>
         </head>
         <body className="font-sans antialiased bg-black text-white min-h-screen">
         <div id="loading-screen" className="loading-screen">
             <div className="text-center">
                 <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
-                <div className="loading-dots"><span></span><span></span><span></span></div>
+                <div className="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </div>
         <div className="scanlines crt-effect">
             {children}
             <TAS/>
         </div>
-        <script dangerouslySetInnerHTML={{
-            __html: `
+        <script
+            dangerouslySetInnerHTML={{
+                __html: `
             window.addEventListener('load', function() {
               setTimeout(function() {
                 const loadingScreen = document.getElementById('loading-screen');
@@ -78,8 +107,9 @@ export default function RootLayout({
                 }
               }, 1500);
             });
-          `
-        }}/>
+          `,
+            }}
+        />
         </body>
         </html>
     );

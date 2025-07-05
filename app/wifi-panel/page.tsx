@@ -4,10 +4,10 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/WifiPanel.module.css';
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {checkKeyword} from "@/lib/utils";
 
-const KEYWORD_1 = 'Whispers';
 
 export default function WifiPanel() {
     const router = useRouter();
@@ -21,11 +21,7 @@ export default function WifiPanel() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_PANEL);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_PANEL);
 
     // 404 and redirect logic
     useEffect(() => {
@@ -64,8 +60,9 @@ export default function WifiPanel() {
         setMode('receive');
     };
 
-    const handleUnlockSend = () => {
-        if (password.trim().toLowerCase() === KEYWORD_1.trim().toLowerCase()) {
+    const handleUnlockSend = async () => {
+        const result = await checkKeyword(password.trim().toLowerCase(), 1);
+        if (result) {
             // Play success sound
             try {
                 const successAudio = new Audio(SFX_AUDIO.SUCCESS);

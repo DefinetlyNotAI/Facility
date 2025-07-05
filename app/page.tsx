@@ -3,8 +3,8 @@
 import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 
 export default function RootPage() {
     const router = useRouter();
@@ -14,14 +14,7 @@ export default function RootPage() {
     const [countdown, setCountdown] = useState(25);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
-        if (!isLoading) {
-            setTimeout(initAudio, 1000);
-        }
-        return () => cleanupAudio(audioRef);
-    }, [isLoading]);
-
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
 
     useEffect(() => {
         // Simulate system boot

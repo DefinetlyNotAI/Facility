@@ -4,12 +4,11 @@ import {useEffect, useRef, useState} from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/Buttons.module.css';
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BrowserName, BROWSERS} from '@/lib/data';
 
-const BROWSERS = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'] as const;
-type BrowserName = typeof BROWSERS[number];
 
 // Detect browser reliably (basic)
 function getBrowserName(): BrowserName | null {
@@ -72,11 +71,7 @@ export default function ButtonsPage() {
     const pressedCount = Object.values(buttonStates).filter(Boolean).length;
 
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS)
 
     useEffect(() => {
         axios.get('/api/csrf-token').catch(() => {

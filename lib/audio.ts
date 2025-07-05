@@ -1,7 +1,7 @@
 // Centralized audio configuration for the entire application
 // All audio file paths are defined here for easy management and consistency
 
-import React from "react";
+import React, {useEffect} from "react";
 
 // Background Music
 export const BACKGROUND_AUDIO = {
@@ -69,7 +69,7 @@ export const playAudio =
     };
 
 // Utility function to initialize background audio with user interaction handling
-export const initializeBackgroundAudio = (
+const initializeBackgroundAudio = (
     audioRef: React.RefObject<HTMLAudioElement>,
     _audioPath: string,
     options: {
@@ -101,9 +101,35 @@ export const initializeBackgroundAudio = (
 };
 
 // Utility function to clean up audio
-export const cleanupAudio = (audioRef: React.RefObject<HTMLAudioElement>) => {
+const cleanupAudio = (audioRef: React.RefObject<HTMLAudioElement>) => {
     if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
     }
 };
+
+export function useBackgroundAudio(audioRef: React.RefObject<HTMLAudioElement>, audioSrc: string, conditional: boolean | null | undefined = true) {
+    useEffect(() => {
+        if (!conditional) {
+            cleanupAudio(audioRef);
+            return;
+        }
+        let hasInteracted = false;
+        const startAudio = () => {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                const initAudio = initializeBackgroundAudio(audioRef, audioSrc);
+                initAudio();
+                window.removeEventListener('pointerdown', startAudio);
+                window.removeEventListener('keydown', startAudio);
+            }
+        };
+        window.addEventListener('pointerdown', startAudio);
+        window.addEventListener('keydown', startAudio);
+        return () => {
+            window.removeEventListener('pointerdown', startAudio);
+            window.removeEventListener('keydown', startAudio);
+            cleanupAudio(audioRef);
+        };
+    }, [audioRef, audioSrc, conditional]);
+}

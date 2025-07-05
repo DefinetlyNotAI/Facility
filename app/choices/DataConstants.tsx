@@ -1,6 +1,6 @@
 // Expanded secret keywords and eggs
 import {useEffect, useState} from "react";
-import {SFX_AUDIO} from "@/lib/audio-config";
+import {SFX_AUDIO} from "@/lib/audio";
 
 export const CHOICE_KEYWORDS = [
     {

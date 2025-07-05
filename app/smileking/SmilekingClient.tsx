@@ -3,7 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import Cookies from "js-cookie";
-import {cookiesList, signCookie} from "@/lib/cookie-utils";
+import {cookiesList, signCookie} from "@/lib/cookies";
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {
@@ -42,7 +42,7 @@ export default function SmilekingClient() {
 
         const exclusivityGroups: string[][] = [
             ['End', 'End?'],
-            ['corrupting', 'Corrupt', 'No corruption']
+            ['corrupting', 'Corrupt', 'No_corruption']
         ];
 
         if (isSet) {

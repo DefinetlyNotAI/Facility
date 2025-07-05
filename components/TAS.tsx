@@ -100,13 +100,13 @@ export default function TAS({className = ''}: TASProps) {
         const nextText = speechQueueRef.current.shift()!;
         isSpeakingRef.current = true;
 
-        // Dim ALL <audio> elements on the page to 35%
+        // Dim ALL <audio> elements on the page to 20%
         requestAnimationFrame(() => {
             document.querySelectorAll('audio').forEach(audio => {
                 if (!audio.paused && !audio.muted && audio.volume > 0) {
                     const originalVolume = originalVolumesRef.current.get(audio) || audio.volume;
                     originalVolumesRef.current.set(audio, originalVolume);
-                    audio.volume = originalVolume * 0.35;
+                    audio.volume = originalVolume * 0.2;
                 }
             });
         });

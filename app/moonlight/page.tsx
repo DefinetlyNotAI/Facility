@@ -2,34 +2,11 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import Cookies from "js-cookie";
 import {VNTextRenderer} from "@/components/text";
-import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio-config";
-
-const POETIC_LINES = [
-    "In the beginning, there was only the void...",
-    "Time, like water, flows through fingers of eternity.",
-    "Each second a grain of sand, falling into the abyss.",
-    "The moon watches, silent witness to our fleeting existence.",
-    "In its pale light, shadows dance with memories.",
-    "What was, what is, what shall be—all converge in this moment.",
-    "The vessel of consciousness drifts through temporal seas.",
-    "Anchored to nothing, yet bound by everything.",
-    "Time dissolves... reality bends... the moon remembers all."
-];
-
-const CREEPY_LINES = [
-    "The crimson moon bleeds into the void...",
-    "Time fractures, spilling darkness across the sky.",
-    "In the red light, shadows writhe with malevolent purpose.",
-    "The vessel cracks, leaking nightmares into reality.",
-    "Each second drips like blood from a wound in time.",
-    "The moon's eye opens, and it sees... everything.",
-    "In its scarlet gaze, sanity withers and dies.",
-    "What lurks behind the veil grows stronger.",
-    "The red moon calls... and something answers."
-];
+import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO} from "@/lib/audio";
+import {CREEPY_LINES, POETIC_LINES} from "@/lib/data";
 
 export default function Moonlight() {
     const router = useRouter();
@@ -81,6 +58,7 @@ export default function Moonlight() {
         const hasMoonCookie = Cookies.get("themoon");
 
         if (hasMoonCookie) {
+            playAudio(SFX_AUDIO.EGG_CRACK, {volume: 0.5});
             setAllowed(true);
         } else {
             router.replace("/404");

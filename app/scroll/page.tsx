@@ -3,8 +3,8 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio-config";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio";
 
 function getRandomFilename(length = 8) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';

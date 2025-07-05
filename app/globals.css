@@ -1874,3 +1874,18 @@ body {
     background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
     pointer-events: none;
 }
+
+
+@keyframes fadeOutPopup {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+
+}
+
+.fade-out-popup {
+    animation: fadeOutPopup 6s forwards;
+}

@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 
 async function fetchUserIP(): Promise<string> {
     try {
@@ -61,11 +61,7 @@ export default function FileConsole() {
     }, []);
 
     // Initialize background audio
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.FILE_CONSOLE);
-        initAudio();
-        return () => cleanupAudio(audioRef);
-    }, []);
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.FILE_CONSOLE);
 
     useEffect(() => {
         if (!Cookies.get('File_Unlocked')) {
@@ -434,7 +430,7 @@ export default function FileConsole() {
                 ">
                     <p>❖ SYSTEM INFECTED ❖</p>
                     <p>They are watching you through your screen.</p>
-                    <p>VESSEL ID: <span style="color:white">#31525</span></p>
+                    <p>DEAR VESSEL</p>
                     <p>HE is coming.</p>
                     <p>HE is coming.</p>
                     <p>HE is coming.</p>

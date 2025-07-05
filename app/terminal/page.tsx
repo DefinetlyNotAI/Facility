@@ -3,50 +3,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookie-utils";
+import {signCookie} from "@/lib/cookies";
 import {VNTextRenderer} from "@/components/text";
 import styles from '../../styles/Terminal.module.css';
-import {BACKGROUND_AUDIO, cleanupAudio, initializeBackgroundAudio, SFX_AUDIO} from "@/lib/audio-config";
+import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {downloadName, downloadVessel, KeywordKey, keywords, phraseTemplate, wingdingsTitles} from '@/lib/data';
 
-const keywords = {
-    1: 'Whispers',
-    2: 'Fletchling',
-    3: 'Dithed',
-    4: 'Nullskin',
-    5: 'Echoes',
-};
-
-const wingdingsTitles = [
-    "👎︎☜︎✌︎❄︎☟︎",
-    "👎︎✌︎☠︎☝︎☜︎☼︎",
-    "☞︎☜︎✌︎☼︎",
-    "✞︎⚐︎✋︎👎︎",
-    "💧︎✋︎☹︎☜︎☠︎👍︎☜︎",
-    "💧︎☟︎✌︎👎︎⚐︎🕈︎",
-    "👍︎🕆︎☼︎💧︎☜︎",
-    "☟︎✌︎🕆︎☠︎❄︎",
-    "👌︎☼︎⚐︎😐︎☜︎☠︎",
-    "❄︎☼︎✌︎🏱︎🏱︎☜︎👎︎",
-    "☹︎⚐︎💧︎❄︎",
-    "🕈︎☟︎✋︎💧︎🏱︎☜︎☼︎",
-    "💧︎👍︎☼︎☜︎✌︎💣︎",
-    "✌︎👌︎✡︎💧︎💧︎",
-    "✞︎⚐︎✋︎👎︎",
-    "👎︎☜︎👍︎✌︎✡︎",
-    "❄︎🕈︎✋︎💧︎❄︎",
-    "👍︎☟︎✌︎⚐︎💧︎",
-    "👌︎☹︎⚐︎⚐︎👎︎",
-    "☞︎✌︎☹︎☹︎☜︎☠︎",
-    "☜︎👍︎☟︎⚐︎",
-    "✞︎⚐︎✋︎👎︎",
-    "👎︎☼︎☜︎✌︎👎︎",
-    "☠︎✋︎☝︎☟︎❄︎",
-    "☜︎☠︎👎︎"
-];
-
-const phraseTemplate = ['The', '___', '___', '___,', 'that signals to the', '___', '___', 'that their time is up.. :)'];
-
-type KeywordKey = 1 | 2 | 3 | 4 | 5;
 
 export default function TerminalPage() {
     const router = useRouter();
@@ -91,13 +53,9 @@ export default function TerminalPage() {
             .join(' ');
     };
 
-    useEffect(() => {
-        const initAudio = initializeBackgroundAudio(audioRef, BACKGROUND_AUDIO.TERMINAL);
-        if (unlocked && !fullScreenOverlay) {
-            initAudio();
-        }
-        return () => cleanupAudio(audioRef);
-    }, [unlocked, fullScreenOverlay]);
+    useBackgroundAudio(
+        audioRef, BACKGROUND_AUDIO.TERMINAL, (unlocked && !fullScreenOverlay)
+    );
 
     // Queue system for timed rendering
     const flushMessagesSequentially = async (queue: string[], delay = 800) => {
@@ -157,7 +115,7 @@ export default function TerminalPage() {
             }
 
             setGuessedKeywords(prev => new Set(prev).add(keywordKey));
-            setMessages(msgs => [...msgs, `Placed "${keywords[keywordKey]}" into the phrase.`]);
+            setMessages(msgs => [...msgs, `Placed "${keywords[keywordKey]}" into place.`]);
 
             if (guessedKeywords.size + 1 === Object.keys(keywords).length) {
                 setMessages(['']);
@@ -331,6 +289,15 @@ export default function TerminalPage() {
         }, 1200);
     };
 
+    function downloadVESSEL() {
+        const a = document.createElement('a');
+        a.href = downloadVessel;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
     const runCountdown = async () => {
         setMessages([]);
 
@@ -378,14 +345,7 @@ export default function TerminalPage() {
             await new Promise(r => setTimeout(r, 3500));
 
             // Download and redirect
-            const blob = new Blob([''], {type: 'application/octet-stream'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'VESSEL.exe';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            downloadVESSEL()
 
             try {
                 await signCookie('End?=true');
@@ -467,20 +427,12 @@ export default function TerminalPage() {
         await new Promise(r => setTimeout(r, 2000));
 
         // Download and redirect
-        const blob = new Blob([''], {type: 'application/octet-stream'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'VESSEL.exe';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        downloadVESSEL()
 
         try {
             await signCookie('End?=true');
         } catch {
         }
-
         router.push('/the-end');
     };
 

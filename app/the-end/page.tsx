@@ -5,10 +5,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookie-utils";
-import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio-config";
-
-const KEYWORD_6 = "Unbirth";
+import {signCookie} from "@/lib/cookies";
+import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio";
+import {checkKeyword} from "@/lib/utils";
 
 export default function TheEnd() {
     const router = useRouter();
@@ -194,7 +193,8 @@ export default function TheEnd() {
     // Handle keyword 6 submission
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (input.trim().toLowerCase() === KEYWORD_6.toLowerCase()) {
+        const result = await checkKeyword(input.trim().toLowerCase(), 6);
+        if (result) {
             Cookies.remove('End?');
             await signCookie('End=true');
             setHasEndCookie(true);
