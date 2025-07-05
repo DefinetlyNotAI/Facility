@@ -24,6 +24,7 @@ export const BACKGROUND_AUDIO = {
     MOONLIGHT_RED: "/music/doestimeexist.mp3",
     N404: "/music/clockat3.mp3",
     FILE_CONSOLE: "/music/contempt.mp3",
+    DREAM: "/music/daisybell.mp3",
 } as const;
 
 // Sound Effects

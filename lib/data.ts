@@ -1,5 +1,5 @@
 // Terminal - Note that all keywords have been unlocked, so no need for security api calls here.
-export const keywords = {
+export const keywords: Record<number, string> = {
     1: 'Whispers',
     2: 'Fletchling',
     3: 'Dithed',
@@ -40,7 +40,7 @@ export const hexCorruptText: string = "36363A3636"; // 66:66 in hex
 // home.tsx
 export const binaryStr: string = "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011";
 export const hexCode: string = "0x31353a3235"; // 15:25
-export const facilityData = {
+export const facilityData: Record<string, string> = {
     temperature: '22.7°C',
     pressure: '1013.42 hPa',
     humidity: '43%',
@@ -48,7 +48,7 @@ export const facilityData = {
     powerOutput: '2.4 MW',
     networkStatus: 'SECURE'
 };
-export const systemMetrics = {
+export const systemMetrics: Record<string, string> = {
     cpuUsage: '67%',
     memoryUsage: '8.2/16 GB',
     diskSpace: '2.1/4.8 TB',
@@ -116,3 +116,31 @@ export const wingdingsTitles: string[] = [
 ];
 export const phraseTemplate: string[] = ['The', '___', '___', '___,', 'that signals to the', '___', '___', 'that their time is up.. :)'];
 export type KeywordKey = 1 | 2 | 3 | 4 | 5;
+
+// dream.tsx
+export const IMAGE_DIR = '/static/dream/';
+export const IMAGES: Record<string, string> = {
+    'allyounome.png': "The house never needed a foundation—only witnesses.",
+    'beautiful.png': "They called it beautiful. You kept blinking, but it never stopped.",
+    'letsplay.jpeg': "You promised you'd forget. They're still waiting at recess.",
+    'perspective.png': "Smile upside down. Maybe then it makes sense.",
+    'roseye.png': "Where memories rot, flowers bloom with sight.",
+    'siliconyou.png': "The machines remember you better than you do.",
+    'treeohtree.png': "It still stands. And it still listens.",
+    'weallseeyou.png': "They blink in patterns. Have you decoded your reflection yet?",
+};
+export const WHISPER_TEXTS: string[] = [
+    'he never left',
+    'they bloom in silence',
+    'don’t blink',
+    'it’s watching',
+    'you forgot something',
+    'was this always here?',
+    'static never sleeps',
+    'you are not alone',
+    'he remembers',
+    'turn around',
+    'just out of frame',
+    'this isn’t memory',
+    ':)'
+];
