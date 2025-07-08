@@ -24,5 +24,5 @@ export const cookiesList = [
     'corrupting', 'No_corruption', 'BnW_unlocked', 'Choice_Unlocked',
     'terminal_unlocked', 'End?', 'End',
     'moonlight_time_cutscene_played', 'themoon',
-    'Interference_cutscene_seen', 'KILLTAS_cutscene_seen',
+    'Interference_cutscene_seen', 'KILLTAS_cutscene_seen', 'TREE'
 ];
