@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/audio';
 import {IMAGE_DIR, IMAGES, WHISPER_TEXTS} from '@/lib/data';
 import styles from '@/styles/Dream.module.css';
+import Cookies from "js-cookie";
 
 export default function DreamScreen() {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -13,6 +14,11 @@ export default function DreamScreen() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.DREAM);
 
     useEffect(() => {
+        const treeCookie = Cookies.get('TREE');
+        if (!treeCookie && Math.floor(Math.random() * 43) === 0) {
+            window.location.href = '/O-ARVORE-DA-CARNE';
+            return;
+        }
         const filenames = Object.keys(IMAGES);
         const random = filenames[Math.floor(Math.random() * filenames.length)];
         setImageSrc(`${IMAGE_DIR}${random}`);

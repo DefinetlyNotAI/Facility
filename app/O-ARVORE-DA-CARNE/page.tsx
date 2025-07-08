@@ -1,5 +1,4 @@
-"use client";
-import React, {useEffect, useState} from "react";
+"use client";import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookies";
