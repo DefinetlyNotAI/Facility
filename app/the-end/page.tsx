@@ -627,7 +627,7 @@ export default function TheEnd() {
                                 type="text"
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
-                                placeholder="The word of unmaking..."
+                                placeholder="The word taught to you by me - But note when you answer you won't be able to go back..."
                                 style={{
                                     fontSize: '1.5rem',
                                     padding: '1rem',

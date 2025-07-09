@@ -3,7 +3,8 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import Cookies from "js-cookie";
-import {cookiesList, signCookie} from "@/lib/cookies";
+import {cookiesList} from "@/lib/cookiesList";
+import {signCookie} from "@/lib/cookies";
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {

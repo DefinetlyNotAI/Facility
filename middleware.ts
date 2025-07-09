@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-import {cookiesList} from "@/lib/cookies";
+import {cookiesList} from "@/lib/cookiesList";
 
 const SECRET = process.env.COOKIE_SECRET || 'Unsecure';
 
