@@ -48,9 +48,12 @@ export default function RootLayout({
         }
     }, [pathname]);
 
+    const [isClient, setIsClient] = React.useState(false);
+
     // Hide loading screen after window load
     useEffect(() => {
-        const onLoad = () => {
+        setIsClient(true);
+        const hideLoadingScreen = () => {
             setTimeout(() => {
                 const loadingScreen = document.getElementById('loading-screen');
                 if (loadingScreen) {
@@ -62,9 +65,15 @@ export default function RootLayout({
                 }
             }, 1500);
         };
-        window.addEventListener('load', onLoad);
+
+        if (document.readyState === 'complete') {
+            hideLoadingScreen();
+        } else {
+            window.addEventListener('load', hideLoadingScreen);
+        }
+
         return () => {
-            window.removeEventListener('load', onLoad);
+            window.removeEventListener('load', hideLoadingScreen);
         };
     }, []);
 
@@ -79,16 +88,18 @@ export default function RootLayout({
             <title></title>
         </head>
         <body className={`font-sans antialiased min-h-screen ${styles.body}`}>
-        <div id="loading-screen" className={styles["loading-screen"]}>
-            <div className="text-center">
-                <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
-                <div className="loading-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+        {isClient && (
+            <div id="loading-screen" className={styles["loading-screen"]}>
+                <div className="text-center">
+                    <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
+                    <div className="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
             </div>
-        </div>
+        )}
         <div className="scanlines crt-effect">
             {children}
             <TAS/>

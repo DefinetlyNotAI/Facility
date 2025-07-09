@@ -20,7 +20,8 @@ export default function Glitchy404() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.N404)
 
     useEffect(() => {
-        if (Math.random() < 1 / 666) setShowMoonlight(true);
+        // Only run on client, safe for random logic here
+        if (typeof window !== "undefined" && Math.random() < 1 / 666) setShowMoonlight(true);
     }, []);
 
     useEffect(() => {

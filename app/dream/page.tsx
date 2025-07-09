@@ -15,7 +15,7 @@ export default function DreamScreen() {
 
     useEffect(() => {
         const treeCookie = Cookies.get('TREE');
-        if (!treeCookie && Math.floor(Math.random() * 43) === 0) {
+        if (typeof window !== 'undefined' && !treeCookie && Math.floor(Math.random() * 43) === 0) {
             window.location.href = '/O-ARVORE-DA-CARNE';
             return;
         }
