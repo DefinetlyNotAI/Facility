@@ -93,19 +93,20 @@ export async function middleware(request: NextRequest) {
 
     // Security headers (optional)
     const response = NextResponse.next();
-
-    if (process.env.NODE_ENV === 'production') {
+    try {
         response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+        const isDev = process.env.NODE_ENV !== 'production';
         response.headers.set(
             'Content-Security-Policy',
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+            `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;`
         );
         response.headers.set('X-Frame-Options', 'DENY');
         response.headers.set('X-Content-Type-Options', 'nosniff');
         response.headers.set('Referrer-Policy', 'no-referrer');
         response.headers.set('Permissions-Policy', 'geolocation=(), microphone=()');
+    } catch (err) {
+        console.error(`[middleware.ts] Failed to set security headers:`, err);
     }
-
     // === Begin Conflict Resolution ===
     if (noCorruption) {
         if (corrupt) {

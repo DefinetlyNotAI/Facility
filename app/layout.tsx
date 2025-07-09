@@ -3,6 +3,7 @@
 import React, {useEffect} from "react";
 import {usePathname} from "next/navigation";
 import "./globals.css";
+import styles from "@/styles/Layout.module.css";
 import TAS from "@/components/TAS";
 
 function getTitle(pathname: string) {
@@ -47,6 +48,26 @@ export default function RootLayout({
         }
     }, [pathname]);
 
+    // Hide loading screen after window load
+    useEffect(() => {
+        const onLoad = () => {
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }, 500);
+                }
+            }, 1500);
+        };
+        window.addEventListener('load', onLoad);
+        return () => {
+            window.removeEventListener('load', onLoad);
+        };
+    }, []);
+
     return (
         <html lang="en" className="dark">
         <head>
@@ -55,30 +76,10 @@ export default function RootLayout({
             <meta name="classification" content="RESTRICTED"/>
             <meta name="clearance-level" content="LEVEL-5"/>
             <meta name="facility-id" content="05-B"/>
-            <style
-                dangerouslySetInnerHTML={{
-                    __html: `
-                body { background: #000; overflow: hidden; }
-                .loading-screen {
-                    position: fixed;
-                    top: 0; left: 0;
-                    width: 100%; height: 100%;
-                    background: #000;
-                    display: flex; align-items: center; justify-content: center;
-                    z-index: 9999;
-                    transition: opacity 0.5s ease-out;
-                }
-                .loading-screen.hidden {
-                    opacity: 0;
-                    pointer-events: none;
-                }
-            `,
-                }}
-            />
             <title></title>
         </head>
-        <body className="font-sans antialiased bg-black text-white min-h-screen">
-        <div id="loading-screen" className="loading-screen">
+        <body className={`font-sans antialiased min-h-screen ${styles.body}`}>
+        <div id="loading-screen" className={styles["loading-screen"]}>
             <div className="text-center">
                 <div className="text-green-400 text-2xl font-mono mb-4">FACILITY OS</div>
                 <div className="loading-dots">
@@ -92,24 +93,6 @@ export default function RootLayout({
             {children}
             <TAS/>
         </div>
-        <script
-            dangerouslySetInnerHTML={{
-                __html: `
-            window.addEventListener('load', function() {
-              setTimeout(function() {
-                const loadingScreen = document.getElementById('loading-screen');
-                if (loadingScreen) {
-                  loadingScreen.classList.add('hidden');
-                  setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                  }, 500);
-                }
-              }, 1500);
-            });
-          `,
-            }}
-        />
         </body>
         </html>
     );
