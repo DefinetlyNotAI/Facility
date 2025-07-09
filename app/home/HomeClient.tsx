@@ -192,10 +192,23 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
         runAsync().catch(console.error);
     }, [router, initialCookies, mounted]);
-
-    // Countdown and TTS logic
+// Countdown and TTS logic (play only once ever)
     useEffect(() => {
-        if (!mounted || countdown === null || countdown <= 0 || voiceTriggered || ttsTriggeredRef.current) return;
+        if (
+            !mounted ||
+            countdown === null ||
+            countdown <= 0 ||
+            voiceTriggered ||
+            ttsTriggeredRef.current
+        )
+            return;
+
+        // Check if TTS has already played (persisted)
+        const ttsPlayed = localStorage.getItem('voidTTSPlayed');
+        if (ttsPlayed === 'true') {
+            setCountdown(null); // Keep time as infinity
+            return;
+        }
 
         const timer = setInterval(() => {
             setCountdown(c => {
@@ -223,6 +236,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         };
 
                         speechSynthesis.speak(utterance);
+                        localStorage.setItem('voidTTSPlayed', 'true');
                     }
                     clearInterval(timer);
                     return null;
@@ -233,7 +247,6 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
         return () => clearInterval(timer);
     }, [countdown, voiceTriggered, mounted]);
-
     // Time check for 15:25
     useEffect(() => {
         if (!mounted) return;
@@ -253,6 +266,52 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         const interval = setInterval(checkTime, 60000);
         return () => clearInterval(interval);
     }, [router, mounted]);
+
+    // Easter Egg: After refreshCount > 25 and THP_Play not set, roll 1/25 every minute for TTS and download
+    useEffect(() => {
+        if (!mounted || refreshCount <= 25) return;
+        const checkTHP = async () => {
+            if (document.cookie.includes('THP_Play')) return;
+
+            // 1/25 chance
+            if (Math.floor(Math.random() * 25) === 0) {
+                const message = "Welcome to hell - Cease your bleating - Isn't it you who seeks this crimson path? - So play the hollow pilgrimage";
+                if (ambientAudioRef.current) {
+                    ambientAudioRef.current.pause();
+                }
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.rate = 0.7;
+                utterance.pitch = 0.5;
+                utterance.volume = 0.9;
+
+                utterance.onend = async () => {
+                    if (ambientAudioRef.current) {
+                        ambientAudioRef.current.play().catch(console.warn);
+                    }
+                    await signCookie('THP_Play=true');
+                    // Download the file
+                    const link = document.createElement('a');
+                    link.href = '/static/home/The_Hollow_Pilgrimage.mp4';
+                    link.download = 'The_Hollow_Pilgrimage.mp4';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                    setTimeout(() => {
+                        window.speechSynthesis.speak(utterance);
+                    }, 100);
+                }
+            }
+        };
+
+        checkTHP().catch(console.error);
+        const interval = setInterval(checkTHP, 60000);
+        return () => clearInterval(interval);
+    }, [refreshCount, mounted]);
 
     // Original Konami code for corruption (kept for puzzle functionality)
     useEffect(() => {
