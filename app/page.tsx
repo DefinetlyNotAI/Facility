@@ -127,10 +127,9 @@ export default function RootPage() {
                                         active
                                     </div>
                                     <div className="terminal-line">
-                                        <span className="terminal-prompt">MORALITY:</span> None of the audio tracks
-                                        played are my own work, and [REDACTED] does not own them. Most are royalty-free
-                                        music and "Never Ending Night" is from the hit-game Deltarune by Toby Fox, [My
-                                        biggest inspo, tho he is taking TOO LONG].
+                                        <span className="terminal-prompt">MORALITY:</span> All audio tracks used are not
+                                        my own, nor owned by me. Most audio's are royalty-free, and "Never Ending Night"
+                                        is from the game Deltarune by Toby Fox, who is still taking TOO LONG.
                                     </div>
                                 </div>
                             </div>
@@ -140,11 +139,10 @@ export default function RootPage() {
                                     <span>⚠️</span> CONTENT WARNINGS
                                 </h2>
                                 <ul className="space-y-2 text-sm text-red-300">
-                                    <li>• Psychological horror and disturbing content</li>
                                     <li>• Visual and audio disturbances</li>
                                     <li>• Possible flashing lights and rapid imagery</li>
                                     <li>• Content may be psychologically distressing</li>
-                                    <li>• Immersive horror experience with audio cues</li>
+                                    <li>• Immersive psychological horror experience with audio cues</li>
                                 </ul>
                             </div>
 
@@ -153,7 +151,7 @@ export default function RootPage() {
                                 <p className="text-sm text-yellow-300">
                                     By proceeding, you acknowledge understanding of all safety protocols and
                                     consent to psychological evaluation procedures. This experience is designed
-                                    for mature audiences only.
+                                    for mature audiences only. Quit now if you will play with no audio.
                                 </p>
                             </div>
 
