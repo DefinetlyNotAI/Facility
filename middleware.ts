@@ -1,6 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
-// [ReferenceError: __dirname is not defined - vercel]
-__dirname = new URL('.', import.meta.url).pathname;
+
 export const cookiesList = [
     'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'wifi_passed', 'Corrupt',
     'wifi_login', 'Media_Unlocked', 'Button_Unlocked', 'File_Unlocked',
