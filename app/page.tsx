@@ -229,6 +229,24 @@ export default function RootPage() {
                                 className="text-green-400 font-mono">{countdown}</span> seconds...
                             </p>
                             <div className="loading-bar w-full"></div>
+                            <div className="mt-6 text-center space-y-2">
+                                <a
+                                    href="https://discord.gg/rVBFQCTV4F"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 underline font-mono block"
+                                >
+                                    Join the Facility Discord - You can't do this without the others..
+                                </a>
+                                <a
+                                    href="https://the-facility-questlog.vercel.app"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-green-400 underline font-mono block"
+                                >
+                                    VESSEL Quest Log - Hope you don't miss any.. PRAISE BE!
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </main>

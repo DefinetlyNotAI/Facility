@@ -55,9 +55,9 @@ export const systemMetrics: Record<string, string> = {
     networkTraffic: '847 MB/s'
 };
 export const refreshMessages: string[] = [
-    "Five refreshes... You're persistent. The tree notices persistence.",
-    "Fifteen refreshes... The roots whisper your name now. They remember you.",
-    "Twenty-five refreshes... You've fed the tree well. It smiles upon you, vessel."
+    "Five refreshes... You're persistent. The tree notices persistence. Earn my trust to see more.",
+    "Fifteen refreshes... The roots whisper your name now. They remember you... They trust you.",
+    "Twenty five refreshes... You've fed the tree well. It smiles upon you, vessel. Seek the next step.",
 ];
 
 // moonlight.tsx

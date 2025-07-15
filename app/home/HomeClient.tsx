@@ -1,6 +1,4 @@
-'use client';
-
-import {useEffect, useRef, useState} from 'react';
+'use client';import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookies";
 import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
@@ -78,7 +76,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         };
     }, []);
 
-// Refresh-based Easter eggs with proper TTS (triggered by user interaction)
+    // Refresh-based Easter eggs with proper TTS (triggered by user interaction)
     useEffect(() => {
         if (!mounted || refreshCount === 0) return;
 
@@ -192,7 +190,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
         runAsync().catch(console.error);
     }, [router, initialCookies, mounted]);
-// Countdown and TTS logic (play only once ever)
+
+    // Countdown and TTS logic (play only once ever)
     useEffect(() => {
         if (
             !mounted ||
@@ -247,6 +246,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
         return () => clearInterval(timer);
     }, [countdown, voiceTriggered, mounted]);
+
     // Time check for 15:25
     useEffect(() => {
         if (!mounted) return;
@@ -315,7 +315,10 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
     // Original Konami code for corruption (kept for puzzle functionality)
     useEffect(() => {
-        if (!mounted) return;
+        if (
+            !mounted ||
+            initialCookies.noCorruption
+        ) return;
 
         const sequence = [
             'ArrowUp', 'ArrowUp',
@@ -344,7 +347,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [initialCookies.fileUnlocked, mounted]);
+    }, [initialCookies.fileUnlocked, initialCookies.noCorruption, mounted]);
 
     const openLog = (log: ResearchLog) => {
         setSelectedLog(log);
@@ -543,15 +546,31 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                 <div className="panel-subtitle">Project VESSEL Documentation Archive</div>
                             </div>
 
-                            <div className="logs-container">
-                                {researchLogs.slice(0, 8).map((log) => (
+                            {researchLogs.slice(0, 8).map((log) => {
+                                const isLocked = refreshCount < 15;
+                                return (
                                     <div
                                         key={log.id}
-                                        onClick={() => openLog(log)}
-                                        className={`log-entry ${log.corrupted ? 'corrupted' : 'normal'}`}
+                                        onClick={() => {
+                                            if (!isLocked) {
+                                                openLog(log);
+                                            } else {
+                                                setModalMessage('TREE System Authorisation - You do not have enough admin permissions to view this');
+                                                setShowModal(true);
+                                            }
+                                        }}
+                                        className={`log-entry ${log.corrupted ? 'corrupted' : 'normal'} ${isLocked ? 'locked' : ''}`}
                                     >
+                                        {isLocked && (
+                                            <span className="padlock-icon" title="Locked"
+                                                  style={{position: 'absolute', top: 8, right: 8, fontSize: '1.5rem'}}>
+                                                🔒
+                                            </span>
+                                        )}
                                         <div className="log-header">
-                                            <h3 className="log-title">{log.title}</h3>
+                                            <h3 className="log-title">
+                                                {log.title}
+                                            </h3>
                                             <span
                                                 className={`classification ${log.classification.toLowerCase().replace(' ', '-')}`}>
                                                 {log.classification}
@@ -569,8 +588,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                             </div>
                                         )}
                                     </div>
-                                ))}
-                            </div>
+                                );
+                            })}
                         </div>
 
                         {/* Security and Performance */}
@@ -679,7 +698,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                     <div className="alert-dot"></div>
                                     <span>??? reporting shared consciousness events</span>
                                 </div>
-                                {refreshCount >= 15 && (
+                                {refreshCount >= 5 && (
                                     <div className="alert-item critical">
                                         <div className="alert-dot"></div>
                                         <span>Persistent refresh pattern detected - [redacted] awareness confirmed</span>
@@ -718,7 +737,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                 </div>
                                 {refreshCount >= 25 && (
                                     <div className="contact-item emergency">
-                                        <span>Will you smile:</span>
+                                        <span>Will you ever smile:</span>
                                         <span className="contact-number">Ext. ∞</span>
                                     </div>
                                 )}
@@ -753,7 +772,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                     <span>TREE Protocol:</span>
                                     <span
                                         className={`class-value ${refreshCount >= 15 ? 'text-red-400' : 'text-green-400'}`}>
-                                        {refreshCount >= 15 ? 'AWAKENING' : 'ACTIVE'}
+                                        {refreshCount >= 15 ? 'ALIVE' : 'ACTIVE'}
                                     </span>
                                 </div>
                             </div>
@@ -809,7 +828,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         {selectedLog.corrupted && (
                             <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
                                 <div className="text-red-400 text-sm font-bold mb-2 animate-pulse">
-                                    ⚠️ DATA CORRUPTION WARNING
+                                    ⚠️ DATA CORRUPTION WARNING ⚠️
                                 </div>
                                 <div className="text-red-300 text-xs">
                                     This log file has been compromised by unknown interference. Some data may be
@@ -859,6 +878,24 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                 .inverted-colors {
                     filter: invert(1) hue-rotate(180deg);
                     transition: filter 0.5s ease-in-out;
+                }
+
+                .log-entry.locked {
+                    opacity: 0.6;
+                    pointer-events: auto;
+                    cursor: not-allowed;
+                    position: relative;
+                    border: 2px dashed #f87171;
+                    background: #1a1a1a;
+                }
+
+                .padlock-icon {
+                    color: #f87171;
+                    z-index: 2;
+                    position: absolute;
+                    top: 50%;
+                    right: 50%;
+                    transform: translate(50%, -50%);
                 }
             `}</style>
         </div>
