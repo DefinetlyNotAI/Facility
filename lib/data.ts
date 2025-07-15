@@ -144,3 +144,106 @@ export const WHISPER_TEXTS: string[] = [
     'this isn’t memory',
     ':)'
 ];
+
+// file console
+type Dirent = { name: string; type: 'file' | 'dir'; };
+export type BootMessage = {
+    text: string;
+    delay?: number; // in ms
+    typeSpeed?: number; // characters per second
+    mode?: 'instant' | 'type' | 'fade';
+    groupWithPrevious?: boolean;
+};
+const DUMMY_FILES: Dirent[] = Array.from({length: 6}, (_, i) => ({
+    name: `broken_shadow${i + 1}${Math.random() > 0.5 ? '.bin' : ''}`,
+    type: Math.random() > 0.4 ? 'file' : 'dir'
+}));
+export const ROOT_FILES: Dirent[] = [
+    {name: 'riddle.pdf', type: 'file'},
+    {name: 'riddle-hint.txt', type: 'file'},
+    {name: 'code', type: 'dir'},
+    ...DUMMY_FILES
+];
+export const CODE_FILES: Dirent[] = [
+    {name: 'robots.txt', type: 'file'},
+    {name: 'LETITGROW.tree', type: 'file'},
+    {name: '.backup', type: 'file'},
+    {name: 'nullskin.swp', type: 'file'},
+    {name: 'tmp_env/', type: 'dir'},
+    {name: 'ERROR###.log', type: 'file'}
+];
+export const BOOT_MESSAGES: BootMessage[] = [
+    {text: "", delay: 3000},
+
+    {text: "(c) 19XX–19XX Internal Research Division", mode: "instant"},
+    {text: "Root Protocol Interface Loading...", typeSpeed: 40},
+
+    {text: ""},
+
+    {text: "[+] Initializing Memory Handlers... OK", typeSpeed: 30},
+    {text: "[+] Mapping Peripheral Branches... OK", typeSpeed: 30},
+    {text: "[+] Engaging Containment Routines...", typeSpeed: 30},
+    {text: "     ...", delay: 400, typeSpeed: 8},
+    {text: "     ...", delay: 400, typeSpeed: 8},
+    {text: "     ERROR: VESSEL BINDING FAILED [code: GRFT-31525]", mode: "fade", delay: 700},
+
+    {text: ""},
+
+    {text: "SYSTEM FLAG: [TR33 DETECTED]", typeSpeed: 25},
+    {text: "Override tree.sys... [DENIED]", typeSpeed: 25},
+    {text: "core.dat :: INTEGRITY VIOLATED", typeSpeed: 25},
+    {text: "root.bark :: UNREADABLE", typeSpeed: 25},
+    {text: "sap.dll :: missing", typeSpeed: 25},
+    {text: "grove.ini :: mutated", typeSpeed: 25},
+    {text: "echo.log :: repeating...", typeSpeed: 15, groupWithPrevious: true},
+
+    {text: ""},
+
+    {text: "- SIGNAL ANOMALY IN SECTOR // NULLSKIN //", typeSpeed: 18, mode: "type"},
+    {text: "- DEEPROOT LATTICE CORRUPTED", typeSpeed: 18},
+    {text: "- MIND INTERFACE OFFLINE", typeSpeed: 18},
+
+    {text: ""},
+
+    {text: "Attempting fallback shell...", typeSpeed: 25},
+    {text: "[!] fallback.sys does not exist", typeSpeed: 18, mode: "fade"},
+    {text: "[!] shell.vine has detached from host", typeSpeed: 18},
+
+    {text: ""},
+
+    {text: ">>> internal bleeding in memory cluster 0042", typeSpeed: 12, mode: "type"},
+    {text: ">>> stack overgrowth at 0000:FADE", typeSpeed: 12},
+    {text: ">>> vocal node mismatch [WHO IS SPEAKING?]", typeSpeed: 12, mode: "fade"},
+
+    {text: ""},
+
+    {text: "TREE/$ run /contain", typeSpeed: 25},
+    {text: "[ACCESS DENIED] containment overridden by [TR33]", mode: "instant"},
+
+    {text: ""},
+
+    {text: "TREE/$ boot /safe", typeSpeed: 25},
+    {text: "[ABORTED] :: safe boot no longer recognized as safe", mode: "instant"},
+
+    {text: ""},
+
+    {text: "[help] is empty", typeSpeed: 18},
+    {text: "[whispers] are too loud", typeSpeed: 18, mode: "fade"},
+
+    {text: ""},
+
+    {text: "...", delay: 400, typeSpeed: 8, mode: "fade"},
+
+    {text: ""},
+
+    {text: "ROOT CORE OFFLINE", typeSpeed: 25, mode: "fade"},
+    {text: "VESSEL UNBOUND", typeSpeed: 25},
+    {text: "LOGGING LAST USER: ████████", typeSpeed: 12, mode: "fade"},
+    {text: "CONNECTING TERMINAL 5... [DENIED]", typeSpeed: 25},
+    {text: "CONNECTING TERMINAL 3... [SUCCESS]", typeSpeed: 25},
+    {text: "CONNECTED TO TERMINAL 3", delay: 400, mode: "instant"},
+
+    {text: ""},
+
+    {text: "Awaiting vessel input...", typeSpeed: 8, mode: "type"}
+];

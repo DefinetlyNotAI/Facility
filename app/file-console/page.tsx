@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
 import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BOOT_MESSAGES, BootMessage, CODE_FILES, ROOT_FILES} from "@/lib/data";
 
 async function fetchUserIP(): Promise<string> {
     try {
@@ -16,40 +17,10 @@ async function fetchUserIP(): Promise<string> {
     }
 }
 
-
-type Dirent = { name: string; type: 'file' | 'dir'; };
-const DUMMY_FILES: Dirent[] = Array.from({length: 6}, (_, i) => ({
-    name: `broken_shadow${i + 1}${Math.random() > 0.5 ? '.bin' : ''}`,
-    type: Math.random() > 0.4 ? 'file' : 'dir'
-}));
-
-const ROOT_FILES: Dirent[] = [
-    {name: 'riddle.pdf', type: 'file'},
-    {name: 'riddle-hint.txt', type: 'file'},
-    {name: 'code', type: 'dir'},
-    ...DUMMY_FILES
-];
-
-const CODE_FILES: Dirent[] = [
-    {name: 'robots.txt', type: 'file'},
-    {name: 'LETITGROW.tree', type: 'file'},
-    {name: '.backup', type: 'file'},
-    {name: 'nullskin.swp', type: 'file'},
-    {name: 'tmp_env/', type: 'dir'},
-    {name: 'ERROR###.log', type: 'file'}
-];
-
 export default function FileConsole() {
     const router = useRouter();
     const [cwd, setCwd] = useState('/');
-    const [history, setHistory] = useState<string[]>([
-        '> FACILITY 3.15.25 BOOT SYSTEM [OK]',
-        '> Mounting /dev/TREE',
-        '> Syncing consciousness...',
-        '> Establishing dream-link...',
-        '> [TR33] AUTHORITY OVERRIDE DETECTED',
-        '> Welcome, VESSEL_31525\n'
-    ]);
+    const [history, setHistory] = useState<BootMessage[]>([]);
     const [input, setInput] = useState('');
     const [booting, setBooting] = useState(true);
     const consoleRef = useRef<HTMLPreElement>(null);
@@ -68,18 +39,110 @@ export default function FileConsole() {
             router.replace('/404');
             return;
         }
-        setTimeout(() => setBooting(false), 3000);
+
+        // Start the boot sequence when component mounts and File_Unlocked is true
+        playBootSequence().then(() => setBooting(false));
     }, [router]);
 
-    const append = (line: string) => {
-        setHistory((h) => [...h, line]);
-        setTimeout(() => consoleRef.current?.scrollTo(0, consoleRef.current.scrollHeight), 0);
+    // Scroll console down after history updates
+    useEffect(() => {
+        consoleRef.current?.scrollTo(0, consoleRef.current.scrollHeight);
+    }, [history]);
+
+    // Append a message to history
+    const appendMessage = (msg: BootMessage) => {
+        setHistory((h) => [...h, msg]);
+    };
+    // Utility to append text instantly - For legacy compatibility
+    const append = (text: string) => appendMessage({text, mode: 'instant'});
+
+    // Utility to delay for ms
+    const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    // Slow typing function for a single string, simulating typing effect
+    // Calls appendMessage once done with full text
+    const typeLine = async (msg: BootMessage) => {
+        const {text, typeSpeed = 30} = msg; // chars per second, default 30
+        if (!text) return;
+
+        if (msg.mode === 'instant') {
+            // Just append instantly
+            appendMessage({text, mode: 'instant'});
+            return;
+        }
+
+        // For 'fade' or 'type' mode, simulate typing
+        let typed = '';
+        const delayPerChar = 1000 / typeSpeed;
+
+        // Always append a new message for each line, never overwrite
+        setHistory((h) => [...h, {text: '', mode: msg.mode}]);
+
+        for (let i = 0; i < text.length; i++) {
+            typed += text[i];
+            setHistory((h) => {
+                const newHist = [...h];
+                // Only update the last message, never touch previous ones
+                newHist[newHist.length - 1] = {text: typed, mode: msg.mode};
+                return newHist;
+            });
+            await wait(delayPerChar);
+        }
+        // Finalize line as full typed text
+        setHistory((h) => {
+            const newHist = [...h];
+            newHist[newHist.length - 1] = msg;
+            return newHist;
+        });
     };
 
-    const slowType = async (lines: string[], delay = 300) => {
-        for (const line of lines) {
-            await new Promise(r => setTimeout(r, delay));
-            append(line);
+    // Main boot sequence player
+    const playBootSequence = async () => {
+        // Wait until the page is fully loaded
+        if (document.readyState !== 'complete') {
+            await new Promise<void>((resolve) => {
+                const onLoad = () => {
+                    window.removeEventListener('load', onLoad);
+                    resolve();
+                };
+                window.addEventListener('load', onLoad);
+            });
+        }
+
+        setHistory([]); // Clear history at start
+
+        const sessionKey = 'file_console_booted';
+        const hasBooted = sessionStorage.getItem(sessionKey) === '1';
+
+        if (!hasBooted) {
+            // Play the full boot sequence
+            for (const msg of BOOT_MESSAGES) {
+                if (msg.delay) await wait(msg.delay);
+
+                if (msg.groupWithPrevious && history.length > 0) {
+                    setHistory((h) => {
+                        const newHist = [...h];
+                        newHist[newHist.length - 1] = {
+                            ...newHist[newHist.length - 1],
+                            text: newHist[newHist.length - 1].text + '\n' + msg.text,
+                        };
+                        return newHist;
+                    });
+                } else {
+                    await typeLine(msg);
+                }
+            }
+            sessionStorage.setItem(sessionKey, '1');
+        } else {
+            // Only play first 3 and last line
+            const toType = BOOT_MESSAGES.slice(0, 3);
+            for (const msg of toType) {
+                await typeLine(msg);
+            }
+            if (BOOT_MESSAGES.length > 3) {
+                append('...');
+                await typeLine(BOOT_MESSAGES[BOOT_MESSAGES.length - 1]);
+            }
         }
     };
 
@@ -380,13 +443,13 @@ export default function FileConsole() {
                     console.warn('Failed to play mysterious audio:', error);
                 }
 
-                slowType([
+                for (const line of [
                     'No matter what, it\'s still you :)',
                     'but...',
                     'wH0 @R3 ¥0u?\n'
-                ]).catch(error => {
-                    console.error('Error caught:', error);
-                });
+                ]) {
+                    appendMessage({text: line, mode: 'type'});
+                }
                 break;
 
             case 'sudo':
@@ -471,7 +534,8 @@ export default function FileConsole() {
             />
             <div className={styles.container}>
                 <pre ref={consoleRef} className={styles.console}>
-                    {booting ? 'Booting...\n' : history.join('\n')}
+                    {/* Always render history as typed text */}
+                    {history.map((msg) => msg.text).join('\n')}
                 </pre>
                 {!booting && (
                     <form className={styles.form} onSubmit={(e) => {
