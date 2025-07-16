@@ -112,7 +112,11 @@ const WifiLoginPage: React.FC = () => {
         e.preventDefault();
         setError('');
 
-        if (username.trim().toLowerCase() !== 'itgrowshere') {
+        const sha256 = (str: string) => CryptoJS.SHA256(str).toString();
+        const correctHashUser = '6c5a39f1f7e832645fae99669dc949ea848b7dec62d60d914a3e8b3e3c78a756';
+        const inputHashUser = sha256(username.trim().toLowerCase());
+
+        if (inputHashUser !== correctHashUser) {
             // Play error sound
             try {
                 const errorAudio = new Audio(SFX_AUDIO.ERROR);
@@ -126,10 +130,10 @@ const WifiLoginPage: React.FC = () => {
             return;
         }
 
-        const correctHash = 'e6d7a4c1389cffecac2b41b4645a305dcc137e81'; // 'trees'
-        const inputHash = sha1(password.trim().toLowerCase());
+        const correctHashPass = 'e6d7a4c1389cffecac2b41b4645a305dcc137e81';
+        const inputHashPass = sha1(password.trim().toLowerCase());
 
-        if (inputHash !== correctHash) {
+        if (inputHashPass !== correctHashPass) {
             // Play error sound
             try {
                 const errorAudio = new Audio(SFX_AUDIO.ERROR);
@@ -139,7 +143,7 @@ const WifiLoginPage: React.FC = () => {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setError(`Invalid password. Your hash: ${inputHash}`);
+            setError(`Invalid password. Your hash: ${inputHashPass}`);
             return;
         }
 
@@ -185,7 +189,7 @@ const WifiLoginPage: React.FC = () => {
                 dangerouslySetInnerHTML={{
                     __html: `<!--
             If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s
-            Hash of the sha1 e6d7a4c1389cffecac2b41b4645a305dcc137e81
+            Hash of the sha1 pass is e6d7a4c1389cffecac2b41b4645a305dcc137e81
             -->`
                 }}
                 style={{display: 'none'}}
