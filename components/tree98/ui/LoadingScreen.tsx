@@ -1,9 +1,7 @@
 import React from 'react';
 import {FONTS} from '@/lib/tree98data';
+import {LoadingScreenProps} from "@/lib/tree98types";
 
-interface LoadingScreenProps {
-    loadingProgress: number;
-}
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({loadingProgress}) => (
     <div

@@ -2,10 +2,10 @@
 
 import React, {useEffect, useState} from 'react';
 import LoginScreen from './LoginScreen';
-import {COLORS, DESKTOP_ICONS, FileSystemItem, FONTS, SYSTEM_CONFIG,} from '@/lib/tree98data';
+import {COLORS, DESKTOP_ICONS, FONTS, SYSTEM_CONFIG,} from '@/lib/tree98data';
 import Cookies from "js-cookie";
-import {getIcon} from '@/components/icons';
-import {ContextMenu} from '@/lib/tree98types';
+import {getIcon} from '@/components/tree98/icons';
+import {ContextMenu, FileSystemItem} from '@/lib/tree98types';
 import {useBootSequence} from '@/hooks/useBootSequence';
 import {useSystemCorruption} from '@/hooks/useSystemCorruption';
 import {useWindowManagement} from '@/hooks/useWindowManagement';
@@ -54,7 +54,9 @@ const Tree98Sim: React.FC = () => {
     }, []);
 
     const handleFileOpen = (item: FileSystemItem) => {
-        if (item.executable && item.name === 'VESSEL_BOOT.EXE') {
+        if ('action' in item) {
+            createWindow(`Untitled - ${item.action}`, item.action === 'notepad' ? Notepad : Paint, 150, 150, 500, 400);
+        } else if (item.executable && item.name === 'VESSEL_BOOT.EXE') {
             setSystemCorruption(1);
             createWindow('VESSEL_BOOT.EXE - CRITICAL ERROR', VesselBootDialog, 100, 100, 500, 300, {item});
         } else if (item.type === 'file') {

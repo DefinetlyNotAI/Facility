@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import {FILE_SYSTEM, FileSystemItem, FONTS} from '@/lib/tree98data';
-import {getIcon} from '@/components/icons';
+import {FILE_SYSTEM, FONTS} from '@/lib/tree98data';
+import {getIcon} from '@/components/tree98/icons';
+import {FileSystemItem} from "@/lib/tree98types";
 
 interface FileExplorerProps {
     startPath?: string[];
@@ -8,7 +9,7 @@ interface FileExplorerProps {
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen}) => {
-    const [currentPath, setCurrentPath] = useState(startPath || ['My Computer']);
+    const [currentPath, setCurrentPath] = useState(startPath || ['/']);
     const [currentItems, setCurrentItems] = useState(() => {
         if (startPath) {
             let items = FILE_SYSTEM;
@@ -51,17 +52,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen
 
     const goUp = () => {
         if (currentPath.length > 1) {
-            navigate(['My Computer']);
+            navigate(['/']);
         }
     };
 
     return (
         <div className="flex flex-col h-full bg-white">
-            <div className="border-b p-1 text-xs bg-gray-100 flex gap-4">
-                <button onClick={goBack} className="hover:bg-gray-200 px-2 py-1">File</button>
-                <button onClick={goUp} className="hover:bg-gray-200 px-2 py-1">Edit</button>
-                <span>View Go Favorites Tools Help</span>
-            </div>
             <div className="flex items-center p-2 border-b bg-gray-50 gap-2">
                 <button
                     onClick={goBack}
@@ -80,7 +76,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen
                     Up
                 </button>
                 <span className="text-xs flex-1" style={{fontFamily: FONTS.SYSTEM}}>
-                    {currentPath.join(' \\ ')}
+                    {currentPath.length === 1 ? '/' : currentPath.slice(1).join('/')}
                 </span>
             </div>
             <div className="flex-1 p-2 overflow-auto bg-white">

@@ -1,12 +1,7 @@
 import React from 'react';
 import {FONTS} from '@/lib/tree98data';
-import {ContextMenu} from "@/lib/tree98types";
+import {ContextMenuProps} from "@/lib/tree98types";
 
-interface ContextMenuProps {
-    contextMenu: ContextMenu;
-    showDesktopIcons: boolean;
-    onAction: (action: string) => void;
-}
 
 export const ContextMenuComponent: React.FC<ContextMenuProps> = ({
                                                                      contextMenu,

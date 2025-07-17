@@ -1,6 +1,6 @@
 import React from 'react';
 import {FONTS} from '@/lib/tree98data';
-import {getIcon} from '@/components/icons';
+import {getIcon} from '@/components/tree98/icons';
 
 export const ControlPanel: React.FC = () => (
     <div className="p-4 h-full bg-white">

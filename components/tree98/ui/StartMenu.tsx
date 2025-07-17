@@ -1,10 +1,9 @@
 import React from 'react';
 import {FONTS, START_MENU_ITEMS} from '@/lib/tree98data';
-import {getIcon} from '@/components/icons';
+import {StartMenuProps} from '@/lib/tree98types';
 
-interface StartMenuProps {
-    onAction: (action: string) => void;
-}
+import {getIcon} from '@/components/tree98/icons';
+
 
 export const StartMenu: React.FC<StartMenuProps> = ({onAction}) => (
     <div

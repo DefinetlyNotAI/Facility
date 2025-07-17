@@ -98,16 +98,15 @@ export default function FileConsole() {
 
     // Main boot sequence player
     const playBootSequence = async () => {
-        // Wait until the page is fully loaded
-        if (document.readyState !== 'complete') {
-            await new Promise<void>((resolve) => {
-                const onLoad = () => {
-                    window.removeEventListener('load', onLoad);
-                    resolve();
-                };
-                window.addEventListener('load', onLoad);
-            });
-        }
+        // Wait until the site is fully loaded and mounted
+        await new Promise<void>((resolve) => {
+            if (document.readyState === 'complete') {
+                // Wait for next tick to ensure React mount
+                setTimeout(resolve, 0);
+            } else {
+                window.addEventListener('load', () => setTimeout(resolve, 0), {once: true});
+            }
+        });
 
         setHistory([]); // Clear history at start
 
@@ -140,7 +139,8 @@ export default function FileConsole() {
                 await typeLine(msg);
             }
             if (BOOT_MESSAGES.length > 3) {
-                append('...');
+                append('> why are you here again? dont you know when to praise him...? dont allow him to control the terminal, he will take it from you..');
+                append('> Life is a game, and you are PLAYING HAHAHAHAHAHAHA, why is it not funny?')
                 await typeLine(BOOT_MESSAGES[BOOT_MESSAGES.length - 1]);
             }
         }

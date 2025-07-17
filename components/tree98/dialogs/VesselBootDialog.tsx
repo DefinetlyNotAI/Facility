@@ -1,9 +1,7 @@
 import React from 'react';
-import {FileSystemItem, FONTS} from '@/lib/tree98data';
+import {FONTS} from '@/lib/tree98data';
+import {VesselBootDialogProps} from "@/lib/tree98types";
 
-interface VesselBootDialogProps {
-    item: FileSystemItem;
-}
 
 export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => (
     <div className="p-4 h-full overflow-auto bg-black text-green-400"

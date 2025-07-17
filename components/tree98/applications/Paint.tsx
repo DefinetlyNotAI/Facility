@@ -62,7 +62,6 @@ export const Paint: React.FC = () => {
             <div className="border-b p-1 text-xs bg-gray-100 flex gap-4">
                 <button onClick={clearCanvas} className="hover:bg-gray-200 px-2 py-1">Clear</button>
                 <button onClick={saveImage} className="hover:bg-gray-200 px-2 py-1">Save</button>
-                <span>File Edit View Image Colors Help</span>
             </div>
             <div className="flex flex-1">
                 <div className="w-20 border-r p-2 bg-gray-100">

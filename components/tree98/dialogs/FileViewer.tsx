@@ -1,9 +1,7 @@
 import React from 'react';
-import {FileSystemItem, FONTS} from '@/lib/tree98data';
+import {FONTS} from '@/lib/tree98data';
+import {FileViewerProps} from "@/lib/tree98types";
 
-interface FileViewerProps {
-    item: FileSystemItem;
-}
 
 export const FileViewer: React.FC<FileViewerProps> = ({item}) => (
     <div className="p-4 h-full overflow-auto" style={{fontFamily: FONTS.MONO, fontSize: '12px'}}>

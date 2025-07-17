@@ -1,10 +1,8 @@
 import React from 'react';
 import {FONTS} from '@/lib/tree98data';
-import {getIcon} from '@/components/icons';
+import {getIcon} from '@/components/tree98/icons';
+import {ErrorDialogProps} from "@/lib/tree98types";
 
-interface ErrorDialogProps {
-    message: string;
-}
 
 export const ErrorDialog: React.FC<ErrorDialogProps> = ({message}) => (
     <div className="p-4 text-center h-full flex flex-col justify-center bg-white">

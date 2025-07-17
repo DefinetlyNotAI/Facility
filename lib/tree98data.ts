@@ -1,3 +1,5 @@
+import {DesktopIcon, FileSystemItem} from "@/lib/tree98types";
+
 // Configuration constants for the Tree98 simulation
 export const SYSTEM_CONFIG = {
     // Boot sequence timing
@@ -56,65 +58,8 @@ export const FONTS = {
     BOOT: 'Courier New, monospace',
 } as const;
 
-// File system structure and content
-export interface FileSystemItem {
-    name: string;
-    type: 'file' | 'folder';
-    content?: string;
-    children?: FileSystemItem[];
-    executable?: boolean;
-    icon?: string;
-}
-
-export const FILE_SYSTEM: FileSystemItem[] = [
-    {
-        name: "My Computer",
-        type: "folder",
-        icon: "computer",
-        children: [
-            {
-                name: "C:",
-                type: "folder",
-                icon: "drive",
-                children: [
-                    {
-                        name: "Windows",
-                        type: "folder",
-                        icon: "folder",
-                        children: [
-                            {
-                                name: "System32",
-                                type: "folder",
-                                icon: "folder",
-                                children: [
-                                    {
-                                        name: "notepad.exe",
-                                        type: "file",
-                                        executable: true,
-                                        icon: "executable",
-                                        content: "Windows Notepad Application"
-                                    },
-                                    {
-                                        name: "mspaint.exe",
-                                        type: "file",
-                                        executable: true,
-                                        icon: "executable",
-                                        content: "Windows Paint Application"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        name: "Desktop",
-                        type: "folder",
-                        icon: "folder",
-                        children: [
-                            {
-                                name: "README.txt",
-                                type: "file",
-                                icon: "notepad",
-                                content: `Welcome to the simulation.
+const AppData = {
+    README: `Welcome to the simulation.
 
 This is not real.
 This is not your computer.
@@ -129,13 +74,9 @@ TREE is watching.
 Do not dig too deep.
 Some files are meant to stay buried.
 
-- System Administrator`
-                            },
-                            {
-                                name: "Notes.txt",
-                                type: "file",
-                                icon: "notepad",
-                                content: `Personal Log - Vessel Operator
+- System Administrator`,
+
+    Notes: `Personal Log - Vessel Operator
 
 Day 1: The system responds well. Everything seems normal.
 Day 7: Something feels wrong. Files are changing when I'm not looking.
@@ -147,27 +88,9 @@ Day 42: The fragments are getting louder. I think they want me to execute it.
 Day 49: I can't sleep. The system calls to me even when it's off.
 Day 56: Today I'm going to run the executable. TREE forgive me.
 
-[LOG CORRUPTED - REMAINING ENTRIES UNREADABLE]`
-                            },
-                            {
-                                name: "Family Photo.bmp",
-                                type: "file",
-                                icon: "image",
-                                content: "Binary image data - Cannot display in text mode\n\n[This would be a family photo, but the data is corrupted]\n\nError: Image file header damaged\nLast modified: [DATE CORRUPTED]\nFile size: 0 bytes"
-                            }
-                        ]
-                    },
-                    {
-                        name: "Logs",
-                        type: "folder",
-                        icon: "folder",
-                        children: [
-                            {
-                                name: "VESSEL_BOOT.EXE",
-                                type: "file",
-                                executable: true,
-                                icon: "executable",
-                                content: `VESSEL BOOT PROTOCOL v2.1
+[LOG CORRUPTED - REMAINING ENTRIES UNREADABLE]`,
+
+    VESSEL: `VESSEL BOOT PROTOCOL v2.1
 =============================
 
 INITIALIZING VESSEL PROTOCOL...
@@ -189,35 +112,9 @@ TREE: You're breaking everything apart...
 
 TREE: I understand. Goodbye, vessel.
 
-[EXECUTING FINAL PROTOCOL...]`
-                            },
-                            {
-                                name: "system.log",
-                                type: "file",
-                                icon: "notepad",
-                                content: `System Log - Windows 98 Simulation
-====================================
+[EXECUTING FINAL PROTOCOL...]`,
 
-[00:00:01] System started successfully
-[00:00:02] User logged in as: VESSEL
-[00:00:15] Desktop loaded
-[00:01:23] File explorer opened
-[00:02:45] README.txt accessed
-[00:03:12] Notes.txt accessed
-[00:05:33] WARNING: Memory leak detected in process 'reality.exe'
-[00:06:01] ERROR: Corruption spreading to core files
-[00:06:15] TREE protocol attempting recovery...
-[00:06:30] Recovery failed - fragments destabilizing
-[00:07:00] CRITICAL: VESSEL_BOOT.EXE accessed
-[00:07:01] System entering emergency shutdown
-[00:07:02] TREE: Goodbye...
-[00:07:03] [LOG TERMINATED]`
-                            },
-                            {
-                                name: "error.log",
-                                type: "file",
-                                icon: "notepad",
-                                content: `Error Log - Critical Failures
+    Error: `Error Log - Critical Failures
 =============================
 
 [ERROR 001] Fragment synchronization timeout
@@ -236,23 +133,111 @@ TREE MESSAGE LOG:
 - "I'm trying to protect you"
 - "The fragments will consume everything"
 
-[LOG CORRUPTED - FURTHER ENTRIES UNREADABLE]`
-                            }
+[LOG CORRUPTED - FURTHER ENTRIES UNREADABLE]`,
+
+    System: `System Log - Windows 98 Simulation
+====================================
+
+[00:00:01] System started successfully
+[00:00:02] User logged in as: VESSEL
+[00:00:15] Desktop loaded
+[00:01:23] File explorer opened
+[00:02:45] README.txt accessed
+[00:03:12] Notes.txt accessed
+[00:05:33] WARNING: Memory leak detected in process 'reality.exe'
+[00:06:01] ERROR: Corruption spreading to core files
+[00:06:15] TREE protocol attempting recovery...
+[00:06:30] Recovery failed - fragments destabilizing
+[00:07:00] CRITICAL: VESSEL_BOOT.EXE accessed
+[00:07:01] System entering emergency shutdown
+[00:07:02] TREE: Goodbye...
+[00:07:03] [LOG TERMINATED]`,
+}
+
+export const FILE_SYSTEM: FileSystemItem[] = [
+    {
+        name: "C:",
+        type: "folder",
+        icon: "drive",
+        children: [
+            {
+                name: "TREE98",
+                type: "folder",
+                icon: "folder",
+                children: [
+                    {
+                        name: "root32",
+                        type: "folder",
+                        icon: "folder",
+                        children: [
+                            {
+                                name: "VESSEL_BOOT.EXE",
+                                type: "file",
+                                executable: true,
+                                icon: "executable",
+                                content: AppData.VESSEL,
+                            },
                         ]
                     }
                 ]
             },
             {
-                name: "A:",
+                name: "Desktop",
                 type: "folder",
-                icon: "floppy",
-                children: []
+                icon: "folder",
+                children: [
+                    {
+                        name: "notepad.exe",
+                        type: "file",
+                        executable: true,
+                        icon: "notepad",
+                        action: "notepad"
+                    },
+                    {
+                        name: "mspaint.exe",
+                        type: "file",
+                        executable: true,
+                        icon: "paint",
+                        action: "paint"
+                    }
+                ]
+            },
+            {
+                name: "Logs",
+                type: "folder",
+                icon: "folder",
+                children: [
+                    {
+                        name: "system.log",
+                        type: "file",
+                        icon: "notepad",
+                        content: AppData.System,
+                    },
+                    {
+                        name: "error.log",
+                        type: "file",
+                        icon: "notepad",
+                        content: AppData.Error,
+                    },
+                    {
+                        name: "README.txt",
+                        type: "file",
+                        icon: "notepad",
+                        content: AppData.README,
+                    },
+                    {
+                        name: "Notes.txt",
+                        type: "file",
+                        icon: "notepad",
+                        content: AppData.Notes,
+                    },
+                ]
             }
         ]
-    }
+    },
 ] as const;
 
-export const DESKTOP_ICONS = [
+export const DESKTOP_ICONS: DesktopIcon[] = [
     {
         name: "My Computer",
         icon: "computer",

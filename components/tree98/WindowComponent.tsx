@@ -1,15 +1,8 @@
 import React from 'react';
-import {Window} from '@/lib/tree98types';
+import {WindowComponentProps} from '@/lib/tree98types';
 import {COLORS, FONTS, SYSTEM_CONFIG} from '@/lib/tree98data';
-import {getIcon} from '@/components/icons';
+import {getIcon} from '@/components/tree98/icons';
 
-interface WindowComponentProps {
-    window: Window;
-    systemCorruption: number;
-    onBringToFront: (id: string) => void;
-    onStartDrag: (e: React.MouseEvent, windowId: string) => void;
-    onClose: (id: string) => void;
-}
 
 export const WindowComponent: React.FC<WindowComponentProps> = ({
                                                                     window,

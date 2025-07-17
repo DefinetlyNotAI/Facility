@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {MESSAGES, SYSTEM_CONFIG} from '../lib/tree98data';
+import {MESSAGES, SYSTEM_CONFIG} from '@/lib/tree98data';
 import {signCookie} from "@/lib/cookies";
 
 export const useSystemCorruption = (createWindow: any) => {

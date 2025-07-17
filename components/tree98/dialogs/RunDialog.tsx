@@ -1,19 +1,22 @@
 import React, {useState} from 'react';
 import {FONTS} from '@/lib/tree98data';
-
-interface RunDialogProps {
-    onCreateWindow?: (title: string, component: any, x: number, y: number, width: number, height: number) => void;
-}
+import {Notepad} from "@/components/tree98/applications/Notepad";
+import {Paint} from "@/components/tree98/applications/Paint";
+import {useWindowManagement} from "@/hooks/useWindowManagement";
+import {RunDialogProps} from "@/lib/tree98types";
 
 export const RunDialog: React.FC<RunDialogProps> = ({onCreateWindow}) => {
     const [command, setCommand] = useState('');
+    const {createWindow} = useWindowManagement();
 
     const handleRun = () => {
         if (onCreateWindow) {
             if (command.toLowerCase().includes('notepad')) {
-                // This would need to be handled by the parent component
+                createWindow(`Untitled - Notepad`, Notepad, 150, 150, 500, 400);
+
             } else if (command.toLowerCase().includes('mspaint')) {
-                // This would need to be handled by the parent component
+                createWindow(`Untitled - Paint`, Paint, 150, 150, 500, 400);
+
             }
         }
     };
