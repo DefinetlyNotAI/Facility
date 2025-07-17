@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
-import {VNTextRenderer} from "@/components/text";
+import {VNTextRenderer} from "@/components/VNRenderer";
 import styles from '../../styles/Terminal.module.css';
 import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {downloadName, downloadVessel, KeywordKey, keywords, phraseTemplate, wingdingsTitles} from '@/lib/data';

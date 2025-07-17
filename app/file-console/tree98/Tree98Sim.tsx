@@ -148,7 +148,7 @@ const Tree98Sim: React.FC = () => {
                         setTimeout(() => setBootPhase('login'), 500);
                         return 100;
                     }
-                    return prev + 2;
+                    return Math.min(prev + Math.floor(Math.random() * (SYSTEM_CONFIG.LOADING_BAR_MAX_INC - SYSTEM_CONFIG.LOADING_BAR_MIN_INC + 1)) + SYSTEM_CONFIG.LOADING_BAR_MIN_INC, 100);
                 });
             }, SYSTEM_CONFIG.LOADING_BAR_SPEED);
         };
@@ -881,7 +881,9 @@ const Tree98Sim: React.FC = () => {
                 className="w-full h-screen bg-black text-green-400 p-8"
                 style={{fontFamily: FONTS.BOOT}}
             >
-                <div className="whitespace-pre-wrap text-sm">
+                <div className="whitespace-pre-wrap text-sm overflow-auto h-full" ref={el => {
+                    if (el) el.scrollTop = el.scrollHeight;
+                }}>
                     {tree98BootText}
                 </div>
                 <div className="mt-4 animate-pulse">_</div>
@@ -936,7 +938,7 @@ const Tree98Sim: React.FC = () => {
     return (
         <div
             className="w-full h-screen relative overflow-hidden select-none"
-            style={{backgroundColor: COLORS.DESKTOP_BG}}
+            style={{backgroundColor: COLORS.DESKTOP_BG, color: COLORS.TEXT_COLOR}}
             onClick={() => {
                 setShowStartMenu(false);
                 setContextMenu({...contextMenu, visible: false});

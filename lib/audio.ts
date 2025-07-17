@@ -4,7 +4,7 @@
 import React, {useEffect} from "react";
 
 // Background Music
-// todo add audio for /windows
+// todo add audio for /windows and sfx
 export const BACKGROUND_AUDIO = {
     HOME: "/music/sweethome.mp3",
     BNW: "/music/thethirdcry.mp3",
