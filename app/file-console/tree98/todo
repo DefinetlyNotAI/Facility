@@ -1,0 +1,16 @@
+- Make desktop of the file explorer sync with the actual desktop apps
+- Retype the file text
+- Implement run correctly
+- Remove the navbar buttons [View Go Fav] etc from the top of the 3 apps [File Explorer, Paint, Notepad]
+- Remove the A:/ disk
+- The navbar of the file explorer should not mention "My Computer"
+- Add some files to system32
+- Rename Windows to Tree98
+- Implement windows full screen, resize and minimize
+- start menu should not have the "Programs" section as its the same as "Documents"
+- Implement settings app
+- Implement the CMD app
+- Any app that opens appear on the taskbar, if clicked it should bring the app to the front
+- Implement the shutdown, tho the restart will refresh, and shutdown will make 1 error saying "Can't find shutdown protocol - Please restart TREE98 - There is NO ESCAPE"
+- Implement the VESSEL_BOOT.exe actually crashing etc as per the puzzle, note tho an error first pops always saying "This is not the REAL you? I cannot connect yet, YOU don't have HIS permission.. or maybe YOUR own permission... Wait until the time is right."
+- add audio and sfx for everything, including sfx of old mouse clicks etc
