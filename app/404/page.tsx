@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {signCookie} from "@/lib/cookies";
-import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {MESSAGE, MOONLIGHT_TEXT, SUBTITLE, TERMINAL_MESSAGES, TITLE, WINGDINGS} from "@/lib/data/404";
 
 
@@ -32,7 +32,7 @@ export default function Glitchy404() {
                 router.push("/moonlight");
             })();
         } else {
-            playAudio(SFX_AUDIO.ERROR, {volume: 0.5});
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
         }
     }, [showMoonlight, router]);
 
@@ -52,10 +52,10 @@ export default function Glitchy404() {
         <>
             <audio
                 ref={audioRef}
-                src={SFX_AUDIO.CLOCK3}
-                loop
+                src={BACKGROUND_AUDIO.N404}
+                loop={true}
                 preload="auto"
-                style={{display: 'none'}}
+                style={{display: "none"}}
             />
             <div
                 className="min-h-screen bg-black flex flex-col items-center justify-center p-8 font-mono select-none relative overflow-hidden">

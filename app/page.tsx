@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookies";
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 
 export default function RootPage() {
     const router = useRouter();
@@ -31,13 +31,7 @@ export default function RootPage() {
 
     async function handleAccept() {
         // Play success sound
-        try {
-            const successAudio = new Audio(SFX_AUDIO.ALERT);
-            successAudio.volume = 0.6;
-            successAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play success audio:', error);
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.ALERT, true);
 
         await signCookie("accepted=true");
         setAccepted(true);

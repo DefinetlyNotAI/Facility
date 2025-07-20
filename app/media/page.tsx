@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/extra.module.css';
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
 import {err, getStatusText, text} from "@/lib/data/media";
 
@@ -44,31 +44,25 @@ export default function MediaPage() {
         const result = await checkKeyword(inputKey.trim().toLowerCase(), 2);
         if (result) {
             // Play success sound
-            try {
-                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                successAudio.volume = 0.6;
-                successAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play success audio:', error);
-            }
-
+            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
             setAccessGranted(true);
             setMsg('');
         } else {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
             setMsg(err.incorrectKeyword);
         }
     };
 
     return (
         <div className={styles.container}>
+            <audio
+                ref={audioRef}
+                src={BACKGROUND_AUDIO.MEDIA}
+                loop
+                preload="auto"
+                style={{display: 'none'}}
+            />
             <h1>{text.title}</h1>
             {!accessGranted ? (
                 <div className={styles.access}>
@@ -85,7 +79,21 @@ export default function MediaPage() {
                 <div className={styles.content}>
                     <div className={styles.item}>
                         <label>{text.itemTitle1}</label>
-                        <audio controls onPlay={() => setPlayed(true)}>
+                        <audio
+                            controls
+                            onPlay={() => {
+                                setPlayed(true);
+                                if (audioRef.current && !audioRef.current.paused) {
+                                    audioRef.current.pause();
+                                }
+                            }}
+                            onPause={() => {
+                                if (audioRef.current && audioRef.current.paused) {
+                                    audioRef.current.play().catch(() => {
+                                    });
+                                }
+                            }}
+                        >
                             <source src="/static/media/morse.wav" type="audio/wav"/>
                             {err.unsupportedAudioBrowser}
                         </audio>
@@ -98,7 +106,7 @@ export default function MediaPage() {
                             download
                             onClick={() => setDl1(true)}
                         >
-                            Download Protected File ZIP 1
+                            {text.downloadButton1}
                         </a>
                     </div>
 
@@ -109,7 +117,7 @@ export default function MediaPage() {
                             download
                             onClick={() => setDl2(true)}
                         >
-                            Download Protected File ZIP 2
+                            {text.downloadButton2}
                         </a>
                     </div>
 

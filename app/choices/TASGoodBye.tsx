@@ -34,6 +34,7 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
                 return;
             }
 
+            // note not using `playSafeSFX` here as there is no background audio to process safely
             function playSfx(src: string, vol = 1.0) {
                 audio = new Audio(src);
                 audio.volume = vol;

@@ -173,7 +173,7 @@ export default function Moonlight() {
         return () => clearTimeout(timeout);
     }, [preCutsceneActive, preCutsceneIndex, preCutsceneLoop, moonRed]);
 
-    // Cleanup audios on unmount
+    // Cleanup audio on unmount
     useEffect(() => {
         return () => {
             if (audioRef.current) {

@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/WifiPanel.module.css';
 import {signCookie} from "@/lib/cookies";
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
 import {messages, wifiPanel} from "@/lib/data/wifi";
 
@@ -48,13 +48,7 @@ export default function WifiPanel() {
     // Generate the encoded question
     const handleReceive = () => {
         // Play interaction sound
-        try {
-            const interactionAudio = new Audio(SFX_AUDIO.SUCCESS);
-            interactionAudio.volume = 0.5;
-            interactionAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play interaction audio:', error);
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
 
         const q = btoa(messages.question);
         setQuestion(q);
@@ -65,26 +59,14 @@ export default function WifiPanel() {
         const result = await checkKeyword(password.trim().toLowerCase(), 1);
         if (result) {
             // Play success sound
-            try {
-                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                successAudio.volume = 0.6;
-                successAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play success audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
 
             setSendUnlocked(true);
             setMode('send');
             setErrorMsg(null);
         } else {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
             setErrorMsg(messages.err.failedUnlock);
         }
@@ -93,25 +75,13 @@ export default function WifiPanel() {
     const handleSendAnswer = () => {
         if (userAnswer.trim() === messages.answer.normal) {
             // Play alert sound for transmission error
-            try {
-                const alertAudio = new Audio(SFX_AUDIO.ALERT);
-                alertAudio.volume = 0.6;
-                alertAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play alert audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ALERT, true);
 
             setErrorMsg(messages.err.intentionalTransmission);
             setMode('caesar');
         } else {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
             setErrorMsg(messages.err.incorrectPass);
         }
@@ -131,13 +101,7 @@ export default function WifiPanel() {
             .join('');
         if (decoded === messages.answer.ceaser) {
             // Play success sound
-            try {
-                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                successAudio.volume = 0.6;
-                successAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play success audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
 
             setFadeOut(true);
             setTimeout(async () => {
@@ -151,13 +115,7 @@ export default function WifiPanel() {
 
         } else {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
             setErrorMsg(messages.err.incorrectCeaserPass);
         }

@@ -6,7 +6,7 @@ import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/Buttons.module.css';
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {BROWSERS, SUBTITLE_TEXT, WINGDING} from '@/lib/data/buttons';
 import {BrowserName} from "@/lib/types/all";
 
@@ -124,13 +124,7 @@ export default function ButtonsPage() {
             );
 
             // Play success sound
-            try {
-                const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                successAudio.volume = 0.6;
-                successAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play success audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
 
             const updatedStates = {...buttonStates, [browser]: true};
             setButtonStates(updatedStates);
@@ -139,24 +133,11 @@ export default function ButtonsPage() {
                 await signCookie('File_Unlocked=true');
 
                 // Play completion sound
-                try {
-                    const completionAudio = new Audio(SFX_AUDIO.SUCCESS);
-                    completionAudio.volume = 0.8;
-                    completionAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play completion audio:', error);
-                }
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
             }
         } catch {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
-
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
             alert('This button has already been pressed or there was an error.');
         }
     }

@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
 import {VNTextRenderer} from "@/components/VNRenderer";
 import styles from '../../styles/Terminal.module.css';
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {
     cutsceneMetaCountdown,
     errorMessages,
@@ -88,14 +88,7 @@ export default function TerminalPage() {
                 return;
             } else {
                 // Play success sound for correct keyword
-                try {
-                    const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                    successAudio.volume = 0.6;
-                    successAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play success audio:', error);
-                }
-
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                 setMessages(['']);
             }
 
@@ -123,14 +116,7 @@ export default function TerminalPage() {
         } else if (step === 'email') {
             if (val === fakeEmail) {
                 // Play success sound
-                try {
-                    const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                    successAudio.volume = 0.6;
-                    successAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play success audio:', error);
-                }
-
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                 setMessages(msgs => [...msgs, terminalMsg.successPlacedEmail]);
 
                 // Wait before dumping the monologue
@@ -145,13 +131,7 @@ export default function TerminalPage() {
 
             } else {
                 // Play error sound
-                try {
-                    const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                    errorAudio.volume = 0.6;
-                    errorAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play error audio:', error);
-                }
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
                 const nextWrong = wrongCount + 1;
                 setWrongCount(nextWrong);
@@ -171,13 +151,7 @@ export default function TerminalPage() {
     // --- Helpers for Input Animation ---
     const handleWrongPhrase = (val: string) => {
         // Play error sound
-        try {
-            const errorAudio = new Audio(SFX_AUDIO.ERROR);
-            errorAudio.volume = 0.6;
-            errorAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play error audio:', error);
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
         function handleMessage(val: string, newCount: number) {
             const message = errorMessages[newCount];
@@ -209,13 +183,7 @@ export default function TerminalPage() {
 
     const handleYes = () => {
         // Play interaction sound
-        try {
-            const interactionAudio = new Audio(SFX_AUDIO.SUCCESS);
-            interactionAudio.volume = 0.5;
-            interactionAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play interaction audio:', error);
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
 
         setShowButtons(false);
         setMessages(['']);
@@ -225,13 +193,7 @@ export default function TerminalPage() {
 
     const handleNo = () => {
         // Play error sound
-        try {
-            const errorAudio = new Audio(SFX_AUDIO.ERROR);
-            errorAudio.volume = 0.5;
-            errorAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play error audio:', error);
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
         const newCount = noCount + 1;
         setNoCount(newCount);

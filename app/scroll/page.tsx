@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
-import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 import {fetchUserIP} from "@/lib/utils";
 import {begStop, creepyTTS, emergencyIP, errors, motivate} from "@/lib/data/scroll";
 
@@ -107,14 +107,7 @@ export default function ScrollPage() {
 
         const triggerFileDownload = () => {
             // Play file download sound
-            try {
-                const downloadAudio = new Audio(SFX_AUDIO.FILE_DELETE);
-                downloadAudio.volume = 0.4;
-                downloadAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play download audio:', error);
-            }
-
+            playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.FILE_DELETE, true);
             const blob = new Blob([begStop], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -138,13 +131,7 @@ export default function ScrollPage() {
 
         ttsTimeoutRef.current = setTimeout(() => {
             // Play horror sound before TTS
-            try {
-                const horrorAudio = new Audio(SFX_AUDIO.HORROR);
-                horrorAudio.volume = 0.5;
-                horrorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play horror audio:', error);
-            }
+            playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.HORROR, true);
 
             const utterance = new SpeechSynthesisUtterance(creepyTTS);
             utterance.lang = 'en-US';
@@ -205,13 +192,7 @@ export default function ScrollPage() {
                             onMouseLeave={() => setEscapeHovered(false)}
                             onClick={async () => {
                                 // Play success sound
-                                try {
-                                    const successAudio = new Audio(SFX_AUDIO.STATIC);
-                                    successAudio.volume = 0.6;
-                                    successAudio.play().catch(console.warn);
-                                } catch (error) {
-                                    console.warn('Failed to play success audio:', error);
-                                }
+                                playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.STATIC, true);
 
                                 await signCookie('BnW_unlocked=true');
                                 router.push('/black-and-white');

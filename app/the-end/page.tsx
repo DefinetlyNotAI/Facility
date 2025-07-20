@@ -6,7 +6,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
-import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
 import {messages} from "@/lib/data/theEnd";
 
@@ -149,29 +149,7 @@ export default function TheEnd() {
         }
 
         // Play static noise with better error handling
-        try {
-            const staticAudio = new Audio(SFX_AUDIO.STATIC);
-            staticAudio.volume = 0.8;
-
-            staticAudio.onended = () => {
-                // Resume background music when static finishes
-                if (audioRef.current && audioEnabled) {
-                    audioRef.current.play().catch(console.warn);
-                }
-            };
-
-            staticAudio.play().catch((error) => {
-                console.warn('Static audio failed to play:', error);
-            });
-
-            router.refresh();
-        } catch (error) {
-            console.warn('Failed to create static audio:', error);
-            // Resume background music if static creation fails
-            if (audioRef.current && audioEnabled) {
-                audioRef.current.play().catch(console.warn);
-            }
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.STATIC, true);
 
         // Don't reset the cut state - it should persist
         setTimeout(() => {
@@ -193,15 +171,7 @@ export default function TheEnd() {
             setError(messages.invalidKeywordErr);
 
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch((error) => {
-                    console.warn('Error audio failed to play:', error);
-                });
-            } catch (error) {
-                console.warn('Failed to create error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
         }
     }
 

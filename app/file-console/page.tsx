@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
-import {BACKGROUND_AUDIO, playSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {
     BOOT_MESSAGES,
     CAT_FILES,
@@ -127,7 +127,7 @@ export default function FileConsole() {
     };
 
     function downloadFile(filename: string) {
-        playSFX(audioRef, SFX_AUDIO.SUCCESS)
+        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
 
         const url = `/static/file-console/${filename}`;
         const link = document.createElement('a');
@@ -158,7 +158,7 @@ export default function FileConsole() {
             }
             case 'ls': {
                 // Play interaction sound
-                playSFX(audioRef, SFX_AUDIO.SUCCESS)
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
 
                 const list = cwd === '/' ? ROOT_FILES : cwd === '/code' ? CODE_FILES : [];
                 list.forEach(f => appendMessage({text: f.type === 'dir' ? f.name + '/' : f.name, mode: 'instant'}));
@@ -169,15 +169,15 @@ export default function FileConsole() {
                 const [dir] = args;
                 if (cwd === '/' && dir === 'code') {
                     // Play success sound
-                    playSFX(audioRef, SFX_AUDIO.SUCCESS)
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
                     setCwd('/code');
                 } else if (cwd === '/code' && dir === '..') {
                     // Play success sound
-                    playSFX(audioRef, SFX_AUDIO.SUCCESS)
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
                     setCwd('/');
                 } else {
                     // Play error sound
-                    playSFX(audioRef, SFX_AUDIO.ERROR)
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR)
                     appendMessage({text: ERRORS_OUTPUTS.MISSING_DIR, mode: 'instant'});
                 }
                 break;
@@ -192,7 +192,7 @@ export default function FileConsole() {
                     appendMessage({text: fileContent, mode: 'instant'});
                 }
 
-                playSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
+                playSafeSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
                 if (!found) {
                     appendMessage({text: ERRORS_OUTPUTS.INVALID_CAT_FILE, mode: 'instant'});
                 }
@@ -209,21 +209,21 @@ export default function FileConsole() {
                     downloadFile(fn);
                 }
 
-                playSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
+                playSafeSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
                 if (!found) {
                     appendMessage({text: 'wget: file not found\n', mode: 'instant'});
                 }
                 break;
             }
             case 'whoami':
-                playSFX(audioRef, SFX_AUDIO.HORROR, true)
+                playSafeSFX(audioRef, SFX_AUDIO.HORROR, true)
 
                 for (const line of WHOAMI_MSG) {
                     appendMessage({text: line, mode: 'type'});
                 }
                 break;
             case 'sudo': {
-                playSFX(audioRef, SFX_AUDIO.ALERT, true);
+                playSafeSFX(audioRef, SFX_AUDIO.ALERT, true);
 
                 appendMessage({text: SUDO_SEQUENCE.initial, mode: 'instant'});
 
@@ -234,7 +234,7 @@ export default function FileConsole() {
                     }
 
                     setTimeout(() => {
-                        playSFX(audioRef, SFX_AUDIO.HORROR, true);
+                        playSafeSFX(audioRef, SFX_AUDIO.HORROR, true);
                         document.body.style.background = 'black';
                         document.body.innerHTML = SUDO_SEQUENCE.infectedHTML;
 
@@ -247,7 +247,7 @@ export default function FileConsole() {
             }
             default:
                 // Play error sound for unknown commands
-                playSFX(audioRef, SFX_AUDIO.ERROR, true)
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false)
                 appendMessage({text: ERRORS_OUTPUTS.INVALID_COMMAND(cmd), mode: 'instant'});
                 break;
         }

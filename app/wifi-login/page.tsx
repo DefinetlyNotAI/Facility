@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/WifiLogin.module.css';
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {form, hashes, messages} from "@/lib/data/wifi";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
@@ -123,13 +123,7 @@ const WifiLoginPage: React.FC = () => {
 
         if (inputHashUser !== hashes.username) {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
             setError(messages.err.invUsername);
             return;
@@ -137,26 +131,14 @@ const WifiLoginPage: React.FC = () => {
 
         if (inputHashPass !== hashes.password) {
             // Play error sound
-            try {
-                const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                errorAudio.volume = 0.6;
-                errorAudio.play().catch(console.warn);
-            } catch (error) {
-                console.warn('Failed to play error audio:', error);
-            }
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
 
             setError(messages.err.invPassword(inputHashPass));
             return;
         }
 
         // Play success sound
-        try {
-            const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-            successAudio.volume = 0.6;
-            successAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play success audio:', error);
-        }
+        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
 
         setLoading(true);
         setTimeout(async () => {
