@@ -1,14 +1,7 @@
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
+import {createHash} from "crypto";
 
-function simpleHash(str: string) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = (hash << 5) - hash + str.charCodeAt(i);
-        hash |= 0;
-    }
-    return hash.toString(16);
-}
 
 export async function POST(request: NextRequest) {
     const body = await request.json();
@@ -23,7 +16,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({error: 'Incorrect password'}, {status: 401});
     }
 
-    const hashed = simpleHash(password);
+    const hashed = createHash('sha256').update(envPass + process.env.SALT).digest('hex');
 
     return NextResponse.json({hashed}, {status: 200});
 }

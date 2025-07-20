@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
+import {FORM_PLACEHOLDER, HINT_404, QR_SUBTITLE, TEXT_HINT_FOR_FORM, TOP_MESSAGE} from "@/lib/data/bnw";
 
 
 export default function BlackAndWhitePage() {
@@ -136,11 +137,11 @@ export default function BlackAndWhitePage() {
                         zIndex: 9999,
                     }}
                 >
-                    [Type 404]
+                    {HINT_404}
                 </div>
 
                 <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>
-                    Black like the Night, White like the day - Bleed child, Smile king - Weep thrice but feel twice
+                    {TOP_MESSAGE}
                 </h1>
 
                 {/* QR Codes Side-by-Side */}
@@ -177,7 +178,7 @@ export default function BlackAndWhitePage() {
                             }}
                             draggable={false}
                         />
-                        <figcaption style={{marginTop: '0.5rem'}}>QR code</figcaption>
+                        <figcaption style={{marginTop: '0.5rem'}}>{QR_SUBTITLE}</figcaption>
                     </figure>
 
                     {/* Image 2 */}
@@ -205,7 +206,6 @@ export default function BlackAndWhitePage() {
                             }}
                             draggable={false}
                         />
-                        <figcaption style={{marginTop: '0.5rem', fontSize: '0.9rem'}}>QR?</figcaption>
                     </figure>
                 </div>
 
@@ -242,7 +242,7 @@ export default function BlackAndWhitePage() {
                             value={formInput}
                             onChange={e => setFormInput(e.target.value)}
                             disabled={submitting}
-                            placeholder="What is it child?"
+                            placeholder={FORM_PLACEHOLDER}
                             style={{
                                 fontSize: '1.2rem',
                                 padding: '0.5rem 1rem',
@@ -316,9 +316,7 @@ export default function BlackAndWhitePage() {
                         userSelect: 'none',
                     }}
                 >
-                    {showForm
-                        ? ''
-                        : 'Type the correct keyword when the condition is right.'}
+                    {showForm ? '' : TEXT_HINT_FOR_FORM}
                 </p>
             </div>
         </>

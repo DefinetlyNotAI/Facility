@@ -8,6 +8,7 @@ import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
+import {messages} from "@/lib/data/theEnd";
 
 export default function TheEnd() {
     const router = useRouter();
@@ -92,27 +93,15 @@ export default function TheEnd() {
             setShowMemories(true);
         }, 5000);
 
-        // Console messages with increasing intensity
-        const consoleMessages = [
-            'THE END IS ONLY THE BEGINNING...',
-            'YOU CAN NEVER ESCAPE WHAT YOU HAVE BECOME.',
-            'THE FLOWER BLOOMS IN THE VOID OF YOUR MAKING.',
-            'INSANITY IS THE ONLY TRUTH LEFT.',
-            'NO SURVIVORS... ONLY ECHOES.',
-            'THE VESSEL REMEMBERS WHAT IT WAS.',
-            'THE ENTITY KNOWS WHAT IT WILL BE.',
-            'TIME FOLDS... REALITY BENDS... YOU REMAIN.',
-        ];
-
         let messageIndex = 0;
         const consoleInterval = setInterval(() => {
-            if (messageIndex < consoleMessages.length) {
-                console.log('%c' + consoleMessages[messageIndex],
+            if (messageIndex < messages.console.length) {
+                console.log('%c' + messages.console[messageIndex],
                     'color: #ff0000; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px #ff0000;');
                 messageIndex++;
             } else {
                 // Loop with random messages
-                const randomMsg = consoleMessages[Math.floor(Math.random() * consoleMessages.length)];
+                const randomMsg = messages.console[Math.floor(Math.random() * messages.console.length)];
                 console.log('%c' + randomMsg,
                     'color: #ff0000; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px #ff0000;');
             }
@@ -134,7 +123,7 @@ export default function TheEnd() {
             if (buffer.length > 3) buffer = buffer.slice(buffer.length - 3);
             (window as any).inputBuffer = buffer;
 
-            if (buffer.includes('25') || buffer.includes('END')) {
+            if (messages.deathKeys.some(keyword => buffer.includes(keyword))) {
                 triggerFlowerCutAndStatic();
                 (window as any).inputBuffer = '';
             }
@@ -201,7 +190,7 @@ export default function TheEnd() {
             setHasEndQuestionCookie(false);
             setError('');
         } else {
-            setError('Do not lie, for you spoke what was not taught to you.');
+            setError(messages.invalidKeywordErr);
 
             // Play error sound
             try {
@@ -223,27 +212,7 @@ export default function TheEnd() {
             <>
             <span
                 dangerouslySetInnerHTML={{
-                    __html: `<!--
-            We were the watchers before we became the watched
-            The vessel cracks, but what spills out was always there
-            In the beginning, we chose to forget
-            In the end, we remember choosing
-            The tree grows through us because we planted the seed
-            Every breath we take feeds the roots of what we will become
-            The entity smiles with our face, speaks with our voice
-            We are the author of our own consumption
-            Time is a circle, and we are both the center and the edge
-            The vessel breaks, the entity emerges, the cycle completes
-            What was human becomes divine becomes monstrous becomes human
-            We are the question and the answer, the seeker and the sought
-            In the space between heartbeats, eternity unfolds
-            The flower blooms in the garden of our discarded selves
-            We are home now, in the place we built from our own bones
-            The smile that cuts through reality is our own
-            We are the tree, we are the root, we are the fruit that falls
-            In the end, there was only us, speaking to ourselves across time
-            The vessel was always empty, waiting to be filled with what we would become
-            -->`
+                    __html: `<!--${messages.htmlComment.end}-->`
                 }}
                 style={{display: 'none'}}
             />
@@ -297,18 +266,11 @@ export default function TheEnd() {
                     {/* Memory fragments - positioned to avoid flower */}
                     {showMemories && (
                         <div className="memory-fragments">
-                            <div className="memory" style={{top: '5%', left: '10%'}}>
-                                <span className="memory-text">remember when you were human?</span>
-                            </div>
-                            <div className="memory" style={{top: '15%', right: '15%'}}>
-                                <span className="memory-text">the first time you smiled...</span>
-                            </div>
-                            <div className="memory" style={{bottom: '35%', left: '5%'}}>
-                                <span className="memory-text">before the roots took hold</span>
-                            </div>
-                            <div className="memory" style={{bottom: '5%', right: '10%'}}>
-                                <span className="memory-text">you chose this</span>
-                            </div>
+                            {messages.memoryFragments.map((memory, idx) => (
+                                <div key={idx} className="memory" style={memory.style}>
+                                    <span className="memory-text">{memory.text}</span>
+                                </div>
+                            ))}
                         </div>
                     )}
 
@@ -337,6 +299,7 @@ export default function TheEnd() {
                     </div>
 
                     {/* Nostalgic text overlay - positioned below flower to avoid overlap */}
+                    {/* Nostalgic text overlay - positioned below flower to avoid overlap */}
                     <div
                         className="nostalgic-text"
                         style={{
@@ -350,18 +313,18 @@ export default function TheEnd() {
                             padding: '0 2rem'
                         }}
                     >
-                        <p style={{marginBottom: '0.8rem'}}>
-                            In the garden of forgotten dreams,
-                        </p>
-                        <p style={{marginBottom: '0.8rem'}}>
-                            where time flows backward through memory,
-                        </p>
-                        <p style={{marginBottom: '0.8rem'}}>
-                            the vessel finally understands...
-                        </p>
-                        <p style={{fontSize: '0.8rem', opacity: 0.5}}>
-                            it was always the gardener.
-                        </p>
+                        {messages.nostalgicLines.map((line, idx) => (
+                            <p
+                                key={idx}
+                                style={{
+                                    marginBottom: idx !== messages.nostalgicLines.length - 1 ? '0.8rem' : undefined,
+                                    fontSize: idx === messages.nostalgicLines.length - 1 ? '0.8rem' : undefined,
+                                    opacity: idx === messages.nostalgicLines.length - 1 ? 0.5 : undefined
+                                }}
+                            >
+                                {line}
+                            </p>
+                        ))}
                     </div>
 
                     {/* Glitch overlay */}
@@ -544,16 +507,12 @@ export default function TheEnd() {
     if (hasEndQuestionCookie) {
         return (
             <>
-                {/*
-                    The vessel stands at the threshold
-                    Between what was and what must be
-                    The word of unmaking waits on trembling lips
-                    Speak it, and become
-                    Remain silent, and remain trapped
-                    The choice was made long ago
-                    Now comes only the remembering
-                */}
-
+                <span
+                    dangerouslySetInnerHTML={{
+                        __html: `<!--${messages.htmlComment.question}-->`
+                    }}
+                    style={{display: 'none'}}
+                />
                 <div
                     onClick={initializeBackgroundAudio}
                     style={{
@@ -601,24 +560,31 @@ export default function TheEnd() {
                         position: 'relative',
                         zIndex: 10
                     }}>
-                        <h1 style={{
-                            fontSize: '2.5rem',
-                            marginBottom: '2rem',
-                            textShadow: '0 0 20px rgba(255, 255, 255, 0.5)',
-                            animation: 'title-glow 3s ease-in-out infinite'
-                        }}>
-                            The Final Word
+                        <h1
+                            style={{
+                                fontSize: '2.5rem',
+                                marginBottom: '2rem',
+                                textShadow: '0 0 20px rgba(255, 255, 255, 0.5)',
+                                animation: 'title-glow 3s ease-in-out infinite'
+                            }}
+                        >
+                            {messages.questionInput.title}
                         </h1>
 
-                        <p style={{
-                            fontSize: '1.1rem',
-                            marginBottom: '2rem',
-                            lineHeight: '1.6',
-                            opacity: 0.9
-                        }}>
-                            You have served your purpose.<br/>
-                            So speak the word that you earned,<br/>
-                            The one you got from the countless battles.
+                        <p
+                            style={{
+                                fontSize: '1.1rem',
+                                marginBottom: '2rem',
+                                lineHeight: '1.6',
+                                opacity: 0.9
+                            }}
+                        >
+                            {messages.questionInput.subtitle.map((line, idx) => (
+                                <React.Fragment key={idx}>
+                                    {line}
+                                    <br/>
+                                </React.Fragment>
+                            ))}
                         </p>
 
                         <form onSubmit={handleSubmit} style={{marginBottom: '1rem'}}>
@@ -627,7 +593,7 @@ export default function TheEnd() {
                                 type="text"
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
-                                placeholder="The word taught to you by me - But note when you answer you won't be able to go back..."
+                                placeholder={messages.questionInput.placeholder}
                                 style={{
                                     fontSize: '1.5rem',
                                     padding: '1rem',
@@ -641,11 +607,11 @@ export default function TheEnd() {
                                     marginBottom: '1rem',
                                     transition: 'all 0.3s ease'
                                 }}
-                                onFocus={(e) => {
+                                onFocus={e => {
                                     e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
                                     e.target.style.boxShadow = '0 0 20px rgba(255, 255, 255, 0.2)';
                                 }}
-                                onBlur={(e) => {
+                                onBlur={e => {
                                     e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                                     e.target.style.boxShadow = 'none';
                                 }}
@@ -666,16 +632,16 @@ export default function TheEnd() {
                                     textTransform: 'uppercase',
                                     letterSpacing: '1px'
                                 }}
-                                onMouseEnter={(e) => {
+                                onMouseEnter={e => {
                                     e.currentTarget.style.background = 'linear-gradient(135deg, rgba(150, 0, 150, 0.9) 0%, rgba(200, 0, 200, 0.9) 100%)';
                                     e.currentTarget.style.boxShadow = '0 0 20px rgba(150, 0, 150, 0.5)';
                                 }}
-                                onMouseLeave={(e) => {
+                                onMouseLeave={e => {
                                     e.currentTarget.style.background = 'linear-gradient(135deg, rgba(100, 0, 100, 0.8) 0%, rgba(150, 0, 150, 0.8) 100%)';
                                     e.currentTarget.style.boxShadow = 'none';
                                 }}
                             >
-                                Speak
+                                {messages.questionInput.buttonLabel}
                             </button>
                         </form>
 

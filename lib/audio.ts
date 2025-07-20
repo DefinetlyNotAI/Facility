@@ -134,3 +134,29 @@ export function useBackgroundAudio(audioRef: React.RefObject<HTMLAudioElement>, 
         };
     }, [audioRef, audioSrc, conditional]);
 }
+
+// todo check if others may use this
+export function playSFX(audioRef: React.RefObject<HTMLAudioElement>, audioPath: string, pauseBGAudio: boolean = false) {
+    try {
+        let wasPaused = false;
+        if (
+            pauseBGAudio &&
+            audioRef.current
+        ) {
+            audioRef.current.pause();
+            wasPaused = true;
+        }
+        const audio = new Audio(audioPath);
+        audio.volume = 0.4;
+        audio.play().catch(console.warn);
+        // Resume background music after SFX
+        if (wasPaused && audioRef.current) {
+            audio.addEventListener('ended', () => {
+                audioRef.current?.play().catch(() => {
+                });
+            });
+        }
+    } catch (error) {
+        console.warn('Failed to play interaction audio:', error);
+    }
+}

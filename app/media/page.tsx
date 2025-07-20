@@ -7,6 +7,7 @@ import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/extra.module.css';
 import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
+import {err, getStatusText, text} from "@/lib/data/media";
 
 export default function MediaPage() {
     const router = useRouter();
@@ -62,61 +63,57 @@ export default function MediaPage() {
             } catch (error) {
                 console.warn('Failed to play error audio:', error);
             }
-
-            setMsg('Incorrect keyword.');
+            setMsg(err.incorrectKeyword);
         }
     };
 
     return (
         <div className={styles.container}>
-            <h1>🔐 Media Repository</h1>
+            <h1>{text.title}</h1>
             {!accessGranted ? (
                 <div className={styles.access}>
-                    <p>Enter access keyword[2]:</p>
+                    <p>{text.entryMsg}</p>
                     <input
                         type="text"
                         value={inputKey}
                         onChange={e => setInputKey(e.target.value)}
                     />
-                    <button onClick={checkKey}>Unlock</button>
+                    <button onClick={checkKey}>{text.unlockButton}</button>
                     {msg && <p className={styles.error}>{msg}</p>}
                 </div>
             ) : (
                 <div className={styles.content}>
                     <div className={styles.item}>
-                        <label>Audio File [3]:</label>
+                        <label>{text.itemTitle1}</label>
                         <audio controls onPlay={() => setPlayed(true)}>
                             <source src="/static/media/morse.wav" type="audio/wav"/>
-                            Your browser does not support audio playback.
+                            {err.unsupportedAudioBrowser}
                         </audio>
                     </div>
 
                     <div className={styles.item}>
-                        <label>File 1 [4] - First letter is caps!:</label>
+                        <label>{text.itemTitle2}</label>
                         <a
                             href="/static/media/Password_Is_Keyword%5B3%5D.zip"
                             download
                             onClick={() => setDl1(true)}
                         >
-                            Download ZIP 1
+                            Download Protected File ZIP 1
                         </a>
                     </div>
 
                     <div className={styles.item}>
-                        <label>File 2 [To go next] - First letter is caps!:</label>
+                        <label>{text.itemTitle3}</label>
                         <a
                             href="/static/media/Password_Is_Keyword%5B4%5D.zip"
                             download
                             onClick={() => setDl2(true)}
                         >
-                            Download ZIP 2
+                            Download Protected File ZIP 2
                         </a>
                     </div>
 
-                    <p>
-                        Current status: Audio – {played ? '✅' : '❌'}, Zip1 – {dl1 ? '✅' : '❌'},
-                        Zip2 – {dl2 ? '✅' : '❌'}
-                    </p>
+                    <p>{getStatusText(played, dl1, dl2)}</p>
                 </div>
             )}
         </div>

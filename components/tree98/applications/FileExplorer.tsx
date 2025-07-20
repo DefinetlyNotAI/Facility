@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import {FILE_SYSTEM, FONTS} from '@/lib/tree98data';
+import {FILE_SYSTEM, FONTS} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
-import {FileSystemItem} from "@/lib/tree98types";
+import {FileSystemItem} from "@/lib/types/tree98";
 
 interface FileExplorerProps {
     startPath?: string[];

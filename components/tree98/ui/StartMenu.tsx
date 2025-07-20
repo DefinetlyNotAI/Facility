@@ -1,6 +1,6 @@
 import React from 'react';
-import {FONTS, START_MENU_ITEMS} from '@/lib/tree98data';
-import {StartMenuProps} from '@/lib/tree98types';
+import {FONTS, START_MENU_ITEMS} from '@/lib/data/tree98';
+import {StartMenuProps} from '@/lib/types/tree98';
 
 import {getIcon} from '@/components/tree98/icons';
 

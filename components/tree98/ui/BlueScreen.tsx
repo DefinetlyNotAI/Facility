@@ -1,5 +1,5 @@
 import React from 'react';
-import {COLORS, FONTS, MESSAGES} from '@/lib/tree98data';
+import {COLORS, FONTS, MESSAGES} from '@/lib/data/tree98';
 
 export const BlueScreen: React.FC = () => (
     <div

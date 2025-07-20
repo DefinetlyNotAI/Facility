@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {SFX_AUDIO} from "@/lib/audio";
+import {authText, errorMsg, warningMsg} from "@/lib/data/smileking";
 
 export default function SmilekingAuth() {
     const [password, setPassword] = useState('');
@@ -26,7 +27,7 @@ export default function SmilekingAuth() {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setError('Password cannot be empty');
+            setError(errorMsg.emptyPassword);
             return;
         }
 
@@ -50,7 +51,7 @@ export default function SmilekingAuth() {
                 }
 
                 const data = await res.json();
-                setError(data.error || 'Authentication failed');
+                setError(data.error || errorMsg.authFailed);
                 return;
             }
 
@@ -78,7 +79,7 @@ export default function SmilekingAuth() {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setError(`Auth API error ${err}`);
+            setError(`${errorMsg.authAPIFailed} ${err}`);
         }
     };
 
@@ -96,17 +97,15 @@ export default function SmilekingAuth() {
                 padding: 20,
             }}
         >
-            <h2 style={{marginBottom: 10}}>SmileKing Access</h2>
-            <p style={{maxWidth: 400, textAlign: 'center', marginBottom: 20}}>
-                This is not part of the puzzle. Only the creator can control the system here. Please leave.
-            </p>
+            <h2 style={{marginBottom: 10}}>{authText.title}</h2>
+            <p style={{maxWidth: 400, textAlign: 'center', marginBottom: 20}}>{warningMsg}</p>
 
             <input
                 ref={inputRef}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
+                placeholder={authText.formPlaceholder}
                 style={{
                     padding: '10px 15px',
                     fontSize: '1rem',
@@ -142,7 +141,7 @@ export default function SmilekingAuth() {
                     transition: 'background-color 0.3s',
                 }}
             >
-                Enter
+                {authText.enter}
             </button>
         </div>
     );

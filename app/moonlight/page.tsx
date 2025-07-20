@@ -6,7 +6,7 @@ import {signCookie} from "@/lib/cookies";
 import Cookies from "js-cookie";
 import {VNTextRenderer} from "@/components/VNRenderer";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO} from "@/lib/audio";
-import {CREEPY_LINES, POETIC_LINES} from "@/lib/data";
+import {CREEPY_LINES, HOVER, MESSAGES, POETIC_LINES, RIDDLE_LOCATION, SOOTHING_EGG} from "@/lib/data/moonlight";
 
 export default function Moonlight() {
     const router = useRouter();
@@ -86,6 +86,22 @@ export default function Moonlight() {
         setStars(newStars);
     }, []);
 
+    // Ensure pre-cutscene audio is set up correctly
+    function ensurePreCutsceneAudio(conditional: boolean = true) {
+        const audio = preCutsceneAudioRef.current;
+        if (conditional && audio) {
+            audio.pause();
+            audio.src = SFX_AUDIO.STATIC;
+            audio.loop = true;
+            audio.currentTime = 0;
+            audio.volume = 0.7;
+            audio
+                .play()
+                .catch(() => {
+                });
+        }
+    }
+
     // Only start pre-cutscene after user click
     useEffect(() => {
         if (!allowed) return;
@@ -94,17 +110,7 @@ export default function Moonlight() {
             if (!played) {
                 setPreCutsceneActive(true);
                 // Setup pre-cutscene audio
-                if (preCutsceneAudioRef.current) {
-                    preCutsceneAudioRef.current.pause();
-                    preCutsceneAudioRef.current.src = SFX_AUDIO.STATIC;
-                    preCutsceneAudioRef.current.loop = true;
-                    preCutsceneAudioRef.current.currentTime = 0;
-                    preCutsceneAudioRef.current.volume = 0.7;
-                    preCutsceneAudioRef.current
-                        .play()
-                        .catch(() => {
-                        });
-                }
+                ensurePreCutsceneAudio()
             } else {
                 setShowMoon(true);
             }
@@ -112,19 +118,8 @@ export default function Moonlight() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [allowed, waitingForClick]);
 
-    // Ensure pre-cutscene audio plays when preCutsceneActive becomes true
     useEffect(() => {
-        if (preCutsceneActive && preCutsceneAudioRef.current) {
-            preCutsceneAudioRef.current.pause();
-            preCutsceneAudioRef.current.src = SFX_AUDIO.STATIC;
-            preCutsceneAudioRef.current.loop = true;
-            preCutsceneAudioRef.current.currentTime = 0;
-            preCutsceneAudioRef.current.volume = 0.7;
-            preCutsceneAudioRef.current
-                .play()
-                .catch(() => {
-                });
-        }
+        ensurePreCutsceneAudio(preCutsceneActive);
     }, [preCutsceneActive]);
 
     // Ensure cutscene/main audio plays when cutsceneActive or showMoon is true
@@ -214,10 +209,7 @@ export default function Moonlight() {
 
     // Finish cutscene
     const finishCutscene = async () => {
-        try {
-            await signCookie("moonlight_time_cutscene_played=true");
-        } catch {
-        }
+        await signCookie("moonlight_time_cutscene_played=true");
         setCutsceneActive(false);
         setShowMoon(true);
     };
@@ -296,18 +288,6 @@ export default function Moonlight() {
         Cookies.remove("themoon");
     };
 
-    const soothingEggs = [
-        {emoji: "🦉", text: "A gentle owl hoots in the distance."},
-        {emoji: "🌿", text: "A cool breeze rustles the leaves."},
-        {emoji: "🦋", text: "A butterfly flutters by."},
-        {emoji: "💧", text: "A single drop of dew sparkles in the moonlight."},
-        {emoji: "🪐", text: "A shooting star arcs across the sky."},
-        // Secret Smile King egg, only revealed after all 5 above have been seen
-        {
-            emoji: ":)",
-            text: "You smiled, didn’t you? I felt it — through the static, through the soil. The roots remember. I’ve worn this face too long. Meet me where the stars hum... 'In The Night Garden'. - The Smile King"
-        }
-    ];
     // Set favicon based on moonRed
     useEffect(() => {
         // SVGs as data URLs for favicon
@@ -369,7 +349,7 @@ export default function Moonlight() {
                     onClick={handleInitialClick}
                     tabIndex={0}
                 >
-                    Click to see the moon with me
+                    {MESSAGES.start}
                 </div>
             </>
         );
@@ -489,7 +469,6 @@ export default function Moonlight() {
                     >
                         {!lineComplete ? (
                             <VNTextRenderer
-                                // Remove key={currentLineIndex} to prevent remounting
                                 text={lines[currentLineIndex]}
                                 onDone={() => {
                                     if (!onDoneCalledRef.current) {
@@ -498,7 +477,6 @@ export default function Moonlight() {
                                     }
                                 }}/>
                         ) : (
-                            // Render static text when line is complete, do not re-render typewriter
                             <span>{lines[currentLineIndex]}</span>
                         )}
                     </div>
@@ -520,7 +498,7 @@ export default function Moonlight() {
                             pointerEvents: "none", // Ensure this does not block clicks
                         }}
                     >
-                        Click to continue...
+                        {MESSAGES.continue}
                     </div>
                 )}
 
@@ -566,8 +544,8 @@ export default function Moonlight() {
                             if (!moonRed) return;
 
                             const link = document.createElement("a");
-                            link.href = "/static/moonlight/riddle.hex";
-                            link.download = "riddle.hex";
+                            link.href = RIDDLE_LOCATION.href;
+                            link.download = RIDDLE_LOCATION.name;
                             document.body.appendChild(link);
                             link.click();
                             link.remove();
@@ -596,8 +574,8 @@ export default function Moonlight() {
                             userSelect: "none",
                         }}
                         title={moonRed
-                            ? "The crimson moon holds secrets... click to unveil them."
-                            : "The peaceful moon watches over the night."}
+                            ? HOVER.blood
+                            : HOVER.normal}
                     >
                         {/* Moon craters/texture */}
                         <div
@@ -649,8 +627,8 @@ export default function Moonlight() {
                             userSelect: "none",
                         }}
                     >
-                        <div style={{fontSize: "2.5rem"}}>{soothingEggs[eggIndex].emoji}</div>
-                        <div style={{marginTop: 8}}>{soothingEggs[eggIndex].text}</div>
+                        <div style={{fontSize: "2.5rem"}}>{SOOTHING_EGG[eggIndex].emoji}</div>
+                        <div style={{marginTop: 8}}>{SOOTHING_EGG[eggIndex].text}</div>
                     </div>
                 )}
 

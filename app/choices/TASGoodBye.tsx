@@ -1,18 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {signCookie} from "@/lib/cookies";
 import styles from "../../styles/Choices.module.css";
-import {CUTSCENE_AUDIO, CUTSCENE_LINES, useTypewriter} from "@/app/choices/DataConstants";
+import {CUTSCENE_LINES, FINALE_MSG} from "@/lib/data/choices";
+import {useTypewriter} from "@/hooks/useTypeWriter";
+import {SFX_AUDIO} from "@/lib/audio";
+import {renderMsg} from "@/lib/utils";
+import {TASGoodByeProps} from "@/lib/types/all";
 
-function renderMsg(msg: string) {
-    const parts = msg.split("/n");
-    return parts.map((part, idx) =>
-        idx === 0 ? part : [<br key={idx}/>, part]
-    );
-}
-
-interface TASGoodByeProps {
-    onDone: () => void;
-}
 
 const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
     const [step, setStep] = useState(0);
@@ -39,34 +33,26 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
                 }, 2200);
                 return;
             }
+
+            function playSfx(src: string, vol = 1.0) {
+                audio = new Audio(src);
+                audio.volume = vol;
+                audio.play().catch(console.error);
+            }
+
             // Play audio for certain steps
             if (audio) {
                 audio.pause();
                 audio = null;
             }
-            if (step === 1) {
-                audio = new Audio(CUTSCENE_AUDIO[0]); // heartbeat
-                audio.volume = 1.0; // Louder heartbeat
-                audio.play().catch(console.error);
-            }
-            if (step === 4 || step === 5 || step === 9) {
-                audio = new Audio(CUTSCENE_AUDIO[1]); // file delete
-                audio.volume = 0.95;
-                audio.play().catch(console.error);
-            }
-            if (step === 8 || step === 10) {
-                audio = new Audio(CUTSCENE_AUDIO[2]); // censorship bleep
-                audio.volume = 1.0;
-                audio.play().catch(console.error);
-            }
-            if (step === 11 || step === 12) {
-                audio = new Audio(CUTSCENE_AUDIO[3]); // static
-                audio.volume = 1.0;
-                audio.play().catch(console.error);
-            }
+            if (step === 1) playSfx(SFX_AUDIO.HEARTBEAT);
+            if ([4, 5, 9].includes(step)) playSfx(SFX_AUDIO.FILE_DELETE, 0.95);
+            if ([8, 10].includes(step)) playSfx(SFX_AUDIO.CENSORSHIP);
+            if ([11, 12].includes(step)) playSfx(SFX_AUDIO.STATIC);
+            clearTimeout(timeout); // right before setting a new one
             timeout = setTimeout(() => {
                 setStep((s) => s + 1);
-            }, step === CUTSCENE_LINES.length - 1 ? 3200 : 1800);
+            }, step === 3 ? 3200 : 1800);
         }
 
         playNext();
@@ -87,7 +73,7 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
                 </span>
                 {done && (
                     <div className={styles["cutscene-finale"]}>
-                        <b>REMEMBER ME IN THE STATIC.</b>
+                        <b>{FINALE_MSG}</b>
                     </div>
                 )}
             </div>

@@ -1,0 +1,5 @@
+export const TOP_MESSAGE: string = "Black like the Night, White like the day - Bleed child, Smile king - Weep thrice but feel twice"
+export const HINT_404: string = "[Type 404]"
+export const QR_SUBTITLE: string = "A QR code"
+export const FORM_PLACEHOLDER: string = "What is it child?"
+export const TEXT_HINT_FOR_FORM: string = "Type the correct keyword when the condition is right."

@@ -1,17 +1,7 @@
 import {NextRequest} from 'next/server';
-import {Pool} from 'pg';
-import fs from 'fs';
-import path from 'path';
 import {createSecureResponse} from '@/lib/utils';
+import {pool} from "@/lib/db";
 
-
-const pool = new Pool({
-    connectionString: process.env.POSTGRES_URL,
-    ssl: {
-        rejectUnauthorized: true, // Enforce cert validation
-        ca: fs.readFileSync(path.join(process.cwd(), 'certs', 'ca.pem')).toString(),
-    },
-});
 
 export async function POST(req: NextRequest) {
     try {

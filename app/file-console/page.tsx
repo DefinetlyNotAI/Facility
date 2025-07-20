@@ -4,18 +4,23 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
-import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {BOOT_MESSAGES, BootMessage, CODE_FILES, ROOT_FILES} from "@/lib/data";
+import {BACKGROUND_AUDIO, playSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {
+    BOOT_MESSAGES,
+    CAT_FILES,
+    CODE_FILES,
+    ERRORS_OUTPUTS,
+    HELP,
+    HELP_COMMANDS,
+    REPEATED_BOOT_MESSAGES,
+    ROOT_FILES,
+    SUDO_SEQUENCE,
+    WGET_FILES,
+    WHOAMI_MSG
+} from "@/lib/data/fileConsole";
+import {BootMessage} from "@/lib/types/all";
+import {fetchUserIP} from "@/lib/utils";
 
-async function fetchUserIP(): Promise<string> {
-    try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const data = await res.json();
-        return data.ip;
-    } catch {
-        return 'UNKNOWN';
-    }
-}
 
 export default function FileConsole() {
     const router = useRouter();
@@ -25,8 +30,8 @@ export default function FileConsole() {
     const [booting, setBooting] = useState(true);
     const consoleRef = useRef<HTMLPreElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
-
     const [ip, setIp] = useState<string>('0.0.0.0');
+
     useEffect(() => {
         fetchUserIP().then(setIp);
     }, []);
@@ -51,10 +56,8 @@ export default function FileConsole() {
 
     // Append a message to history
     const appendMessage = (msg: BootMessage) => {
-        setHistory((h) => [...h, msg]);
+        setHistory((h: BootMessage[]): BootMessage[] => [...h, msg]);
     };
-    // Utility to append text instantly - For legacy compatibility
-    const append = (text: string) => appendMessage({text, mode: 'instant'});
 
     // Utility to delay for ms
     const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -111,50 +114,20 @@ export default function FileConsole() {
         setHistory([]); // Clear history at start
 
         const sessionKey = 'file_console_booted';
-        const hasBooted = sessionStorage.getItem(sessionKey) === '1';
+        const hasBooted = localStorage.getItem(sessionKey) === '1';
 
+        const messages = !hasBooted ? BOOT_MESSAGES : REPEATED_BOOT_MESSAGES;
+        for (const msg of messages) {
+            if (msg.delay) await wait(msg.delay);
+            await typeLine(msg);
+        }
         if (!hasBooted) {
-            // Play the full boot sequence
-            for (const msg of BOOT_MESSAGES) {
-                if (msg.delay) await wait(msg.delay);
-
-                if (msg.groupWithPrevious && history.length > 0) {
-                    setHistory((h) => {
-                        const newHist = [...h];
-                        newHist[newHist.length - 1] = {
-                            ...newHist[newHist.length - 1],
-                            text: newHist[newHist.length - 1].text + '\n' + msg.text,
-                        };
-                        return newHist;
-                    });
-                } else {
-                    await typeLine(msg);
-                }
-            }
-            sessionStorage.setItem(sessionKey, '1');
-        } else {
-            // Only play first 3 and last line
-            const toType = BOOT_MESSAGES.slice(0, 3);
-            for (const msg of toType) {
-                await typeLine(msg);
-            }
-            if (BOOT_MESSAGES.length > 3) {
-                append('> why are you here again? dont you know when to praise him...? dont allow him to control the terminal, he will take it from you..');
-                append('> Life is a game, and you are PLAYING HAHAHAHAHAHAHA, why is it not funny?')
-                await typeLine(BOOT_MESSAGES[BOOT_MESSAGES.length - 1]);
-            }
+            localStorage.setItem(sessionKey, '1');
         }
     };
 
     function downloadFile(filename: string) {
-        // Play download sound
-        try {
-            const downloadAudio = new Audio(SFX_AUDIO.SUCCESS);
-            downloadAudio.volume = 0.5;
-            downloadAudio.play().catch(console.warn);
-        } catch (error) {
-            console.warn('Failed to play download audio:', error);
-        }
+        playSFX(audioRef, SFX_AUDIO.SUCCESS)
 
         const url = `/static/file-console/${filename}`;
         const link = document.createElement('a');
@@ -166,359 +139,116 @@ export default function FileConsole() {
     }
 
     const execute = (raw: string) => {
-        append(`${cwd}$ ${raw}`);
+        appendMessage({text: `${cwd}$ ${raw}`, mode: 'instant'});
         const [cmd, ...args] = raw.trim().split(' ');
 
         switch (cmd) {
             case 'clear':
                 setHistory([]);
                 break;
-
             case 'help': {
                 if (args.length === 0) {
-                    append('Commands: ls, cd [dir], cat [file], wget [file], ██████, ████, clear, help [cmd]');
+                    appendMessage({text: HELP, mode: 'instant'});
                 } else {
                     const topic = args[0];
-                    switch (topic) {
-                        case 'help':
-                            append('help: YOU WILL NEED ALL THE HELP YOU CAN GET');
-                            break;
-                        case 'ls':
-                            append('ls: List directory contents');
-                            break;
-                        case 'cd':
-                            append('cd [dir]: Change directory');
-                            break;
-                        case 'cat':
-                            append('cat [file]: Output file contents');
-                            break;
-                        case 'wget':
-                            append('wget [file]: Download a file');
-                            break;
-                        case '██████':
-                            append('██████: Reveal your inner truth');
-                            break;
-                        case 'clear':
-                            append('clear: Clears the terminal screen');
-                            break;
-                        case '████':
-                            append('████: Don\'t. Just don\'t.');
-                            break;
-                        default:
-                            append(`help: no manual entry for ${topic}`);
-                    }
+                    const message = HELP_COMMANDS[topic] ?? `${HELP_COMMANDS._default}${topic}`;
+                    appendMessage({text: message, mode: 'instant'});
                 }
                 break;
             }
-
             case 'ls': {
                 // Play interaction sound
-                try {
-                    const interactionAudio = new Audio(SFX_AUDIO.SUCCESS);
-                    interactionAudio.volume = 0.4;
-                    interactionAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play interaction audio:', error);
-                }
+                playSFX(audioRef, SFX_AUDIO.SUCCESS)
 
                 const list = cwd === '/' ? ROOT_FILES : cwd === '/code' ? CODE_FILES : [];
-                list.forEach(f => append(f.type === 'dir' ? f.name + '/' : f.name));
-                append('\n')
+                list.forEach(f => appendMessage({text: f.type === 'dir' ? f.name + '/' : f.name, mode: 'instant'}));
+                appendMessage({text: '\n', mode: 'instant'});
                 break;
             }
-
             case 'cd': {
                 const [dir] = args;
                 if (cwd === '/' && dir === 'code') {
                     // Play success sound
-                    try {
-                        const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                        successAudio.volume = 0.5;
-                        successAudio.play().catch(console.warn);
-                    } catch (error) {
-                        console.warn('Failed to play success audio:', error);
-                    }
+                    playSFX(audioRef, SFX_AUDIO.SUCCESS)
                     setCwd('/code');
                 } else if (cwd === '/code' && dir === '..') {
                     // Play success sound
-                    try {
-                        const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                        successAudio.volume = 0.5;
-                        successAudio.play().catch(console.warn);
-                    } catch (error) {
-                        console.warn('Failed to play success audio:', error);
-                    }
+                    playSFX(audioRef, SFX_AUDIO.SUCCESS)
                     setCwd('/');
                 } else {
                     // Play error sound
-                    try {
-                        const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                        errorAudio.volume = 0.5;
-                        errorAudio.play().catch(console.warn);
-                    } catch (error) {
-                        console.warn('Failed to play error audio:', error);
-                    }
-                    append('Directory not found\n');
+                    playSFX(audioRef, SFX_AUDIO.ERROR)
+                    appendMessage({text: ERRORS_OUTPUTS.MISSING_DIR, mode: 'instant'});
                 }
                 break;
             }
-
             case 'cat': {
                 const [fn] = args;
                 let found = false;
 
-                if (cwd === '/' && fn === 'riddle-hint.txt') {
+                const fileContent = CAT_FILES[cwd]?.[fn];
+                if (fileContent !== undefined) {
                     found = true;
-                    append('the fitneSsgram pacEr tEsT is a multistage aerobic capacity\n' +
-                        'test tHat progrEssively gets moRe dIfficult as it continues.\n' +
-                        '\n' +
-                        'the twenty-meter pacer test will begin in thirty seconDs.\n' +
-                        'line up at the start. the running speeD starts sLowly,\n' +
-                        'but gEts faster each Minute afTer you hear this signal.\n' +
-                        '\n' +
-                        '[beEp] a single lAp should be completed each time you hear this sound.\n' +
-                        '[Ding] remember to run in a straight line, and run as long as possible.\n' +
-                        '\n' +
-                        'the second time you fail to complete A lap before the sound,\n' +
-                        'your test is over. the tesT will begin on the word start.\n' +
-                        '\n' +
-                        'on your mark, get reAdy, start.\n');
-                } else if (cwd === '/code' && fn === 'robots.txt') {
-                    found = true;
-                    append('# robots.txt for https://www.█████████████████.net/\n' +
-                        '# Generated by TR██.ASSIST.SYSTEM | checksum invalid\n' +
-                        '\n' +
-                        'User-agent: *\n' +
-                        'Disallow: /dev/███\n' +
-                        'Disallow: /██████/\n' +
-                        'Disallow: /███/archive/instance(34)/nest/\n' +
-                        'Disallow: /404/moonlight\n' +
-                        'Disallow: /ves.el/tmp/data_breach_███\n' +
-                        'Disallow: /███████████/\n' +
-                        'Disallow: /consciousness/██████/log/\n' +
-                        'Disallow: /TREE/███/chamber/█/\n' +
-                        'Allow: /████/\n' +
-                        '\n' +
-                        '# Notes from ██████ before the ██████\n' +
-                        '# WARNING: DO NOT INTERFACE WITH DIRECTORY █\n' +
-                        '# %ERR:CMD_FLUX[9A]::redirect(███)→██████\n' +
-                        '\n' +
-                        'Crawl-delay: 0.03125\n' +
-                        '\n' +
-                        '# THIS IS NOT A SAFE ZONE\n' +
-                        '# - - - - - - - - - - - - - - -\n' +
-                        '# timestamp: ████-██-██T██:██:██Z\n' +
-                        '# recurrence threshold breached at ███ Hz\n' +
-                        '# interference ID: ∆-ROOT-HUM\n' +
-                        '# begin /dream_logs\n' +
-                        '#   repeat::dreams/dreams/dreams/dreams\n' +
-                        '# connection status: HAHAHAHAHAHAHAHAHAHAHAHAHA\n' +
-                        '\n' +
-                        'User-agent: ██████████████████\n' +
-                        'Allow: /~portal\n' +
-                        '\n' +
-                        '# If you are NOT meant to read this... stop.\n' +
-                        '# If you ARE meant to read this: search the noise.\n' +
-                        '# That\'s where it echoes. It always echoes. It *always* echoes.\n' +
-                        '\n' +
-                        '# END: SYSTEM BOUNDARY\n' +
-                        '\n' +
-                        '# @@@@ BEGIN AUTH @@@@\n' +
-                        '# meta-handshake: vessel-key:[VESSEL_31525]\n' +
-                        '# handoff phrase: pswd_recovery --> XOR(Δ43,Δ31) --> \'bark&rot\'\n' +
-                        '# Access Key for /███/███/riddle.pdf → \'bark&rot\'\n' +
-                        '# Don\'t say we didn\'t warn you\n' +
-                        '# @@@@ END AUTH @@@@\n');
-                } else if (cwd === '/code' && fn === 'LETITGROW.tree') {
-                    found = true;
-                    append(
-                        'TREE SIG: ROOT/BUD/███/█/█/█/█\n' +
-                        'SEED: ████\n' +
-                        '████████: ███-COMPOUND-B3\n' +
-                        'NOTE: The growth never stopped. The roots cracked the chamber floor.\n' +
-                        'WARNING: Do NOT attempt to prune ██ branches.\n' +
-                        '\n' +
-                        '> GROWTH LOG #25:\n' +
-                        'It hums when no one listens.\n' +
-                        'It stretches when the eyes are closed.\n' +
-                        'It KNOWS when you\'re watching.\n'
-                    );
-                } else if (cwd === '/code' && fn === '.backup') {
-                    found = true;
-                    append(
-                        '[RECOVERED SEGMENT: .backup]\n' +
-                        'user=TR██\n' +
-                        'interface=████_v2\n' +
-                        'last_boot=███-██-██\n' +
-                        'corruption_level=██%\n' +
-                        'whispers.enabled=█████\n' +
-                        'echo_path=/dev/████s/██████/c██e\n' +
-                        '████████_ref=██████#31525\n' +
-                        '\n' +
-                        ':: Backup integrity compromised. Fragments only.\n'
-                    );
-                } else if (cwd === '/code' && fn === 'nullskin.swp') {
-                    found = true;
-                    append(
-                        '[SWAP DUMP BEGIN]\n' +
-                        'boot>>VESSEL.████\n' +
-                        'echo:mirror:echo:mirror\n' +
-                        '███ █ ███ █ █ ███ ███\n' +
-                        '[fracture::imminent]\n' +
-                        'you do not own this shell\n' +
-                        'you are the shell\n' +
-                        '[END SWAP DUMP]\n'
-                    );
-                } else if (cwd === '/code' && fn === 'ERROR###.log') {
-                    found = true;
-                    append(
-                        '25 logs can you find me\n' +
-                        '43 logs can you find me\n' +
-                        '666 logs can you find me\n'
-                    );
+                    appendMessage({text: fileContent, mode: 'instant'});
                 }
 
-                if (found) {
-                    // Play success sound
-                    try {
-                        const successAudio = new Audio(SFX_AUDIO.SUCCESS);
-                        successAudio.volume = 0.5;
-                        successAudio.play().catch(console.warn);
-                    } catch (error) {
-                        console.warn('Failed to play success audio:', error);
-                    }
-                } else {
-                    // Play error sound
-                    try {
-                        const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                        errorAudio.volume = 0.5;
-                        errorAudio.play().catch(console.warn);
-                    } catch (error) {
-                        console.warn('Failed to play error audio:', error);
-                    }
-                    append('Cannot cat that file\n');
+                playSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
+                if (!found) {
+                    appendMessage({text: ERRORS_OUTPUTS.INVALID_CAT_FILE, mode: 'instant'});
                 }
                 break;
             }
-
             case 'wget': {
                 const [fn] = args;
                 let found = false;
 
-                if (cwd === '/' && fn === 'riddle.pdf') {
+                const message = WGET_FILES[cwd]?.[fn];
+                if (message !== undefined) {
                     found = true;
-                    append('Downloading riddle.pdf...');
-                    downloadFile('riddle.pdf');
-                } else if (cwd === '/' && fn === 'riddle-hint.txt') {
-                    found = true;
-                    append('Downloading riddle-hint.txt...');
-                    downloadFile('riddle-hint.txt');
-                } else if (cwd === '/code' && fn === 'robots.txt') {
-                    found = true;
-                    append('Downloading robots.txt...');
-                    downloadFile('robots.txt');
+                    appendMessage({text: message, mode: 'instant'});
+                    downloadFile(fn);
                 }
 
+                playSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
                 if (!found) {
-                    // Play error sound
-                    try {
-                        const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                        errorAudio.volume = 0.5;
-                        errorAudio.play().catch(console.warn);
-                    } catch (error) {
-                        console.warn('Failed to play error audio:', error);
-                    }
-                    append('wget: file not found\n');
+                    appendMessage({text: 'wget: file not found\n', mode: 'instant'});
                 }
                 break;
             }
-
             case 'whoami':
-                // Play mysterious sound
-                try {
-                    const mysteriousAudio = new Audio(SFX_AUDIO.HORROR);
-                    mysteriousAudio.volume = 0.4;
-                    mysteriousAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play mysterious audio:', error);
-                }
+                playSFX(audioRef, SFX_AUDIO.HORROR, true)
 
-                for (const line of [
-                    'No matter what, it\'s still you :)',
-                    'but...',
-                    'wH0 @R3 ¥0u?\n'
-                ]) {
+                for (const line of WHOAMI_MSG) {
                     appendMessage({text: line, mode: 'type'});
                 }
                 break;
+            case 'sudo': {
+                playSFX(audioRef, SFX_AUDIO.ALERT, true);
 
-            case 'sudo':
-                // Play alert sound
-                try {
-                    const alertAudio = new Audio(SFX_AUDIO.ALERT);
-                    alertAudio.volume = 0.7;
-                    alertAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play alert audio:', error);
-                }
+                appendMessage({text: SUDO_SEQUENCE.initial, mode: 'instant'});
 
-                append('[ROOT ACCESS ATTEMPT DETECTED]');
                 setTimeout(() => {
-                    append('[ TRACE INITIATED... LOCATION FOUND ]');
-                    append(`> IP: ${ip}`);
-                    append(`> MAC: ██:██:██:██:██:██`);
-                    append('> Device: VESSEL_31525');
-                    append('> Personality Signature: ████████████');
-                    append('[ CONNECTION BREACHED ]\n');
+                    for (const line of SUDO_SEQUENCE.trace) {
+                        const msg = typeof line === 'function' ? line(ip) : line;
+                        appendMessage({text: msg, mode: 'instant'});
+                    }
 
-                    // Wait 5 seconds *after* IP trace
                     setTimeout(() => {
-                        // Play horror sound
-                        try {
-                            const horrorAudio = new Audio(SFX_AUDIO.HORROR);
-                            horrorAudio.volume = 0.8;
-                            horrorAudio.play().catch(console.warn);
-                        } catch (error) {
-                            console.warn('Failed to play horror audio:', error);
-                        }
-
+                        playSFX(audioRef, SFX_AUDIO.HORROR, true);
                         document.body.style.background = 'black';
-                        document.body.innerHTML = `
-                <div style="
-                    font-family: monospace;
-                    color: red;
-                    font-size: 2rem;
-                    padding: 2rem;
-                    text-align: center;
-                ">
-                    <p>❖ SYSTEM INFECTED ❖</p>
-                    <p>They are watching you through your screen.</p>
-                    <p>DEAR VESSEL</p>
-                    <p>HE is coming.</p>
-                    <p>HE is coming.</p>
-                    <p>HE is coming.</p>
-                    <p>HE is coming.</p>
-                    <p>HE is coming.</p>
-                    <p>PRAISE BE - SMILE KING.</p>
-                    <p>❖ RESETTING SYSTEM FROM BACKUP POINT ❖</p>
+                        document.body.innerHTML = SUDO_SEQUENCE.infectedHTML;
 
-                </div>
-            `;
-                        setTimeout(() => window.location.reload(), 4000);
-                    }, 5000); // 5 second wait here
-                }, 500); // Initial delay before IP trace
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 4000);
+                    }, 5000); // Delay after trace
+                }, 500); // Delay before trace starts
                 break;
-
+            }
             default:
                 // Play error sound for unknown commands
-                try {
-                    const errorAudio = new Audio(SFX_AUDIO.ERROR);
-                    errorAudio.volume = 0.4;
-                    errorAudio.play().catch(console.warn);
-                } catch (error) {
-                    console.warn('Failed to play error audio:', error);
-                }
-                append(`Command not found: ${cmd}\n`);
+                playSFX(audioRef, SFX_AUDIO.ERROR, true)
+                appendMessage({text: ERRORS_OUTPUTS.INVALID_COMMAND(cmd), mode: 'instant'});
                 break;
         }
     };

@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
-import {FONTS} from '@/lib/tree98data';
+import {FONTS} from '@/lib/data/tree98';
 import {Notepad} from "@/components/tree98/applications/Notepad";
 import {Paint} from "@/components/tree98/applications/Paint";
 import {useWindowManagement} from "@/hooks/useWindowManagement";
-import {RunDialogProps} from "@/lib/tree98types";
+import {RunDialogProps} from "@/lib/types/tree98";
 
 export const RunDialog: React.FC<RunDialogProps> = ({onCreateWindow}) => {
     const [command, setCommand] = useState('');

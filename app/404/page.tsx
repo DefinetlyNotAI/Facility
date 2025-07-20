@@ -4,7 +4,8 @@ import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {WINGDINGS_LOCKED, WINGDINGS_NOT_ALLOWED} from "@/lib/data";
+import {MESSAGE, MOONLIGHT_TEXT, SUBTITLE, TERMINAL_MESSAGES, TITLE, WINGDINGS} from "@/lib/data/404";
+
 
 export default function Glitchy404() {
     const router = useRouter();
@@ -81,39 +82,34 @@ export default function Glitchy404() {
                         <div className="mb-8">
                             <h1 className="text-6xl font-bold text-red-400 mb-4 animate-pulse">404</h1>
                             <div className="text-red-300 text-xl mb-6">
-                                ACCESS DENIED • SECTOR RESTRICTED
+                                {TITLE}
                             </div>
                         </div>
 
                         <div className="terminal mb-8">
                             <div className="terminal-header">
-                                <span className="text-xs text-red-400 ml-2">SECURITY BREACH</span>
+                                <span className="text-xs text-red-400 ml-2">{SUBTITLE}</span>
                             </div>
                             <div className="terminal-content">
-                                <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">ERROR:</span> Unauthorized access attempt detected
-                                </div>
-                                <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">STATUS:</span> Location tracking initiated
-                                </div>
-                                <div className="terminal-line text-red-400">
-                                    <span className="terminal-prompt">ACTION:</span> Security protocols engaged
-                                </div>
+                                {TERMINAL_MESSAGES.map((item, idx) => (
+                                    <div className="terminal-line text-red-400" key={idx}>
+                                        <span className="terminal-prompt">{item.label}</span> {item.message}
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
                         {locked && (
                             <div className="bg-black/50 p-8 rounded-lg border border-red-500/30">
-                                <h2 className="text-3xl font-bold text-green-400 mb-6">MOON LIGHT</h2>
+                                <h2 className="text-3xl font-bold text-green-400 mb-6">{MOONLIGHT_TEXT.title}</h2>
                                 <div className="text-green-300 text-lg leading-relaxed max-w-2xl mx-auto">
-                                    <p className="mb-4">The veil blinks not lifts</p>
-                                    <p className="mb-4">So watch the renewal rhythm</p>
-                                    <p className="mb-4">As some truths exist between breaths</p>
-                                    <p className="mb-4">So what was not here, shall be</p>
-                                    <p className="mb-6">Only if you insist on dejavu</p>
+                                    {MOONLIGHT_TEXT.lines.map((line, idx) => (
+                                        <p className={idx === MOONLIGHT_TEXT.lines.length - 1 ? "mb-6" : "mb-4"}
+                                           key={idx}>{line}</p>
+                                    ))}
                                 </div>
                                 <p className="text-gray-500 text-sm italic">
-                                    A riddle hidden in the void.
+                                    {MOONLIGHT_TEXT.riddle}
                                 </p>
                             </div>
                         )}
@@ -133,21 +129,14 @@ export default function Glitchy404() {
                                     : "0 0 12px currentColor"
                             }}
                         >
-                            {locked ? WINGDINGS_LOCKED : WINGDINGS_NOT_ALLOWED}
+                            {locked ? WINGDINGS.LOCKED : WINGDINGS.NOT_ALLOWED}
                         </div>
 
                         <div className="bg-gray-900/50 rounded-lg p-6 border border-green-500/30 max-w-2xl mx-auto">
                             <div className="text-green-400 text-lg font-mono tracking-wide">
-                                {locked
-                                    ? "SYSTEM LOCKED • TEMPORAL DISPLACEMENT DETECTED"
-                                    : "ACCESS VIOLATION • CONTAINMENT BREACH IMMINENT"}
+                                {locked ? MESSAGE.LOCKED : MESSAGE.NOT_ALLOWED}
                             </div>
                         </div>
-                    </div>
-
-                    {/* Debug/hidden */}
-                    <div className="absolute bottom-4 right-4 text-xs text-gray-800 opacity-10">
-                        [MOONLIGHT_PROBABILITY: 1/666]
                     </div>
                 </div>
 

@@ -1,10 +1,10 @@
 import {NextRequest, NextResponse} from 'next/server';
 
-export const cookiesList = [
+const cookiesList = [
     'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'wifi_passed', 'Corrupt',
     'wifi_login', 'Media_Unlocked', 'Button_Unlocked', 'File_Unlocked',
     'corrupting', 'No_corruption', 'BnW_unlocked', 'Choice_Unlocked',
-    'terminal_unlocked', 'End?', 'End',
+    'terminal_unlocked', 'End?', 'End', 'tree98_cutscene_seen', 'tree98_logged_in',
     'moonlight_time_cutscene_played', 'themoon',
     'Interference_cutscene_seen', 'KILLTAS_cutscene_seen', 'TREE', "THP_Play"
 ];
@@ -70,6 +70,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    // If cheating via cookies, redirect to /CHEATER
     if (pathname !== '/CHEATER') {
         const isValid = await verifyRelevantCookies(request);
 
@@ -103,10 +104,9 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
     try {
         response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-        const isDev = process.env.NODE_ENV !== 'production';
         response.headers.set(
             'Content-Security-Policy',
-            `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.ipify.org;`
+            `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.ipify.org;`
         )
         response.headers.set('X-Frame-Options', 'DENY');
         response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -115,6 +115,7 @@ export async function middleware(request: NextRequest) {
     } catch (err) {
         console.error(`[middleware.ts] Failed to set security headers:`, err);
     }
+
     // === Begin Conflict Resolution ===
     if (noCorruption) {
         if (corrupt) {

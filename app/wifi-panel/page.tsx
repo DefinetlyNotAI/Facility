@@ -7,6 +7,7 @@ import styles from '../../styles/WifiPanel.module.css';
 import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {checkKeyword} from "@/lib/utils";
+import {messages, wifiPanel} from "@/lib/data/wifi";
 
 
 export default function WifiPanel() {
@@ -55,7 +56,7 @@ export default function WifiPanel() {
             console.warn('Failed to play interaction audio:', error);
         }
 
-        const q = btoa('PROVE YOU ARE NOT A ROBOT: What is 3, 15 and 25 summed up?');
+        const q = btoa(messages.question);
         setQuestion(q);
         setMode('receive');
     };
@@ -85,12 +86,12 @@ export default function WifiPanel() {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setErrorMsg('46 6F 6F 6C');
+            setErrorMsg(messages.err.failedUnlock);
         }
     };
 
     const handleSendAnswer = () => {
-        if (userAnswer.trim() === '43') {
+        if (userAnswer.trim() === messages.answer.normal) {
             // Play alert sound for transmission error
             try {
                 const alertAudio = new Audio(SFX_AUDIO.ALERT);
@@ -100,7 +101,7 @@ export default function WifiPanel() {
                 console.warn('Failed to play alert audio:', error);
             }
 
-            setErrorMsg('Transmission error: Encryption module failed — Caesar cipher your message for us.');
+            setErrorMsg(messages.err.intentionalTransmission);
             setMode('caesar');
         } else {
             // Play error sound
@@ -112,7 +113,7 @@ export default function WifiPanel() {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setErrorMsg('49 64 69 6F 74');
+            setErrorMsg(messages.err.incorrectPass);
         }
     };
 
@@ -128,7 +129,7 @@ export default function WifiPanel() {
                 return ch;
             })
             .join('');
-        if (decoded === '76') {
+        if (decoded === messages.answer.ceaser) {
             // Play success sound
             try {
                 const successAudio = new Audio(SFX_AUDIO.SUCCESS);
@@ -140,9 +141,14 @@ export default function WifiPanel() {
 
             setFadeOut(true);
             setTimeout(async () => {
-                await signCookie('Media_Unlocked=true');
-                router.push('/media');
+                try {
+                    await signCookie('Media_Unlocked=true');
+                    router.push('/media');
+                } catch (e) {
+                    console.error('signCookie failed:', e);
+                }
             }, 650);
+
         } else {
             // Play error sound
             try {
@@ -153,7 +159,7 @@ export default function WifiPanel() {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setErrorMsg('42 6F 74 68 20 61 20 66 6F 6F 6C 20 61 6E 64 20 61 6E 20 69 64 69 6F 74');
+            setErrorMsg(messages.err.incorrectCeaserPass);
         }
     };
 
@@ -164,97 +170,97 @@ export default function WifiPanel() {
                 src={BACKGROUND_AUDIO.WIFI_PANEL}
                 loop
                 preload="auto"
-                style={{display: 'none'}}
-            />
-            <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
-                <h1 className={styles.title}>Wi‑Fi Panel</h1>
+                style={{display: 'none'}}/>
 
+            <div className={`${styles.container} ${fadeOut ? styles.fadeOut : ''}`}>
+                <h1 className={styles.title}>{wifiPanel.title}</h1>
                 <div className={styles.buttonContainer}>
                     <button
                         onClick={handleReceive}
                         disabled={mode !== 'locked'}
                         className={styles.actionButton}
                     >
-                        Receive
+                        {wifiPanel.receiveButton}
                     </button>
+
                     <button
-                        onClick={() => password ? handleUnlockSend() : null}
-                        disabled={!password}
+                        onClick={async () => {
+                            if (mode === 'locked' || mode === 'receive') {
+                                await handleUnlockSend();
+                            } else if (mode === 'send') {
+                                handleSendAnswer();
+                            } else if (mode === 'caesar') {
+                                await handleCaesarSubmit();
+                            }
+                        }}
+                        disabled={
+                            (mode === 'locked' && !password) ||
+                            (mode === 'receive' && !password) ||  // add this line
+                            (mode === 'send' && !userAnswer) ||
+                            (mode === 'caesar' && !userAnswer)
+                        }
                         className={styles.actionButton}
                     >
-                        Send
+                        {wifiPanel.sendButton}
                     </button>
-                </div>
 
+
+                    {errorMsg && (
+                        <div
+                            key={errorMsg}
+                            className={styles.error}
+                            onAnimationEnd={() => setErrorMsg('')}
+                        >
+                            {errorMsg}
+                        </div>
+                    )}
+                </div>
                 {mode === 'receive' && (
                     <div className={styles.contentBox}>
-                        <h2>Incoming Transmission</h2>
-                        <p><em>Answer:</em></p>
-                        <div className={styles.codeBlock}>
-                            {question}
-                        </div>
-                        <div className={styles.hint}>
-                            {/* Algorithm: Base64 decode this string */}
-                            The answer lies beneath the veil.
-                        </div>
-                        <label className={styles.inputLabel} htmlFor="wifi-code-input">
-                            To unlock networking functionality,<br/>
-                            Enter Keyword[1] Access Code first.
-                        </label>
+                        <h2>{wifiPanel.transmissionPanel.title}</h2>
+                        <p><em>{wifiPanel.transmissionPanel.netForm.request}</em></p>
                         <input
                             id="wifi-code-input"
                             type="text"
-                            placeholder="Enter the secret phrase"
+                            placeholder={wifiPanel.transmissionPanel.netForm.placeholder}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className={styles.input}
-                        />
+                            className={styles.input}/>
                     </div>
                 )}
 
                 {mode === 'send' && sendUnlocked && (
                     <div className={styles.contentBox}>
-                        <h2>Transmit Your Solution</h2>
-                        <p>Access granted. Input the sum, if you dare:</p>
+                        <h2>{wifiPanel.transmissionPanel.mainTitle}</h2>
+                        <p><em>{wifiPanel.transmissionPanel.title}</em></p>
+                        <div className={styles.codeBlock}>{question}</div>
+                        <div className={styles.hint}>{wifiPanel.transmissionPanel.hint}</div>
                         <label className={styles.inputLabel} htmlFor="wifi-answer-input">
-                            Response
+                            {wifiPanel.transmissionPanel.ansForm.request}
                         </label>
                         <input
                             id="wifi-answer-input"
                             type="text"
-                            placeholder="Numerical value"
+                            placeholder={wifiPanel.transmissionPanel.ansForm.placeholder}
                             value={userAnswer}
                             onChange={(e) => setUserAnswer(e.target.value)}
-                            className={styles.input}
-                        />
-                        <button onClick={handleSendAnswer} className={styles.submitButton}>
-                            Submit
-                        </button>
+                            className={styles.input}/>
                     </div>
                 )}
 
                 {mode === 'caesar' && (
                     <div className={styles.contentBox}>
-                        <h2>Encryption Protocol</h2>
-                        <p>Signal scrambled. Apply Caesar shift (-3) to your answer and try again:</p>
-                        <label className={styles.inputLabel} htmlFor="wifi-caesar-input">
-                            Ciphertext
-                        </label>
+                        <h2>{wifiPanel.caesarPanel.title}</h2>
+                        <p>{wifiPanel.caesarPanel.description}</p>
                         <input
                             id="wifi-caesar-input"
                             type="text"
-                            placeholder="Caesar-shifted answer"
+                            placeholder={wifiPanel.caesarPanel.placeholder}
                             value={userAnswer}
                             onChange={(e) => setUserAnswer(e.target.value)}
-                            className={styles.input}
-                        />
-                        <button onClick={handleCaesarSubmit} className={styles.submitButton}>
-                            Finalize
-                        </button>
+                            className={styles.input}/>
                     </div>
                 )}
-
-                {errorMsg && <div className={styles.error}>{errorMsg}</div>}
             </div>
         </>
     );

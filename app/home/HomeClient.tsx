@@ -1,19 +1,22 @@
-'use client';import {useEffect, useRef, useState} from 'react';
+// noinspection CssUnusedSymbol
+
+'use client';
+
+import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookies";
-import {ResearchLog, researchLogs} from "@/app/home/ResearchLogs";
 import {BACKGROUND_AUDIO} from "@/lib/audio";
-import {binaryStr, facilityData, hexCode, refreshMessages, systemMetrics} from '@/lib/data';
-
-
-interface InitialCookies {
-    corrupt: boolean;
-    end: boolean;
-    endQuestion: boolean;
-    noCorruption: boolean;
-    fileUnlocked: boolean;
-    bnwUnlocked: boolean;
-}
+import {
+    classificationClass,
+    hollowPilgrimagePath,
+    konamiSequence,
+    researchLogs,
+    systemMessages,
+    systemMetrics,
+    text
+} from '@/lib/data/home';
+import {InitialCookies, ResearchLog} from '@/lib/types/all';
+import {RefreshCount, TimeTTSSpoken} from "@/lib/data/saves";
 
 export default function HomeClient({initialCookies}: { initialCookies: InitialCookies }) {
     const router = useRouter();
@@ -30,7 +33,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
     // Easter Egg States - Refresh Based Only
     const [refreshCount, setRefreshCount] = useState(0);
-    const [facilityDataDynamic, setFacilityDataDynamic] = useState(facilityData);
+    const [facilityDataDynamic, setFacilityDataDynamic] = useState(systemMetrics.sensorData);
     const [isInverted, setIsInverted] = useState(false);
 
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -49,24 +52,38 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         const timeInterval = setInterval(updateTime, 1000);
 
         // Track page refreshes for Easter eggs
-        const savedRefreshCount = localStorage.getItem('facilityRefreshCount');
+        const savedRefreshCount = localStorage.getItem(RefreshCount);
         if (savedRefreshCount) {
             const count = parseInt(savedRefreshCount, 10);
             setRefreshCount(count + 1);
-            localStorage.setItem('facilityRefreshCount', (count + 1).toString());
+            localStorage.setItem(RefreshCount, (count + 1).toString());
         } else {
             setRefreshCount(1);
-            localStorage.setItem('facilityRefreshCount', '1');
+            localStorage.setItem(RefreshCount, '1');
         }
 
         // Dynamic facility data updates
         const dataInterval = setInterval(() => {
-            setFacilityDataDynamic(prev => ({
-                ...prev,
-                temperature: (22 + Math.random() * 2 - 1).toFixed(1) + '°C',
-                pressure: (1013 + Math.random() * 10 - 5).toFixed(2) + ' hPa',
-                humidity: (43 + Math.random() * 6 - 3).toFixed(0) + '%',
-                radiation: (0.09 + Math.random() * 0.02 - 0.01).toFixed(2) + ' μSv/h',
+            setFacilityDataDynamic(prev => prev.map(item => {
+                let newValue = item.value;
+
+                switch (item.key) {
+                    case "temperature":
+                        newValue = (22 + Math.random() * 2 - 1).toFixed(1) + "°C";
+                        break;
+                    case "pressure":
+                        newValue = (1013 + Math.random() * 10 - 5).toFixed(2) + " hPa";
+                        break;
+                    case "humidity":
+                        newValue = (43 + Math.random() * 6 - 3).toFixed(0) + "%";
+                        break;
+                    case "radiation":
+                        newValue = (0.09 + Math.random() * 0.02 - 0.01).toFixed(2) + " μSv/h";
+                        break;
+                    default:
+                        break;
+                }
+                return {...item, value: newValue};
             }));
         }, 3000);
 
@@ -84,18 +101,15 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         const handleInteraction = () => {
             if ([5, 15, 25].includes(refreshCount)) {
                 let message = '';
-                switch (refreshCount) {
-                    case 5:
-                        message = refreshMessages[0];
-                        break;
-                    case 15:
-                        message = refreshMessages[1];
-                        break;
-                    case 25:
-                        message = refreshMessages[2];
-                        setIsInverted(true);
-                        break;
+                const matchedMessage = systemMessages.refreshMessages.find(
+                    (entry) => entry.threshold === refreshCount
+                );
+
+                if (matchedMessage) {
+                    message = matchedMessage.message;
+                    if (matchedMessage.invert) setIsInverted(true);
                 }
+
 
                 if (message) {
                     setTimeout(() => {
@@ -180,7 +194,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
             if (initialCookies.noCorruption && !initialCookies.fileUnlocked) {
-                setModalMessage('System integrity verified. Proceed to the void.');
+                setModalMessage(systemMessages.fileUnlocked);
                 setShowModal(true);
                 await signCookie('Scroll_unlocked=true');
             }
@@ -203,7 +217,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             return;
 
         // Check if TTS has already played (persisted)
-        const ttsPlayed = localStorage.getItem('voidTTSPlayed');
+        const ttsPlayed = localStorage.getItem(TimeTTSSpoken);
         if (ttsPlayed === 'true') {
             setCountdown(null); // Keep time as infinity
             return;
@@ -220,9 +234,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                             ambientAudioRef.current.pause();
                         }
 
-                        const utterance = new SpeechSynthesisUtterance(
-                            "Time dissolves into the void... here, eternity and instant are one."
-                        );
+                        const utterance = new SpeechSynthesisUtterance(systemMessages.time);
                         utterance.rate = 0.7;
                         utterance.pitch = 0.6;
                         utterance.volume = 0.8;
@@ -235,7 +247,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         };
 
                         speechSynthesis.speak(utterance);
-                        localStorage.setItem('voidTTSPlayed', 'true');
+                        localStorage.setItem(TimeTTSSpoken, 'true');
                     }
                     clearInterval(timer);
                     return null;
@@ -247,16 +259,16 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         return () => clearInterval(timer);
     }, [countdown, voiceTriggered, mounted]);
 
-    // Time check for 15:25
+    // Time check
     useEffect(() => {
         if (!mounted) return;
 
         const checkTime = async () => {
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
-            if (timeNow === '15:25') {
+            if (timeNow === text.puzzlePanel.timePuzzleVal) {
                 await signCookie('Wifi_Unlocked=true');
-                setModalMessage('Network access granted. Use curl/wget there with the prefix /api/ for a prize to the next ;)');
+                setModalMessage(systemMessages.wifiUnlocked);
                 setShowModal(true);
                 setTimeout(() => router.push('/wifi-panel'), 3000);
             }
@@ -275,12 +287,11 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
             // 1/25 chance
             if (Math.floor(Math.random() * 25) === 0) {
-                const message = "Welcome to hell - Cease your bleating - Isn't it you who seeks this crimson path? - So play the hollow pilgrimage";
                 if (ambientAudioRef.current) {
                     ambientAudioRef.current.pause();
                 }
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(message);
+                const utterance = new SpeechSynthesisUtterance(systemMessages.hollowPilgrimage);
                 utterance.rate = 0.7;
                 utterance.pitch = 0.5;
                 utterance.volume = 0.9;
@@ -292,8 +303,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                     await signCookie('THP_Play=true');
                     // Download the file
                     const link = document.createElement('a');
-                    link.href = '/static/home/The_Hollow_Pilgrimage.mp4';
-                    link.download = 'The_Hollow_Pilgrimage.mp4';
+                    link.href = hollowPilgrimagePath.href;
+                    link.download = hollowPilgrimagePath.title;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -320,21 +331,13 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             initialCookies.noCorruption
         ) return;
 
-        const sequence = [
-            'ArrowUp', 'ArrowUp',
-            'ArrowDown', 'ArrowDown',
-            'ArrowLeft', 'ArrowRight',
-            'ArrowLeft', 'ArrowRight',
-            'KeyB', 'KeyA'
-        ];
-
         const handler = async (e: KeyboardEvent) => {
-            if (e.code === sequence[indexRef.current]) {
+            if (e.code === konamiSequence[indexRef.current]) {
                 indexRef.current++;
-                if (indexRef.current === sequence.length) {
+                if (indexRef.current === konamiSequence.length) {
                     if (initialCookies.fileUnlocked) {
                         await signCookie('Corrupt=true');
-                        setModalMessage('You listened... So reap what you sowed.');
+                        setModalMessage(systemMessages.konamiUnlock);
                         setShowModal(true);
                         setTimeout(() => window.location.reload(), 3000);
                     }
@@ -359,9 +362,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         return (
             <div
                 className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-                <div className="text-green-400 text-2xl font-mono animate-pulse">
-                    INITIALIZING FACILITY SYSTEMS...
-                </div>
+                <div className="text-green-400 text-2xl font-mono animate-pulse">{text.mainPanel.load}</div>
             </div>
         );
     }
@@ -372,9 +373,9 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             {/* Scrolling Classification Banner */}
             <div className="classification-banner">
                 <div className="classification-content">
-                    <span>TOP SECRET//SCI//E - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
-                    <span>TOP SECRET//SCI//E - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
-                    <span>TOP SECRET//SCI//E - FACILITY 05-B - PROJECT VESSEL - AUTHORIZED PERSONNEL ONLY</span>
+                    <span>{text.mainPanel.announcementBar}</span>
+                    <span>{text.mainPanel.announcementBar}</span>
+                    <span>{text.mainPanel.announcementBar}</span>
                 </div>
             </div>
 
@@ -385,12 +386,9 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         <div className="flex items-center gap-8">
                             <div className="facility-logo">
                                 <br/>
-                                <div className="text-4xl font-mono font-bold text-green-400">
-                                    FACILITY 05-B
-                                </div>
-                                <div className="text-sm text-gray-400 font-mono">
-                                    NEURAL INTERFACE RESEARCH COMPLEX
-                                </div>
+                                <div
+                                    className="text-4xl font-mono font-bold text-green-400">{text.mainPanel.title}</div>
+                                <div className="text-sm text-gray-400 font-mono">{text.mainPanel.subtitle}</div>
                                 <br/>
                             </div>
                             <div className={`status-indicator ${systemStatus.toLowerCase()}`}>
@@ -399,12 +397,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                             </div>
                         </div>
                         <div className="facility-time">
-                            <div className="text-green-400 font-mono text-xl">
-                                {currentTime}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                                VESSEL TIME
-                            </div>
+                            <div className="text-green-400 font-mono text-xl">{currentTime}</div>
+                            <div className="text-xs text-gray-400">{text.mainPanel.timeSubtitle}</div>
                         </div>
                     </div>
                 </div>
@@ -419,9 +413,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         <div className="lg:col-span-2">
                             <div className="facility-panel primary-terminal">
                                 <div className="panel-header">
-                                    <h2 className="panel-title">NEURAL INTERFACE TERMINAL</h2>
-                                    <div className="panel-subtitle">Project VESSEL • Subject 31525 • Clearance COSMIC
-                                    </div>
+                                    <h2 className="panel-title">{text.topBarPanel.title}</h2>
+                                    <div className="panel-subtitle">{text.topBarPanel.subtitle}</div>
                                 </div>
 
                                 <div className="terminal-display">
@@ -431,56 +424,51 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                             <div className="dot yellow"></div>
                                             <div className="dot green"></div>
                                         </div>
-                                        <span className="terminal-label">SECURE NEURAL LINK</span>
+                                        <span className="terminal-label">{text.topBarPanel.h1}</span>
                                     </div>
 
                                     <div className="terminal-content">
-                                        <div className="terminal-line">
-                                            <span className="prompt">FACILITY:</span> Neural Interface Research Complex
-                                            05-B
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">PROJECT:</span> VESSEL - Connected as Subject 31525
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">SUBJECT:</span> 31525 - Neural compatibility: ??.?%
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">STATUS:</span> Transfer sequence initiated
-                                        </div>
-                                        <div className="terminal-line">
-                                            <span className="prompt">DATA:</span>
-                                            <span
-                                                onMouseEnter={() => setBinaryVisible(true)}
-                                                onMouseLeave={() => setBinaryVisible(false)}
-                                                className="data-stream"
+                                        {text.terminalPanel.lines.map((line, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`terminal-line ${line.warning ? "warning" : ""}`}
                                             >
-                                                {binaryVisible ? binaryStr : '[NEURAL_DATA_STREAM]'}
-                                            </span>
-                                        </div>
-                                        <div className="terminal-line warning">
-                                            <span className="prompt">WARNING:</span>
-                                            <span className="warning-text">
-                                                Temporal displacement detected in Terminal 5
-                                            </span>
-                                        </div>
+                                                <span className="prompt">{line.prompt}:</span>
+                                                {line.dynamic ? (
+                                                    <span
+                                                        onMouseEnter={() => setBinaryVisible(true)}
+                                                        onMouseLeave={() => setBinaryVisible(false)}
+                                                        className="data-stream"
+                                                    >
+                                                        {binaryVisible ? text.puzzlePanel.binaryPuzzleVal : line.text}
+                                                    </span>
+                                                ) : (
+                                                    <span className={line.warning ? "warning-text" : ""}>
+                                                        {line.text}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
+
                                 <div className="metrics-grid">
                                     <div className="metric-card consciousness">
-                                        <div className="metric-label">SHUTDOWN TIMER</div>
+                                        <div className="metric-label">{text.timePanel.timeCountdown.title}</div>
                                         <div className="metric-value">
                                             {countdown === null ? '∞' : countdown}
                                         </div>
                                         <div className="metric-unit">
-                                            {countdown === null ? 'Time Dissolved' : 'Neural Sync Countdown'}
+                                            {countdown === null ? text.timePanel.timeCountdown.afterSubtitle : text.timePanel.timeCountdown.beforeSubtitle}
                                         </div>
                                     </div>
                                     <div className="metric-card temporal">
-                                        <div className="metric-label">TEMPORAL REFERENCE</div>
-                                        <div className="metric-value">{hexCode}</div>
-                                        <div className="metric-unit">Timestamp Anchor</div>
+                                        <div className="metric-label">{text.timePanel.timeHex.title}</div>
+                                        {/* Convert timePuzzleVal to hex string */}
+                                        <div
+                                            className="metric-value">{Array.from(text.puzzlePanel.timePuzzleVal, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('')}</div>
+                                        <div className="metric-unit">{text.timePanel.timeHex.subtitle}</div>
                                     </div>
                                 </div>
                             </div>
@@ -489,50 +477,33 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         {/* System Status */}
                         <div className="facility-panel system-status">
                             <div className="panel-header">
-                                <h2 className="panel-title">SYSTEM STATUS</h2>
-                                <div className="panel-subtitle">Real-time Monitoring</div>
+                                <h2 className="panel-title">{text.dataPanel.title}</h2>
+                                <div className="panel-subtitle">{text.dataPanel.subtitle}</div>
                             </div>
 
                             <div className="status-grid">
-                                <div className="status-item">
-                                    <span className="status-label">Temperature</span>
-                                    <span className="status-value">{facilityDataDynamic.temperature}</span>
-                                </div>
-                                <div className="status-item">
-                                    <span className="status-label">Pressure</span>
-                                    <span className="status-value">{facilityDataDynamic.pressure}</span>
-                                </div>
-                                <div className="status-item">
-                                    <span className="status-label">Humidity</span>
-                                    <span className="status-value">{facilityDataDynamic.humidity}</span>
-                                </div>
-                                <div className="status-item">
-                                    <span className="status-label">Radiation</span>
-                                    <span className="status-value">{facilityDataDynamic.radiation}</span>
-                                </div>
-                                <div className="status-item">
-                                    <span className="status-label">Power Output</span>
-                                    <span className="status-value">{facilityDataDynamic.powerOutput}</span>
-                                </div>
-                                <div className="status-item">
-                                    <span className="status-label">Network</span>
-                                    <span className="status-value">{facilityDataDynamic.networkStatus}</span>
-                                </div>
+                                {facilityDataDynamic.map(({label, value}, index) => (
+                                    <div key={index} className="status-item">
+                                        <span className="status-label">{label}</span>
+                                        <span className="status-value">{value}</span>
+                                    </div>
+                                ))}
                             </div>
 
                             <div className="system-indicators">
-                                <div className="indicator active">
-                                    <div className="indicator-dot"></div>
-                                    <span>Neural Interface: ACTIVE</span>
-                                </div>
-                                <div className="indicator active">
-                                    <div className="indicator-dot"></div>
-                                    <span>Consciousness Monitor: DEACTIVATED</span>
-                                </div>
-                                <div className="indicator warning">
-                                    <div className="indicator-dot"></div>
-                                    <span>Vessel Anchors: DEGRADED</span>
-                                </div>
+                                {text.sysIndicators.map((indicator, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`indicator ${
+                                            idx === 2
+                                                ? 'warning'
+                                                : 'active'
+                                        }`}
+                                    >
+                                        <div className="indicator-dot"></div>
+                                        <span>{indicator}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -542,8 +513,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         {/* Research Logs */}
                         <div className="facility-panel research-logs">
                             <div className="panel-header">
-                                <h2 className="panel-title">RESEARCH LOGS</h2>
-                                <div className="panel-subtitle">Project VESSEL Documentation Archive</div>
+                                <h2 className="panel-title">{text.logPanel.title}</h2>
+                                <div className="panel-subtitle">{text.logPanel.subtitle}</div>
                             </div>
 
                             {researchLogs.slice(0, 8).map((log) => {
@@ -555,7 +526,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                             if (!isLocked) {
                                                 openLog(log);
                                             } else {
-                                                setModalMessage('TREE System Authorisation - You do not have enough admin permissions to view this');
+                                                setModalMessage(systemMessages.invalidLogPerm);
                                                 setShowModal(true);
                                             }
                                         }}
@@ -583,9 +554,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                             {log.content.split('\n')[0].substring(0, 80)}...
                                         </div>
                                         {log.corrupted && (
-                                            <div className="corruption-warning">
-                                                ⚠️ DATA CORRUPTION DETECTED
-                                            </div>
+                                            <div className="corruption-warning">{text.logPanel.corruptionWarn}</div>
                                         )}
                                     </div>
                                 );
@@ -597,29 +566,30 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                             {/* Security Metrics */}
                             <div className="facility-panel security-panel">
                                 <div className="panel-header">
-                                    <h2 className="panel-title">SECURITY PROTOCOLS</h2>
-                                    <div className="panel-subtitle">Access Control & Monitoring</div>
+                                    <h2 className="panel-title">{text.securityPanel.title}</h2>
+                                    <div className="panel-subtitle">{text.securityPanel.subtitle}</div>
                                 </div>
 
                                 <div className="security-grid">
+                                    {text.securityData.map((item) => (
+                                        <div key={item.title} className="security-metric">
+                                            <span className="metric-label">{item.title}</span>
+                                            <span className="metric-value">{item.value}</span>
+                                        </div>
+                                    ))}
+
                                     <div className="security-metric">
-                                        <span className="metric-label">Scans</span>
-                                        <span className="metric-value">1,247</span>
-                                    </div>
-                                    <div className="security-metric">
-                                        <span className="metric-label">How many will you see?</span>
+                                        <span className="metric-label">{text.securityPanel.easterEggCountMsg}</span>
                                         <span
-                                            className={`metric-value ${refreshCount >= 25 ? 'text-red-400' : refreshCount >= 15 ? 'text-yellow-400' : 'text-green-400'}`}>
-                                            {refreshCount}
+                                            className={`metric-value ${
+                                                refreshCount >= 25
+                                                    ? 'text-red-400'
+                                                    : refreshCount >= 15
+                                                        ? 'text-yellow-400'
+                                                        : 'text-green-400'
+                                            }`}
+                                        >{refreshCount}
                                         </span>
-                                    </div>
-                                    <div className="security-metric">
-                                        <span className="metric-label">Breach Alerts</span>
-                                        <span className="metric-value">43</span>
-                                    </div>
-                                    <div className="security-metric">
-                                        <span className="metric-label">Active Personnel</span>
-                                        <span className="metric-value">0</span>
                                     </div>
                                 </div>
                             </div>
@@ -627,86 +597,63 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                             {/* System Performance */}
                             <div className="facility-panel performance-panel">
                                 <div className="panel-header">
-                                    <h2 className="panel-title">SYSTEM PERFORMANCE</h2>
-                                    <div className="panel-subtitle">Neural Processing Units</div>
+                                    <h2 className="panel-title">{text.sysMetricPanel.title}</h2>
+                                    <div className="panel-subtitle">{text.sysMetricPanel.subtitle}</div>
                                 </div>
 
                                 <div className="performance-grid">
-                                    <div className="perf-metric">
-                                        <span className="metric-label">CPU Usage</span>
-                                        <span className="metric-value warning">{systemMetrics.cpuUsage}</span>
-                                    </div>
-                                    <div className="perf-metric">
-                                        <span className="metric-label">Memory</span>
-                                        <span className="metric-value">{systemMetrics.memoryUsage}</span>
-                                    </div>
-                                    <div className="perf-metric">
-                                        <span className="metric-label">Disk Space</span>
-                                        <span className="metric-value">{systemMetrics.diskSpace}</span>
-                                    </div>
-                                    <div className="perf-metric">
-                                        <span className="metric-label">Network</span>
-                                        <span className="metric-value">{systemMetrics.networkTraffic}</span>
-                                    </div>
+                                    {systemMetrics.performanceData.map((item, index) => (
+                                        <div key={index} className="perf-metric">
+                                            <span className="metric-label">{item.label}</span>
+                                            <span className={`metric-value ${item.status ?? ''}`}>{item.value}</span>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 <div className="neural-units">
-                                    <div className="units-label">Neural Processing Units:</div>
+                                    <div className="units-label">{text.sysMetricPanel.subtitle}</div>
                                     <div className="units-grid">
-                                        {[...Array(16)].map((_, i) => (
-                                            <div key={i} className={`unit ${
-                                                i < 12 ? 'active' : i < 14 ? 'warning' : 'critical'
-                                            }`}></div>
+                                        {Object.entries(systemMetrics.neuralUnits)
+                                            .flatMap(([type, count]) =>
+                                                Array.from({length: Number(count)}, (_, i) => ({
+                                                    key: `${type}-${i}`,
+                                                    type,
+                                                }))
+                                            )
+                                            .sort(() => Math.random() - 0.5)
+                                            .map(({key, type}) => (
+                                                <div key={key} className={`unit ${type}`}></div>
                                         ))}
                                     </div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-2 facility-panel alert-panel">
+                                <div className="panel-header">
+                                    <h2 className="panel-title">{text.alertsData.title}</h2>
+                                    <div className="panel-subtitle">{text.alertsData.subtitle}</div>
+                                </div>
+
+                                <div className="alerts-container">
+                                    {text.alertsData.alerts.map((alert, idx) => (
+                                        <div key={idx} className={`alert-item ${alert.level}`}>
+                                            <div className="alert-dot"></div>
+                                            <span>{alert.message}</span>
+                                        </div>
+                                    ))}
+
+                                    {refreshCount >= text.alertsData.refreshAlert.minRefreshCount && (
+                                        <div className={`alert-item ${text.alertsData.refreshAlert.level}`}>
+                                            <div className="alert-dot"></div>
+                                            <span>{text.alertsData.refreshAlert.message}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Bottom Row - Critical Alerts and Information */}
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                        {/* Critical Alerts */}
-                        <div className="lg:col-span-2 facility-panel alert-panel">
-                            <div className="panel-header">
-                                <h2 className="panel-title">CRITICAL ALERTS</h2>
-                                <div className="panel-subtitle">Active Incidents & Warnings</div>
-                            </div>
-
-                            <div className="alerts-container">
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Organic growth detected in [redacted]</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Subject 31525 connected to terminal [redacted]</span>
-                                </div>
-                                <div className="alert-item warning">
-                                    <div className="alert-dot"></div>
-                                    <span>Displacement events in Test Chamber 3</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Reality anchor stability: Failing</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>Unknown root systems breaching foundation</span>
-                                </div>
-                                <div className="alert-item critical">
-                                    <div className="alert-dot"></div>
-                                    <span>??? reporting shared consciousness events</span>
-                                </div>
-                                {refreshCount >= 5 && (
-                                    <div className="alert-item critical">
-                                        <div className="alert-dot"></div>
-                                        <span>Persistent refresh pattern detected - [redacted] awareness confirmed</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Emergency Contacts */}
                         <div className="facility-panel contacts-panel">
                             <div className="panel-header">
@@ -715,30 +662,17 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                             </div>
 
                             <div className="contacts-list">
-                                <div className="contact-item">
-                                    <span>Neural Security:</span>
-                                    <span className="contact-number">Ext. 2847</span>
-                                </div>
-                                <div className="contact-item">
-                                    <span>Medical Emergency:</span>
-                                    <span className="contact-number">Ext. 3156</span>
-                                </div>
-                                <div className="contact-item">
-                                    <span>Technical Support:</span>
-                                    <span className="contact-number">Ext. 4729</span>
-                                </div>
-                                <div className="contact-item">
-                                    <span>Command Center:</span>
-                                    <span className="contact-number">Ext. 1001</span>
-                                </div>
-                                <div className="contact-item emergency">
-                                    <span>Containment Breach:</span>
-                                    <span className="contact-number">Ext. 0000</span>
-                                </div>
-                                {refreshCount >= 25 && (
+                                {text.contactPanel.emergency.map(({label, extension, emergency}, i) => (
+                                    <div key={i} className={`contact-item ${emergency ? "emergency" : ""}`}>
+                                        <span>{label}:</span>
+                                        <span className="contact-number">{extension}</span>
+                                    </div>
+                                ))}
+
+                                {refreshCount >= text.contactPanel.secret.minRefreshCount && (
                                     <div className="contact-item emergency">
-                                        <span>Will you ever smile:</span>
-                                        <span className="contact-number">Ext. ∞</span>
+                                        <span>{text.contactPanel.secret.label}:</span>
+                                        <span className="contact-number">{text.contactPanel.secret.extension}</span>
                                     </div>
                                 )}
                             </div>
@@ -747,34 +681,32 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         {/* Project Classification */}
                         <div className="facility-panel classification-panel">
                             <div className="panel-header">
-                                <h2 className="panel-title">PROJECT CLASSIFICATION</h2>
-                                <div className="panel-subtitle">Security Clearance Info</div>
+                                <h2 className="panel-title">{text.projectClassPanel.title}</h2>
+                                <div className="panel-subtitle">{text.projectClassPanel.subtitle}</div>
                             </div>
 
                             <div className="classification-info">
-                                <div className="class-item">
-                                    <span>Security Level:</span>
-                                    <span className="class-value cosmic">HIGH</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Compartment Accessing:</span>
-                                    <span className="class-value">SCI//VESSEL</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Project Code:</span>
-                                    <span className="class-value">VESSEL-31525</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>Facility ID:</span>
-                                    <span className="class-value">05-B</span>
-                                </div>
-                                <div className="class-item">
-                                    <span>TREE Protocol:</span>
-                                    <span
-                                        className={`class-value ${refreshCount >= 15 ? 'text-red-400' : 'text-green-400'}`}>
-                                        {refreshCount >= 15 ? 'ALIVE' : 'ACTIVE'}
-                                    </span>
-                                </div>
+                                {text.projectClassPanel.classifications.map((item, i) => {
+                                    if ("threshold" in item) {
+                                        const active = refreshCount >= (item.threshold ?? 0);
+                                        return (
+                                            <div key={i} className="class-item">
+                                                <span>{item.label}:</span>
+                                                <span
+                                                    className={`class-value ${active ? item.classNameIfHigh : item.classNameIfLow}`}>
+                                                    {active ? item.valueIfHigh : item.valueIfLow}
+                                                </span>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <div key={i} className="class-item">
+                                            <span>{item.label}:</span>
+                                            <span className={`class-value ${item.className ?? ""}`}>{item.value}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -802,12 +734,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                 <span className="font-mono bg-gray-800 px-2 py-1 rounded">{selectedLog.id}</span>
                                 <span>{selectedLog.researcher}</span>
                                 <span>{selectedLog.date}</span>
-                                <span className={`px-3 py-1 rounded text-xs font-bold ${
-                                    selectedLog.classification === 'COSMIC' ? 'bg-purple-900/50 text-purple-300' :
-                                        selectedLog.classification === 'TOP SECRET' ? 'bg-red-900/50 text-red-300' :
-                                            selectedLog.classification === 'SECRET' ? 'bg-orange-900/50 text-orange-300' :
-                                                'bg-blue-900/50 text-blue-300'
-                                }`}>
+                                <span
+                                    className={`px-3 py-1 rounded text-xs font-bold ${classificationClass(selectedLog)}`}>
                                     {selectedLog.classification}
                                 </span>
                             </div>
@@ -827,13 +755,9 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         </div>
                         {selectedLog.corrupted && (
                             <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
-                                <div className="text-red-400 text-sm font-bold mb-2 animate-pulse">
-                                    ⚠️ DATA CORRUPTION WARNING ⚠️
-                                </div>
-                                <div className="text-red-300 text-xs">
-                                    This log file has been compromised by unknown interference. Some data may be
-                                    unreliable or have been altered by external forces. Proceed with caution.
-                                </div>
+                                <div
+                                    className="text-red-400 text-sm font-bold mb-2 animate-pulse">{text.logPanel.corruptionWarn}</div>
+                                <div className="text-red-300 text-xs">{text.logPanel.corruptionMsg}</div>
                             </div>
                         )}
                     </div>
@@ -853,13 +777,13 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="text-center">
                             <div className="text-4xl mb-4">⚠️</div>
-                            <h2 className="text-xl font-bold text-green-400 mb-4">SYSTEM NOTIFICATION</h2>
+                            <h2 className="text-xl font-bold text-green-400 mb-4">{text.notifications.title}</h2>
                             <p className="text-gray-300 mb-6 whitespace-pre-line">{modalMessage}</p>
                             <button
                                 onClick={() => setShowModal(false)}
                                 className="btn btn-primary"
                             >
-                                ACKNOWLEDGE
+                                {text.notifications.accept}
                             </button>
                         </div>
                     </div>
@@ -897,6 +821,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                     right: 50%;
                     transform: translate(50%, -50%);
                 }
+                
             `}</style>
         </div>
     );

@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from "react";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {narratorLines} from "@/lib/data";
+import {narratorLines} from "@/lib/data/cheater";
 
 // Join all lines with two newlines
 const fullText = narratorLines.join("\n\n");

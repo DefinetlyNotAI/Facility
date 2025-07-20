@@ -1,6 +1,6 @@
 import React from 'react';
-import {WindowComponentProps} from '@/lib/tree98types';
-import {COLORS, FONTS, SYSTEM_CONFIG} from '@/lib/tree98data';
+import {WindowComponentProps} from '@/lib/types/tree98';
+import {COLORS, FONTS, SYSTEM_CONFIG} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
 
 

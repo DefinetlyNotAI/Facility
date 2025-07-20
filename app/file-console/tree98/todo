@@ -22,3 +22,6 @@
   - These escalate until the system crashes into a blue-error-like crash screen.
   - After the crash, redirect the user to /file-console.
 - finally add audio and sfx for everything, including sfx of old mouse clicks etc
+
+
+Maybe later create a group of mermaid file of all app routes to visualize the app structure and flow.

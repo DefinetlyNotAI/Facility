@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {FONTS} from '@/lib/tree98data';
+import {FONTS} from '@/lib/data/tree98';
 
 export const Notepad: React.FC = () => {
     const [text, setText] = useState('');

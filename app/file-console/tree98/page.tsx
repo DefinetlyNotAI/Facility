@@ -3,7 +3,7 @@
 import {useEffect} from 'react';
 import Cookie from 'js-cookie';
 import {useRouter} from 'next/navigation';
-import {SYSTEM_CONFIG} from "@/lib/tree98data";
+import {SYSTEM_CONFIG} from "@/lib/data/tree98";
 import Tree98Sim from "./Tree98Sim";
 
 function TREE() {

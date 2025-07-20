@@ -5,6 +5,8 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, SFX_AUDIO} from "@/lib/audio";
+import {fetchUserIP} from "@/lib/utils";
+import {begStop, creepyTTS, emergencyIP, errors, motivate} from "@/lib/data/scroll";
 
 function getRandomFilename(length = 8) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -48,10 +50,7 @@ export default function ScrollPage() {
             faviconRef.current = link;
         }
 
-        fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(data => setIpAddress(data.ip || 'ESCAPE'))
-            .catch(() => setIpAddress('ESCAPE'));
+        fetchUserIP().then(ip => setIpAddress(ip === 'UNKNOWN' ? emergencyIP : ip));
     }, [router]);
 
     useEffect(() => {
@@ -94,13 +93,7 @@ export default function ScrollPage() {
         if (!scrollUnlocked) return;
 
         const errorLog = setInterval(() => {
-            const errors = [
-                'Error: Something went terribly wrong.',
-                'Warning: Data breach detected!',
-                'Uncaught ReferenceError: mysteryFunction is not defined',
-                'TypeError: Cannot read properties of null (reading "click")',
-                'Unexpected end of input in JSON',
-            ];
+
             if (Math.random() < 0.3) {
                 console.error(errors[Math.floor(Math.random() * errors.length)]);
             }
@@ -122,7 +115,7 @@ export default function ScrollPage() {
                 console.warn('Failed to play download audio:', error);
             }
 
-            const blob = new Blob(['PLEASE STOP'], {type: 'text/plain'});
+            const blob = new Blob([begStop], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = getRandomFilename() + '.txt';
@@ -153,9 +146,7 @@ export default function ScrollPage() {
                 console.warn('Failed to play horror audio:', error);
             }
 
-            const utterance = new SpeechSynthesisUtterance(
-                'Do you feel your legs go numb yet? This is all you now. Your IP. Your identity. Your scrolling. It is mine now. So go back to the beginning and then, maybe, you will find the escape you are looking for.'
-            );
+            const utterance = new SpeechSynthesisUtterance(creepyTTS);
             utterance.lang = 'en-US';
             window.speechSynthesis.speak(utterance);
             utterance.onend = () => setShowEscape(true);
@@ -196,9 +187,7 @@ export default function ScrollPage() {
                     filter: `brightness(0.4) contrast(1.2)`,
                 }}
             >
-                <h1 style={{color: 'white', textAlign: 'center', paddingTop: '3rem'}}>
-                    Keep scrolling, and smile
-                </h1>
+                <h1 style={{color: 'white', textAlign: 'center', paddingTop: '3rem'}}>{motivate}</h1>
 
                 {showEscape && (
                     <div style={{textAlign: 'center', marginTop: '50vh'}}>
@@ -228,7 +217,7 @@ export default function ScrollPage() {
                                 router.push('/black-and-white');
                             }}
                         >
-                            {escapeHovered ? ipAddress : 'ESCAPE'}
+                            {escapeHovered ? ipAddress : emergencyIP}
                         </button>
                     </div>
                 )}

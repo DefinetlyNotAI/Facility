@@ -35,10 +35,14 @@ export default function TAS({className = ''}: TASProps) {
     useEffect(() => {
         const killTasSeen = Cookies.get('KILLTAS_cutscene_seen');
 
-        if (killTasSeen || pathname === '/smileking'
-            || pathname === '/smileking-auth'
-            || pathname === '/moonlight'
-            || pathname === '/404') {
+        if (
+            killTasSeen ||
+            pathname === '/smileking' ||
+            pathname === '/smileking-auth' ||
+            pathname === '/moonlight' ||
+            pathname === '/404' ||
+            pathname === '/file-console/tree98'
+        ) {
             setIsVisible(false);
             return;
         }

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {COLORS, FONTS, MESSAGES, SYSTEM_CONFIG} from "@/lib/tree98data";
+import {COLORS, FONTS, MESSAGES, SYSTEM_CONFIG} from "@/lib/data/tree98";
 import {signCookie} from "@/lib/cookies";
 
 async function sha256(text: string): Promise<string> {

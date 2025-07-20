@@ -1,6 +1,6 @@
 import React from 'react';
-import {FONTS} from '@/lib/tree98data';
-import {VesselBootDialogProps} from "@/lib/tree98types";
+import {FONTS} from '@/lib/data/tree98';
+import {VesselBootDialogProps} from "@/lib/types/tree98";
 
 
 export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => (

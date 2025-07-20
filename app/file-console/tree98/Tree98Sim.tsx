@@ -2,10 +2,10 @@
 
 import React, {useEffect, useState} from 'react';
 import LoginScreen from './LoginScreen';
-import {COLORS, DESKTOP_ICONS, FONTS, SYSTEM_CONFIG,} from '@/lib/tree98data';
+import {COLORS, DESKTOP_ICONS, FONTS, SYSTEM_CONFIG,} from '@/lib/data/tree98';
 import Cookies from "js-cookie";
 import {getIcon} from '@/components/tree98/icons';
-import {ContextMenu, FileSystemItem} from '@/lib/tree98types';
+import {ContextMenu, FileSystemItem} from '@/lib/types/tree98';
 import {useBootSequence} from '@/hooks/useBootSequence';
 import {useSystemCorruption} from '@/hooks/useSystemCorruption';
 import {useWindowManagement} from '@/hooks/useWindowManagement';

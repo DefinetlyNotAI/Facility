@@ -1,5 +1,5 @@
 import React from 'react';
-import {FONTS} from '@/lib/tree98data';
+import {FONTS} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
 
 export const ShutdownDialog: React.FC = () => (

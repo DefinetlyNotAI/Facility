@@ -7,7 +7,8 @@ import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/Buttons.module.css';
 import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {BrowserName, BROWSERS} from '@/lib/data';
+import {BROWSERS, SUBTITLE_TEXT, WINGDING} from '@/lib/data/buttons';
+import {BrowserName} from "@/lib/types/all";
 
 
 // Detect browser reliably (basic)
@@ -22,22 +23,18 @@ function getBrowserName(): BrowserName | null {
 }
 
 function HiddenFooter() {
-    const [visible, setVisible] = useState(false);
-
     useEffect(() => {
         if (Cookies.get('File_Unlocked')) {
-            setVisible(true);
         }
     }, []);
 
     async function handleUnlock() {
         await signCookie('File_Unlocked=true');
-        setVisible(true);
     }
 
     return (
         <footer
-            className={`${styles.hiddenFooter} ${visible ? styles.visible : ''}`}
+            className={styles.SECRET}
             onClick={handleUnlock}
         >
             <a
@@ -47,7 +44,7 @@ function HiddenFooter() {
                     await signCookie('File_Unlocked=true');
                 }}
             >
-                /file-console
+                Go to File Console
             </a>
         </footer>
     );
@@ -175,9 +172,14 @@ export default function ButtonsPage() {
             />
             <div className={styles.container}>
                 <h1 className={styles.title}>Global Browser Buttons</h1>
+
                 <p className={styles.subtitle}>
-                    Click the button matching your browser to activate it globally.<br/>
-                    Collaboration required - each browser can only be pressed once.
+                    {SUBTITLE_TEXT.split('\n').map((line, idx) => (
+                        <span key={idx}>
+                            {line}
+                            {idx < SUBTITLE_TEXT.split('\n').length - 1 && <br/>}
+                        </span>
+                    ))}
                 </p>
 
                 {/* Progress Indicator */}
@@ -210,8 +212,10 @@ export default function ButtonsPage() {
                                         : `Press to activate ${browser} button`
                                 }
                             >
-                                {browser}
-                                {isPressed && <div style={{fontSize: '0.8rem', marginTop: '0.5rem'}}>✓ ACTIVATED</div>}
+                                <div>{browser}<br/></div>
+                                {isPressed && (
+                                    <div style={{fontSize: '0.8rem', marginTop: '0.2rem'}}>✓</div>
+                                )}
                             </button>
                         );
                     })}
@@ -220,7 +224,7 @@ export default function ButtonsPage() {
                 {allPressed && (
                     <>
                         <div className={styles.secretMessage}>
-                            👍︎♒︎♏︎♍︎🙵 ⧫︎♒︎♏︎ 👍︎💧︎💧︎ ⬧︎♏︎♍︎❒︎♏︎⧫︎
+                            {WINGDING}
                             <div style={{
                                 fontSize: '1rem',
                                 marginTop: '1rem',
@@ -228,7 +232,6 @@ export default function ButtonsPage() {
                                 color: '#666',
                                 fontFamily: 'JetBrains Mono, monospace'
                             }}>
-                                Remove css tag from hidden-footer.visible to find the next link
                             </div>
                         </div>
                         <HiddenFooter/>

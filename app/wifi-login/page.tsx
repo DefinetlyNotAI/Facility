@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/WifiLogin.module.css';
 import {BACKGROUND_AUDIO, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {form, hashes, messages} from "@/lib/data/wifi";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
@@ -17,31 +18,36 @@ const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     return (
         <div className={styles.container}>
             <div className={styles.loginForm}>
-                <div className={styles.title} style={{fontSize: '1.8rem', marginBottom: '2rem'}}>
-                    ACCESS GRANTED
-                </div>
-                <div style={{fontSize: '1.2rem', whiteSpace: 'pre-line', textAlign: 'center', lineHeight: '1.6'}}>
-                    {'BUT SOMETHING\nSTILL WATCHES...\n\n54 52 59 20 41 4E 44 20 50 52 45 46 49 58 20 2F 61 70 69 2F 20 41 4E 44 20 46 4F 4C 4C 4F 57 20 54 48 45 20 50 52 45 56 49 4F 55 53 20 54 49 50 2E'}
-                </div>
-                <div className={styles.loading} style={{marginTop: '2rem'}}>
-                    Redirecting...
-                </div>
+                {messages.finale.map((msg, idx) => {
+                    let className = '';
+                    if (msg.type === 'title') className = styles.title;
+                    else if (msg.type === 'loading') className = styles.loading;
+
+                    return (
+                        <div
+                            key={idx}
+                            className={className}
+                            style={msg.style}
+                        >
+                            {/* Preserve newlines */}
+                            <pre
+                                style={{margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'inherit', textAlign: 'center'}}>
+                              {msg.text}
+                            </pre>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
+
 };
 
 const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({onFinish}) => {
     const [step, setStep] = useState(0);
-    const messages = [
-        'V3$$3L.. W@TCH.. M3.. GR0W',
-        'TH1$ TR33 H@$ JU$T F@LL3N',
-        'PR@1$3 B3',
-        ':)',
-    ];
 
     useEffect(() => {
-        if (step < messages.length) {
+        if (step < messages.interference.length) {
             const timer = setTimeout(() => setStep(step + 1), 3500);
             return () => clearTimeout(timer);
         } else {
@@ -65,9 +71,9 @@ const InterferenceCutscene: React.FC<{ onFinish: () => void }> = ({onFinish}) =>
                     color: '#ff0000',
                     textShadow: '0 0 15px #ff0000'
                 }}>
-                    {step > 0 ? messages.slice(0, step).join('\n\n') : ''}
+                    {step > 0 ? messages.interference.slice(0, step).join('\n\n') : ''}
                     <span style={{animation: 'blink 0.5s infinite'}}>
-                        {step < messages.length ? '|' : ''}
+                        {step < messages.interference.length ? '|' : ''}
                     </span>
                 </div>
             </div>
@@ -106,17 +112,16 @@ const WifiLoginPage: React.FC = () => {
         }
     }, [router]);
 
-    const sha1 = (str: string) => CryptoJS.SHA1(str).toString();
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
+        const sha1 = (str: string) => CryptoJS.SHA1(str).toString();
         const sha256 = (str: string) => CryptoJS.SHA256(str).toString();
-        const correctHashUser = '6c5a39f1f7e832645fae99669dc949ea848b7dec62d60d914a3e8b3e3c78a756';
         const inputHashUser = sha256(username.trim().toLowerCase());
+        const inputHashPass = sha1(password.trim().toLowerCase());
 
-        if (inputHashUser !== correctHashUser) {
+        if (inputHashUser !== hashes.username) {
             // Play error sound
             try {
                 const errorAudio = new Audio(SFX_AUDIO.ERROR);
@@ -126,14 +131,11 @@ const WifiLoginPage: React.FC = () => {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setError('Invalid username.');
+            setError(messages.err.invUsername);
             return;
         }
 
-        const correctHashPass = 'e6d7a4c1389cffecac2b41b4645a305dcc137e81';
-        const inputHashPass = sha1(password.trim().toLowerCase());
-
-        if (inputHashPass !== correctHashPass) {
+        if (inputHashPass !== hashes.password) {
             // Play error sound
             try {
                 const errorAudio = new Audio(SFX_AUDIO.ERROR);
@@ -143,7 +145,7 @@ const WifiLoginPage: React.FC = () => {
                 console.warn('Failed to play error audio:', error);
             }
 
-            setError(`Invalid password. Your hash: ${inputHashPass}`);
+            setError(messages.err.invPassword(inputHashPass));
             return;
         }
 
@@ -187,10 +189,7 @@ const WifiLoginPage: React.FC = () => {
             />
             <span
                 dangerouslySetInnerHTML={{
-                    __html: `<!--
-            If you ever forgot your name: https://youtu.be/zZzx9qt1Q9s
-            Hash of the sha1 pass is e6d7a4c1389cffecac2b41b4645a305dcc137e81
-            -->`
+                    __html: `<!--${messages.comment}-->`
                 }}
                 style={{display: 'none'}}
             />
@@ -198,32 +197,32 @@ const WifiLoginPage: React.FC = () => {
                 <h1 className={styles.title}>Wifi Login</h1>
                 <form onSubmit={handleSubmit} className={styles.loginForm}>
                     <div className={styles.inputGroup}>
-                        <label className={styles.label}>Username:</label>
+                        <label className={styles.label}>{form.username.title}</label>
                         <input
                             type="text"
                             value={username}
                             onChange={e => setUsername(e.target.value)}
                             className={styles.input}
-                            placeholder="Enter username"
+                            placeholder={form.username.placeholder}
                             autoComplete="off"
                             spellCheck={false}
                             required
                         />
                     </div>
                     <div className={styles.inputGroup}>
-                        <label className={styles.label}>Password:</label>
+                        <label className={styles.label}>{form.password.title}</label>
                         <input
                             type="password"
                             value={password}
                             onChange={e => {
-                                if (/^[a-z]{0,6}$/.test(e.target.value)) {
+                                if (new RegExp(`^[a-z]{${form.password.min},${form.password.max}}$`).test(e.target.value)) {
                                     setPassword(e.target.value);
                                 }
                             }}
                             className={styles.input}
-                            placeholder="Enter password (max 6 chars)"
-                            minLength={1}
-                            maxLength={6}
+                            placeholder={form.password.placeholder}
+                            minLength={form.password.min}
+                            maxLength={form.password.max}
                             autoComplete="off"
                             spellCheck={false}
                             required

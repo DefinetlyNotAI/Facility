@@ -1,4 +1,4 @@
-import {DesktopIcon, FileSystemItem} from "@/lib/tree98types";
+import {DesktopIcon, FileSystemItem} from "@/lib/types/tree98";
 
 // Configuration constants for the Tree98 simulation
 export const SYSTEM_CONFIG = {

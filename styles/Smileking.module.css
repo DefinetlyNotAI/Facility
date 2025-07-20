@@ -1,0 +1,81 @@
+.container {
+    padding: 40px;
+    font-family: monospace;
+    background-color: #0f0f0f;
+    color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.header {
+    font-size: 2rem;
+    margin-bottom: 0.25em;
+}
+
+.subheader {
+    color: #999;
+    margin-bottom: 2em;
+}
+
+.section {
+    margin-bottom: 3em;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.25em;
+}
+
+.gridList {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+}
+
+@media (min-width: 600px) {
+    .gridList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .gridList {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.button {
+    padding: 10px 16px;
+    min-width: 180px;
+    border-radius: 4px;
+    border: 1px solid #888;
+    background-color: #1f1f1f;
+    color: #f0f0f0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.cookieButton {
+    padding: 14px 16px;
+    border-radius: 4px;
+    border: 1px solid #888;
+    background-color: #1f1f1f;
+    color: #f0f0f0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.buttonClicked {
+    background-color: #003300;
+    border-color: #00aa00;
+}
+
+.buttonNotClicked {
+    background-color: #330000;
+    border-color: #aa0000;
+}

@@ -1,6 +1,6 @@
 import React from 'react';
-import {FONTS} from '@/lib/tree98data';
-import {LoadingScreenProps} from "@/lib/tree98types";
+import {FONTS} from '@/lib/data/tree98';
+import {LoadingScreenProps} from "@/lib/types/tree98";
 
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({loadingProgress}) => (

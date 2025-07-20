@@ -5,11 +5,16 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO} from "@/lib/audio";
-import {binaryCorruptText, hexCorruptText} from '@/lib/data';
-
-
-const sessionIdGenerator = () =>
-    `SID-${Math.random().toString(36).slice(2, 11)}`;
+import {
+    binaryCorruptText,
+    buttons,
+    corruptionConsoleMessages,
+    glitchMessages,
+    hexCorruptText,
+    ttsMessageID,
+    ttsMessages,
+} from '@/lib/data/h0m3';
+import {getOrCreateSessionId} from "@/lib/utils";
 
 const letterReplace = (text: string) =>
     text
@@ -34,18 +39,9 @@ export default function H0m3() {
 
     const [mode, setMode] = useState<'initial' | 'glitch'>('initial');
     const [scrollCount, setScrollCount] = useState(0);
-    const [sessionId] = useState(sessionIdGenerator());
     const [currentTime, setCurrentTime] = useState<string>('');
     const [mounted, setMounted] = useState(false);
     const [isInverted, setIsInverted] = useState(false);
-    const [, setFacilityDataDynamic] = useState({
-        temperature: '22.7°C',
-        pressure: '1013.42 hPa',
-        humidity: '43%',
-        radiation: '0.09 μSv/h',
-        powerOutput: '2.4 MW',
-        networkStatus: 'NONE EXISTENT'
-    });
 
     // Corruption states
     const [corruptionLevel, setCorruptionLevel] = useState(0);
@@ -61,20 +57,8 @@ export default function H0m3() {
         updateTime();
         const timeInterval = setInterval(updateTime, 1000);
 
-        // Dynamic facility data updates
-        const dataInterval = setInterval(() => {
-            setFacilityDataDynamic(prev => ({
-                ...prev,
-                temperature: (22 + Math.random() * 2 - 1).toFixed(1) + '°C',
-                pressure: (1013 + Math.random() * 10 - 5).toFixed(2) + ' hPa',
-                humidity: (43 + Math.random() * 6 - 3).toFixed(0) + '%',
-                radiation: (0.09 + Math.random() * 0.02 - 0.01).toFixed(2) + ' μSv/h',
-            }));
-        }, 3000);
-
         return () => {
             clearInterval(timeInterval);
-            clearInterval(dataInterval);
         };
     }, []);
 
@@ -100,8 +84,10 @@ export default function H0m3() {
             ttsAudio.volume = 0.4;
             ttsAudioRef.current = ttsAudio;
 
-            // Use TTS for "RUN STOP ESCAPE"
-            const utterance = new SpeechSynthesisUtterance("RUN FROM HERE. STOP WHAT YOU ARE DOING. ESCAPE");
+            // Use TTS
+            const utterance = new SpeechSynthesisUtterance(
+                ttsMessages[Math.floor(Math.random() * ttsMessages.length)]
+            );
             utterance.rate = 0.5;
             utterance.pitch = 0.3;
             utterance.volume = 0.8;
@@ -132,9 +118,8 @@ export default function H0m3() {
                     }
                 }, 200);
 
-                // TTS the creepy message instead of showing it
-                const creepyMessage = `Y0U SHOULD NOT BE HERE ${sessionId}`;
-                const creepyUtterance = new SpeechSynthesisUtterance(creepyMessage);
+                // TTS the creepy message
+                const creepyUtterance = new SpeechSynthesisUtterance(ttsMessageID(getOrCreateSessionId()));
                 creepyUtterance.rate = 0.4;
                 creepyUtterance.pitch = 0.2;
                 creepyUtterance.volume = 0.9;
@@ -165,7 +150,7 @@ export default function H0m3() {
                 }
             };
         }
-    }, [router, mounted, sessionId]);
+    }, [router, mounted]);
 
     // Progressive corruption scroll handler
     useEffect(() => {
@@ -213,22 +198,11 @@ export default function H0m3() {
         }
 
         // Add random glitch text
-        const glitches = [
-            '█████ ERROR █████',
-            'MEMORY LEAK DETECTED',
-            'STACK OVERFLOW',
-            'SEGMENTATION FAULT',
-            'KERNEL PANIC',
-            'SYSTEM CORRUPTED',
-            'REALITY.EXE HAS STOPPED WORKING'
-        ];
-        setGlitchText(glitches[Math.floor(Math.random() * glitches.length)]);
+        setGlitchText(glitchMessages[Math.floor(Math.random() * glitchMessages.length)]);
 
         // Break console
         if (level >= 3) {
-            console.error('CORRUPTION LEVEL:', level);
-            console.error('SYSTEM INTEGRITY: COMPROMISED');
-            console.error('THE TREE GROWS THROUGH THE CODE');
+            corruptionConsoleMessages.forEach(fn => fn(level));
         }
     };
 
@@ -236,7 +210,7 @@ export default function H0m3() {
         return (
             <div style={{backgroundColor: 'black', height: '100vh', width: '100vw'}}>
                 <div style={{color: 'green', textAlign: 'center', paddingTop: '50vh', fontFamily: 'monospace'}}>
-                    Loading...
+                    L0@D1NG...
                 </div>
             </div>
         );
@@ -287,7 +261,7 @@ export default function H0m3() {
                     }}
                     aria-label="Hidden corrupt button"
                 >
-                    .
+                    :)
                 </button>
             </div>
         );
@@ -650,7 +624,7 @@ export default function H0m3() {
                                 marginBottom: '1rem',
                                 fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                             }}>
-                                {letterReplace(`Y0U $H0ULDNT B3 H3R3 ${sessionId}`)}
+                                {letterReplace(`Y0U $H0ULDNT B3 H3R3 ${getOrCreateSessionId()}`)}
                             </div>
                             <div style={{fontSize: '1rem', color: '#fca5a5'}}>
                                 {letterReplace(brokenElements.includes('text-scrambled') ? "Th3 $y$t3m kn0w$ w3 @r3 h3r3. Th3 r00t$ @r3 w@tch1ng." : "The system knows we are here. The roots are watching.")}
@@ -681,7 +655,7 @@ export default function H0m3() {
                         fontSize: '1.1rem',
                         lineHeight: '1.6'
                     }}>
-                        なぜ • لماذا • Pourquoi • Warum
+                        {buttons.WHY}
                     </div>
                     <button
                         style={{
@@ -719,7 +693,7 @@ export default function H0m3() {
                             router.replace('/home');
                         }}
                     >
-                        RESET
+                        {buttons.RESET}
                     </button>
                 </div>
             )}

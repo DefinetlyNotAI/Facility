@@ -1,6 +1,6 @@
 import React from 'react';
-import {FONTS} from '@/lib/tree98data';
-import {ContextMenuProps} from "@/lib/tree98types";
+import {FONTS} from '@/lib/data/tree98';
+import {ContextMenuProps} from "@/lib/types/tree98";
 
 
 export const ContextMenuComponent: React.FC<ContextMenuProps> = ({

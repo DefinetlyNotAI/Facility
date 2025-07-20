@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {DragState, Window} from '@/lib/tree98types';
-import {SYSTEM_CONFIG} from '@/lib/tree98data';
+import {DragState, Window} from '@/lib/types/tree98';
+import {SYSTEM_CONFIG} from '@/lib/data/tree98';
 
 export const useWindowManagement = () => {
     const [windows, setWindows] = useState<Window[]>([]);

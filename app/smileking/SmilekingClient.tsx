@@ -5,6 +5,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {cookiesList} from "@/lib/cookiesList";
 import {signCookie} from "@/lib/cookies";
+import {buttonState, text} from "@/lib/data/smileking";
+import styles from '@/styles/Smileking.module.css';
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {
@@ -32,9 +34,20 @@ export default function SmilekingClient() {
         });
         setCookieState(cs);
 
-        fetch('/api/state')
-            .then(res => res.json())
-            .then(data => setButtonStates(data));
+        const fetchState = async (retries = 5) => {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch('/api/state');
+                    if (res.status === 500) throw new Error('err500');
+                    const data = await res.json();
+                    setButtonStates(Array.isArray(data) ? data : []);
+                    return;
+                } catch (e) {
+                    if (i === retries - 1) setButtonStates([]);
+                }
+            }
+        };
+        fetchState().catch(console.error);
     }, []);
 
     const toggleCookie = async (name: string) => {
@@ -47,10 +60,8 @@ export default function SmilekingClient() {
         ];
 
         if (isSet) {
-            // Unset locally via document.cookie
             document.cookie = `${encodeURIComponent(name)}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
         } else {
-            // Remove exclusive group conflicts
             for (const group of exclusivityGroups) {
                 if (group.includes(name)) {
                     for (const other of group) {
@@ -61,7 +72,6 @@ export default function SmilekingClient() {
                 }
             }
 
-            // Call signCookie to have the server set the signed cookie
             const result = await signCookie(`${name}=true`);
             if (!result.success) {
                 alert(`Failed to set cookie "${name}": ${result.error}`);
@@ -69,7 +79,6 @@ export default function SmilekingClient() {
             }
         }
 
-        // Refresh local cookie state
         const updatedCookies = getCookiesMap();
         setCookieState(prev => {
             const newState = {...prev};
@@ -79,7 +88,6 @@ export default function SmilekingClient() {
             return newState;
         });
     };
-
 
     const pressButton = async (browser: string) => {
         const csrfToken = Cookies.get('csrf-token');
@@ -105,93 +113,37 @@ export default function SmilekingClient() {
         }
     };
 
-    const styles: { [key: string]: React.CSSProperties } = {
-        container: {
-            padding: '40px',
-            fontFamily: 'monospace',
-            backgroundColor: '#0f0f0f',
-            color: '#f5f5f5',
-            minHeight: '100vh',
-        },
-        header: {
-            fontSize: '2rem',
-            marginBottom: '0.25em',
-        },
-        subheader: {
-            color: '#999',
-            marginBottom: '2em',
-        },
-        section: {
-            marginBottom: '3em',
-        },
-        sectionTitle: {
-            fontSize: '1.5rem',
-            marginBottom: '1em',
-            borderBottom: '1px solid #444',
-            paddingBottom: '0.25em',
-        },
-        list: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '12px',
-            listStyle: 'none',
-            padding: 0,
-        },
-        button: {
-            padding: '10px 16px',
-            minWidth: '180px',
-            borderRadius: '4px',
-            border: '1px solid #888',
-            backgroundColor: '#1f1f1f',
-            color: '#f0f0f0',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            transition: 'background-color 0.2s ease',
-        },
-        buttonClicked: {
-            backgroundColor: '#003300',
-            borderColor: '#00aa00',
-        },
-        buttonNotClicked: {
-            backgroundColor: '#330000',
-            borderColor: '#aa0000',
-        }
-    };
-
     return (
-        <div style={styles.container}>
-            <h1 style={styles.header}>😐 smileking</h1>
-            <p style={styles.subheader}>This is not part of the puzzle.</p>
+        <div className={styles.container}>
+            <h1 className={styles.header}>{text.title}</h1>
+            <p className={styles.subheader}>{text.subtitle}</p>
 
-            <div style={styles.section}>
-                <h2 style={styles.sectionTitle}>Cookies</h2>
-                <ul style={styles.list}>
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>{text.sectionCookieHeader}</h2>
+                <ul className={styles.gridList}>
                     {cookiesList.map(name => (
                         <li key={name}>
                             <button
-                                style={styles.button}
+                                className={styles.cookieButton}
                                 onClick={() => toggleCookie(name)}
                             >
-                                {cookieState[name] ? 'Unset' : 'Set'} [{name}]
+                                {cookieState[name] ? buttonState.cookies.unset : buttonState.cookies.set} [{name}]
                             </button>
                         </li>
                     ))}
                 </ul>
             </div>
 
-            <div style={styles.section}>
-                <h2 style={styles.sectionTitle}>Button States (DB)</h2>
-                <ul style={styles.list}>
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>{text.sectionButtonHeader}</h2>
+                <ul className={styles.gridList}>
                     {buttonStates.map(btn => (
                         <li key={btn.browser}>
                             <button
-                                style={{
-                                    ...styles.button,
-                                    ...(btn.clicked ? styles.buttonClicked : styles.buttonNotClicked),
-                                }}
+                                className={`${styles.button} ${btn.clicked ? styles.buttonClicked : styles.buttonNotClicked}`}
                                 onClick={() => pressButton(btn.browser)}
                             >
-                                {btn.browser}: {btn.clicked ? 'Clicked' : 'Not Clicked'}
+                                {btn.browser}: {btn.clicked ? buttonState.buttons.unset : buttonState.buttons.set}
                             </button>
                         </li>
                     ))}

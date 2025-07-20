@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/audio';
-import {IMAGE_DIR, IMAGES, WHISPER_TEXTS} from '@/lib/data';
+import {IMAGE_CAPTION, WHISPER_TEXTS} from '@/lib/data/dream';
 import styles from '@/styles/Dream.module.css';
 import Cookies from "js-cookie";
 
@@ -19,10 +19,10 @@ export default function DreamScreen() {
             window.location.href = '/O-ARVORE-DA-CARNE';
             return;
         }
-        const filenames = Object.keys(IMAGES);
+        const filenames = Object.keys(IMAGE_CAPTION);
         const random = filenames[Math.floor(Math.random() * filenames.length)];
-        setImageSrc(`${IMAGE_DIR}${random}`);
-        setCaption(IMAGES[random]);
+        setImageSrc(`/static/dream/${random}`);
+        setCaption(IMAGE_CAPTION[random]);
     }, []);
 
     const generateWhispers = () =>

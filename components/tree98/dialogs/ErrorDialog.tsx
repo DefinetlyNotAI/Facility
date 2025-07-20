@@ -1,7 +1,7 @@
 import React from 'react';
-import {FONTS} from '@/lib/tree98data';
+import {FONTS} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
-import {ErrorDialogProps} from "@/lib/tree98types";
+import {ErrorDialogProps} from "@/lib/types/tree98";
 
 
 export const ErrorDialog: React.FC<ErrorDialogProps> = ({message}) => (

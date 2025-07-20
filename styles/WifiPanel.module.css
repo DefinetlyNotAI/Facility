@@ -295,37 +295,80 @@
 
 .error {
     color: #ff0000;
-    background: rgba(255, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.97);
     border: 2px solid #ff0000;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-top: 1.5rem;
+    border-radius: 12px;
+    padding: 2.2rem 2.5rem 1.5rem 2.5rem;
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28), 0 0 0 6px rgba(255, 0, 0, 0.10);
     text-align: center;
     font-weight: bold;
-    animation: errorPulse 1s ease-in-out infinite;
-    position: relative;
+    font-size: 1.1rem;
+    animation: errorShowFadeSmooth 4.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    pointer-events: none;
+    opacity: 0.98;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.8rem;
+    overflow: visible;
 }
 
 .error::before {
     content: "⚠";
     position: absolute;
-    top: -15px;
+    top: -1.3rem;
     left: 50%;
     transform: translateX(-50%);
-    background: #000000;
     color: #ff0000;
-    padding: 0 10px;
-    font-size: 1.5rem;
+    font-size: 2.5rem;
+    background: #000;
+    border: 2.5px solid #ff0000;
+    border-radius: 0;
+    padding: 0.2rem 0.5rem 0.1rem 0.5rem;
+    box-shadow: 0 2px 12px rgba(255, 0, 0, 0.12);
+    z-index: 10000;
+    display: block;
+    line-height: 1;
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes errorPulse {
-    0%, 100% {
-        opacity: 1;
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+@keyframes errorShowFadeSmooth {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px) scale(0.96);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.12);
     }
-    50% {
+    18% {
         opacity: 0.8;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        transform: translateX(-50%) translateY(-10px) scale(1.01);
+        box-shadow: 0 6px 28px rgba(255, 0, 0, 0.18);
+    }
+    38% {
+        opacity: 0.99;
+        transform: translateX(-50%) translateY(0) scale(1.04);
+        box-shadow: 0 12px 40px rgba(255, 0, 0, 0.22);
+    }
+    70% {
+        opacity: 0.99;
+        transform: translateX(-50%) translateY(0) scale(1.04);
+        box-shadow: 0 12px 40px rgba(255, 0, 0, 0.22);
+    }
+    90% {
+        opacity: 0.7;
+        transform: translateX(-50%) translateY(-10px) scale(1.01);
+        box-shadow: 0 6px 28px rgba(255, 0, 0, 0.18);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50px) scale(0.96);
+        box-shadow: 0 0 0 rgba(255, 0, 0, 0);
     }
 }
 

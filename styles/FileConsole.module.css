@@ -156,27 +156,6 @@
     position: relative;
 }
 
-.prompt::after {
-    content: "";
-    position: absolute;
-    right: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 2px;
-    height: 1.2em;
-    background: #00ff00;
-    animation: cursorBlink 1s infinite;
-}
-
-@keyframes cursorBlink {
-    0%, 50% {
-        opacity: 1;
-    }
-    51%, 100% {
-        opacity: 0;
-    }
-}
-
 .input {
     flex: 1;
     background: transparent;
