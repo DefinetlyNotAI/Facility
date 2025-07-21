@@ -27,7 +27,16 @@ const Tree98Sim: React.FC = () => {
     const [showDesktopIcons, setShowDesktopIcons] = useState(true);
     const [showStartMenu, setShowStartMenu] = useState(false);
 
-    const {windows, createWindow, closeWindow, bringToFront, startDrag} = useWindowManagement();
+    const {
+        windows,
+        createWindow,
+        closeWindow,
+        bringToFront,
+        startDrag,
+        onMinimize,
+        onMaximize,
+        onResize
+    } = useWindowManagement();
     const {
         systemCorruption,
         setSystemCorruption,
@@ -74,7 +83,7 @@ const Tree98Sim: React.FC = () => {
                 createWindow('Untitled - Notepad', Notepad, 150, 150, 500, 400);
                 break;
             case 'paint':
-                createWindow('Untitled - Paint', Paint, 200, 200, 600, 450);
+                createWindow('Untitled - Paint', Paint, 200, 50, 750, 600);
                 break;
         }
     };
@@ -82,12 +91,6 @@ const Tree98Sim: React.FC = () => {
     const handleStartMenuAction = (action: string) => {
         setShowStartMenu(false);
         switch (action) {
-            case 'notepad':
-                createWindow('Untitled - Notepad', Notepad, 150, 150, 500, 400);
-                break;
-            case 'paint':
-                createWindow('Untitled - Paint', Paint, 200, 200, 600, 450);
-                break;
             case 'file-explorer':
                 createWindow('My Computer', FileExplorer, 100, 100, 600, 400, {onFileOpen: handleFileOpen});
                 break;
@@ -98,13 +101,13 @@ const Tree98Sim: React.FC = () => {
                 });
                 break;
             case 'settings':
-                createWindow('Control Panel', ControlPanel, 140, 140, 400, 300);
+                createWindow('Control Panel', ControlPanel, 140, 140, 400, 200);
                 break;
             case 'run':
-                createWindow('Run', RunDialog, 300, 300, 350, 150);
+                createWindow('Run', RunDialog, 300, 300, 350, 230);
                 break;
             case 'shutdown':
-                createWindow('Shut Down TreeOS', ShutdownDialog, 250, 250, 300, 200);
+                createWindow('Shut Down TreeOS', ShutdownDialog, 250, 250, 300, 260);
                 break;
         }
     };
@@ -224,6 +227,9 @@ const Tree98Sim: React.FC = () => {
                     onBringToFront={bringToFront}
                     onStartDrag={startDrag}
                     onClose={closeWindow}
+                    onMinimize={onMinimize}
+                    onMaximize={onMaximize}
+                    onResize={onResize}
                 />
             ))}
 

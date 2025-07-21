@@ -94,4 +94,10 @@ export interface WindowComponentProps {
     onBringToFront: (id: string) => void;
     onStartDrag: (e: React.MouseEvent, windowId: string) => void;
     onClose: (id: string) => void;
+    onMinimize?: (id: string, minimize: boolean) => void;
+    onMaximize?: (id: string) => void;
+    onResize?: (id: string, width: number, height: number) => void;
 }
+
+// Paint tool properties
+export type Tool = 'brush' | 'line' | 'rectangle' | 'square' | 'circle' | 'fill';

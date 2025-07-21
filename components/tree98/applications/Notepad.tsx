@@ -49,7 +49,7 @@ export const Notepad: React.FC = () => {
     return (
         <div className="flex flex-col h-full bg-white">
             <div className="border-b p-1 text-xs bg-gray-100 flex gap-4">
-                <button onClick={handleOpen} className="hover:bg-gray-200 px-2 py-1">File</button>
+                <button onClick={handleOpen} className="hover:bg-gray-200 px-2 py-1">Upload</button>
                 <button onClick={handleSave} className="hover:bg-gray-200 px-2 py-1">Save</button>
             </div>
             <textarea

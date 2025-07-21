@@ -2,6 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {DragState, Window} from '@/lib/types/tree98';
 import {SYSTEM_CONFIG} from '@/lib/data/tree98';
 
+const MIN_WIDTH = 250;
+const MIN_HEIGHT = 120;
+
 export const useWindowManagement = () => {
     const [windows, setWindows] = useState<Window[]>([]);
     const [nextZIndex, setNextZIndex] = useState(1);
@@ -57,22 +60,23 @@ export const useWindowManagement = () => {
         height: number = SYSTEM_CONFIG.DEFAULT_WINDOW_HEIGHT,
         props: any = {}
     ) => {
-        const newWindow: Window = {
-            id: Date.now().toString(),
-            title,
-            component,
-            x,
-            y,
-            width,
-            height,
-            isMinimized: false,
-            isMaximized: false,
-            zIndex: nextZIndex,
-            props
-        };
-
-        setWindows(prev => [...prev, newWindow]);
-        setNextZIndex(prev => prev + 1);
+        setNextZIndex(prevZ => {
+            const newWindow: Window = {
+                id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+                title,
+                component,
+                x,
+                y,
+                width,
+                height,
+                isMinimized: false,
+                isMaximized: false,
+                zIndex: prevZ,
+                props
+            };
+            setWindows(prev => [...prev, newWindow]);
+            return prevZ + 1;
+        });
     };
 
     const closeWindow = (id: string) => {
@@ -102,11 +106,59 @@ export const useWindowManagement = () => {
         }
     };
 
+    const onMinimize = (id: string, minimize: boolean) => {
+        setWindows(prev => prev.map(w =>
+            w.id === id ? {...w, isMinimized: minimize} : w
+        ));
+    };
+
+    const onMaximize = (id: string) => {
+        setWindows(prev => prev.map(w => {
+            if (w.id !== id) return w;
+            if (!w.isMaximized) {
+                // Maximize to fill screen (minus taskbar)
+                return {
+                    ...w,
+                    x: 0,
+                    y: 0,
+                    width: window.innerWidth,
+                    height: window.innerHeight - SYSTEM_CONFIG.TASKBAR_HEIGHT,
+                    isMaximized: true
+                };
+            } else {
+                // Restore to default size and position
+                return {
+                    ...w,
+                    x: 100,
+                    y: 100,
+                    width: SYSTEM_CONFIG.DEFAULT_WINDOW_WIDTH,
+                    height: SYSTEM_CONFIG.DEFAULT_WINDOW_HEIGHT,
+                    isMaximized: false
+                };
+            }
+        }));
+    };
+
+    const onResize = (id: string, width: number, height: number) => {
+        setWindows(prev => prev.map(w =>
+            w.id === id
+                ? {
+                    ...w,
+                    width: Math.max(MIN_WIDTH, Math.min(width, window.innerWidth)),
+                    height: Math.max(MIN_HEIGHT, Math.min(height, window.innerHeight - SYSTEM_CONFIG.TASKBAR_HEIGHT))
+                }
+                : w
+        ));
+    };
+
     return {
         windows,
         createWindow,
         closeWindow,
         bringToFront,
-        startDrag
+        startDrag,
+        onMinimize,
+        onMaximize,
+        onResize
     };
 };

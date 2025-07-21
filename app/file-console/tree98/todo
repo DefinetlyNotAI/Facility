@@ -1,15 +1,12 @@
-// NOTE: Check window size, maybe it is the issue
-  - Implement run feature correctly
-  - Implement the shutdown, tho the restart will refresh, and shutdown will make 1 error saying "Can't find shutdown protocol - Please restart TREE98 - There is NO ESCAPE"
-
+- Implement the shutdown, tho the restart will refresh, and shutdown will make 1 error saying "Can't find shutdown protocol - Please restart TREE98 - There is NO ESCAPE"
+- Implement run feature correctly
 - Retype the file text
 - Add some files to system32
 - Rename Windows to Tree98
-- Implement windows full screen, resize and minimize feature correctly
-  - also all windows should not allow resize that hides some of its elements
 - Start menu should not have the "Programs" section as its the same as "Documents"
 - Implement settings app features
 - Add the CMD app
+  - cmd for tree98 could say LOCKED FOR CURRENT USER MOST COMMANDS - ONLY IN EMERGENCY BOOT WILL EMERGENCY DRIVE BE ATTACHED AND ADMIN-CONSOLE OPENED
 - Any app that opens must appear on the taskbar, if clicked it should bring the app to the front
 - Implement or Test the VESSEL_BOOT.exe actually crashing etc as per the puzzle, note tho an error first pops always saying "This is not the REAL you? I cannot connect yet, YOU don't have HIS permission.. or maybe YOUR own permission... Wait until the time is right."
   - Runs the EXE in fullscreen, disables the mouse, and plays the terminal text dramatically.
@@ -22,6 +19,5 @@
   - These escalate until the system crashes into a blue-error-like crash screen.
   - After the crash, redirect the user to /file-console.
 - finally add audio and sfx for everything, including sfx of old mouse clicks etc
-- cmd for tree98 could say LOCKED FOR CURRENT USER MOST COMMANDS - ONLY IN EMERGENCY BOOT WILL EMERGENCY DRIVE BE ATTACHED AND ADMIN-CONSOLE OPENED
 
 Maybe later create a group of mermaid file of all app routes to visualize the app structure and flow.
