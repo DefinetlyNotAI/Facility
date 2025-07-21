@@ -27,6 +27,9 @@ const Tree98Sim: React.FC = () => {
     const [contextMenu, setContextMenu] = useState<ContextMenu>({x: 0, y: 0, visible: false});
     const [showDesktopIcons, setShowDesktopIcons] = useState(true);
     const [showStartMenu, setShowStartMenu] = useState(false);
+    const [glitchAudio, setGlitchAudio] = useState<HTMLAudioElement | null>(null);
+    const [cursorGlitch, setCursorGlitch] = useState(false);
+    const [disappearingFiles, setDisappearingFiles] = useState<string[]>([]);
 
     const {
         windows,
@@ -64,7 +67,53 @@ const Tree98Sim: React.FC = () => {
         return () => clearInterval(timeInterval);
     }, []);
 
+    // Escalate corruption effects
+    useEffect(() => {
+        if (systemCorruption > 2) {
+            // Cursor glitch
+            setCursorGlitch(true);
+        } else {
+            if (glitchAudio) {
+                glitchAudio.pause();
+                setGlitchAudio(null);
+            }
+            setCursorGlitch(false);
+        }
+        // Disappearing files logic
+        if (systemCorruption > 4) {
+            setDisappearingFiles(['README.txt', 'Notes.txt', 'system.log', 'error.log']);
+        } else {
+            setDisappearingFiles([]);
+        }
+    }, [systemCorruption]);
+
+    // Auto-open and crash apps
+    useEffect(() => {
+        if (systemCorruption > 5) {
+            const autoOpen = setInterval(() => {
+                const apps = [Notepad, Paint, CMD, ControlPanel];
+                const titles = ['Untitled - Notepad', 'Untitled - Paint', 'Command Prompt', 'Control Panel'];
+                const idx = Math.floor(Math.random() * apps.length);
+                createWindow(titles[idx], apps[idx], 100 + Math.random() * 300, 100 + Math.random() * 200, 400, 300);
+                setTimeout(() => {
+                    closeWindow(windows[windows.length - 1]?.id);
+                }, 1200);
+            }, 1800);
+            return () => clearInterval(autoOpen);
+        }
+    }, [systemCorruption, windows, createWindow, closeWindow]);
+
     const handleFileOpen = (item: FileSystemItem) => {
+        if (disappearingFiles.includes(item.name)) {
+            createWindow('404 - File Not Found', FileViewer, 200, 200, 400, 200, {
+                item: {
+                    name: item.name,
+                    content: 'File not found.',
+                    type: 'file'
+                }
+            });
+            return;
+        }
         if ('action' in item) {
             switch (item.action) {
                 case 'notepad':
@@ -204,7 +253,8 @@ const Tree98Sim: React.FC = () => {
                 color: COLORS.TEXT_COLOR,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
+                backgroundRepeat: 'no-repeat',
+                filter: systemCorruption > 3 ? 'contrast(1.2) brightness(0.9) hue-rotate(10deg)' : undefined
             }}
             onClick={() => {
                 setShowStartMenu(false);
@@ -212,6 +262,11 @@ const Tree98Sim: React.FC = () => {
             }}
             onContextMenu={handleRightClick}
         >
+            {/* Cursor glitch effect */}
+            {cursorGlitch && (
+                <style>{`body, * { cursor: url('/static/tree98/corrupt-cursor.png'), auto !important; }`}</style>
+            )}
+
             {/* Desktop Background Pattern (corruption effect) */}
             {systemCorruption > 3 && (
                 <div

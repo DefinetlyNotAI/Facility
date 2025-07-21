@@ -1,16 +1,7 @@
-- Implement or Test the VESSEL_BOOT.exe actually crashing etc as per the puzzle, note tho an error first pops always saying "This is not the REAL you? I cannot connect yet, YOU don't have HIS permission.. or maybe YOUR own permission... Wait until the time is right."
-  - Runs the EXE in fullscreen, disables the mouse, and plays the terminal text dramatically.
-    - User input awaited (only accept no, any other input will be deleted and retyped as no manually/hard)
-  - When crashing -> Error popups start stacking
-                     System audio/visual glitches or loops
-                     Apps start auto-opening and crashing
-                     Cursor and visuals begin desynchronizing
-                     Files disappear or 404 on open
-  - These escalate until the system crashes into a blue-error-like crash screen.
-  - After the crash, redirect the user to /file-console.
 - split everything to data.ts
 - Retype the file text
 - Add some files to system32
 - finally add audio and sfx for everything, including sfx of old mouse clicks etc
+- file console redirect to tree98 if tree cutscene cookie doesnt exist
 
 Maybe later create a group of mermaid file of all app routes to visualize the app structure and flow.

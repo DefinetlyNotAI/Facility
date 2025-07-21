@@ -11,9 +11,11 @@ export const SYSTEM_CONFIG = {
     LOADING_BAR_MIN_INC: 0,
 
     // System corruption settings
-    CORRUPTION_INTERVAL: 2000,
+    CORRUPTION_INTERVAL: 1000,
     MAX_CORRUPTION_LEVEL: 8,
     ERROR_POPUP_CHANCE: 0.3,
+    CRASH_DELAY: 1000,
+    BLUE_SCREEN_DELAY: 1000,
 
     // Window defaults
     DEFAULT_WINDOW_WIDTH: 400,
@@ -27,8 +29,6 @@ export const SYSTEM_CONFIG = {
     // Visual effects
     GLITCH_ROTATION_MAX: 4,
     GLITCH_POSITION_MAX: 10,
-    CRASH_DELAY: 2000,
-    BLUE_SCREEN_DELAY: 3000,
 } as const;
 
 export const COLORS = {
