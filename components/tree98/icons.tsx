@@ -103,7 +103,7 @@ export const Icons = {
         </svg>
     ),
 
-    shutdown: () => (
+    restart: () => (
         <svg viewBox="0 0 32 32" className="w-full h-full">
             <circle cx="16" cy="16" r="12" fill="#ff0000" stroke="#800000" strokeWidth="2"/>
             <rect x="14" y="8" width="4" height="8" fill="#ffffff"/>

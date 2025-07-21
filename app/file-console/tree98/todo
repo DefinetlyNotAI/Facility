@@ -1,9 +1,6 @@
-- Implement the shutdown, tho the restart will refresh, and shutdown will make 1 error saying "Can't find shutdown protocol - Please restart TREE98 - There is NO ESCAPE"
-- Implement run feature correctly
 - Retype the file text
 - Add some files to system32
 - Rename Windows to Tree98
-- Start menu should not have the "Programs" section as its the same as "Documents"
 - Implement settings app features
 - Add the CMD app
   - cmd for tree98 could say LOCKED FOR CURRENT USER MOST COMMANDS - ONLY IN EMERGENCY BOOT WILL EMERGENCY DRIVE BE ATTACHED AND ADMIN-CONSOLE OPENED

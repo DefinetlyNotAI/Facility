@@ -252,15 +252,6 @@ export const DESKTOP_ICONS: DesktopIcon[] = [
 
 export const START_MENU_ITEMS = [
     {
-        name: "Programs",
-        icon: "folder",
-        submenu: [
-            {name: "Notepad", icon: "notepad", action: "notepad"},
-            {name: "Paint", icon: "paint", action: "paint"},
-            {name: "File Explorer", icon: "folder", action: "file-explorer"}
-        ]
-    },
-    {
         name: "Documents",
         icon: "folder",
         action: "documents"
@@ -271,14 +262,9 @@ export const START_MENU_ITEMS = [
         action: "settings"
     },
     {
-        name: "Run...",
-        icon: "run",
-        action: "run"
-    },
-    {
-        name: "Shut Down...",
-        icon: "shutdown",
-        action: "shutdown"
+        name: "Restart",
+        icon: "restart",
+        action: "restart"
     }
 ] as const;
 

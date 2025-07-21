@@ -72,11 +72,6 @@ export interface VesselBootDialogProps {
     item: FileSystemItem;
 }
 
-// Run dialog properties
-export interface RunDialogProps {
-    onCreateWindow?: (title: string, component: any, x: number, y: number, width: number, height: number) => void;
-}
-
 // File viewer properties
 export interface FileViewerProps {
     item: FileSystemItem;
@@ -84,7 +79,9 @@ export interface FileViewerProps {
 
 // Error dialog properties
 export interface ErrorDialogProps {
-    message: string;
+    message: string,
+    onClose: () => void,
+    style?: React.CSSProperties;
 }
 
 // Window component properties

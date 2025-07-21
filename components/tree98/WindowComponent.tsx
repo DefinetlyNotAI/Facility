@@ -44,12 +44,12 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 
         const onMouseUp = () => {
             resizing.current = false;
-            window.removeEventListener('mousemove', onMouseMove);
-            window.removeEventListener('mouseup', onMouseUp);
+            globalThis.window.removeEventListener('mousemove', onMouseMove);
+            globalThis.window.removeEventListener('mouseup', onMouseUp);
         };
 
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+        globalThis.window.addEventListener('mousemove', onMouseMove);
+        globalThis.window.addEventListener('mouseup', onMouseUp);
     };
 
     // If minimized, render only the title bar

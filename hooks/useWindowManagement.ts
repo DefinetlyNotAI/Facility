@@ -60,23 +60,21 @@ export const useWindowManagement = () => {
         height: number = SYSTEM_CONFIG.DEFAULT_WINDOW_HEIGHT,
         props: any = {}
     ) => {
-        setNextZIndex(prevZ => {
-            const newWindow: Window = {
-                id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
-                title,
-                component,
-                x,
-                y,
-                width,
-                height,
-                isMinimized: false,
-                isMaximized: false,
-                zIndex: prevZ,
-                props
-            };
-            setWindows(prev => [...prev, newWindow]);
-            return prevZ + 1;
-        });
+        const newWindow: Window = {
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+            title,
+            component,
+            x,
+            y,
+            width,
+            height,
+            isMinimized: false,
+            isMaximized: false,
+            zIndex: nextZIndex,
+            props
+        };
+        setWindows(prev => [...prev, newWindow]);
+        setNextZIndex(prevZ => prevZ + 1);
     };
 
     const closeWindow = (id: string) => {

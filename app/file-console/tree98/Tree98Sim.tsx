@@ -13,7 +13,7 @@ import {WindowComponent} from '@/components/tree98/WindowComponent';
 import {Notepad} from '@/components/tree98/applications/Notepad';
 import {Paint} from '@/components/tree98/applications/Paint';
 import {FileExplorer} from '@/components/tree98/applications/FileExplorer';
-import {ControlPanel, FileViewer, RunDialog, ShutdownDialog, VesselBootDialog} from '@/components/tree98/dialogs';
+import {ControlPanel, FileViewer, VesselBootDialog} from '@/components/tree98/dialogs';
 import {StartMenu} from '@/components/tree98/ui/StartMenu';
 import {ContextMenuComponent} from '@/components/tree98/ui/ContextMenu';
 import {LoadingScreen} from '@/components/tree98/ui/LoadingScreen';
@@ -103,11 +103,8 @@ const Tree98Sim: React.FC = () => {
             case 'settings':
                 createWindow('Control Panel', ControlPanel, 140, 140, 400, 200);
                 break;
-            case 'run':
-                createWindow('Run', RunDialog, 300, 300, 350, 230);
-                break;
-            case 'shutdown':
-                createWindow('Shut Down TreeOS', ShutdownDialog, 250, 250, 300, 260);
+            case 'restart':
+                window.location.reload();
                 break;
         }
     };
