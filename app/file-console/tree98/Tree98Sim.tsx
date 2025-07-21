@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import LoginScreen from './LoginScreen';
-import {COLORS, DESKTOP_ICONS, FONTS, SYSTEM_CONFIG,} from '@/lib/data/tree98';
+import {BG, COLORS, DESKTOP_ICONS, FONTS, SYSTEM_CONFIG,} from '@/lib/data/tree98';
 import Cookies from "js-cookie";
 import {getIcon} from '@/components/tree98/icons';
 import {ContextMenu, FileSystemItem} from '@/lib/types/tree98';
@@ -19,6 +19,7 @@ import {ContextMenuComponent} from '@/components/tree98/ui/ContextMenu';
 import {LoadingScreen} from '@/components/tree98/ui/LoadingScreen';
 import {BlueScreen} from '@/components/tree98/ui/BlueScreen';
 import {cookies, routes} from '@/lib/saveData';
+import {CMD} from '@/components/tree98/applications/CMD';
 
 const Tree98Sim: React.FC = () => {
     const {bootPhase, setBootPhase, tree98BootText, bootText, loadingProgress} = useBootSequence();
@@ -65,7 +66,22 @@ const Tree98Sim: React.FC = () => {
 
     const handleFileOpen = (item: FileSystemItem) => {
         if ('action' in item) {
-            createWindow(`Untitled - ${item.action}`, item.action === 'notepad' ? Notepad : Paint, 150, 150, 500, 400);
+            switch (item.action) {
+                case 'notepad':
+                    createWindow(`Untitled - Notepad`, Notepad, 150, 150, 500, 400);
+                    break;
+                case 'paint':
+                    createWindow(`Untitled - Paint`, Paint, 150, 150, 500, 400);
+                    break;
+                case 'cmd':
+                    createWindow('Command Prompt', CMD, 180, 120, 600, 300);
+                    break;
+                case 'settings':
+                    createWindow('Control Panel', ControlPanel, 140, 140, 400, 200);
+                    break;
+                default:
+                    break;
+            }
         } else if (item.executable && item.name === 'VESSEL_BOOT.EXE') {
             setSystemCorruption(1);
             createWindow('VESSEL_BOOT.EXE - CRITICAL ERROR', VesselBootDialog, 100, 100, 500, 300, {item});
@@ -85,6 +101,9 @@ const Tree98Sim: React.FC = () => {
             case 'paint':
                 createWindow('Untitled - Paint', Paint, 200, 50, 750, 600);
                 break;
+            case 'cmd':
+                createWindow('Command Prompt', CMD, 180, 120, 600, 300);
+                break;
         }
     };
 
@@ -102,6 +121,9 @@ const Tree98Sim: React.FC = () => {
                 break;
             case 'settings':
                 createWindow('Control Panel', ControlPanel, 140, 140, 400, 200);
+                break;
+            case 'cmd':
+                createWindow('Command Prompt', CMD, 180, 120, 600, 300);
                 break;
             case 'restart':
                 window.location.reload();
@@ -177,7 +199,13 @@ const Tree98Sim: React.FC = () => {
     return (
         <div
             className="w-full h-screen relative overflow-hidden select-none"
-            style={{backgroundColor: COLORS.DESKTOP_BG, color: COLORS.TEXT_COLOR}}
+            style={{
+                backgroundImage: `url(${BG})`,
+                color: COLORS.TEXT_COLOR,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}
             onClick={() => {
                 setShowStartMenu(false);
                 setContextMenu({...contextMenu, visible: false});

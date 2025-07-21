@@ -1,8 +1,3 @@
-- Retype the file text
-- Add some files to system32
-- Rename Windows to Tree98
-- Add the CMD app
-  - cmd for tree98 could say LOCKED FOR CURRENT USER MOST COMMANDS - ONLY IN EMERGENCY BOOT WILL EMERGENCY DRIVE BE ATTACHED AND ADMIN-CONSOLE OPENED
 - Implement or Test the VESSEL_BOOT.exe actually crashing etc as per the puzzle, note tho an error first pops always saying "This is not the REAL you? I cannot connect yet, YOU don't have HIS permission.. or maybe YOUR own permission... Wait until the time is right."
   - Runs the EXE in fullscreen, disables the mouse, and plays the terminal text dramatically.
     - User input awaited (only accept no, any other input will be deleted and retyped as no manually/hard)
@@ -14,6 +9,8 @@
   - These escalate until the system crashes into a blue-error-like crash screen.
   - After the crash, redirect the user to /file-console.
 - split everything to data.ts
+- Retype the file text
+- Add some files to system32
 - finally add audio and sfx for everything, including sfx of old mouse clicks etc
 
 Maybe later create a group of mermaid file of all app routes to visualize the app structure and flow.

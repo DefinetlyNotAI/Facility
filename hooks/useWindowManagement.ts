@@ -74,7 +74,7 @@ export const useWindowManagement = () => {
             props
         };
         setWindows(prev => [...prev, newWindow]);
-        setNextZIndex(prevZ => prevZ + 1);
+        setNextZIndex(prevZ => prevZ + 50);
     };
 
     const closeWindow = (id: string) => {

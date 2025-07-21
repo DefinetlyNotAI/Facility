@@ -183,20 +183,78 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
             </div>
             {/* Resize handle */}
             {!window.isMaximized && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        right: 0,
-                        bottom: 0,
-                        width: 16,
-                        height: 16,
-                        cursor: 'nwse-resize',
-                        zIndex: 10
-                    }}
-                    onMouseDown={startResize}
-                >
-                    {/* You can add a resize icon here if desired */}
-                </div>
+                <>
+                    {/* Right edge */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            top: 0,
+                            width: 8,
+                            height: '100%',
+                            cursor: 'ew-resize',
+                            zIndex: 10
+                        }}
+                        onMouseDown={(e) => startResize(e)}
+                        data-resize="right"
+                    />
+                    {/* Bottom edge */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            bottom: 0,
+                            width: '100%',
+                            height: 8,
+                            cursor: 'ns-resize',
+                            zIndex: 10
+                        }}
+                        onMouseDown={(e) => startResize(e)}
+                        data-resize="bottom"
+                    />
+                    {/* Left edge */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            width: 8,
+                            height: '100%',
+                            cursor: 'ew-resize',
+                            zIndex: 10
+                        }}
+                        onMouseDown={(e) => startResize(e)}
+                        data-resize="left"
+                    />
+                    {/* Top edge */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            width: '100%',
+                            height: 8,
+                            cursor: 'ns-resize',
+                            zIndex: 10
+                        }}
+                        onMouseDown={(e) => startResize(e)}
+                        data-resize="top"
+                    />
+                    {/* Bottom-right corner */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            bottom: 0,
+                            width: 16,
+                            height: 16,
+                            cursor: 'nwse-resize',
+                            zIndex: 11
+                        }}
+                        onMouseDown={startResize}
+                        data-resize="corner"
+                    />
+                </>
             )}
         </div>
     );

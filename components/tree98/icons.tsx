@@ -145,6 +145,13 @@ export const Icons = {
             <line x1="10" y1="10" x2="22" y2="22" stroke="#ffffff" strokeWidth="3"/>
             <line x1="22" y1="10" x2="10" y2="22" stroke="#ffffff" strokeWidth="3"/>
         </svg>
+    ),
+
+    cmd: () => (
+        <svg viewBox="0 0 32 32" className="w-full h-full">
+            <rect x="4" y="8" width="24" height="16" fill="#222"/>
+            <text x="8" y="20" fill="#00ff00" fontSize="10" fontFamily="monospace">C:\&gt;_</text>
+        </svg>
     )
 };
 

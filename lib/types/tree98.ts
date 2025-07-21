@@ -47,7 +47,7 @@ export interface FileSystemItem {
     children?: FileSystemItem[];
     executable?: boolean;
     icon?: keyof typeof Icons;
-    action?: 'paint' | 'notepad';
+    action?: 'paint' | 'notepad' | 'cmd' | 'settings';
 }
 
 // Start menu item type

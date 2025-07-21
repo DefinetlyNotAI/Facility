@@ -32,7 +32,6 @@ export const SYSTEM_CONFIG = {
 } as const;
 
 export const COLORS = {
-    DESKTOP_BG: '#008080',
     WINDOW_BG: '#c0c0c0',
     WINDOW_BORDER: '#808080',
     TASKBAR_BG: '#c0c0c0',
@@ -149,6 +148,29 @@ TREE MESSAGE LOG:
 [00:07:03] [LOG TERMINATED]`,
 }
 
+export const DESKTOP_ICONS: DesktopIcon[] = [
+    {
+        name: "My Computer",
+        icon: "computer",
+        action: "file-explorer"
+    },
+    {
+        name: "Notepad",
+        icon: "notepad",
+        action: "notepad"
+    },
+    {
+        name: "Paint",
+        icon: "paint",
+        action: "paint"
+    },
+    {
+        name: "Command Prompt",
+        icon: "cmd",
+        action: "cmd"
+    },
+] as const;
+
 export const FILE_SYSTEM: FileSystemItem[] = [
     {
         name: "C:",
@@ -171,31 +193,36 @@ export const FILE_SYSTEM: FileSystemItem[] = [
                                 executable: true,
                                 icon: "executable",
                                 content: AppData.VESSEL,
-                            },
+                            }
                         ]
-                    }
+                    },
+                    {
+                        name: "cmd.exe",
+                        type: "file",
+                        executable: true,
+                        icon: "cmd",
+                        action: "cmd"
+                    },
+                    {
+                        name: "control.exe",
+                        type: "file",
+                        executable: true,
+                        icon: "settings",
+                        action: "settings"
+                    },
                 ]
             },
             {
                 name: "Desktop",
                 type: "folder",
                 icon: "folder",
-                children: [
-                    {
-                        name: "notepad.exe",
-                        type: "file",
-                        executable: true,
-                        icon: "notepad",
-                        action: "notepad"
-                    },
-                    {
-                        name: "mspaint.exe",
-                        type: "file",
-                        executable: true,
-                        icon: "paint",
-                        action: "paint"
-                    }
-                ]
+                children: DESKTOP_ICONS.map(icon => ({
+                    ...icon,
+                    type: "file" as const,
+                    action: icon.action === "notepad" || icon.action === "paint" || icon.action === "settings" || icon.action === "cmd"
+                        ? icon.action
+                        : undefined
+                })),
             },
             {
                 name: "Logs",
@@ -232,24 +259,6 @@ export const FILE_SYSTEM: FileSystemItem[] = [
     },
 ] as const;
 
-export const DESKTOP_ICONS: DesktopIcon[] = [
-    {
-        name: "My Computer",
-        icon: "computer",
-        action: "file-explorer"
-    },
-    {
-        name: "Notepad",
-        icon: "notepad",
-        action: "notepad"
-    },
-    {
-        name: "Paint",
-        icon: "paint",
-        action: "paint"
-    }
-] as const;
-
 export const START_MENU_ITEMS = [
     {
         name: "Documents",
@@ -262,10 +271,15 @@ export const START_MENU_ITEMS = [
         action: "settings"
     },
     {
+        name: "Command Prompt",
+        icon: "cmd",
+        action: "cmd"
+    },
+    {
         name: "Restart",
         icon: "restart",
         action: "restart"
-    }
+    },
 ] as const;
 
 // All text content for the tree98 simulation
@@ -487,3 +501,5 @@ export const MESSAGES = {
         TECHNICAL: "*** STOP: 0x0000001E (0xC0000005, 0x00000000, 0x00000000, 0x00000000)"
     } as const,
 }
+
+export const BG = "/static/tree98/bg.jpg";
