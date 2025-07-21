@@ -290,7 +290,24 @@ const Tree98Sim: React.FC = () => {
                     Start
                 </button>
 
-                <div className="flex-1"/>
+                {/* Taskbar App List */}
+                <div className="flex gap-1 flex-1">
+                    {windows.filter(win => !win.isMinimized).map(win => (
+                        <button
+                            key={win.id}
+                            className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-500 hover:bg-gray-600"
+                            style={{
+                                fontWeight: win.zIndex === Math.max(...windows.map(w => w.zIndex)) ? 'bold' : 'normal'
+                            }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                bringToFront(win.id);
+                            }}
+                        >
+                            {win.title}
+                        </button>
+                    ))}
+                </div>
 
                 <div className="text-xs px-2 border-l border-gray-400">
                     {currentTime.toLocaleTimeString()}

@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
 import React from "react";
+import {localStorageKeys} from "@/lib/saveData";
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -49,10 +50,10 @@ export async function fetchUserIP(): Promise<string> {
 
 // SID of user - Local Storage Helper
 export const getOrCreateSessionId = () => {
-    let storedId = localStorage.getItem('sessionId');
+    let storedId = localStorage.getItem(localStorageKeys.sessionId);
     if (!storedId) {
         storedId = `SID-${Math.random().toString(36).slice(2, 9)}`;
-        localStorage.setItem('sessionId', storedId);
+        localStorage.setItem(localStorageKeys.sessionId, storedId);
     }
     return storedId;
 };

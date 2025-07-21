@@ -88,9 +88,11 @@ export const localStorageKeys = {
     // Number of times the facility has been refreshed - LocalStorage key
     refreshCount: "facilityRefreshCount",
     // Check if file console already executed the long boot sequence - LocalStorage key
-    fileConsoleBooted: "fileConsoleBooted",
+    fileConsoleBooted: "file_console_booted",
     // Check if the flower in the end is cut
     flowerCut: "flowerCut",
     // Check if the user has seen the vessel boot sequence in tree98
-    vesselBoot: "SeenVesselBoot"
+    vesselBoot: "SeenVesselBoot",
+    // Session ID - LocalStorage key
+    sessionId: "sessionId"
 }

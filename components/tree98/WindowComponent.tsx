@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {WindowComponentProps} from '@/lib/types/tree98';
 import {COLORS, FONTS, SYSTEM_CONFIG} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
@@ -25,18 +25,21 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
 
     // Resize logic
     const resizing = useRef(false);
+    const lastPosition = useRef<{ x: number, y: number }>({x: 0, y: 0});
+
     const startResize = (e: React.MouseEvent) => {
         e.stopPropagation();
         resizing.current = true;
-        const startX = e.clientX;
-        const startY = e.clientY;
+        lastPosition.current = {x: e.clientX, y: e.clientY};
         const startWidth = window.width;
         const startHeight = window.height;
 
         const onMouseMove = (moveEvent: MouseEvent) => {
             if (!resizing.current) return;
-            const newWidth = Math.max(MIN_WIDTH, startWidth + (moveEvent.clientX - startX));
-            const newHeight = Math.max(MIN_HEIGHT, startHeight + (moveEvent.clientY - startY));
+            const deltaX = moveEvent.clientX - lastPosition.current.x;
+            const deltaY = moveEvent.clientY - lastPosition.current.y;
+            const newWidth = Math.max(MIN_WIDTH, startWidth + deltaX);
+            const newHeight = Math.max(MIN_HEIGHT, startHeight + deltaY);
             if (onResize) {
                 onResize(window.id, newWidth, newHeight);
             }
@@ -51,6 +54,21 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
         globalThis.window.addEventListener('mousemove', onMouseMove);
         globalThis.window.addEventListener('mouseup', onMouseUp);
     };
+
+    // Ref and state for content overflow detection
+    const contentRef = useRef<HTMLDivElement>(null);
+    const [showScroll, setShowScroll] = useState(false);
+
+    useLayoutEffect(() => {
+        if (contentRef.current) {
+            const content = contentRef.current;
+            // Check if content overflows window size
+            setShowScroll(
+                content.scrollHeight > content.clientHeight ||
+                content.scrollWidth > content.clientWidth
+            );
+        }
+    }, [window.width, window.height, window.props]);
 
     // If minimized, render only the title bar
     if (window.isMinimized) {
@@ -153,7 +171,14 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
                 </div>
             </div>
 
-            <div className="h-full overflow-hidden" style={{height: 'calc(100% - 24px)'}}>
+            <div
+                ref={contentRef}
+                className="h-full"
+                style={{
+                    height: 'calc(100% - 24px)',
+                    overflow: showScroll ? 'auto' : 'hidden'
+                }}
+            >
                 {Component && <Component {...window.props} />}
             </div>
             {/* Resize handle */}
@@ -170,7 +195,7 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
                     }}
                     onMouseDown={startResize}
                 >
-                    {/* ...resize icon or corner... */}
+                    {/* You can add a resize icon here if desired */}
                 </div>
             )}
         </div>
