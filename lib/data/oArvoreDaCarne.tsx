@@ -1,5 +1,5 @@
 import React from "react";
-import {ScriptItem} from "@/lib/types/all";
+import {ScriptItem} from "@/lib/types/oArvoreDaCarne";
 
 export const script: ScriptItem[] = [
     {

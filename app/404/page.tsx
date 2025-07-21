@@ -2,9 +2,10 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
-import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {MESSAGE, MOONLIGHT_TEXT, SUBTITLE, TERMINAL_MESSAGES, TITLE, WINGDINGS} from "@/lib/data/404";
+import {LARGE_NUMBER, MESSAGE, MOONLIGHT_TEXT, SUBTITLE, TERMINAL_MESSAGES, TITLE, WINGDINGS} from "@/lib/data/404";
+import {cookies, routes} from "@/lib/saveData";
+import {signCookie} from "@/lib/utils";
 
 
 export default function Glitchy404() {
@@ -14,8 +15,7 @@ export default function Glitchy404() {
     const [glitch, setGlitch] = useState(false);
     const [scanlinePosition, setScanlinePosition] = useState(0);
     const audioRef = useRef<HTMLAudioElement>(null);
-
-    const locked = pathname === "/404";
+    const locked = pathname === routes.notFound;
 
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.N404)
@@ -28,8 +28,8 @@ export default function Glitchy404() {
     useEffect(() => {
         if (showMoonlight) {
             (async () => {
-                await signCookie("themoon=true");
-                router.push("/moonlight");
+                await signCookie(`${cookies.theMoon}=true`);
+                router.push(routes.moonlight);
             })();
         } else {
             playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
@@ -80,7 +80,7 @@ export default function Glitchy404() {
                     {/* Main content card */}
                     <div className="card card-danger mb-16 text-center">
                         <div className="mb-8">
-                            <h1 className="text-6xl font-bold text-red-400 mb-4 animate-pulse">404</h1>
+                            <h1 className="text-6xl font-bold text-red-400 mb-4 animate-pulse">{LARGE_NUMBER}</h1>
                             <div className="text-red-300 text-xl mb-6">
                                 {TITLE}
                             </div>

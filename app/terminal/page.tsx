@@ -3,7 +3,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookies";
 import {VNTextRenderer} from "@/components/VNRenderer";
 import styles from '../../styles/Terminal.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
@@ -19,8 +18,9 @@ import {
     vesselLoc,
     wingdingsTitles
 } from '@/lib/data/terminal';
-import {FullScreenOverlay, KeywordKey, TerminalStep} from "@/lib/types/all";
-import {getOrCreateSessionId} from "@/lib/utils";
+import {FullScreenOverlay, KeywordKey, TerminalStep} from "@/lib/types/terminal";
+import {getOrCreateSessionId, signCookie} from "@/lib/utils";
+import {cookies, routes} from "@/lib/saveData";
 
 export default function TerminalPage() {
     const router = useRouter();
@@ -64,14 +64,14 @@ export default function TerminalPage() {
     };
 
     useEffect(() => {
-        if (!Cookies.get('terminal_unlocked')) {
+        if (!Cookies.get(cookies.terminal)) {
             setUnlocked(false);
         } else {
             setUnlocked(true);
             setStep('fill');
         }
 
-        setIsReplay(!!Cookies.get('End?'));
+        setIsReplay(!!Cookies.get(cookies.endQuestion));
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -203,7 +203,7 @@ export default function TerminalPage() {
 
         // Optional: delay redirect to let message render for a moment
         setTimeout(() => {
-            router.replace('/terminal');
+            router.replace(routes.terminal);
         }, 1200);
     };
 
@@ -251,11 +251,11 @@ export default function TerminalPage() {
             downloadVESSEL();
 
             try {
-                await signCookie('End?=true');
+                await signCookie(`${cookies.endQuestion}=true`);
             } catch {
             }
 
-            router.push('/the-end');
+            router.push(routes.theEnd);
             return;
         }
 
@@ -293,14 +293,17 @@ export default function TerminalPage() {
         downloadVESSEL();
 
         try {
-            await signCookie('End?=true');
+            await signCookie(`${cookies.endQuestion}=true`);
         } catch {
         }
 
-        router.push('/the-end');
+        router.push(routes.theEnd);
     };
 
-    if (unlocked === false) return <h1>404</h1>;
+    if (unlocked === false) {
+        router.replace(routes.notFound);
+        return null;
+    }
     if (unlocked === null) return null;
 
     return (

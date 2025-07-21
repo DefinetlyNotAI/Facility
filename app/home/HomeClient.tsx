@@ -4,7 +4,7 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
 import {BACKGROUND_AUDIO} from "@/lib/audio";
 import {
     classificationClass,
@@ -15,8 +15,8 @@ import {
     systemMetrics,
     text
 } from '@/lib/data/home';
-import {InitialCookies, ResearchLog} from '@/lib/types/all';
-import {RefreshCount, TimeTTSSpoken} from "@/lib/data/saves";
+import {InitialCookies, ResearchLog} from '@/lib/types/home';
+import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 
 export default function HomeClient({initialCookies}: { initialCookies: InitialCookies }) {
     const router = useRouter();
@@ -52,14 +52,14 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         const timeInterval = setInterval(updateTime, 1000);
 
         // Track page refreshes for Easter eggs
-        const savedRefreshCount = localStorage.getItem(RefreshCount);
+        const savedRefreshCount = localStorage.getItem(localStorageKeys.refreshCount);
         if (savedRefreshCount) {
             const count = parseInt(savedRefreshCount, 10);
             setRefreshCount(count + 1);
-            localStorage.setItem(RefreshCount, (count + 1).toString());
+            localStorage.setItem(localStorageKeys.refreshCount, (count + 1).toString());
         } else {
             setRefreshCount(1);
-            localStorage.setItem(RefreshCount, '1');
+            localStorage.setItem(localStorageKeys.refreshCount, '1');
         }
 
         // Dynamic facility data updates
@@ -185,7 +185,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         if (!mounted) return;
 
         if (initialCookies.corrupt) {
-            router.replace('/h0m3');
+            router.replace(routes.h0m3);
             return;
         }
 
@@ -196,7 +196,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             if (initialCookies.noCorruption && !initialCookies.fileUnlocked) {
                 setModalMessage(systemMessages.fileUnlocked);
                 setShowModal(true);
-                await signCookie('Scroll_unlocked=true');
+                await signCookie(`${cookies.scroll}=true`);
             }
 
             setCountdown(Math.floor(Math.random() * 6) + 5);
@@ -217,7 +217,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             return;
 
         // Check if TTS has already played (persisted)
-        const ttsPlayed = localStorage.getItem(TimeTTSSpoken);
+        const ttsPlayed = localStorage.getItem(localStorageKeys.timeTTSSpoken);
         if (ttsPlayed === 'true') {
             setCountdown(null); // Keep time as infinity
             return;
@@ -247,7 +247,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                         };
 
                         speechSynthesis.speak(utterance);
-                        localStorage.setItem(TimeTTSSpoken, 'true');
+                        localStorage.setItem(localStorageKeys.timeTTSSpoken, 'true');
                     }
                     clearInterval(timer);
                     return null;
@@ -267,10 +267,10 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
             const current = new Date();
             const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
             if (timeNow === text.puzzlePanel.timePuzzleVal) {
-                await signCookie('Wifi_Unlocked=true');
+                await signCookie(`${cookies.wifiPanel}=true`);
                 setModalMessage(systemMessages.wifiUnlocked);
                 setShowModal(true);
-                setTimeout(() => router.push('/wifi-panel'), 3000);
+                setTimeout(() => router.push(routes.wifiPanel), 3000);
             }
         };
 
@@ -279,11 +279,11 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         return () => clearInterval(interval);
     }, [router, mounted]);
 
-    // Easter Egg: After refreshCount > 25 and THP_Play not set, roll 1/25 every minute for TTS and download
+    // Easter Egg: After refreshCount > 25 and cookies.hollowPilgrimage not set, roll 1/25 every minute for TTS and download
     useEffect(() => {
         if (!mounted || refreshCount <= 25) return;
         const checkTHP = async () => {
-            if (document.cookie.includes('THP_Play')) return;
+            if (document.cookie.includes(cookies.hollowPilgrimage)) return;
 
             // 1/25 chance
             if (Math.floor(Math.random() * 25) === 0) {
@@ -300,7 +300,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                     if (ambientAudioRef.current) {
                         ambientAudioRef.current.play().catch(console.warn);
                     }
-                    await signCookie('THP_Play=true');
+                    await signCookie(`${cookies.hollowPilgrimage}=true`);
                     // Download the file
                     const link = document.createElement('a');
                     link.href = hollowPilgrimagePath.href;
@@ -336,7 +336,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                 indexRef.current++;
                 if (indexRef.current === konamiSequence.length) {
                     if (initialCookies.fileUnlocked) {
-                        await signCookie('Corrupt=true');
+                        await signCookie(`${cookies.corrupt}=true`);
                         setModalMessage(systemMessages.konamiUnlock);
                         setShowModal(true);
                         setTimeout(() => window.location.reload(), 3000);
@@ -623,7 +623,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                                             .sort(() => Math.random() - 0.5)
                                             .map(({key, type}) => (
                                                 <div key={key} className={`unit ${type}`}></div>
-                                        ))}
+                                            ))}
                                     </div>
                                 </div>
                             </div>
@@ -821,7 +821,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                     right: 50%;
                     transform: translate(50%, -50%);
                 }
-                
+
             `}</style>
         </div>
     );

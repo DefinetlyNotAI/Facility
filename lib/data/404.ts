@@ -23,5 +23,6 @@ export const TERMINAL_MESSAGES = [
     {label: "STATUS:", message: "Location tracking initiated"},
     {label: "ACTION:", message: "Security protocols engaged"}
 ];
-export const TITLE = "ACCESS DENIED • SECTOR RESTRICTED";
-export const SUBTITLE = "You are not allowed to be here";
+export const TITLE: string = "ACCESS DENIED • SECTOR RESTRICTED";
+export const SUBTITLE: string = "You are not allowed to be here";
+export const LARGE_NUMBER: string = "404";

@@ -14,10 +14,10 @@ import {
     SPECIAL_EASTER_EGG,
 } from "@/lib/data/choices";
 import TASGoodBye from "./TASGoodBye";
-import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO} from "@/lib/audio";
 import {useTypewriter} from "@/hooks/useTypeWriter";
-import {renderMsg} from "@/lib/utils";
+import {renderMsg, signCookie} from "@/lib/utils";
+import {cookies, routes} from "@/lib/saveData";
 
 
 // --- Main Component ---
@@ -46,11 +46,11 @@ export default function ChoicesPage() {
     // --- Cookie Check & Device/Location Fetch ---
     useEffect(() => {
         // 1. Cookie check
-        if (!Cookies.get("Choice_Unlocked")) {
-            router.replace("/404");
+        if (!Cookies.get(cookies.choice)) {
+            router.replace(routes.notFound);
             return;
         }
-        if (Cookies.get("terminal_unlocked")) setAlternateGreeting(true);
+        if (Cookies.get(cookies.terminal)) setAlternateGreeting(true);
 
         // 2. Device detection
         function detectOsBrowser(ua: string) {
@@ -244,11 +244,11 @@ export default function ChoicesPage() {
 
     // --- Terminal Unlock & Cutscene ---
     async function unlockTerminal() {
-        await signCookie("terminal_unlocked=true");
-        if (!Cookies.get("KILLTAS_cutscene_seen")) {
+        await signCookie(`${cookies.terminal}=true`);
+        if (!Cookies.get(cookies.killTAS)) {
             setCutscene(true);
         } else {
-            router.replace("/terminal");
+            router.replace(routes.terminal);
         }
     }
 
@@ -299,7 +299,7 @@ export default function ChoicesPage() {
             {/* Cutscene overlay */}
             {cutscene && (
                 <TASGoodBye
-                    onDone={() => router.replace("/terminal")}
+                    onDone={() => router.replace(routes.terminal)}
                 />
             )}
 

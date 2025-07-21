@@ -1,5 +1,7 @@
 import {NextRequest, NextResponse} from 'next/server';
 
+// Do not add admin-pass cookie to the list, as it is not signed but hashed,
+// thus would fail the custom verification.
 const cookiesList = [
     'accepted', 'Scroll_unlocked', 'Wifi_Unlocked', 'wifi_passed', 'Corrupt',
     'wifi_login', 'Media_Unlocked', 'Button_Unlocked', 'File_Unlocked',
@@ -106,7 +108,7 @@ export async function middleware(request: NextRequest) {
         response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
         response.headers.set(
             'Content-Security-Policy',
-            `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.ipify.org;`
+            `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.ipify.org; img-src 'self' data:;`
         )
         response.headers.set('X-Frame-Options', 'DENY');
         response.headers.set('X-Content-Type-Options', 'nosniff');

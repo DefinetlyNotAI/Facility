@@ -1,4 +1,4 @@
-import {FinaleMessage, FormFields} from "@/lib/types/all";
+import {FinaleMessage, FormFields} from "@/lib/types/wifi";
 
 export const messages = {
     finale: [
@@ -38,7 +38,9 @@ export const messages = {
     answer: {
         ceaser: "76",
         normal: "43",
-    }
+    },
+    loadMsg: "Establishing secure connection...",
+    authMsg: "Authenticating..."
 };
 export const form: FormFields = {
     username: {

@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {MESSAGES, SYSTEM_CONFIG} from '@/lib/data/tree98';
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
+import {cookies, routes} from "@/lib/saveData";
 
 export const useSystemCorruption = (createWindow: any) => {
     const [systemCorruption, setSystemCorruption] = useState(0);
@@ -30,8 +31,8 @@ export const useSystemCorruption = (createWindow: any) => {
                     setTimeout(() => {
                         setShowBlueScreen(true);
                         setTimeout(async () => {
-                            await signCookie(`${SYSTEM_CONFIG.CUTSCENE_COOKIE}=true`)
-                            window.location.href = SYSTEM_CONFIG.REDIRECT_URL;
+                            await signCookie(`${cookies.tree98}=true`)
+                            window.location.href = routes.fileConsole;
                         }, SYSTEM_CONFIG.BLUE_SCREEN_DELAY);
                     }, SYSTEM_CONFIG.CRASH_DELAY);
                 }

@@ -12,5 +12,10 @@ export const text = {
     downloadButton1: "Download Protected File ZIP 1",
     downloadButton2: "Download Protected File ZIP 2",
 }
+export const fileLoc = {
+    audio: "/static/media/morse.wav",
+    protectedFile1: "/static/media/Password_Is_Keyword%5B3%5D.zip",
+    protectedFile2: "/static/media/Password_Is_Keyword%5B4%5D.zip",
+}
 export const getStatusText: (played: boolean, dl1: boolean, dl2: boolean) => string = (played: boolean, dl1: boolean, dl2: boolean) =>
     `2 locks guard the next stop.. Key 1 is achieved by not cheating and solving it as intended... Key 2 is the path obtained via these: ${played ? '✅' : '❌'}${dl1 ? '✅' : '❌'}${dl2 ? '✅' : '❌'}`;

@@ -4,10 +4,10 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/WifiPanel.module.css';
-import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {checkKeyword} from "@/lib/utils";
+import {checkKeyword, signCookie} from "@/lib/utils";
 import {messages, wifiPanel} from "@/lib/data/wifi";
+import {cookies, routes} from "@/lib/saveData";
 
 
 export default function WifiPanel() {
@@ -26,15 +26,15 @@ export default function WifiPanel() {
 
     // 404 and redirect logic
     useEffect(() => {
-        if (!Cookies.get('Wifi_Unlocked')) {
-            router.replace('/404');
+        if (!Cookies.get(cookies.wifiPanel)) {
+            router.replace(routes.notFound);
             return;
         }
 
         const checkWifiPassed = async () => {
-            if (!Cookies.get('wifi_passed')) {
-                await signCookie('wifi_login=true');
-                router.replace('/wifi-login');
+            if (!Cookies.get(cookies.wifiPassed)) {
+                await signCookie(`${cookies.wifiLogin}=true`);
+                router.replace(routes.wifiLogin);
                 return;
             }
             setMode('locked');
@@ -106,8 +106,8 @@ export default function WifiPanel() {
             setFadeOut(true);
             setTimeout(async () => {
                 try {
-                    await signCookie('Media_Unlocked=true');
-                    router.push('/media');
+                    await signCookie(`${cookies.media}=true`);
+                    router.push(routes.media);
                 } catch (e) {
                     console.error('signCookie failed:', e);
                 }

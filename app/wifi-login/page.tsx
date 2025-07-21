@@ -4,10 +4,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
 import styles from '../../styles/WifiLogin.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 import {form, hashes, messages} from "@/lib/data/wifi";
+import {cookies, routes} from "@/lib/saveData";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {
     useEffect(() => {
@@ -93,21 +94,25 @@ const WifiLoginPage: React.FC = () => {
 
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
 
+    if (!Cookies.get(cookies.wifiLogin)) {
+        router.replace(routes.notFound);
+        return null;
+    }
 
     useEffect(() => {
-        const wifiUnlocked = Cookies.get('Wifi_Unlocked');
+        const wifiUnlocked = Cookies.get(cookies.wifiPanel);
         if (!wifiUnlocked) {
-            router.replace('/404');
+            router.replace(routes.notFound);
             return;
         }
 
-        const wifiPassed = Cookies.get('wifi_passed');
+        const wifiPassed = Cookies.get(cookies.wifiPassed);
         if (wifiPassed) {
             setShowCurlHint(true);
             return;
         }
 
-        if (!Cookies.get('Interference_cutscene_seen')) {
+        if (!Cookies.get(cookies.interference)) {
             setShowCutscene(true);
         }
     }, [router]);
@@ -142,7 +147,7 @@ const WifiLoginPage: React.FC = () => {
 
         setLoading(true);
         setTimeout(async () => {
-            await signCookie('wifi_passed=true');
+            await signCookie(`${cookies.wifiPassed}=true`);
             setShowCurlHint(true);
         }, 1000);
     };
@@ -150,14 +155,14 @@ const WifiLoginPage: React.FC = () => {
     if (showCutscene) {
         return (
             <InterferenceCutscene onFinish={async () => {
-                await signCookie('Interference_cutscene_seen=true');
+                await signCookie(`${cookies.interference}=true`);
                 setShowCutscene(false);
             }}/>
         );
     }
 
     if (showCurlHint) {
-        return <CurlHintPopup onDismiss={() => router.replace('/wifi-panel')}/>;
+        return <CurlHintPopup onDismiss={() => router.replace(routes.wifiPanel)}/>;
     }
 
     return (
@@ -211,10 +216,10 @@ const WifiLoginPage: React.FC = () => {
                         />
                     </div>
                     <button type="submit" className={styles.submitButton} disabled={loading}>
-                        {loading ? 'Authenticating...' : 'Login'}
+                        {loading ? messages.authMsg : 'Login'}
                     </button>
                     {error && <div className={styles.error}>{error}</div>}
-                    {loading && <div className={styles.loading}>Establishing secure connection...</div>}
+                    {loading && <div className={styles.loading}>{messages.loadMsg}</div>}
                 </form>
             </div>
         </>

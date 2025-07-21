@@ -3,11 +3,10 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {usePathname} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {PAGE_HINTS, SNARKY_COMMENTS} from "@/components/TAScript";
+import {PAGE_HINTS, SNARKY_COMMENTS, UNKNOWN_PAGE_HINTS} from "@/components/TAScript";
+import {cookies, routes} from "@/lib/saveData";
+import {TASProps} from '@/lib/types/tas';
 
-interface TASProps {
-    className?: string;
-}
 
 // Page-specific hints for TAS (friendly sarcastic tone)
 export default function TAS({className = ''}: TASProps) {
@@ -33,22 +32,23 @@ export default function TAS({className = ''}: TASProps) {
 
     // Check if TAS should exist and if he should be corrupted
     useEffect(() => {
-        const killTasSeen = Cookies.get('KILLTAS_cutscene_seen');
+        const killTasSeen = Cookies.get(cookies.killTAS);
 
         if (
             killTasSeen ||
-            pathname === '/smileking' ||
-            pathname === '/smileking-auth' ||
-            pathname === '/moonlight' ||
-            pathname === '/404' ||
-            pathname === '/file-console/tree98'
+            pathname === routes.smileking ||
+            pathname === routes.smilekingAuth ||
+            pathname === routes.moonlight ||
+            pathname === routes.notFound ||
+            pathname === routes.tree98 ||
+            pathname === routes.cheater
         ) {
             setIsVisible(false);
             return;
         }
 
         // Check if we're in corrupted areas
-        const isInCorruptedArea = pathname === '/scroll' || pathname === '/h0m3';
+        const isInCorruptedArea = pathname === routes.scroll || pathname === routes.h0m3;
         setIsCorrupted(isInCorruptedArea);
         setIsVisible(true);
     }, [pathname]);
@@ -80,11 +80,7 @@ export default function TAS({className = ''}: TASProps) {
     useEffect(() => {
         if (!isVisible) return;
 
-        const hints = PAGE_HINTS[pathname] || [
-            "Hmm, I don't have specific tips for this area. We're in uncharted territory together!",
-            "The facility's systems are a bit unpredictable here. Let's see what happens.",
-            "New area, new mysteries! I'm as curious as you are about what we'll find here."
-        ];
+        const hints = PAGE_HINTS[pathname] || UNKNOWN_PAGE_HINTS
 
         setCurrentHint(hints[0]);
     }, [pathname, isVisible]);
@@ -196,7 +192,7 @@ export default function TAS({className = ''}: TASProps) {
                     queueSpeech("AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.", 'normal');
                     setLastSnarkyComment(Date.now());
                 }
-            }, 120000); // 2 minutes instead of 1
+            }, 120000);
         };
 
         const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];

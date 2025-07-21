@@ -3,10 +3,19 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {checkKeyword} from "@/lib/utils";
-import {FORM_PLACEHOLDER, HINT_404, QR_SUBTITLE, TEXT_HINT_FOR_FORM, TOP_MESSAGE} from "@/lib/data/bnw";
+import {checkKeyword, signCookie} from "@/lib/utils";
+import {
+    FORM_PLACEHOLDER,
+    HINT_404,
+    IMG_LOC,
+    QR_SUBTITLE,
+    SERVER_ERROR,
+    SORRY_MESSAGE,
+    TEXT_HINT_FOR_FORM,
+    TOP_MESSAGE
+} from "@/lib/data/bnw";
+import {cookies, routes} from "@/lib/saveData";
 
 
 export default function BlackAndWhitePage() {
@@ -27,9 +36,9 @@ export default function BlackAndWhitePage() {
 
     // On mount: check cookie, else redirect 404
     useEffect(() => {
-        const unlocked = Cookies.get('BnW_unlocked');
+        const unlocked = Cookies.get(cookies.blackAndWhite);
         if (!unlocked) {
-            router.replace('/404');
+            router.replace(routes.notFound);
             return;
         }
         setBnwUnlocked(true);
@@ -66,10 +75,10 @@ export default function BlackAndWhitePage() {
                 if (topLeftBufferRef.current === '404') {
                     const rand = Math.floor(Math.random() * 404);
                     if (rand === 0) {
-                        await signCookie("themoon=true");
-                        router.push('/moonlight');
+                        await signCookie(`${cookies.theMoon}=true`);
+                        router.push(routes.moonlight);
                     } else {
-                        router.push('/404');
+                        router.push(routes.notFound);
                     }
                 }
             }
@@ -89,14 +98,14 @@ export default function BlackAndWhitePage() {
             const result = await checkKeyword(formInput.trim().toLowerCase(), 5);
             if (result) {
                 playAudio(SFX_AUDIO.SUCCESS);
-                await signCookie('Choice_Unlocked=true');
-                router.push('/choices');
+                await signCookie(`${cookies.choice}=true`);
+                router.push(routes.choices);
             } else {
                 playAudio(SFX_AUDIO.ERROR);
-                setFormError('Sorry child.');
+                setFormError(SORRY_MESSAGE);
             }
         } catch (err) {
-            setFormError('Server Error checking keyword.');
+            setFormError(SERVER_ERROR);
         }
         setSubmitting(false);
     }
@@ -168,8 +177,8 @@ export default function BlackAndWhitePage() {
                         alignItems: 'center',
                     }}>
                         <img
-                            src="/static/black-and-white/qr.png"
-                            alt="QR Code"
+                            src={IMG_LOC.QR}
+                            alt={IMG_LOC.QR_SUBTITLE}
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -196,8 +205,8 @@ export default function BlackAndWhitePage() {
                         alignItems: 'center',
                     }}>
                         <img
-                            src="/static/black-and-white/qr-doppelganger.png"
-                            alt="QR Code Doppelganger"
+                            src={IMG_LOC.QR_FAKE}
+                            alt={IMG_LOC.QR_FAKE_SUBTITLE}
                             style={{
                                 width: '100%',
                                 height: '100%',

@@ -3,11 +3,11 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/extra.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {checkKeyword} from "@/lib/utils";
-import {err, getStatusText, text} from "@/lib/data/media";
+import {checkKeyword, signCookie} from "@/lib/utils";
+import {err, fileLoc, getStatusText, text} from "@/lib/data/media";
+import {cookies, routes} from "@/lib/saveData";
 
 export default function MediaPage() {
     const router = useRouter();
@@ -22,17 +22,16 @@ export default function MediaPage() {
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.MEDIA);
 
-
     useEffect(() => {
-        if (!Cookies.get('Media_Unlocked')) {
-            router.replace('/404');
+        if (!Cookies.get(cookies.media)) {
+            router.replace(routes.notFound);
         }
     }, [router]);
 
     useEffect(() => {
         if (played && dl1 && dl2) {
             const unlockButton = async () => {
-                await signCookie('Button_Unlocked=true');
+                await signCookie(`${cookies.buttons}=true`);
             };
             unlockButton().catch(error => {
                 console.error('Error caught:', error);
@@ -94,7 +93,7 @@ export default function MediaPage() {
                                 }
                             }}
                         >
-                            <source src="/static/media/morse.wav" type="audio/wav"/>
+                            <source src={fileLoc.audio} type="audio/wav"/>
                             {err.unsupportedAudioBrowser}
                         </audio>
                     </div>
@@ -102,7 +101,7 @@ export default function MediaPage() {
                     <div className={styles.item}>
                         <label>{text.itemTitle2}</label>
                         <a
-                            href="/static/media/Password_Is_Keyword%5B3%5D.zip"
+                            href={fileLoc.protectedFile1}
                             download
                             onClick={() => setDl1(true)}
                         >
@@ -113,7 +112,7 @@ export default function MediaPage() {
                     <div className={styles.item}>
                         <label>{text.itemTitle3}</label>
                         <a
-                            href="/static/media/Password_Is_Keyword%5B4%5D.zip"
+                            href={fileLoc.protectedFile2}
                             download
                             onClick={() => setDl2(true)}
                         >

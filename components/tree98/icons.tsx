@@ -1,4 +1,5 @@
-// SVG Icons for the Windows 98 simulation
+// noinspection JSUnusedGlobalSymbols
+
 import React from 'react';
 
 export const Icons = {

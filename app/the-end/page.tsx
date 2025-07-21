@@ -5,10 +5,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
-import {checkKeyword} from "@/lib/utils";
+import {checkKeyword, signCookie} from "@/lib/utils";
 import {messages} from "@/lib/data/theEnd";
+import {cookies, localStorageKeys, routes} from "@/lib/saveData";
+
 
 export default function TheEnd() {
     const router = useRouter();
@@ -29,11 +30,11 @@ export default function TheEnd() {
     // Check cookies and localStorage on mount
     useEffect(() => {
         setMounted(true);
-        const end = Cookies.get('End');
-        const endQuestion = Cookies.get('End?');
+        const end = Cookies.get(cookies.end);
+        const endQuestion = Cookies.get(cookies.endQuestion);
 
         if (!end && !endQuestion) {
-            router.replace('/404');
+            router.replace(routes.theEnd);
             return;
         }
 
@@ -41,7 +42,7 @@ export default function TheEnd() {
         setHasEndQuestionCookie(!!endQuestion);
 
         // Check if flower was previously cut
-        const flowerWasCut = localStorage.getItem('flowerCut') === 'true';
+        const flowerWasCut = localStorage.getItem(localStorageKeys.flowerCut) === 'true';
         setFlowerCut(flowerWasCut);
 
         // If flower was cut and audio should be playing, resume audio
@@ -59,7 +60,6 @@ export default function TheEnd() {
             await audioRef.current.play();
             setAudioInitialized(true);
             setAudioEnabled(true);
-            console.log('Audio initialized successfully');
         } catch (error) {
             console.warn('Audio failed to initialize:', error);
             setAudioEnabled(false);
@@ -73,7 +73,6 @@ export default function TheEnd() {
         try {
             backgroundAudioRef.current.volume = 0.4;
             await backgroundAudioRef.current.play();
-            console.log('Background audio initialized successfully');
         } catch (error) {
             console.warn('Background audio failed to initialize:', error);
         }
@@ -113,7 +112,7 @@ export default function TheEnd() {
         };
     }, [hasEndCookie, mounted]);
 
-    // Handle user typing "25" or "END" anywhere on the page
+    // Handle user typing any of the death keys anywhere on the page
     useEffect(() => {
         if (!hasEndCookie) return;
 
@@ -138,7 +137,7 @@ export default function TheEnd() {
 
         // Set flower as cut and persist to localStorage
         setFlowerCut(true);
-        localStorage.setItem('flowerCut', 'true');
+        localStorage.setItem(localStorageKeys.flowerCut, 'true');
 
         flowerRef.current.classList.add('cut');
         setGlitchIntensity(2); // Max glitch
@@ -162,8 +161,8 @@ export default function TheEnd() {
         e.preventDefault();
         const result = await checkKeyword(input.trim().toLowerCase(), 6);
         if (result) {
-            Cookies.remove('End?');
-            await signCookie('End=true');
+            Cookies.remove(cookies.endQuestion);
+            await signCookie(`${cookies.end}=true`);
             setHasEndCookie(true);
             setHasEndQuestionCookie(false);
             setError('');
@@ -268,7 +267,6 @@ export default function TheEnd() {
                         🌸
                     </div>
 
-                    {/* Nostalgic text overlay - positioned below flower to avoid overlap */}
                     {/* Nostalgic text overlay - positioned below flower to avoid overlap */}
                     <div
                         className="nostalgic-text"

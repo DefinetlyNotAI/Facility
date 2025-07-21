@@ -2,11 +2,12 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
 import Cookies from "js-cookie";
 import {VNTextRenderer} from "@/components/VNRenderer";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO} from "@/lib/audio";
 import {CREEPY_LINES, HOVER, MESSAGES, POETIC_LINES, RIDDLE_LOCATION, SOOTHING_EGG} from "@/lib/data/moonlight";
+import {cookies, routes} from "@/lib/saveData";
 
 export default function Moonlight() {
     const router = useRouter();
@@ -55,13 +56,13 @@ export default function Moonlight() {
         if ((window as any).__moonlight_cookie_check_ran) return;
         (window as any).__moonlight_cookie_check_ran = true;
 
-        const hasMoonCookie = Cookies.get("themoon");
+        const hasMoonCookie = Cookies.get(cookies.theMoon);
 
         if (hasMoonCookie) {
             playAudio(SFX_AUDIO.EGG_CRACK, {volume: 0.5});
             setAllowed(true);
         } else {
-            router.replace("/404");
+            router.replace(routes.notFound);
         }
     }, [router]);
 
@@ -106,7 +107,7 @@ export default function Moonlight() {
     useEffect(() => {
         if (!allowed) return;
         if (!waitingForClick) {
-            const played = Cookies.get("moonlight_time_cutscene_played");
+            const played = Cookies.get(cookies.moonTime);
             if (!played) {
                 setPreCutsceneActive(true);
                 // Setup pre-cutscene audio
@@ -209,7 +210,7 @@ export default function Moonlight() {
 
     // Finish cutscene
     const finishCutscene = async () => {
-        await signCookie("moonlight_time_cutscene_played=true");
+        await signCookie(`${cookies.moonTime}=true`);
         setCutsceneActive(false);
         setShowMoon(true);
     };
@@ -285,7 +286,7 @@ export default function Moonlight() {
     const handleInitialClick = () => {
         setUserInteracted(true);
         setWaitingForClick(false);
-        Cookies.remove("themoon");
+        Cookies.remove(cookies.theMoon);
     };
 
     // Set favicon based on moonRed

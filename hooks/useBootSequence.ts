@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {MESSAGES, SYSTEM_CONFIG} from '@/lib/data/tree98';
+import {localStorageKeys} from "@/lib/saveData";
 
 export const useBootSequence = () => {
     const [bootPhase, setBootPhase] = useState<'boot' | 'main' | 'loading' | 'login' | 'desktop'>('boot');
@@ -35,7 +36,7 @@ export const useBootSequence = () => {
         }, SYSTEM_CONFIG.BOOT_DELAY);
 
         const startMainBoot = () => {
-            if (localStorage.getItem('SeenVesselBoot') === 'true') {
+            if (localStorage.getItem(localStorageKeys.vesselBoot) === 'true') {
                 setBootPhase('loading');
                 startLoadingBar();
                 return;
@@ -58,7 +59,7 @@ export const useBootSequence = () => {
                     setBootText(mainCurrentText);
                 } else {
                     clearInterval(mainBootInterval);
-                    localStorage.setItem('SeenVesselBoot', 'true');
+                    localStorage.setItem(localStorageKeys.vesselBoot, 'true');
                     setTimeout(() => {
                         setBootPhase('loading');
                         startLoadingBar();

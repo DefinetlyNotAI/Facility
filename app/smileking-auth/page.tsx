@@ -4,6 +4,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {SFX_AUDIO} from "@/lib/audio";
 import {authText, errorMsg, warningMsg} from "@/lib/data/smileking";
+import {cookies, routes} from "@/lib/saveData";
 
 export default function SmilekingAuth() {
     const [password, setPassword] = useState('');
@@ -32,7 +33,7 @@ export default function SmilekingAuth() {
         }
 
         try {
-            const res = await fetch('/api/auth', {
+            const res = await fetch(routes.api.auth, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,9 +67,9 @@ export default function SmilekingAuth() {
 
             const data = await res.json();
             // Save hashed password in cookie, secure flags as appropriate
-            Cookies.set('admin-pass', data.hashed, {path: '/', sameSite: 'strict', secure: true});
+            Cookies.set(cookies.adminPass, data.hashed, {path: '/', sameSite: 'strict', secure: true});
 
-            router.push('/smileking');
+            router.push(routes.smileking);
         } catch (err) {
             // Play error sound
             try {

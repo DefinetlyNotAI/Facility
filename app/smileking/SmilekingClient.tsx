@@ -3,10 +3,10 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import Cookies from "js-cookie";
-import {cookiesList} from "@/lib/cookiesList";
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
 import {buttonState, text} from "@/lib/data/smileking";
 import styles from '@/styles/Smileking.module.css';
+import {cookies, routes} from "@/lib/saveData";
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {
@@ -22,14 +22,14 @@ export default function SmilekingClient() {
     const [buttonStates, setButtonStates] = useState<any[]>([]);
 
     useEffect(() => {
-        axios.get('/api/csrf-token').catch(() => {
+        axios.get(routes.api.csrfToken).catch(() => {
         });
     }, []);
 
     useEffect(() => {
         const allCookies = getCookiesMap();
         const cs: Record<string, boolean> = {};
-        cookiesList.forEach(name => {
+        Object.values(cookies).forEach(name => {
             cs[name] = allCookies.hasOwnProperty(name);
         });
         setCookieState(cs);
@@ -37,7 +37,7 @@ export default function SmilekingClient() {
         const fetchState = async (retries = 5) => {
             for (let i = 0; i < retries; i++) {
                 try {
-                    const res = await fetch('/api/state');
+                    const res = await fetch(routes.api.state);
                     if (res.status === 500) throw new Error('err500');
                     const data = await res.json();
                     setButtonStates(Array.isArray(data) ? data : []);
@@ -55,8 +55,8 @@ export default function SmilekingClient() {
         const isSet = allCookies.hasOwnProperty(name);
 
         const exclusivityGroups: string[][] = [
-            ['End', 'End?'],
-            ['corrupting', 'Corrupt', 'No_corruption']
+            [cookies.end, cookies.endQuestion],
+            [cookies.corrupt, cookies.corrupting, cookies.noCorruption]
         ];
 
         if (isSet) {
@@ -82,7 +82,7 @@ export default function SmilekingClient() {
         const updatedCookies = getCookiesMap();
         setCookieState(prev => {
             const newState = {...prev};
-            cookiesList.forEach(cookie => {
+            Object.values(cookies).forEach(cookie => {
                 newState[cookie] = updatedCookies.hasOwnProperty(cookie);
             });
             return newState;
@@ -91,7 +91,7 @@ export default function SmilekingClient() {
 
     const pressButton = async (browser: string) => {
         const csrfToken = Cookies.get('csrf-token');
-        const res = await fetch('/api/press', {
+        const res = await fetch(routes.api.press, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export default function SmilekingClient() {
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>{text.sectionCookieHeader}</h2>
                 <ul className={styles.gridList}>
-                    {cookiesList.map(name => (
+                    {Object.values(cookies).map(name => (
                         <li key={name}>
                             <button
                                 className={styles.cookieButton}

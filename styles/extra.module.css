@@ -212,7 +212,7 @@
     margin: 1rem 0;
 }
 
-.access button {
+.access button, .box button {
     background: linear-gradient(135deg, #00ffff 0%, #0099cc 100%);
     border: none;
     color: #000000;
@@ -227,17 +227,6 @@
 }
 
 .box button {
-    background: linear-gradient(135deg, #00ffff 0%, #0099cc 100%);
-    border: none;
-    color: #000000;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
     letter-spacing: 1px;
     width: 100%;
     margin-top: 1rem;

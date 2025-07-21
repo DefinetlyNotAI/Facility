@@ -1,6 +1,7 @@
 import {NextRequest} from 'next/server';
 import {createSecureResponse} from '@/lib/utils';
-import {pool} from "@/lib/db";
+import {press} from "@/lib/data/api";
+import {dbPool} from "@/lib/db";
 
 
 export async function POST(req: NextRequest) {
@@ -10,16 +11,16 @@ export async function POST(req: NextRequest) {
         const ignoreAlreadyPressed = req.headers.get('ignore-already-pressed') === 'true';
 
         if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromCookie !== csrfTokenFromHeader) {
-            return createSecureResponse({error: 'Invalid CSRF token'}, 403);
+            return createSecureResponse({error: press.invalidToken}, 403);
         }
 
         const {browser} = await req.json();
 
         if (!browser) {
-            return createSecureResponse({error: 'Browser not specified'}, 400);
+            return createSecureResponse({error: press.browserNotSpecified}, 400);
         }
 
-        const client = await pool.connect();
+        const client = await dbPool.connect();
 
         // Check if already clicked
         const result = await client.query(
@@ -29,14 +30,14 @@ export async function POST(req: NextRequest) {
 
         if (result.rowCount === 0) {
             client.release();
-            return createSecureResponse({error: 'Browser not found'}, 404);
+            return createSecureResponse({error: press.browserNotFound}, 404);
         }
 
         const currentState = result.rows[0].clicked;
 
         if (!ignoreAlreadyPressed && currentState) {
             client.release();
-            return createSecureResponse({error: `Already pressed`}, 409);
+            return createSecureResponse({error: press.alreadyPressed}, 409);
         }
 
         // If strict, set to true; if flexible, toggle
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
         client.release();
         return createSecureResponse({success: true, clicked: newClickedState});
     } catch (error) {
-        console.error('Error pressing button:', error);
-        return createSecureResponse({error: 'Internal server error'}, 500);
+        console.error(press.errorPressingButton, error);
+        return createSecureResponse({error: press.internalError}, 500);
     }
 }

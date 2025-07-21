@@ -2,9 +2,11 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/audio';
-import {IMAGE_CAPTION, WHISPER_TEXTS} from '@/lib/data/dream';
+import {IMAGE_CAPTION, SMILE_LOC, WHISPER_TEXTS} from '@/lib/data/dream';
 import styles from '@/styles/Dream.module.css';
 import Cookies from "js-cookie";
+import {cookies, routes} from "@/lib/saveData";
+
 
 export default function DreamScreen() {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -14,14 +16,14 @@ export default function DreamScreen() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.DREAM);
 
     useEffect(() => {
-        const treeCookie = Cookies.get('TREE');
+        const treeCookie = Cookies.get(cookies.tree);
         if (typeof window !== 'undefined' && !treeCookie && Math.floor(Math.random() * 43) === 0) {
-            window.location.href = '/O-ARVORE-DA-CARNE';
+            window.location.href = routes.oArvoreDaCarne;
             return;
         }
         const filenames = Object.keys(IMAGE_CAPTION);
         const random = filenames[Math.floor(Math.random() * filenames.length)];
-        setImageSrc(`/static/dream/${random}`);
+        setImageSrc(SMILE_LOC(random));
         setCaption(IMAGE_CAPTION[random]);
     }, []);
 

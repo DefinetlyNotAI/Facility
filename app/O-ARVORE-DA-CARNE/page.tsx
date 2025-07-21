@@ -5,9 +5,10 @@
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
 import {script} from "@/lib/data/oArvoreDaCarne";
-import {ScriptItem} from "@/lib/types/all";
+import {ScriptItem} from "@/lib/types/oArvoreDaCarne";
+import {cookies, routes} from "@/lib/saveData";
 
 
 export default function CarnePlay() {
@@ -15,8 +16,8 @@ export default function CarnePlay() {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
 
     useEffect(() => {
-        if (Cookies.get("TREE")) {
-            router.replace("/home");
+        if (Cookies.get(cookies.tree)) {
+            router.replace(routes.home);
         }
     }, [router]);
 
@@ -24,8 +25,8 @@ export default function CarnePlay() {
         if (currentIndex < script.length - 1) {
             setCurrentIndex(currentIndex + 1);
         } else {
-            await signCookie("TREE=BLASPHEMY");
-            router.replace("/home");
+            await signCookie(`${cookies.tree}=BLASPHEMY`);
+            router.replace(routes.home);
         }
     };
 

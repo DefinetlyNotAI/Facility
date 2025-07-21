@@ -20,11 +20,6 @@ export const SYSTEM_CONFIG = {
     DEFAULT_WINDOW_HEIGHT: 300,
     TASKBAR_HEIGHT: 32,
 
-    // Cookie settings
-    CUTSCENE_COOKIE: 'tree98_cutscene_seen',
-    LOGIN_COOKIE: 'tree98_logged_in',
-    REDIRECT_URL: '/file-console',
-
     // Authentication
     USERNAME_HASH: '6c5a39f1f7e832645fae99669dc949ea848b7dec62d60d914a3e8b3e3c78a756', // SHA256
     PASSWORD_HASH: 'e6d7a4c1389cffecac2b41b4645a305dcc137e81', // SHA1

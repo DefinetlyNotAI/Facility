@@ -3,7 +3,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookies";
 import {BACKGROUND_AUDIO} from "@/lib/audio";
 import {
     binaryCorruptText,
@@ -14,7 +13,8 @@ import {
     ttsMessageID,
     ttsMessages,
 } from '@/lib/data/h0m3';
-import {getOrCreateSessionId} from "@/lib/utils";
+import {getOrCreateSessionId, signCookie} from "@/lib/utils";
+import {cookies, routes} from "@/lib/saveData";
 
 const letterReplace = (text: string) =>
     text
@@ -66,12 +66,12 @@ export default function H0m3() {
     useEffect(() => {
         if (!mounted) return;
 
-        const corrupt = Cookies.get('Corrupt');
-        const corrupting = Cookies.get('corrupting');
-        const noCorrupt = Cookies.get('No_corruption');
+        const corrupt = Cookies.get(cookies.corrupt);
+        const corrupting = Cookies.get(cookies.corrupting);
+        const noCorrupt = Cookies.get(cookies.corrupting);
 
         if ((!corrupt && !corrupting) || noCorrupt) {
-            router.replace('/home');
+            router.replace(routes.home);
             return;
         }
 

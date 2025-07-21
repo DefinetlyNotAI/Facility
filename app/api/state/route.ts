@@ -2,6 +2,7 @@ import {Pool} from 'pg';
 import fs from 'fs';
 import path from 'path';
 import {createSecureResponse} from '@/lib/utils';
+import {state} from "@/lib/data/api";
 
 
 const pool = new Pool({
@@ -19,7 +20,7 @@ export async function GET() {
         client.release();
         return createSecureResponse(res.rows);
     } catch (error) {
-        console.error('Error fetching button states:', error);
-        return createSecureResponse({error: 'Failed to fetch states'}, 500);
+        console.error(state.errorFetchingStates, error);
+        return createSecureResponse({error: state.failedToFetch}, 500);
     }
 }

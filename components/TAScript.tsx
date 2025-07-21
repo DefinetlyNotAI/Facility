@@ -57,7 +57,7 @@ export const PAGE_HINTS: Record<string, string[]> = {
     ]
 };
 
-export const SNARKY_COMMENTS = [
+export const SNARKY_COMMENTS: string[] = [
     "Oh hey, you're back! Miss me already?",
     "Still clicking around? Hey, exploration's good for the soul!",
     "Muted the audio? Smart move, though you might miss some important stuff.",
@@ -67,4 +67,10 @@ export const SNARKY_COMMENTS = [
     "Feeling lost? That's totally normal here. We'll figure it out together.",
     "Still hanging in there? Most people would've bailed by now. You're tougher than you look!",
     "We've been at this for [TIME] minutes now. Time flies when you're having fun, right?"
+];
+
+export const UNKNOWN_PAGE_HINTS: string[] = [
+    "Hmm, I don't have specific tips for this area. We're in uncharted territory together!",
+    "The facility's systems are a bit unpredictable here. Let's see what happens.",
+    "New area, new mysteries! I'm as curious as you are about what we'll find here."
 ];

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {COLORS, FONTS, MESSAGES, SYSTEM_CONFIG} from "@/lib/data/tree98";
-import {signCookie} from "@/lib/cookies";
+import {signCookie} from "@/lib/utils";
+import {cookies} from "@/lib/saveData";
 
 async function sha256(text: string): Promise<string> {
     const encoder = new TextEncoder();
@@ -46,7 +47,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
         try {
             const isValid = await validateCredentials(username, password);
             if (isValid) {
-                await signCookie(`${SYSTEM_CONFIG.LOGIN_COOKIE}=true`)
+                await signCookie(`${cookies.loggedIn}=true`)
                 onLogin();
             } else {
                 setError(MESSAGES.LOGIN.ERROR);

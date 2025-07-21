@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {signCookie} from "@/lib/cookies";
 import styles from "../../styles/Choices.module.css";
 import {CUTSCENE_LINES, FINALE_MSG} from "@/lib/data/choices";
 import {useTypewriter} from "@/hooks/useTypeWriter";
 import {SFX_AUDIO} from "@/lib/audio";
-import {renderMsg} from "@/lib/utils";
-import {TASGoodByeProps} from "@/lib/types/all";
+import {renderMsg, signCookie} from "@/lib/utils";
+import {TASGoodByeProps} from "@/lib/types/tas";
+import {cookies} from "@/lib/saveData";
 
 
 const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
@@ -15,7 +15,7 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
 
     useEffect(() => {
         (async () => {
-            await signCookie("KILLTAS_cutscene_seen=true");
+            await signCookie(`${cookies.killTAS}=true`);
         })();
     }, []);
 

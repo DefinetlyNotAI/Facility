@@ -3,15 +3,16 @@
 import {useEffect} from 'react';
 import Cookie from 'js-cookie';
 import {useRouter} from 'next/navigation';
-import {SYSTEM_CONFIG} from "@/lib/data/tree98";
 import Tree98Sim from "./Tree98Sim";
+import {cookies, routes} from "@/lib/saveData";
+
 
 function TREE() {
     const router = useRouter();
 
     useEffect(() => {
-        if (Cookie.get(SYSTEM_CONFIG.CUTSCENE_COOKIE)) {
-            router.replace('/file-console');
+        if (Cookie.get(cookies.tree98)) {
+            router.replace(routes.notFound);
         }
     }, [router]);
 

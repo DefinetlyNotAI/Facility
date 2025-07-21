@@ -3,10 +3,10 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {signCookie} from "@/lib/cookies";
+import {fetchUserIP, signCookie} from "@/lib/utils";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
-import {fetchUserIP} from "@/lib/utils";
 import {begStop, creepyTTS, emergencyIP, errors, motivate} from "@/lib/data/scroll";
+import {cookies, routes} from "@/lib/saveData";
 
 function getRandomFilename(length = 8) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -30,14 +30,14 @@ export default function ScrollPage() {
     const ttsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        const unlocked = Cookies.get('Scroll_unlocked');
-        const repeater = Cookies.get('BnW_unlocked');
+        const unlocked = Cookies.get(cookies.scroll);
+        const repeater = Cookies.get(cookies.blackAndWhite);
         if (!unlocked) {
-            router.replace('/404');
+            router.replace(routes.notFound);
             return;
         }
         if (repeater) {
-            router.replace('/black-and-white');
+            router.replace(routes.blackAndWhite);
             return;
         }
         setScrollUnlocked(true);
@@ -194,8 +194,8 @@ export default function ScrollPage() {
                                 // Play success sound
                                 playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.STATIC, true);
 
-                                await signCookie('BnW_unlocked=true');
-                                router.push('/black-and-white');
+                                await signCookie(`${cookies.blackAndWhite}=true`);
+                                router.push(routes.blackAndWhite);
                             }}
                         >
                             {escapeHovered ? ipAddress : emergencyIP}

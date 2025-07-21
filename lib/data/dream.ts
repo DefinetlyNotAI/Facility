@@ -24,3 +24,4 @@ export const WHISPER_TEXTS: string[] = [
     'this isn’t memory',
     ':)'
 ];
+export const SMILE_LOC = (random: string) => `/static/dream/${random}`

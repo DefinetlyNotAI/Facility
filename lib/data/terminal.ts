@@ -1,5 +1,5 @@
 // terminal.tsx
-import {KeywordKey, PlaceholderKeys} from "@/lib/types/all";
+import {KeywordKey, PlaceholderKeys} from "@/lib/types/terminal";
 
 // Data used for the terminal
 export const vesselLoc = {
@@ -48,7 +48,7 @@ export const phrase = {
         '___',
         '___',
         'that their time is up.. :)'
-    ]
+    ] as string[]
 }
 
 // Keywords used in the terminal and indexes

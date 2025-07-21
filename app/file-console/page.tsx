@@ -18,8 +18,9 @@ import {
     WGET_FILES,
     WHOAMI_MSG
 } from "@/lib/data/fileConsole";
-import {BootMessage} from "@/lib/types/all";
+import {BootMessage} from "@/lib/types/fileConsole";
 import {fetchUserIP} from "@/lib/utils";
+import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 
 
 export default function FileConsole() {
@@ -40,8 +41,8 @@ export default function FileConsole() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.FILE_CONSOLE);
 
     useEffect(() => {
-        if (!Cookies.get('File_Unlocked')) {
-            router.replace('/404');
+        if (!Cookies.get(cookies.fileConsole)) {
+            router.replace(routes.notFound);
             return;
         }
 
@@ -113,8 +114,7 @@ export default function FileConsole() {
 
         setHistory([]); // Clear history at start
 
-        const sessionKey = 'file_console_booted';
-        const hasBooted = localStorage.getItem(sessionKey) === '1';
+        const hasBooted = localStorage.getItem(localStorageKeys.fileConsoleBooted) === 'true';
 
         const messages = !hasBooted ? BOOT_MESSAGES : REPEATED_BOOT_MESSAGES;
         for (const msg of messages) {
@@ -122,16 +122,15 @@ export default function FileConsole() {
             await typeLine(msg);
         }
         if (!hasBooted) {
-            localStorage.setItem(sessionKey, '1');
+            localStorage.setItem(localStorageKeys.fileConsoleBooted, 'true');
         }
     };
 
     function downloadFile(filename: string) {
         playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
 
-        const url = `/static/file-console/${filename}`;
         const link = document.createElement('a');
-        link.href = url;
+        link.href = `/static/file-console/${filename}`;
         link.download = filename;
         document.body.appendChild(link);
         link.click();

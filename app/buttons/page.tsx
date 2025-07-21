@@ -4,11 +4,12 @@ import {useEffect, useRef, useState} from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
-import {signCookie} from "@/lib/cookies";
 import styles from '../../styles/Buttons.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
-import {BROWSERS, SUBTITLE_TEXT, WINGDING} from '@/lib/data/buttons';
-import {BrowserName} from "@/lib/types/all";
+import {BROWSERS, SUBTITLE_TEXT, TITLE, TOOLTIP, WINGDING} from '@/lib/data/buttons';
+import {BrowserName} from "@/lib/types/buttons";
+import {cookies, routes} from "@/lib/saveData";
+import {signCookie} from "@/lib/utils";
 
 
 // Detect browser reliably (basic)
@@ -23,13 +24,8 @@ function getBrowserName(): BrowserName | null {
 }
 
 function HiddenFooter() {
-    useEffect(() => {
-        if (Cookies.get('File_Unlocked')) {
-        }
-    }, []);
-
     async function handleUnlock() {
-        await signCookie('File_Unlocked=true');
+        await signCookie(`${cookies.fileConsole}=true`);
     }
 
     return (
@@ -41,7 +37,7 @@ function HiddenFooter() {
                 href="/file-console"
                 onClick={async (e) => {
                     e.stopPropagation();
-                    await signCookie('File_Unlocked=true');
+                    await signCookie(`${cookies.fileConsole}=true`);
                 }}
             >
                 Go to File Console
@@ -71,14 +67,14 @@ export default function ButtonsPage() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS)
 
     useEffect(() => {
-        axios.get('/api/csrf-token').catch(() => {
+        axios.get(routes.api.csrfToken).catch(() => {
         });
     }, []);
 
     useEffect(() => {
-        const unlocked = Cookies.get('Button_Unlocked');
+        const unlocked = Cookies.get(cookies.buttons);
         if (!unlocked) {
-            router.replace('/404');
+            router.replace(routes.notFound);
         }
     }, [router]);
 
@@ -87,7 +83,7 @@ export default function ButtonsPage() {
         setUserBrowser(detected);
 
         axios
-            .get('/api/state')
+            .get(routes.api.state)
             .then(async (res) => {
                 const newStates: Record<BrowserName, boolean> = {
                     Chrome: false,
@@ -104,7 +100,7 @@ export default function ButtonsPage() {
                 setButtonStates(newStates);
 
                 if (Object.values(newStates).every(Boolean)) {
-                    await signCookie('File_Unlocked=true');
+                    await signCookie(`${cookies.fileConsole}=true`);
                 }
             })
             .catch(() => {
@@ -118,7 +114,7 @@ export default function ButtonsPage() {
         try {
             const csrfToken = Cookies.get('csrf-token');
             await axios.post(
-                '/api/press',
+                routes.api.press,
                 {browser},
                 {headers: {'X-CSRF-Token': csrfToken ?? ''}}
             );
@@ -130,7 +126,7 @@ export default function ButtonsPage() {
             setButtonStates(updatedStates);
 
             if (Object.values(updatedStates).every(Boolean)) {
-                await signCookie('File_Unlocked=true');
+                await signCookie(`${cookies.fileConsole}=true`);
 
                 // Play completion sound
                 playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
@@ -152,7 +148,7 @@ export default function ButtonsPage() {
                 style={{display: 'none'}}
             />
             <div className={styles.container}>
-                <h1 className={styles.title}>Global Browser Buttons</h1>
+                <h1 className={styles.title}>{TITLE}</h1>
 
                 <p className={styles.subtitle}>
                     {SUBTITLE_TEXT.split('\n').map((line, idx) => (
@@ -188,9 +184,9 @@ export default function ButtonsPage() {
                                 title={
                                     isDisabled
                                         ? browser !== userBrowser
-                                            ? `This button is for ${browser} browser only`
-                                            : 'Button already pressed'
-                                        : `Press to activate ${browser} button`
+                                            ? TOOLTIP.ONLY_THIS_BROWSER(browser)
+                                            : TOOLTIP.ALREADY_PRESSED
+                                        : TOOLTIP.CLICK_TO_PRESS(browser)
                                 }
                             >
                                 <div>{browser}<br/></div>

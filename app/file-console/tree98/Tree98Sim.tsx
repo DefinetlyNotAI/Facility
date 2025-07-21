@@ -18,6 +18,7 @@ import {StartMenu} from '@/components/tree98/ui/StartMenu';
 import {ContextMenuComponent} from '@/components/tree98/ui/ContextMenu';
 import {LoadingScreen} from '@/components/tree98/ui/LoadingScreen';
 import {BlueScreen} from '@/components/tree98/ui/BlueScreen';
+import {cookies, routes} from '@/lib/saveData';
 
 const Tree98Sim: React.FC = () => {
     const {bootPhase, setBootPhase, tree98BootText, bootText, loadingProgress} = useBootSequence();
@@ -38,8 +39,8 @@ const Tree98Sim: React.FC = () => {
 
     // Check cutscene status
     useEffect(() => {
-        if (Cookies.get(SYSTEM_CONFIG.CUTSCENE_COOKIE) === 'true') {
-            window.location.href = SYSTEM_CONFIG.REDIRECT_URL;
+        if (Cookies.get(cookies.tree98) === 'true') {
+            window.location.href = routes.fileConsole;
             return;
         }
     }, []);
@@ -160,7 +161,7 @@ const Tree98Sim: React.FC = () => {
     }
 
     if (bootPhase === 'login') {
-        if (Cookies.get(SYSTEM_CONFIG.LOGIN_COOKIE)) {
+        if (Cookies.get(cookies.loggedIn)) {
             setBootPhase('desktop');
             return null;
         }
