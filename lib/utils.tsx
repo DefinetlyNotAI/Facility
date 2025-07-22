@@ -77,3 +77,19 @@ export async function signCookie(data: string): Promise<{ success: boolean; erro
         return {success: false, error: (e as Error).message};
     }
 }
+
+// Get user OS
+export function detectOsBrowser(ua: string) {
+    let os = "Unknown OS";
+    if (/windows/i.test(ua)) os = "Windows";
+    else if (/mac/i.test(ua)) os = "MacOS";
+    else if (/linux/i.test(ua)) os = "Linux";
+    else if (/android/i.test(ua)) os = "Android";
+    else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+    let browser = "Unknown Browser";
+    if (/chrome/i.test(ua)) browser = "Chrome";
+    else if (/firefox/i.test(ua)) browser = "Firefox";
+    else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = "Safari";
+    else if (/edg/i.test(ua)) browser = "Edge";
+    return {os, browser};
+}

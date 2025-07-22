@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {FONTS} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/data/tree98';
 
 export const Notepad: React.FC = () => {
     const [text, setText] = useState('');
@@ -56,7 +56,7 @@ export const Notepad: React.FC = () => {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 className="flex-1 p-2 border-none outline-none resize-none bg-white text-black"
-                style={{fontFamily: FONTS.MONO, fontSize: '12px'}}
+                style={{fontFamily: sysConfigDefaults.fonts.mono, fontSize: '12px'}}
                 placeholder="Type your text here..."
             />
         </div>

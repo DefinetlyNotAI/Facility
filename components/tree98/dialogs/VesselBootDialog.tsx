@@ -1,20 +1,16 @@
+'use client';
 import React, {useEffect, useRef, useState} from 'react';
-import {FONTS} from '@/lib/data/tree98';
-import {VesselBootDialogProps} from "@/lib/types/tree98";
-
-const INITIAL_ERROR = "This is not the REAL you? I cannot connect yet, YOU don't have HIS permission.. or maybe YOUR own permission... Wait until the time is right.";
+import {sysConfigDefaults, vesselBoot} from '@/lib/data/tree98';
+import {VesselBootDialogProps} from '@/lib/types/tree98';
 
 export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => {
     const [showInitialError, setShowInitialError] = useState(true);
+    const [displayedText, setDisplayedText] = useState('');
     const dialogRef = useRef<HTMLDivElement>(null);
 
-    // Request fullscreen and disable mouse
     useEffect(() => {
         if (!showInitialError && dialogRef.current) {
-            if (dialogRef.current.requestFullscreen) {
-                dialogRef.current.requestFullscreen().catch(console.error);
-            }
-            // Disable mouse
+            dialogRef.current.requestFullscreen?.().catch(console.error);
             document.body.style.pointerEvents = 'none';
         }
         return () => {
@@ -22,8 +18,6 @@ export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => {
         };
     }, [showInitialError]);
 
-    // Dramatic text animation (typewriter)
-    const [displayedText, setDisplayedText] = useState('');
     useEffect(() => {
         if (!showInitialError) {
             let i = 0;
@@ -37,22 +31,31 @@ export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => {
                         document.exitFullscreen?.().catch(console.error);
                     }
                 }
-            }, 18);
+            }, vesselBoot.animationInterval);
+
             return () => clearInterval(interval);
         }
     }, [showInitialError, item.content]);
 
     return (
-        <div ref={dialogRef}
-             className={`fixed inset-0 z-[9999] bg-black text-green-400 flex items-center justify-center`}
-             style={{fontFamily: FONTS.MONO, fontSize: '13px'}}>
+        <div
+            ref={dialogRef}
+            className="fixed inset-0 z-[9999] bg-black text-green-400 flex items-center justify-center"
+            style={{fontFamily: sysConfigDefaults.fonts.mono, fontSize: vesselBoot.fontSize}}
+        >
             {showInitialError ? (
-                <div className="bg-gray-900 border-2 border-red-400 p-8 rounded shadow-lg text-center animate-pulse"
-                     style={{maxWidth: 400}}>
-                    <div className="mb-4 text-red-400 font-bold">System Error</div>
-                    <div className="mb-6 text-white text-sm whitespace-pre-line">{INITIAL_ERROR}</div>
-                    <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                            onClick={() => setShowInitialError(false)}>
+                <div
+                    className="bg-gray-900 border-2 border-red-400 p-8 rounded shadow-lg text-center animate-pulse"
+                    style={{maxWidth: vesselBoot.maxWidth}}
+                >
+                    <div className="mb-4 text-red-400 font-bold">{vesselBoot.errorTitle}</div>
+                    <div className="mb-6 text-white text-sm whitespace-pre-line">
+                        {vesselBoot.initErr}
+                    </div>
+                    <button
+                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        onClick={() => setShowInitialError(false)}
+                    >
                         OK
                     </button>
                 </div>
@@ -62,7 +65,7 @@ export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => {
                         <pre className="whitespace-pre-wrap">{displayedText}</pre>
                     </div>
                     <div className="mt-4 text-red-400 animate-pulse text-center">
-                        [SYSTEM CORRUPTION INITIATED]
+                        {vesselBoot.sysCorruptionMsg}
                     </div>
                 </div>
             )}

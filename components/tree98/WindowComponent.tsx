@@ -1,6 +1,6 @@
 import React, {useLayoutEffect, useRef, useState} from 'react';
 import {WindowComponentProps} from '@/lib/types/tree98';
-import {COLORS, FONTS, SYSTEM_CONFIG} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
 
 
@@ -19,9 +19,9 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
                                                                     onResize
                                                                 }) => {
     const Component = window.component;
-    const glitchX = systemCorruption > 2 ? Math.random() * SYSTEM_CONFIG.GLITCH_POSITION_MAX - 5 : 0;
-    const glitchY = systemCorruption > 2 ? Math.random() * SYSTEM_CONFIG.GLITCH_POSITION_MAX - 5 : 0;
-    const rotation = systemCorruption > 4 ? Math.random() * SYSTEM_CONFIG.GLITCH_ROTATION_MAX - 2 : 0;
+    const glitchX = systemCorruption > 2 ? Math.random() * sysConfigDefaults.corruption.glitchPosMax - 5 : 0;
+    const glitchY = systemCorruption > 2 ? Math.random() * sysConfigDefaults.corruption.glitchPosMax - 5 : 0;
+    const rotation = systemCorruption > 4 ? Math.random() * sysConfigDefaults.corruption.glitchRotMax - 2 : 0;
 
     // Resize logic
     const resizing = useRef(false);
@@ -81,15 +81,15 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
                     width: MIN_WIDTH,
                     height: 24,
                     zIndex: window.zIndex,
-                    backgroundColor: COLORS.WINDOW_BG,
-                    borderColor: COLORS.WINDOW_BORDER,
-                    fontFamily: FONTS.SYSTEM
+                    backgroundColor: sysConfigDefaults.colors.windowBg,
+                    borderColor: sysConfigDefaults.colors.windowBorder,
+                    fontFamily: sysConfigDefaults.fonts.system
                 }}
                 onClick={() => onBringToFront(window.id)}
             >
                 <div
                     className="text-white px-2 py-1 flex items-center justify-between text-xs cursor-move select-none"
-                    style={{backgroundColor: COLORS.TITLE_BAR}}
+                    style={{backgroundColor: sysConfigDefaults.colors.titleBar}}
                     onMouseDown={(e) => onStartDrag(e, window.id)}
                 >
                     <span>{window.title}</span>
@@ -128,15 +128,15 @@ export const WindowComponent: React.FC<WindowComponentProps> = ({
                 height: window.height,
                 zIndex: window.zIndex,
                 transform: `rotate(${rotation}deg)`,
-                backgroundColor: COLORS.WINDOW_BG,
-                borderColor: COLORS.WINDOW_BORDER,
-                fontFamily: FONTS.SYSTEM
+                backgroundColor: sysConfigDefaults.colors.windowBg,
+                borderColor: sysConfigDefaults.colors.windowBorder,
+                fontFamily: sysConfigDefaults.fonts.system
             }}
             onClick={() => onBringToFront(window.id)}
         >
             <div
                 className="text-white px-2 py-1 flex items-center justify-between text-xs cursor-move select-none"
-                style={{backgroundColor: COLORS.TITLE_BAR}}
+                style={{backgroundColor: sysConfigDefaults.colors.titleBar}}
                 onMouseDown={(e) => onStartDrag(e, window.id)}
             >
                 <span>{window.title}</span>

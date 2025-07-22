@@ -106,7 +106,6 @@ export const Paint: React.FC = () => {
     const uploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
         const canvas = canvasRef.current;
         const file = e.target.files?.[0];
-        console.log('Upload triggered', {canvas, file});
         if (canvas && file) {
             const ctx = canvas.getContext('2d');
             const reader = new FileReader();
@@ -189,7 +188,7 @@ export const Paint: React.FC = () => {
         setStartPos(null);
     };
 
-    // Simple flood fill (stack-based, not optimized)
+    // Simple flood fill
     const clearCanvas = () => {
         const canvas = canvasRef.current;
         if (canvas) {

@@ -1,15 +1,9 @@
 'use client';
 import React, {useEffect, useRef, useState} from 'react';
-import {FILE_SYSTEM, FONTS} from '@/lib/data/tree98';
+import {cmdData, exeTitle, files, sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
+import {DirItem} from "@/lib/types/tree98";
 
-type FileSystemItem = typeof FILE_SYSTEM[number];
-type DirItem = {
-    name: string;
-    children?: (FileSystemItem | DirItem)[];
-    type: 'folder' | 'file';
-    [key: string]: any;
-};
 
 const resolvePath = (base: string[], targetPath?: string): DirItem | null => {
     const fullPath = [...base];
@@ -20,7 +14,7 @@ const resolvePath = (base: string[], targetPath?: string): DirItem | null => {
             else fullPath.push(part);
         }
     }
-    let current: any = FILE_SYSTEM.find(d => d.name === fullPath[0]);
+    let current: any = files.find(d => d.name === fullPath[0]);
     for (let i = 1; i < fullPath.length; i++) {
         current = current?.children?.find(
             (item: any) => item.name.toLowerCase() === fullPath[i].toLowerCase() && item.type === 'folder'
@@ -32,22 +26,16 @@ const resolvePath = (base: string[], targetPath?: string): DirItem | null => {
 
 const listDir = (dir: DirItem): string[] => {
     if (!dir?.children?.length) return ['<Empty Directory>'];
-    const boxTop = '┌──────────── FILES ────────────┐';
+    const boxTop = cmdData.listDir.top;
     const files = dir.children.map(item =>
         `│ ${item.name.padEnd(28, '\u00A0')}│`
     );
-    const boxBottom = '└────────────────────────────────┘';
+    const boxBottom = cmdData.listDir.bottom;
     return [boxTop, ...files, boxBottom];
 };
 
 export const CMD: React.FC = () => {
-    const [history, setHistory] = useState<string[]>([
-        '(c) 19XX–19XX Internal Research Division',
-        '\u00A0',
-        'Due to safety protocols, this console is limited',
-        'Awaiting emergency boot sequence to unlock file console command line and mount safety file system.',
-        '\u00A0'
-    ]);
+    const [history, setHistory] = useState<string[]>(cmdData.history.useStateBegin);
     const [input, setInput] = useState('');
     const [inputHistory, setInputHistory] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState<number | null>(null);
@@ -67,76 +55,6 @@ export const CMD: React.FC = () => {
         });
     };
 
-    const commandMap: Record<string, (args: string[]) => string[]> = {
-        help: () => [
-            '┌──────────── AVAILABLE COMMANDS ────────────┐',
-            '│ help\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Show available commands\u00A0\u00A0│',
-            '│ dir / ls [folder]\u00A0List contents\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ cd [folder]\u00A0\u00A0\u00A0\u00A0\u00A0Change directory\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ cls\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Clear screen\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ $var = value\u00A0\u00A0\u00A0\u00A0Set variable\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ $var\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Recall variable\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ time\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Show current time\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ date\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Show current date\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ battery\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Show battery level\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ useragent\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Show browser UA\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0│',
-            '│ echo\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Print inputted text raw\u00A0\u00A0│',
-            '└──────────────────────────────────────────────┘',
-        ],
-        cls: () => {
-            setHistory([]);
-            return [];
-        },
-        dir: (args) => {
-            const targetDir = resolvePath(path, args[0]);
-            return targetDir ? listDir(targetDir) : ['ERROR: PATH NOT FOUND'];
-        },
-        ls: (args) => commandMap['dir'](args), // alias
-        cd: (args) => {
-            const target = args[0]?.replace(/\\$/, '');
-            if (!target) return ['SYNTAX: cd [folder]'];
-            const newDir = resolvePath(path, target);
-            if (newDir) {
-                const parts = target.split('\\');
-                const newPath = [...path];
-                for (const part of parts) {
-                    if (part === '..') newPath.pop();
-                    else newPath.push(part);
-                }
-                setPath(newPath);
-                return [];
-            } else return [`The system cannot find the path specified: ${args[0]}`];
-        },
-        time: () => [`Current Time: ${new Date().toLocaleTimeString()}`],
-        date: () => [`Current Date: ${new Date().toLocaleDateString()}`],
-        battery: () => {
-            if ('getBattery' in navigator) {
-                (navigator as any).getBattery().then((b: { level: number; charging: boolean }) => {
-                    const level = Math.round(b.level * 100) + '%';
-                    const status = b.charging ? 'Charging' : 'Not Charging';
-                    setHistory(prev => [...prev, `Battery: ${level} (${status})`]);
-                });
-                return ['Checking battery status...'];
-            }
-            return ['Battery API not supported'];
-        },
-        useragent: () => [navigator.userAgent],
-        echo: (args: string[]) => {
-            const val = args.join(' ');
-            let evaluated: any;
-            if (!isNaN(Number(val.trim()))) {
-                evaluated = Number(val.trim());
-            } else {
-                try {
-                    evaluated = evaluateExpression(val, variables);
-                } catch {
-                    evaluated = val;
-                }
-            }
-            return [String(evaluated)];
-        },
-    };
-
     const handlePipe = (raw: string): string[] => {
         const parts = raw.split('|').map(p => p.trim());
         let output: string[] = [];
@@ -150,12 +68,12 @@ export const CMD: React.FC = () => {
     const evaluateExpression = (expr: string, vars: Record<string, any>): number => {
         const replaced = expr.replace(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g, (_, varName) => {
             const val = vars[varName];
-            if (val === undefined) throw new Error(`Variable $${varName} not found`);
+            if (val === undefined) throw new Error(cmdData.messages.varNotFound(varName));
             return val;
         });
 
         if (!/^[\d\s()+\-*/.]+$/.test(replaced)) {
-            throw new Error('Unsafe or invalid characters in expression');
+            throw new Error(cmdData.messages.failedRegexSafety);
         }
 
         return Function(`"use strict"; return (${replaced})`)();
@@ -167,7 +85,6 @@ export const CMD: React.FC = () => {
             return val !== undefined ? val : `$${varName}`;
         });
     };
-
 
     const handleSingleCommand = (raw: string): string[] => {
         let input = raw.trim();
@@ -185,9 +102,9 @@ export const CMD: React.FC = () => {
                     evaluated = evaluateExpression(val, variables);
                 }
                 setVariables(prev => ({...prev, [key]: String(evaluated)}));
-                return [`Variable $${key} set.`];
+                return [cmdData.messages.varSet(key)];
             } catch (err) {
-                return [`ERROR: ${err instanceof Error ? err.message : 'Invalid expression'}`];
+                return [cmdData.messages.errorExpression(err)];
             }
         }
 
@@ -197,9 +114,8 @@ export const CMD: React.FC = () => {
             const val = variables[varName];
             return val !== undefined
                 ? [`${val}`]
-                : [`ERROR: Variable $${varName} not found`];
+                : [cmdData.messages.varNotFound(val)];
         }
-
 
         // 3. Replace vars in the command string (used in expressions or commands)
         input = replaceVars(input, variables);
@@ -207,19 +123,26 @@ export const CMD: React.FC = () => {
         // 4. Built-in commands
         const [cmdRaw, ...args] = input.split(/\s+/);
         const cmd = cmdRaw.toLowerCase();
-
+        const commandMap = cmdData.commandMap({
+            setHistory,
+            setPath,
+            path,
+            resolvePath,
+            listDir,
+            variables,
+            evaluateExpression,
+        });
         if (commandMap[cmd]) return commandMap[cmd](args);
 
         if (cmdRaw.startsWith('*') && cmdRaw.endsWith('*')) return [cmdRaw];
 
         // 5. Fallback
         if (!cmdRaw || /^\d+(\.\d+)?$/.test(cmdRaw)) {
-            return ['Command is disabled.'];
+            return [cmdData.messages.disabled];
         } else {
-            return [`'${cmdRaw}' is not recognized as an internal or external command, operable program or batch file.`];
+            return [cmdData.messages.commandNotFound(cmdRaw)];
         }
     };
-
 
     const handleCommand = (raw: string): string[] =>
         raw.includes('|') ? handlePipe(raw) : handleSingleCommand(raw);
@@ -254,14 +177,17 @@ export const CMD: React.FC = () => {
     }, [history]);
 
     return (
-        <div className="flex flex-col h-full bg-black text-green-400" style={{fontFamily: FONTS.SYSTEM}}>
+        <div className="flex flex-col h-full bg-black text-green-400"
+             style={{fontFamily: sysConfigDefaults.fonts.system}}>
             <div className="flex items-center p-2 border-b bg-gray-900 gap-2">
                 <div className="w-8 h-8">{getIcon('run')}</div>
-                <span className="text-xs flex-1">C:\ Locked Console</span>
+                <span className="text-xs flex-1">{exeTitle.CommandPrompt}</span>
             </div>
             <div className="flex-1 p-4 overflow-auto bg-black text-sm font-mono" ref={terminalRef}
                  style={{userSelect: 'text', WebkitUserSelect: 'text'}}>
-                {history.map((line, i) => <div key={i}>{highlightText(line)}</div>)}
+                {history.map((line, i) => (
+                    <div key={i} style={{whiteSpace: 'pre-wrap'}}>{highlightText(line)}</div>
+                ))}
                 <form onSubmit={handleSubmit} className="flex mt-1">
                     <span>{getPrompt()}&nbsp;</span>
                     <input

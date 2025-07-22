@@ -16,7 +16,7 @@ import {
 import TASGoodBye from "./TASGoodBye";
 import {BACKGROUND_AUDIO} from "@/lib/audio";
 import {useTypewriter} from "@/hooks/useTypeWriter";
-import {renderMsg, signCookie} from "@/lib/utils";
+import {detectOsBrowser, renderMsg, signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
 
 
@@ -53,21 +53,6 @@ export default function ChoicesPage() {
         if (Cookies.get(cookies.terminal)) setAlternateGreeting(true);
 
         // 2. Device detection
-        function detectOsBrowser(ua: string) {
-            let os = "Unknown OS";
-            if (/windows/i.test(ua)) os = "Windows";
-            else if (/mac/i.test(ua)) os = "MacOS";
-            else if (/linux/i.test(ua)) os = "Linux";
-            else if (/android/i.test(ua)) os = "Android";
-            else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
-            let browser = "Unknown Browser";
-            if (/chrome/i.test(ua)) browser = "Chrome";
-            else if (/firefox/i.test(ua)) browser = "Firefox";
-            else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = "Safari";
-            else if (/edg/i.test(ua)) browser = "Edge";
-            return {os, browser};
-        }
-
         const {os, browser} = detectOsBrowser(navigator.userAgent);
         setOsBrowser({os, browser});
         setLoading(false);

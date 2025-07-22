@@ -1,7 +1,10 @@
+'use client';
 import React, {useEffect, useState} from 'react';
-import {FONTS} from '@/lib/data/tree98';
+import {controlPanelData, sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
 import {localStorageKeys} from "@/lib/saveData";
+import {ControlPanelData} from "@/lib/types/tree98";
+import {detectOsBrowser} from "@/lib/utils";
 
 const InfoItem = ({label, value}: { label: string; value: string | number | boolean }) => (
     <div className="flex justify-between text-xs border-b py-1">
@@ -11,49 +14,61 @@ const InfoItem = ({label, value}: { label: string; value: string | number | bool
 );
 
 export const ControlPanel: React.FC = () => {
-    const [dateTime, setDateTime] = useState('');
-    const [resolution, setResolution] = useState('');
-    const [userAgent, setUserAgent] = useState('');
-    const [language, setLanguage] = useState('');
-    const [platform, setPlatform] = useState('');
-    const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-    const [batteryInfo, setBatteryInfo] = useState<{ level: number; charging: boolean } | null>(null);
-    const [cookieCount, setCookieCount] = useState<number>(0);
-    const [refreshCount, setRefreshCount] = useState<string>('N/A');
-    const [sessionId, setSessionId] = useState<string>('N/A');
+    const [data, setData] = useState<ControlPanelData>({
+        dateTime: '',
+        resolution: '',
+        userAgent: '',
+        language: '',
+        platform: '',
+        isOnline: navigator.onLine,
+        batteryInfo: null,
+        cookieCount: 0,
+        refreshCount: 'N/A',
+        sessionId: 'N/A'
+    });
 
     useEffect(() => {
         const updateDate = () => {
             const now = new Date();
-            setDateTime(now.toLocaleString());
+            setData(prev => ({...prev, dateTime: now.toLocaleString()}));
         };
+
         updateDate();
         const interval = setInterval(updateDate, 1000);
 
-        setResolution(`${window.screen.width}x${window.screen.height}`);
-        setUserAgent(navigator.userAgent);
-        setLanguage(navigator.language);
-        setPlatform(navigator.platform);
-        setCookieCount(document.cookie.split(';').filter(c => c.trim()).length);
+        const cookieSize = document.cookie.length;
+        const cookieCount = document.cookie.split(';').filter(c => c.trim()).length;
+        const {os} = detectOsBrowser(navigator.userAgent)
 
-        setRefreshCount(localStorage.getItem(localStorageKeys.refreshCount) || 'N/A');
-        setSessionId(localStorage.getItem(localStorageKeys.sessionId) || 'N/A');
+        setData(prev => ({
+            ...prev,
+            resolution: `${window.screen.width}x${window.screen.height}`,
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: os,
+            cookieCount,
+            sessionId: localStorage.getItem(localStorageKeys.sessionId) || 'N/A',
+            refreshCount: localStorage.getItem(localStorageKeys.refreshCount) || 'N/A',
+            cookieSize
+        }));
 
-        window.addEventListener('online', () => setIsOnline(true));
-        window.addEventListener('offline', () => setIsOnline(false));
+        window.addEventListener('online', () => setData(prev => ({...prev, isOnline: true})));
+        window.addEventListener('offline', () => setData(prev => ({...prev, isOnline: false})));
 
-        // Battery
         if ('getBattery' in navigator) {
             (navigator as any).getBattery().then((battery: {
                 level: number;
                 charging: boolean;
-                addEventListener: Function
+                addEventListener: Function;
             }) => {
                 const updateBattery = () => {
-                    setBatteryInfo({
-                        level: Math.round(battery.level * 100),
-                        charging: battery.charging
-                    });
+                    setData(prev => ({
+                        ...prev,
+                        batteryInfo: {
+                            level: Math.round(battery.level * 100),
+                            charging: battery.charging
+                        }
+                    }));
                 };
                 updateBattery();
                 battery.addEventListener('levelchange', updateBattery);
@@ -64,65 +79,38 @@ export const ControlPanel: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
+    const groupedSections = controlPanelData.reduce((acc, field) => {
+        const value = (field.key === 'cookieSize')
+            ? document.cookie.length
+            : (data as any)[field.key];
+
+        if (field.condition && !field.condition(data)) return acc;
+
+        const formattedValue = field.format ? field.format(value) : value;
+        if (!acc[field.section]) acc[field.section] = [];
+        acc[field.section].push({
+            label: field.label,
+            value: formattedValue,
+            icon: field.icon
+        });
+
+        return acc;
+    }, {} as Record<string, { label: string; value: string; icon: string }[]>);
+
     return (
-        <div className="p-4 bg-white min-h-screen" style={{fontFamily: FONTS.SYSTEM}}>
+        <div className="p-4 bg-white min-h-screen" style={{fontFamily: sysConfigDefaults.fonts.system}}>
             <div className="text-sm font-bold mb-4">Control Panel</div>
-
-            {/* Time & Date */}
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6">{getIcon('clock') ?? getIcon('settings')}</div>
-                    <span className="text-xs font-semibold">Time & Date</span>
-                </div>
-                <InfoItem label="Current Time" value={dateTime}/>
-                <InfoItem label="Language" value={language}/>
-                <InfoItem label="Online" value={isOnline}/>
-            </div>
-
-            {/* System Info */}
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6">{getIcon('computer')}</div>
-                    <span className="text-xs font-semibold">System</span>
-                </div>
-                <InfoItem label="Platform" value={platform}/>
-                <InfoItem label="User Agent" value={userAgent}/>
-                <InfoItem label="Session ID" value={sessionId}/>
-                <InfoItem label="Refresh Count" value={refreshCount}/>
-            </div>
-
-            {/* Display Info */}
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6">{getIcon('image')}</div>
-                    <span className="text-xs font-semibold">Display</span>
-                </div>
-                <InfoItem label="Screen Resolution" value={resolution}/>
-            </div>
-
-            {/* Battery */}
-            {batteryInfo && (
-                <div className="mb-6">
+            {Object.entries(groupedSections).map(([section, items]) => (
+                <div key={section} className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6">{getIcon('restart')}</div>
-                        <span className="text-xs font-semibold">Battery</span>
+                        <div className="w-6 h-6">{getIcon(items[0]?.icon) ?? getIcon('settings')}</div>
+                        <span className="text-xs font-semibold">{section}</span>
                     </div>
-                    <InfoItem label="Battery Level" value={`${batteryInfo.level}%`}/>
-                    <InfoItem label="Charging" value={batteryInfo.charging}/>
+                    {items.map(({label, value}) => (
+                        <InfoItem key={label} label={label} value={value}/>
+                    ))}
                 </div>
-            )}
-            {/* Cookies */}
-            <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6">{getIcon('folder')}</div>
-                    <span className="text-xs font-semibold">Browser Cookies</span>
-                </div>
-                <InfoItem
-                    label="Storage Size"
-                    value={`${document.cookie.length} bytes`}
-                />
-                <InfoItem label="Cookies" value={cookieCount}/>
-            </div>
+            ))}
         </div>
     );
 };

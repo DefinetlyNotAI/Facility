@@ -1,5 +1,5 @@
 import React from 'react';
-import {FONTS, START_MENU_ITEMS} from '@/lib/data/tree98';
+import {startMenu, sysConfigDefaults} from '@/lib/data/tree98';
 import {StartMenuProps} from '@/lib/types/tree98';
 
 import {getIcon} from '@/components/tree98/icons';
@@ -8,13 +8,13 @@ import {getIcon} from '@/components/tree98/icons';
 export const StartMenu: React.FC<StartMenuProps> = ({onAction}) => (
     <div
         className="absolute bottom-8 left-0 w-64 bg-gray-200 border-2 border-gray-400 shadow-lg"
-        style={{fontFamily: FONTS.SYSTEM}}
+        style={{fontFamily: sysConfigDefaults.fonts.system}}
     >
         <div className="bg-blue-600 text-white p-2 text-sm font-bold">
             tree98
         </div>
         <div className="p-1">
-            {START_MENU_ITEMS.map((item, index) => (
+            {startMenu.map((item, index) => (
                 <div
                     key={index}
                     className="p-2 hover:bg-blue-100 cursor-pointer text-sm flex items-center"

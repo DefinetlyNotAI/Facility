@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {MESSAGES, SYSTEM_CONFIG} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/data/tree98';
 import {signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
 
@@ -8,39 +8,46 @@ export const useSystemCorruption = (createWindow: any) => {
     const [errorPopups, setErrorPopups] = useState<string[]>([]);
     const [isSystemCrashing, setIsSystemCrashing] = useState(false);
     const [showBlueScreen, setShowBlueScreen] = useState(false);
+    const [messageIndex, setMessageIndex] = useState(0);
 
     useEffect(() => {
         if (systemCorruption > 0) {
-            const corruptionInterval = setInterval(() => {
-                if (systemCorruption < SYSTEM_CONFIG.MAX_CORRUPTION_LEVEL) {
-                    const randomMessage = MESSAGES.TREE[Math.floor(Math.random() * MESSAGES.TREE.length)];
-                    setErrorPopups(prev => [...prev, randomMessage]);
+            const crashingMessages = sysConfigDefaults.sysMessages.crashingMessages;
+            const intervalId = setInterval(() => {
+                // Cycle through all crashingMessages in order
+                const currentMessage = crashingMessages[messageIndex % crashingMessages.length];
+                setErrorPopups(prev => [...prev, currentMessage]);
+                setMessageIndex(prev => prev + 1);
 
-                    if (Math.random() < SYSTEM_CONFIG.ERROR_POPUP_CHANCE) {
-                        createWindow('System Error', null,
-                            200 + Math.random() * 300,
-                            100 + Math.random() * 200,
-                            320, 180,
-                            {message: MESSAGES.ERROR[Math.floor(Math.random() * MESSAGES.ERROR.length)]}
-                        );
-                    }
+                // Show a system error popup with a random error message
+                const randomErrorMsg = sysConfigDefaults.sysMessages.errors[
+                    Math.floor(Math.random() * sysConfigDefaults.sysMessages.errors.length)
+                    ];
+                createWindow(
+                    'System Error',
+                    null,
+                    200 + Math.random() * 300,
+                    100 + Math.random() * 200,
+                    320, 180,
+                    {content: randomErrorMsg}
+                );
 
-                    setSystemCorruption(prev => prev + 1);
-                } else {
+                // Optionally, trigger crash/BSOD after one full cycle
+                if ((messageIndex + 1) % crashingMessages.length === 0) {
                     setIsSystemCrashing(true);
                     setTimeout(() => {
                         setShowBlueScreen(true);
                         setTimeout(async () => {
-                            await signCookie(`${cookies.tree98}=true`)
+                            await signCookie(`${cookies.tree98}=true`);
                             window.location.href = routes.fileConsole;
-                        }, SYSTEM_CONFIG.BLUE_SCREEN_DELAY);
-                    }, SYSTEM_CONFIG.CRASH_DELAY);
+                        }, sysConfigDefaults.delay.bsod);
+                    }, sysConfigDefaults.delay.crash);
                 }
-            }, SYSTEM_CONFIG.CORRUPTION_INTERVAL);
+            }, sysConfigDefaults.corruption.interval);
 
-            return () => clearInterval(corruptionInterval);
+            return () => clearInterval(intervalId);
         }
-    }, [systemCorruption, createWindow]);
+    }, [systemCorruption, createWindow, messageIndex]);
 
     return {
         systemCorruption,

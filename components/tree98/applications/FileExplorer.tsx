@@ -1,18 +1,13 @@
 import React, {useState} from 'react';
-import {FILE_SYSTEM, FONTS} from '@/lib/data/tree98';
+import {files, sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
-import {FileSystemItem} from "@/lib/types/tree98";
-
-interface FileExplorerProps {
-    startPath?: string[];
-    onFileOpen?: (item: FileSystemItem) => void;
-}
+import {FileExplorerProps, FileSystemItem} from "@/lib/types/tree98";
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen}) => {
     const [currentPath, setCurrentPath] = useState(startPath || ['/']);
     const [currentItems, setCurrentItems] = useState(() => {
         if (startPath) {
-            let items = FILE_SYSTEM;
+            let items = files;
             for (let i = 1; i < startPath.length; i++) {
                 const folder = items.find(item => item.name === startPath[i] && item.type === 'folder');
                 if (folder && folder.children) {
@@ -21,11 +16,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen
             }
             return items;
         }
-        return FILE_SYSTEM;
+        return files;
     });
 
     const navigate = (path: string[]) => {
-        let items = FILE_SYSTEM;
+        let items = files;
         for (let i = 1; i < path.length; i++) {
             const folder = items.find(item => item.name === path[i] && item.type === 'folder');
             if (folder && folder.children) {
@@ -63,7 +58,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen
                     onClick={goBack}
                     disabled={currentPath.length <= 1}
                     className="px-3 py-1 border bg-gray-200 text-xs disabled:opacity-50 hover:bg-gray-300"
-                    style={{fontFamily: FONTS.SYSTEM}}
+                    style={{fontFamily: sysConfigDefaults.fonts.system}}
                 >
                     Back
                 </button>
@@ -71,11 +66,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen
                     onClick={goUp}
                     disabled={currentPath.length <= 1}
                     className="px-3 py-1 border bg-gray-200 text-xs disabled:opacity-50 hover:bg-gray-300"
-                    style={{fontFamily: FONTS.SYSTEM}}
+                    style={{fontFamily: sysConfigDefaults.fonts.system}}
                 >
                     Up
                 </button>
-                <span className="text-xs flex-1" style={{fontFamily: FONTS.SYSTEM}}>
+                <span className="text-xs flex-1" style={{fontFamily: sysConfigDefaults.fonts.system}}>
                     {currentPath.length === 1 ? '/' : currentPath.slice(1).join('/')}
                 </span>
             </div>
@@ -86,7 +81,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen
                             key={index}
                             className="flex flex-col items-center p-2 hover:bg-blue-100 cursor-pointer rounded"
                             onDoubleClick={() => openItem(item)}
-                            style={{fontFamily: FONTS.SYSTEM}}
+                            style={{fontFamily: sysConfigDefaults.fonts.system}}
                         >
                             <div className="w-8 h-8 mb-1">
                                 {getIcon(item.icon || (item.type === 'folder' ? 'folder' : 'notepad'))}

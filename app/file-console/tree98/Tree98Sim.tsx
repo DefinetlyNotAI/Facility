@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import LoginScreen from './LoginScreen';
-import {BG, COLORS, DESKTOP_ICONS, FONTS, SYSTEM_CONFIG,} from '@/lib/data/tree98';
+import {desktop, exeTitle, sysConfigDefaults} from '@/lib/data/tree98';
 import Cookies from "js-cookie";
 import {getIcon} from '@/components/tree98/icons';
 import {ContextMenu, FileSystemItem} from '@/lib/types/tree98';
@@ -13,13 +13,15 @@ import {WindowComponent} from '@/components/tree98/WindowComponent';
 import {Notepad} from '@/components/tree98/applications/Notepad';
 import {Paint} from '@/components/tree98/applications/Paint';
 import {FileExplorer} from '@/components/tree98/applications/FileExplorer';
-import {ControlPanel, FileViewer, VesselBootDialog} from '@/components/tree98/dialogs';
 import {StartMenu} from '@/components/tree98/ui/StartMenu';
 import {ContextMenuComponent} from '@/components/tree98/ui/ContextMenu';
 import {LoadingScreen} from '@/components/tree98/ui/LoadingScreen';
 import {BlueScreen} from '@/components/tree98/ui/BlueScreen';
 import {cookies, routes} from '@/lib/saveData';
 import {CMD} from '@/components/tree98/applications/CMD';
+import {ControlPanel} from "@/components/tree98/dialogs/ControlPanel";
+import {VesselBootDialog} from "@/components/tree98/dialogs/VesselBootDialog";
+import {FileViewer} from "@/components/tree98/dialogs/FileViewer";
 
 const Tree98Sim: React.FC = () => {
     const {bootPhase, setBootPhase, tree98BootText, bootText, loadingProgress} = useBootSequence();
@@ -29,7 +31,6 @@ const Tree98Sim: React.FC = () => {
     const [showStartMenu, setShowStartMenu] = useState(false);
     const [glitchAudio, setGlitchAudio] = useState<HTMLAudioElement | null>(null);
     const [cursorGlitch, setCursorGlitch] = useState(false);
-    const [disappearingFiles, setDisappearingFiles] = useState<string[]>([]);
 
     const {
         windows,
@@ -79,61 +80,38 @@ const Tree98Sim: React.FC = () => {
             }
             setCursorGlitch(false);
         }
-        // Disappearing files logic
-        if (systemCorruption > 4) {
-            setDisappearingFiles(['README.txt', 'Notes.txt', 'system.log', 'error.log']);
-        } else {
-            setDisappearingFiles([]);
-        }
     }, [systemCorruption]);
 
-    // Auto-open and crash apps
-    useEffect(() => {
-        if (systemCorruption > 5) {
-            const autoOpen = setInterval(() => {
-                const apps = [Notepad, Paint, CMD, ControlPanel];
-                const titles = ['Untitled - Notepad', 'Untitled - Paint', 'Command Prompt', 'Control Panel'];
-                const idx = Math.floor(Math.random() * apps.length);
-                createWindow(titles[idx], apps[idx], 100 + Math.random() * 300, 100 + Math.random() * 200, 400, 300);
-                setTimeout(() => {
-                    closeWindow(windows[windows.length - 1]?.id);
-                }, 1200);
-            }, 1800);
-            return () => clearInterval(autoOpen);
-        }
-    }, [systemCorruption, windows, createWindow, closeWindow]);
-
     const handleFileOpen = (item: FileSystemItem) => {
-        if (disappearingFiles.includes(item.name)) {
-            createWindow('404 - File Not Found', FileViewer, 200, 200, 400, 200, {
-                item: {
-                    name: item.name,
-                    content: 'File not found.',
-                    type: 'file'
-                }
-            });
-            return;
-        }
         if ('action' in item) {
             switch (item.action) {
                 case 'notepad':
-                    createWindow(`Untitled - Notepad`, Notepad, 150, 150, 500, 400);
+                    createWindow(exeTitle.Notepad, Notepad, 150, 150, 500, 400);
                     break;
                 case 'paint':
-                    createWindow(`Untitled - Paint`, Paint, 150, 150, 500, 400);
+                    createWindow(exeTitle.Paint, Paint, 150, 150, 500, 400);
                     break;
                 case 'cmd':
-                    createWindow('Command Prompt', CMD, 180, 120, 600, 300);
+                    createWindow(exeTitle.CommandPrompt, CMD, 180, 120, 600, 300);
                     break;
                 case 'settings':
-                    createWindow('Control Panel', ControlPanel, 140, 140, 400, 200);
+                    createWindow(exeTitle.ControlPanel, ControlPanel, 140, 140, 400, 200);
                     break;
                 default:
                     break;
             }
-        } else if (item.executable && item.name === 'VESSEL_BOOT.EXE') {
-            setSystemCorruption(1);
-            createWindow('VESSEL_BOOT.EXE - CRITICAL ERROR', VesselBootDialog, 100, 100, 500, 300, {item});
+        } else if (item.executable && item.name === sysConfigDefaults.vesselEXE) {
+            createWindow(exeTitle.VesselBoot, VesselBootDialog, 100, 100, 500, 300, {item});
+            setTimeout(async () => {
+                await new Promise(res => setTimeout(res, 7000));
+                try {
+                    if (!document.fullscreenElement) {
+                        await document.exitFullscreen();
+                    }
+                } catch (err) {
+                }
+                setSystemCorruption(1);
+            }, 6000);
         } else if (item.type === 'file') {
             createWindow(item.name, FileViewer, 100 + Math.random() * 200, 100 + Math.random() * 200, 500, 400, {item});
         }
@@ -142,16 +120,16 @@ const Tree98Sim: React.FC = () => {
     const handleDesktopIconClick = (action: string) => {
         switch (action) {
             case 'file-explorer':
-                createWindow('My Computer', FileExplorer, 100, 100, 600, 400, {onFileOpen: handleFileOpen});
+                createWindow(exeTitle.FileExplorer, FileExplorer, 100, 100, 600, 400, {onFileOpen: handleFileOpen});
                 break;
             case 'notepad':
-                createWindow('Untitled - Notepad', Notepad, 150, 150, 500, 400);
+                createWindow(exeTitle.Notepad, Notepad, 150, 150, 500, 400);
                 break;
             case 'paint':
-                createWindow('Untitled - Paint', Paint, 200, 50, 750, 600);
+                createWindow(exeTitle.Paint, Paint, 200, 50, 750, 600);
                 break;
             case 'cmd':
-                createWindow('Command Prompt', CMD, 180, 120, 600, 300);
+                createWindow(exeTitle.CommandPrompt, CMD, 180, 120, 600, 300);
                 break;
         }
     };
@@ -159,20 +137,17 @@ const Tree98Sim: React.FC = () => {
     const handleStartMenuAction = (action: string) => {
         setShowStartMenu(false);
         switch (action) {
-            case 'file-explorer':
-                createWindow('My Computer', FileExplorer, 100, 100, 600, 400, {onFileOpen: handleFileOpen});
-                break;
             case 'documents':
-                createWindow('My Documents', FileExplorer, 120, 120, 600, 400, {
+                createWindow(exeTitle.FileExplorer, FileExplorer, 120, 120, 600, 400, {
                     startPath: ['My Computer', 'C:', 'Desktop'],
                     onFileOpen: handleFileOpen
                 });
                 break;
             case 'settings':
-                createWindow('Control Panel', ControlPanel, 140, 140, 400, 200);
+                createWindow(exeTitle.ControlPanel, ControlPanel, 140, 140, 400, 200);
                 break;
             case 'cmd':
-                createWindow('Command Prompt', CMD, 180, 120, 600, 300);
+                createWindow(exeTitle.CommandPrompt, CMD, 180, 120, 600, 300);
                 break;
             case 'restart':
                 window.location.reload();
@@ -201,7 +176,7 @@ const Tree98Sim: React.FC = () => {
         return (
             <div
                 className="w-full h-screen bg-black text-green-400 p-8"
-                style={{fontFamily: FONTS.BOOT}}
+                style={{fontFamily: sysConfigDefaults.fonts.mono}}
             >
                 <div className="whitespace-pre-wrap text-sm overflow-auto h-full" ref={el => {
                     if (el) el.scrollTop = el.scrollHeight;
@@ -217,7 +192,7 @@ const Tree98Sim: React.FC = () => {
         return (
             <div
                 className="w-full h-screen bg-black text-green-400 p-8"
-                style={{fontFamily: FONTS.BOOT}}
+                style={{fontFamily: sysConfigDefaults.fonts.mono}}
             >
                 <div className="whitespace-pre-wrap text-sm">
                     {bootText}
@@ -249,8 +224,8 @@ const Tree98Sim: React.FC = () => {
         <div
             className="w-full h-screen relative overflow-hidden select-none"
             style={{
-                backgroundImage: `url(${BG})`,
-                color: COLORS.TEXT_COLOR,
+                backgroundImage: `url(${sysConfigDefaults.background})`,
+                color: sysConfigDefaults.colors.text,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
@@ -280,12 +255,12 @@ const Tree98Sim: React.FC = () => {
             {/* Desktop Icons */}
             {showDesktopIcons && (
                 <div className="absolute top-4 left-4 space-y-6">
-                    {DESKTOP_ICONS.map((icon, index) => (
+                    {desktop.map((icon, index) => (
                         <div
                             key={index}
                             className="flex flex-col items-center p-2 hover:bg-blue-100 hover:bg-opacity-50 cursor-pointer w-20 rounded"
                             onDoubleClick={() => handleDesktopIconClick(icon.action)}
-                            style={{fontFamily: FONTS.SYSTEM}}
+                            style={{fontFamily: sysConfigDefaults.fonts.system}}
                         >
                             <div className="w-8 h-8 mb-1">
                                 {getIcon(icon.icon)}
@@ -319,12 +294,15 @@ const Tree98Sim: React.FC = () => {
                     key={index}
                     className="absolute border-2 shadow-lg p-4 text-center bg-white"
                     style={{
-                        left: 100 + index * 50,
-                        top: 100 + index * 50,
+                        left: `calc(50vw - 150px)`,
+                        top: `calc(50vh - 80px)`,
                         zIndex: 1000 + index,
                         transform: `rotate(${Math.random() * 10 - 5}deg)`,
-                        borderColor: COLORS.WINDOW_BORDER,
-                        fontFamily: FONTS.SYSTEM
+                        borderColor: sysConfigDefaults.colors.windowBorder,
+                        fontFamily: sysConfigDefaults.fonts.system,
+                        maxWidth: '300px',
+                        maxHeight: '160px',
+                        overflow: 'auto'
                     }}
                 >
                     <div className="w-8 h-8 mx-auto mb-2">
@@ -356,15 +334,15 @@ const Tree98Sim: React.FC = () => {
             <div
                 className="absolute bottom-0 left-0 right-0 border-t-2 flex items-center px-2"
                 style={{
-                    height: SYSTEM_CONFIG.TASKBAR_HEIGHT,
-                    backgroundColor: COLORS.TASKBAR_BG,
-                    borderColor: COLORS.WINDOW_BORDER,
-                    fontFamily: FONTS.SYSTEM
+                    height: sysConfigDefaults.size.taskbarHeight,
+                    backgroundColor: sysConfigDefaults.colors.taskbarBg,
+                    borderColor: sysConfigDefaults.colors.windowBorder,
+                    fontFamily: sysConfigDefaults.fonts.system
                 }}
             >
                 <button
                     className="px-4 py-1 border border-gray-400 text-xs font-bold mr-2 hover:bg-gray-300"
-                    style={{backgroundColor: COLORS.BUTTON_BG}}
+                    style={{backgroundColor: sysConfigDefaults.colors.buttonBg}}
                     onClick={(e) => {
                         e.stopPropagation();
                         setShowStartMenu(!showStartMenu);
@@ -408,12 +386,10 @@ const Tree98Sim: React.FC = () => {
 
             {/* System Crash Overlay */}
             {isSystemCrashing && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="text-white text-center" style={{fontFamily: FONTS.SYSTEM}}>
+                <div className="text-white text-center" style={{fontFamily: sysConfigDefaults.fonts.system}}>
                         <div className="text-2xl animate-pulse">SYSTEM FAILURE</div>
                         <div className="text-sm mt-4">Please wait...</div>
                     </div>
-                </div>
             )}
         </div>
     );

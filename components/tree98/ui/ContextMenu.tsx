@@ -1,5 +1,5 @@
 import React from 'react';
-import {FONTS} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/data/tree98';
 import {ContextMenuProps} from "@/lib/types/tree98";
 
 
@@ -13,7 +13,7 @@ export const ContextMenuComponent: React.FC<ContextMenuProps> = ({
         style={{
             left: contextMenu.x,
             top: contextMenu.y,
-            fontFamily: FONTS.SYSTEM,
+            fontFamily: sysConfigDefaults.fonts.system,
             fontSize: '12px'
         }}
     >

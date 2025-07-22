@@ -16,13 +16,11 @@ export interface Window {
     zIndex: number;
     props?: any;
 }
-
 export interface ContextMenu {
     x: number;
     y: number;
     visible: boolean;
 }
-
 export interface DragState {
     isDragging: boolean;
     windowId: string | null;
@@ -50,14 +48,23 @@ export interface FileSystemItem {
     action?: 'paint' | 'notepad' | 'cmd' | 'settings';
 }
 
+export interface FileExplorerProps {
+    startPath?: string[];
+    onFileOpen?: (item: FileSystemItem) => void;
+}
+
 // Start menu item type
 export interface StartMenuProps {
     onAction: (action: string) => void;
 }
 
-// Loading screen properties
+// Loading/Login screen properties
 export interface LoadingScreenProps {
     loadingProgress: number;
+}
+
+export interface LoginScreenProps {
+    onLogin: () => void;
 }
 
 // Context menu properties
@@ -77,13 +84,6 @@ export interface FileViewerProps {
     item: FileSystemItem;
 }
 
-// Error dialog properties
-export interface ErrorDialogProps {
-    message: string,
-    onClose: () => void,
-    style?: React.CSSProperties;
-}
-
 // Window component properties
 export interface WindowComponentProps {
     window: Window;
@@ -98,3 +98,43 @@ export interface WindowComponentProps {
 
 // Paint tool properties
 export type Tool = 'brush' | 'line' | 'rectangle' | 'square' | 'circle' | 'fill';
+
+// CMD command properties
+export type DirItem = {
+    name: string;
+    children?: (FileSystemItem | DirItem)[];
+    type: 'folder' | 'file';
+    [key: string]: any;
+};
+
+export interface CommandDeps {
+    setHistory: React.Dispatch<React.SetStateAction<string[]>>;
+    setPath: (newPath: string[]) => void;
+    path: string[];
+    resolvePath: (path: string[], target?: string) => DirItem | null;
+    listDir: (dir: DirItem) => string[];
+    variables: Record<string, any>;
+    evaluateExpression: (input: string, vars: Record<string, any>) => any;
+}
+
+// Control panel properties
+export type ControlPanelData = {
+    dateTime: string;
+    resolution: string;
+    userAgent: string;
+    language: string;
+    platform: string;
+    isOnline: boolean;
+    batteryInfo: { level: number; charging: boolean } | null;
+    cookieCount: number;
+    refreshCount: string;
+    sessionId: string;
+};
+export type InfoField = {
+    section: string;
+    icon: string;
+    label: string;
+    key: string;
+    format?: (val: any) => string;
+    condition?: (ctx: ControlPanelData) => boolean;
+};

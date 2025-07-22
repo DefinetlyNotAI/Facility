@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {COLORS, FONTS, MESSAGES, SYSTEM_CONFIG} from "@/lib/data/tree98";
+import {loginData, sysConfigDefaults} from "@/lib/data/tree98";
 import {signCookie} from "@/lib/utils";
 import {cookies} from "@/lib/saveData";
+import {LoginScreenProps} from "@/lib/types/tree98";
 
 async function sha256(text: string): Promise<string> {
     const encoder = new TextEncoder();
@@ -25,13 +26,10 @@ export async function validateCredentials(username: string, password: string): P
     const usernameHash = await sha256(username);
     const passwordHash = await sha1(password);
 
-    return usernameHash === SYSTEM_CONFIG.USERNAME_HASH &&
-        passwordHash === SYSTEM_CONFIG.PASSWORD_HASH;
+    return usernameHash === loginData.usernameHash &&
+        passwordHash === loginData.passwordHash;
 }
 
-interface LoginScreenProps {
-    onLogin: () => void;
-}
 
 const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
     const [username, setUsername] = useState('');
@@ -50,10 +48,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                 await signCookie(`${cookies.loggedIn}=true`)
                 onLogin();
             } else {
-                setError(MESSAGES.LOGIN.ERROR);
+                setError(loginData.err);
             }
         } catch (err) {
-            setError(MESSAGES.LOGIN.ERROR);
+            setError(loginData.err);
         } finally {
             setIsLoading(false);
         }
@@ -66,8 +64,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: COLORS.LOGIN_BG,
-                color: COLORS.TEXT_COLOR,
+                backgroundColor: sysConfigDefaults.colors.loginBg,
+                color: sysConfigDefaults.colors.text,
                 margin: 0,
                 padding: 0,
                 boxSizing: 'border-box',
@@ -79,24 +77,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                     border: '2px outset #9ca3af',
                     padding: '1.5rem',
                     boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
-                    fontFamily: FONTS.SYSTEM,
+                    fontFamily: sysConfigDefaults.fonts.system,
                     width: '400px',
-                    color: COLORS.TEXT_COLOR,
+                    color: sysConfigDefaults.colors.text,
                 }}
             >
                 <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
                     <div style={{fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '0.5rem'}}>
-                        {MESSAGES.LOGIN.TITLE}
+                        {loginData.title}
                     </div>
                     <div style={{fontSize: '0.875rem', color: '#4b5563'}}>
-                        {MESSAGES.LOGIN.SUBTITLE}
+                        {loginData.subTitle}
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                     <div>
                         <label style={{display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem'}}>
-                            {MESSAGES.LOGIN.USERNAME_LABEL}
+                            {loginData.userLabel}
                         </label>
                         <input
                             type="text"
@@ -108,7 +106,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                                 border: '1px solid #9ca3af',
                                 background: '#fff',
                                 fontSize: '0.875rem',
-                                fontFamily: FONTS.SYSTEM,
+                                fontFamily: sysConfigDefaults.fonts.system,
                                 boxSizing: 'border-box',
                             }}
                             disabled={isLoading}
@@ -118,7 +116,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
 
                     <div>
                         <label style={{display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem'}}>
-                            {MESSAGES.LOGIN.PASSWORD_LABEL}
+                            {loginData.passLabel}
                         </label>
                         <input
                             type="password"
@@ -130,7 +128,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                                 border: '1px solid #9ca3af',
                                 background: '#fff',
                                 fontSize: '0.875rem',
-                                fontFamily: FONTS.SYSTEM,
+                                fontFamily: sysConfigDefaults.fonts.system,
                                 boxSizing: 'border-box',
                             }}
                             disabled={isLoading}
@@ -146,7 +144,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                             textAlign: 'center',
                         }}
                     >
-                        {MESSAGES.LOGIN.HINT}
+                        {loginData.hint}
                     </div>
 
                     {error && (
@@ -177,7 +175,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                                 border: '2px outset #9ca3af',
                                 background: '#e5e7eb',
                                 fontSize: '0.875rem',
-                                fontFamily: FONTS.SYSTEM,
+                                fontFamily: sysConfigDefaults.fonts.system,
                                 opacity: isLoading ? 0.5 : 1,
                                 cursor: isLoading ? 'not-allowed' : 'pointer',
                                 transition: 'background 0.2s',
@@ -185,7 +183,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                             onMouseOver={e => (e.currentTarget.style.background = '#d1d5db')}
                             onMouseOut={e => (e.currentTarget.style.background = '#e5e7eb')}
                         >
-                            {isLoading ? 'Checking...' : MESSAGES.LOGIN.LOGIN_BUTTON}
+                            {isLoading ? 'Checking...' : loginData.loginButton}
                         </button>
                         <button
                             type="button"
@@ -194,14 +192,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
                                 border: '2px outset #9ca3af',
                                 background: '#e5e7eb',
                                 fontSize: '0.875rem',
-                                fontFamily: FONTS.SYSTEM,
+                                fontFamily: sysConfigDefaults.fonts.system,
                                 cursor: 'pointer',
                                 transition: 'background 0.2s',
                             }}
                             onMouseOver={e => (e.currentTarget.style.background = '#d1d5db')}
                             onMouseOut={e => (e.currentTarget.style.background = '#e5e7eb')}
                         >
-                            {MESSAGES.LOGIN.CANCEL_BUTTON}
+                            {loginData.cancelButton}
                         </button>
                     </div>
                 </form>

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {DragState, Window} from '@/lib/types/tree98';
-import {SYSTEM_CONFIG} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/data/tree98';
 
 const MIN_WIDTH = 250;
 const MIN_HEIGHT = 120;
@@ -56,8 +56,8 @@ export const useWindowManagement = () => {
         component: React.ComponentType<any>,
         x: number,
         y: number,
-        width: number = SYSTEM_CONFIG.DEFAULT_WINDOW_WIDTH,
-        height: number = SYSTEM_CONFIG.DEFAULT_WINDOW_HEIGHT,
+        width: number = sysConfigDefaults.size.windowWidth,
+        height: number = sysConfigDefaults.size.windowHeight,
         props: any = {}
     ) => {
         const newWindow: Window = {
@@ -120,7 +120,7 @@ export const useWindowManagement = () => {
                     x: 0,
                     y: 0,
                     width: window.innerWidth,
-                    height: window.innerHeight - SYSTEM_CONFIG.TASKBAR_HEIGHT,
+                    height: window.innerHeight - sysConfigDefaults.size.taskbarHeight,
                     isMaximized: true
                 };
             } else {
@@ -129,8 +129,8 @@ export const useWindowManagement = () => {
                     ...w,
                     x: 100,
                     y: 100,
-                    width: SYSTEM_CONFIG.DEFAULT_WINDOW_WIDTH,
-                    height: SYSTEM_CONFIG.DEFAULT_WINDOW_HEIGHT,
+                    width: sysConfigDefaults.size.windowWidth,
+                    height: sysConfigDefaults.size.windowHeight,
                     isMaximized: false
                 };
             }
@@ -143,7 +143,7 @@ export const useWindowManagement = () => {
                 ? {
                     ...w,
                     width: Math.max(MIN_WIDTH, Math.min(width, window.innerWidth)),
-                    height: Math.max(MIN_HEIGHT, Math.min(height, window.innerHeight - SYSTEM_CONFIG.TASKBAR_HEIGHT))
+                    height: Math.max(MIN_HEIGHT, Math.min(height, window.innerHeight - sysConfigDefaults.size.taskbarHeight))
                 }
                 : w
         ));

@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {MESSAGES, SYSTEM_CONFIG} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/data/tree98';
 import {localStorageKeys} from "@/lib/saveData";
 
 export const useBootSequence = () => {
@@ -15,8 +15,8 @@ export const useBootSequence = () => {
         let currentText = '';
 
         const bootInterval = setInterval(() => {
-            if (messageIndex < MESSAGES.TREE98_BOOT.length) {
-                const currentMessage = MESSAGES.TREE98_BOOT[messageIndex];
+            if (messageIndex < sysConfigDefaults.sysMessages.tree98BootSeq.length) {
+                const currentMessage = sysConfigDefaults.sysMessages.tree98BootSeq[messageIndex];
                 if (charIndex < currentMessage.length) {
                     currentText += currentMessage[charIndex];
                     charIndex++;
@@ -33,7 +33,7 @@ export const useBootSequence = () => {
                     startMainBoot();
                 }, 1000);
             }
-        }, SYSTEM_CONFIG.BOOT_DELAY);
+        }, sysConfigDefaults.delay.boot);
 
         const startMainBoot = () => {
             if (localStorage.getItem(localStorageKeys.vesselBoot) === 'true') {
@@ -46,8 +46,8 @@ export const useBootSequence = () => {
             let mainCurrentText = '';
 
             const mainBootInterval = setInterval(() => {
-                if (mainMessageIndex < MESSAGES.VESSEL_BOOT.length) {
-                    const currentMessage = MESSAGES.VESSEL_BOOT[mainMessageIndex];
+                if (mainMessageIndex < sysConfigDefaults.sysMessages.vesselBootMsg.length) {
+                    const currentMessage = sysConfigDefaults.sysMessages.vesselBootMsg[mainMessageIndex];
                     if (mainCharIndex < currentMessage.length) {
                         mainCurrentText += currentMessage[mainCharIndex];
                         mainCharIndex++;
@@ -63,9 +63,9 @@ export const useBootSequence = () => {
                     setTimeout(() => {
                         setBootPhase('loading');
                         startLoadingBar();
-                    }, SYSTEM_CONFIG.BOOT_COMPLETE_DELAY);
+                    }, sysConfigDefaults.delay.bootComplete);
                 }
-            }, SYSTEM_CONFIG.BOOT_MESSAGE_DELAY);
+            }, sysConfigDefaults.delay.bootMsg);
         };
 
         const startLoadingBar = () => {
@@ -76,9 +76,9 @@ export const useBootSequence = () => {
                         setTimeout(() => setBootPhase('login'), 500);
                         return 100;
                     }
-                    return Math.min(prev + Math.floor(Math.random() * (SYSTEM_CONFIG.LOADING_BAR_MAX_INC - SYSTEM_CONFIG.LOADING_BAR_MIN_INC + 1)) + SYSTEM_CONFIG.LOADING_BAR_MIN_INC, 100);
+                    return Math.min(prev + Math.floor(Math.random() * (sysConfigDefaults.loadBar.incMax - sysConfigDefaults.loadBar.incMin + 1)) + sysConfigDefaults.loadBar.incMin, 100);
                 });
-            }, SYSTEM_CONFIG.LOADING_BAR_SPEED);
+            }, sysConfigDefaults.loadBar.speed);
         };
     }, []);
 
