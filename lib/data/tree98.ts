@@ -32,7 +32,7 @@ export const sysConfigDefaults = {
         glitchPosMax: 10,
     },
     // Vessel executable file name
-    vesselEXE: "VESSEL_BOOT.EXE",
+    vesselEXE: "VESSEL_BOOT.exe",
     // Delay settings for various events in the simulation (ms)
     delay: {
         // Overall boot process timings for vessel msg - Keep it low
@@ -366,6 +366,133 @@ TREE MESSAGE LOG:
 [00:07:01] System entering emergency shutdown
 [00:07:02] TREE: Goodbye...
 [00:07:03] [LOG TERMINATED]`,
+    specialBootFiles: {
+        accessDenied: "ACCESS DENIED: This file is protected or in use by the system.",
+        udevd: "udevd (TREE v0.98)\n" +
+            "------------------\n" +
+            "[INFO] Initializing /dev structure...\n" +
+            "[INFO] Listening on netlink socket...\n" +
+            "[ERR!] DEVICE /dev/tree0p2 -> ACCESS DENIED\n" +
+            "[ERR!] Uncaught SIGSEGV at 0x0047fa23\n" +
+            "[CRIT] Failed to register /dev/tree0p1\n" +
+            "[EXIT] Code 139 (Segmentation Fault)\n",
+        tree0p1: "[BOOT RECORD PARSE]\n" +
+            "Filesystem: TREE-FS\n" +
+            "Signature: ???\n" +
+            "Bootloader: MISSING\n" +
+            "Recovery Sector: Unreadable\n" +
+            "Cluster #0: \"It is awake\"\n" +
+            "\n" +
+            "[ATTEMPT TO READ]\n" +
+            "...\n" +
+            "...\n" +
+            "[ERR!] Checksum failure at sector 43\n" +
+            "[MSG] STOP LOOKING\n",
+        tree0p2: "[DEVICE MAP]\n" +
+            "Partition: /dev/tree0p2\n" +
+            "Mount Point: /mnt/root/ghost\n" +
+            "Type: TREE-FS (Encrypted)\n" +
+            "Size: 2048MB\n" +
+            "\n" +
+            "[ACCESS LOG]\n" +
+            "> Mount attempt [FAILED] - TREE-FS header corrupted\n" +
+            "> Alert: Unknown process ID tried raw access (PID 00313)\n" +
+            "\n" +
+            "[NOTE]\n" +
+            "\"This volume hums, like it wants to speak.\"\n",
+        rsyslogd: "rsyslogd TREE-v0.4.12\n" +
+            "---------------------\n" +
+            "> daemon active\n" +
+            "> config: E:/etc/tree98/syslog.conf\n" +
+            "\n" +
+            "[WARNING] Kernel log entry detected: 'TR33 overwrite attempt detected'\n" +
+            "[WARNING] Dropping logs older than 24s\n" +
+            "\n" +
+            "[INFO] Message queue depth: 666\n" +
+            "[ERR!] Unexpected symbol in E:/proc/tree/syslog_pipe\n" +
+            "[EXIT] Stream closed by unknown signal\n",
+        acpid: "ACPI Daemon (vTREE_0.4.9)\n" +
+            "--------------------------\n" +
+            "> Monitoring battery state...\n" +
+            "> Listening for power events...\n" +
+            "\n" +
+            "[EVENT] AC_LOST -> Time anomaly detected\n" +
+            "[EVENT] lid closed -> screen locked\n" +
+            "[EVENT] Fan RPM spike → 999999\n" +
+            "\n" +
+            "[WARNING] ACPI TABLE CHECKSUM INVALID\n" +
+            "[SIGILL] Unknown table \"EldTR33\"\n" +
+            "\n" +
+            "“Tree branches do not grow. They wait.”\n",
+        initrdImg: "INITRAMFS BOOT IMAGE\n" +
+            "---------------------\n" +
+            "TREE98 Kernel Extension Loader\n" +
+            "Size: 🜲𐡯⬸⬳⬿?\n" +
+            "MD5: corrupt\n" +
+            "\n" +
+            "[BOOT LOG]\n" +
+            "> Decompressing... done\n" +
+            "> Mounting virtual FS... ok\n" +
+            "> Executing /init... FAIL\n" +
+            "\n" +
+            "[ERR!] Kernel Panic: initrd.img contents not trusted\n" +
+            "[MSG] Possible injection detected: /boot/tree98/vmlinuz\n" +
+            "\n" +
+            "[CODE TRACE]\n" +
+            "0x004014AC → load_tree()\n" +
+            "0x0040151F → whisper()\n" +
+            "\n" +
+            "[NOTE]\n" +
+            "It tried to run. Something stopped it.\n",
+        tree98Sys: "SYSTEM FILE - DO NOT DELETE\n" +
+            "-----------------------------------\n" +
+            "TREE Operating Kernel v0.98a\n" +
+            "Subsystem: ̸̨͓͓̩🜲𐡯⬸⬳⬿̲̦̜̳͈̼̹̮̞̠̩͓͙͛ͤ̍ Handshake Layer\n" +
+            "\n" +
+            "[MODULES]\n" +
+            "+ TREE_CORE loaded\n" +
+            "+ TR33_Interface detected [UNSTABLE]\n" +
+            "+ LOG_HOOK: /Logs/system.log\n" +
+            "\n" +
+            "[SECURITY WARNING]\n" +
+            "> SIGMOD mismatch - 'TR33 signed this'\n" +
+            "> Unauthorized injection attempt\n" +
+            "\n" +
+            "[ERROR]\n" +
+            "TREE_KERNEL_FATAL: handshake loop at line 4096\n" +
+            "“s y s... l o o p”\n",
+        coreBin: "CORE DUMP - TREE98 SYSTEM\n" +
+            "---------------------------\n" +
+            "[PID: 000015]\n" +
+            "[EXCEPTION] MEMORY VIOLATION\n" +
+            "\n" +
+            "[STACK TRACE]\n" +
+            "→ /usr/sbin/cron\n" +
+            "→ /boot/initrd.img\n" +
+            "→ A:/tree98/UNKNOWN\n" +
+            "\n" +
+            "[MEMORY DUMP SNIPPET]\n" +
+            "0x0043C000: 0x54524545 0x4B4E4F57 0x20202020\n" +
+            "0x0043C010: 0x48454C50 0x4D452048 0x454C5053\n" +
+            "\n" +
+            "'Who installed this?'",
+        input_ps2Ko: "PS/2 Legacy Driver Module\n" +
+            "---------------------------\n" +
+            "Device: PS/2 Keyboard (Unknown)\n" +
+            "Driver Version: 0.1b\n" +
+            "IRQ: 1\n" +
+            "\n" +
+            "[ERRORS]\n" +
+            "- Spontaneous input logs\n" +
+            "- Ghost scan codes:\n" +
+            "  → 0x00FE: \"w\"\n" +
+            "  → 0x00F1: \"a\"\n" +
+            "  → 0x00F3: \"i\"\n" +
+            "  → 0x00F4: \"t\"\n" +
+            "\n" +
+            "[NOTE]\n" +
+            "“This key has been pressed 31525 times.”\n",
+    }
 }
 // Title of the executables when opened
 export const exeTitle = {
@@ -412,33 +539,185 @@ export const files: FileSystemItem[] = [
                 icon: "folder",
                 children: [
                     {
-                        name: "root32",
-                        type: "folder",
-                        icon: "folder",
-                        children: [
-                            {
-                                name: sysConfigDefaults.vesselEXE,
-                                type: "file",
-                                executable: true,
-                                icon: "executable",
-                                content: fileData.VESSEL,
-                            }
-                        ]
-                    },
-                    {
-                        name: "cmd.exe",
-                        type: "file",
-                        executable: true,
-                        icon: "cmd",
-                        action: "cmd"
-                    },
-                    {
                         name: "control.exe",
                         type: "file",
                         executable: true,
                         icon: "settings",
                         action: "settings"
                     },
+                    {
+                        name: "root32",
+                        type: "folder",
+                        icon: "folder",
+                        children: [
+                            {
+                                name: "sbin",
+                                type: "folder",
+                                icon: "folder",
+                                children: [
+                                    {
+                                        name: "udevd",
+                                        type: "file",
+                                        icon: "executable",
+                                        content: fileData.specialBootFiles.udevd
+                                    }
+                                ]
+                            },
+                            {
+                                name: "dev",
+                                type: "folder",
+                                icon: "folder",
+                                children: [
+                                    {
+                                        name: "tree0p2",
+                                        type: "file",
+                                        icon: "settings",
+                                        content: fileData.specialBootFiles.tree0p2
+                                    },
+                                    {
+                                        name: "tree0p1",
+                                        type: "file",
+                                        icon: "settings",
+                                        content: fileData.specialBootFiles.tree0p1
+                                    }
+                                ]
+                            },
+                            {
+                                name: "usr",
+                                type: "folder",
+                                icon: "folder",
+                                children: [
+                                    {
+                                        name: "sbin",
+                                        type: "folder",
+                                        icon: "folder",
+                                        children: [
+                                            {
+                                                name: "cron",
+                                                type: "file",
+                                                icon: "executable",
+                                                content: "Cron Daemon - Job scheduler\nStatus: Running\nLast Job: tree_cleanup.sh at 02:00 AM"
+                                            },
+                                            {
+                                                name: "syslogd",
+                                                type: "file",
+                                                icon: "executable",
+                                                content: "Syslog Daemon - Logging service\nLogs redirect to: /var/log/system.log"
+                                            },
+                                            {
+                                                name: "rsyslogd",
+                                                type: "file",
+                                                icon: "executable",
+                                                content: fileData.specialBootFiles.rsyslogd
+                                            },
+                                            {
+                                                name: "acpid",
+                                                type: "file",
+                                                icon: "executable",
+                                                content: fileData.specialBootFiles.acpid
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "boot",
+                                type: "folder",
+                                icon: "folder",
+                                children: [
+                                    {
+                                        name: sysConfigDefaults.vesselEXE,
+                                        type: "file",
+                                        executable: true,
+                                        icon: "executable",
+                                        content: fileData.VESSEL,
+                                    },
+                                    {
+                                        name: "tree98",
+                                        type: "folder",
+                                        icon: "folder",
+                                        children: [
+                                            {
+                                                name: "initrd.img",
+                                                type: "file",
+                                                icon: "cmd",
+                                                content: fileData.specialBootFiles.initrdImg
+                                            },
+                                            {
+                                                name: "tree98.sys",
+                                                type: "file",
+                                                icon: "cmd",
+                                                content: fileData.specialBootFiles.tree98Sys
+                                            },
+                                            {
+                                                name: "vmlinuz",
+                                                type: "file",
+                                                icon: "cmd",
+                                                content: fileData.specialBootFiles.accessDenied
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "tree98",
+                                type: "folder",
+                                icon: "folder",
+                                children: [
+                                    {
+                                        name: "core.bin",
+                                        type: "file",
+                                        icon: "cmd",
+                                        content: fileData.specialBootFiles.coreBin
+                                    }
+                                ]
+                            },
+                            {
+                                name: "etc",
+                                type: "folder",
+                                icon: "folder",
+                                children: [
+                                    {
+                                        name: "init.d",
+                                        type: "folder",
+                                        icon: "folder",
+                                        children: [
+                                            {
+                                                name: "scripts",
+                                                type: "file",
+                                                icon: "executable",
+                                                content: "Startup Scripts List:\n- mount_tree.sh\n- init_network.sh\n- kill_TR33.sh"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "video_vga.ko",
+                                type: "file",
+                                icon: "floppy",
+                                content: "VGA Legacy Driver Module\nVersion: 0.23.12\nStatus: Loaded"
+                            },
+                            {
+                                name: "net_rtl8139.ko",
+                                type: "file",
+                                icon: "floppy",
+                                content: "Realtek 8139 Ethernet Driver\nStatus: Bound to tree0-net0"
+                            },
+                            {
+                                name: "audio_legacy.ko",
+                                type: "file",
+                                icon: "floppy",
+                                content: "Legacy Audio Codec Driver\nCompatible with: AC'97\nIRQ: 5"
+                            },
+                            {
+                                name: "input_ps2.ko",
+                                type: "file",
+                                icon: "floppy",
+                                content: fileData.specialBootFiles.input_ps2Ko
+                            }
+                        ]
+                    }
                 ]
             },
             {
@@ -446,7 +725,8 @@ export const files: FileSystemItem[] = [
                 type: "folder",
                 icon: "folder",
                 children: desktop.map(icon => ({
-                    ...icon,
+                    name: icon.name,
+                    icon: icon.icon,
                     type: "file" as const,
                     action: icon.action === "notepad" || icon.action === "paint" || icon.action === "settings" || icon.action === "cmd"
                         ? icon.action
@@ -481,12 +761,13 @@ export const files: FileSystemItem[] = [
                         type: "file",
                         icon: "notepad",
                         content: fileData.Notes,
-                    },
+                    }
                 ]
             }
         ]
-    },
+    }
 ] as const;
+
 // Icons that appear in the start menu that correspond to applications or actions
 export const startMenu = [
     {
