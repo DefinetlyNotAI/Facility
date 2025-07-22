@@ -22,8 +22,13 @@ import {CMD} from '@/components/tree98/applications/CMD';
 import {ControlPanel} from "@/components/tree98/dialogs/ControlPanel";
 import {VesselBootDialog} from "@/components/tree98/dialogs/VesselBootDialog";
 import {FileViewer} from "@/components/tree98/dialogs/FileViewer";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
 
-const Tree98Sim: React.FC = () => {
+const Tree98Sim: React.FC<{
+    audioRef: React.RefObject<HTMLAudioElement>;
+    audioSrc: string;
+    setAudioSrc: (src: string) => void
+}> = ({audioRef: externalAudioRef, audioSrc, setAudioSrc}) => {
     const {bootPhase, setBootPhase, tree98BootText, bootText, loadingProgress} = useBootSequence();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [contextMenu, setContextMenu] = useState<ContextMenu>({x: 0, y: 0, visible: false});
@@ -31,7 +36,7 @@ const Tree98Sim: React.FC = () => {
     const [showStartMenu, setShowStartMenu] = useState(false);
     const [glitchAudio, setGlitchAudio] = useState<HTMLAudioElement | null>(null);
     const [cursorGlitch, setCursorGlitch] = useState(false);
-
+    const audioRef = externalAudioRef;
     const {
         windows,
         createWindow,
@@ -49,7 +54,7 @@ const Tree98Sim: React.FC = () => {
         setErrorPopups,
         isSystemCrashing,
         showBlueScreen
-    } = useSystemCorruption(createWindow);
+    } = useSystemCorruption(createWindow, audioRef);
 
     // Check cutscene status
     useEffect(() => {
@@ -108,7 +113,7 @@ const Tree98Sim: React.FC = () => {
                     if (!document.fullscreenElement) {
                         await document.exitFullscreen();
                     }
-                } catch (err) {
+                } catch {
                 }
                 setSystemCorruption(1);
             }, 6000);
@@ -171,6 +176,24 @@ const Tree98Sim: React.FC = () => {
         setContextMenu({...contextMenu, visible: false});
     };
 
+    // Play safe SFX on loading phase
+    useEffect(() => {
+        if (bootPhase === 'loading') {
+            playSafeSFX(audioRef, SFX_AUDIO.RESTART, true);
+        }
+    }, [bootPhase]);
+    // Set background audio based on boot phase and blue screen status
+    useEffect(() => {
+        if (showBlueScreen) {
+            setAudioSrc(BACKGROUND_AUDIO.BSOD);
+        } else if (bootPhase === 'boot' || bootPhase === 'main') {
+            setAudioSrc(BACKGROUND_AUDIO.COMPUTER_BOOT);
+        } else {
+            setAudioSrc(BACKGROUND_AUDIO.COMPUTER);
+        }
+    }, [showBlueScreen, bootPhase]);
+    useBackgroundAudio(audioRef, audioSrc);
+
     // Show appropriate boot phase
     if (bootPhase === 'boot') {
         return (
@@ -203,7 +226,7 @@ const Tree98Sim: React.FC = () => {
     }
 
     if (bootPhase === 'loading') {
-        return <LoadingScreen loadingProgress={loadingProgress}/>;
+        return <LoadingScreen loadingProgress={loadingProgress}/>
     }
 
     if (bootPhase === 'login') {
@@ -211,7 +234,7 @@ const Tree98Sim: React.FC = () => {
             setBootPhase('desktop');
             return null;
         }
-        return <LoginScreen onLogin={() => setBootPhase('desktop')}/>;
+        return <LoginScreen onLogin={() => setBootPhase('desktop')} audioRef={audioRef}/>;
     }
 
     // Blue Screen of Death

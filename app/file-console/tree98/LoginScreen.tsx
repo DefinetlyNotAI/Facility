@@ -3,6 +3,7 @@ import {loginData, sysConfigDefaults} from "@/lib/data/tree98";
 import {signCookie} from "@/lib/utils";
 import {cookies} from "@/lib/saveData";
 import {LoginScreenProps} from "@/lib/types/tree98";
+import {playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 
 async function sha256(text: string): Promise<string> {
     const encoder = new TextEncoder();
@@ -31,7 +32,10 @@ export async function validateCredentials(username: string, password: string): P
 }
 
 
-const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
+const LoginScreen: React.FC<LoginScreenProps & { audioRef: React.RefObject<HTMLAudioElement> }> = ({
+                                                                                                       onLogin,
+                                                                                                       audioRef
+                                                                                                   }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -45,9 +49,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin}) => {
         try {
             const isValid = await validateCredentials(username, password);
             if (isValid) {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
                 await signCookie(`${cookies.loggedIn}=true`)
                 onLogin();
             } else {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR)
                 setError(loginData.err);
             }
         } catch (err) {

@@ -45,7 +45,10 @@ export default function FileConsole() {
             router.replace(routes.notFound);
             return;
         }
-
+        if (!Cookies.get(cookies.tree98)) {
+            router.replace(routes.tree98);
+            return;
+        }
         // Start the boot sequence when component mounts and File_Unlocked is true
         playBootSequence().then(() => setBooting(false));
     }, [router]);

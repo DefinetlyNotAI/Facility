@@ -1,9 +1,11 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
 import {signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
+import {playSafeSFX, SFX_AUDIO} from "@/lib/audio";
+import {ErrorDialog} from "@/components/tree98/dialogs/ErrorPopup";
 
-export const useSystemCorruption = (createWindow: any) => {
+export const useSystemCorruption = (createWindow: any, audioRef: React.RefObject<HTMLAudioElement>) => {
     const [systemCorruption, setSystemCorruption] = useState(0);
     const [errorPopups, setErrorPopups] = useState<string[]>([]);
     const [isSystemCrashing, setIsSystemCrashing] = useState(false);
@@ -19,20 +21,25 @@ export const useSystemCorruption = (createWindow: any) => {
                 setErrorPopups(prev => [...prev, currentMessage]);
                 setMessageIndex(prev => prev + 1);
 
+                // Play the system error sound
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR_POPUP)
+
                 // Show a system error popup with a random error message
                 const randomErrorMsg = sysConfigDefaults.sysMessages.errors[
                     Math.floor(Math.random() * sysConfigDefaults.sysMessages.errors.length)
                     ];
                 createWindow(
                     'System Error',
-                    null,
+                    ErrorDialog,
                     200 + Math.random() * 300,
                     100 + Math.random() * 200,
                     320, 180,
-                    {content: randomErrorMsg}
+                    {
+                        message: randomErrorMsg,
+                    }
                 );
 
-                // Optionally, trigger crash/BSOD after one full cycle
+                // Trigger crash/BSOD after one full cycle
                 if ((messageIndex + 1) % crashingMessages.length === 0) {
                     setIsSystemCrashing(true);
                     setTimeout(() => {

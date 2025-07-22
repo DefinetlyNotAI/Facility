@@ -1,7 +1,8 @@
-// Custom hook to manage background audio with user interaction
 import React, {useEffect} from "react";
 import {cleanupAudio, initializeBackgroundAudio} from "@/lib/audio";
 
+// Custom hook to manage background audio with user interaction
+// You will need to pass a html audio element reference with both the audioRef and audioSrc for this to work
 export function useBackgroundAudio(audioRef: React.RefObject<HTMLAudioElement>, audioSrc: string, conditional: boolean | null | undefined = true) {
     useEffect(() => {
         if (!conditional) {

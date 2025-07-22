@@ -20,6 +20,9 @@ export const BACKGROUND_AUDIO = {
     N404: "/music/clockat3.mp3",
     FILE_CONSOLE: "/music/contempt.mp3",
     DREAM: "/music/daisybell.mp3",
+    COMPUTER: "/music/oldHums.mp3",
+    COMPUTER_BOOT: "/music/boot.mp3",
+    BSOD: "/music/bsod.mp3",
 } as const;
 
 // Sound Effects
@@ -33,4 +36,7 @@ export const SFX_AUDIO = {
     FILE_DELETE: "/sfx/file_delete.m4a",
     CENSORSHIP: "/sfx/censorship.mp3",
     EGG_CRACK: "/sfx/eggcrack.mp3",
+    RESTART: "/sfx/reboot.mp3",
+    MOUSE_CLICK: "/sfx/mouseclick.mp3",
+    ERROR_POPUP: "/sfx/error.mp3",
 } as const;

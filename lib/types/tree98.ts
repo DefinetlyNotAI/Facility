@@ -138,3 +138,10 @@ export type InfoField = {
     format?: (val: any) => string;
     condition?: (ctx: ControlPanelData) => boolean;
 };
+
+// Error dialog properties
+export interface ErrorDialogProps {
+    message: string,
+    onClose?: () => void,
+    style?: React.CSSProperties;
+}
