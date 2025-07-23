@@ -8,6 +8,7 @@ export const IMAGE_CAPTION: Record<string, string> = {
     'siliconyou.png': "The machines remember you better than you do.",
     'treeohtree.png': "It still stands. And it still listens.",
     'weallseeyou.png': "They blink in patterns. Have you decoded your reflection yet?",
+    'josh.jpg': "Wings of eyes, a face devoid of smiles.. won't you ever smile?",
 };
 export const WHISPER_TEXTS: string[] = [
     'he never left',

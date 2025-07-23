@@ -66,10 +66,12 @@ export async function middleware(request: NextRequest) {
     const noCorruption = request.cookies.get('No_corruption');
     const corrupt = request.cookies.get('Corrupt');
     const endQ = request.cookies.get('End?');
+    const response = NextResponse.next();
+
 
     // Skip static + API routes
     if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
-        return NextResponse.next();
+        return response;
     }
 
     // If cheating via cookies, redirect to /CHEATER
@@ -103,7 +105,6 @@ export async function middleware(request: NextRequest) {
     }
 
     // Security headers (optional)
-    const response = NextResponse.next();
     try {
         response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
         response.headers.set(
