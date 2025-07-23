@@ -24,7 +24,6 @@ import {cookies, routes} from "@/lib/saveData";
 
 export default function TerminalPage() {
     const router = useRouter();
-    const [sessionId] = useState(() => getOrCreateSessionId());
     const [unlocked, setUnlocked] = useState<boolean | null>(null);
     const [noCount, setNoCount] = useState(0);
     const [input, setInput] = useState('');
@@ -36,6 +35,11 @@ export default function TerminalPage() {
     const [fullScreenOverlay, setFullScreenOverlay] = useState<null | FullScreenOverlay>(null);
     const [isReplay, setIsReplay] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
+    const [sessionID, setSessionID] = useState<string>('SID-UNKNOWN');
+
+    useEffect(() => {
+        setSessionID(getOrCreateSessionId())
+    }, []);
 
     const normalize = (str: string) => str.trim().toLowerCase();
 
@@ -104,10 +108,10 @@ export default function TerminalPage() {
             if (guessedKeywords.size + 1 === Object.keys(keywords).length) {
                 setMessages(['']);
                 setStep('solving');
-                await flushMessagesSequentially(terminalMsg.afterSuccess.part1(sessionId));
+                await flushMessagesSequentially(terminalMsg.afterSuccess.part1(sessionID));
                 await new Promise(r => setTimeout(r, 1000));
                 setMessages(['']);
-                await flushMessagesSequentially(terminalMsg.afterSuccess.part2(sessionId));
+                await flushMessagesSequentially(terminalMsg.afterSuccess.part2(sessionID));
                 setTimeout(() => {
                     setShowButtons(true);
                     setStep('question');
@@ -198,7 +202,7 @@ export default function TerminalPage() {
         const newCount = noCount + 1;
         setNoCount(newCount);
 
-        const msgQueue: string[] = terminalMsg.wrongChoice(sessionId);
+        const msgQueue: string[] = terminalMsg.wrongChoice(sessionID);
         setMessages([msgQueue[Math.min(newCount - 1, msgQueue.length - 1)]]);
 
         // Optional: delay redirect to let message render for a moment

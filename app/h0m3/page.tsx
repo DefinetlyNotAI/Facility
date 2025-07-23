@@ -36,6 +36,7 @@ export default function H0m3() {
     const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+    const [sessionID, setSessionID] = useState<string>('SID-UNKNOWN');
 
     const [mode, setMode] = useState<'initial' | 'glitch'>('initial');
     const [scrollCount, setScrollCount] = useState(0);
@@ -47,6 +48,10 @@ export default function H0m3() {
     const [corruptionLevel, setCorruptionLevel] = useState(0);
     const [brokenElements, setBrokenElements] = useState<string[]>([]);
     const [glitchText, setGlitchText] = useState<string>('');
+
+    useEffect(() => {
+        setSessionID(getOrCreateSessionId())
+    }, []);
 
     // Handle mounting and time updates
     useEffect(() => {
@@ -119,7 +124,7 @@ export default function H0m3() {
                 }, 200);
 
                 // TTS the creepy message
-                const creepyUtterance = new SpeechSynthesisUtterance(ttsMessageID(getOrCreateSessionId()));
+                const creepyUtterance = new SpeechSynthesisUtterance(ttsMessageID(sessionID));
                 creepyUtterance.rate = 0.4;
                 creepyUtterance.pitch = 0.2;
                 creepyUtterance.volume = 0.9;
@@ -624,7 +629,7 @@ export default function H0m3() {
                                 marginBottom: '1rem',
                                 fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                             }}>
-                                {letterReplace(`Y0U $H0ULDNT B3 H3R3 ${getOrCreateSessionId()}`)}
+                                {letterReplace(`Y0U $H0ULDNT B3 H3R3 ${sessionID}`)}
                             </div>
                             <div style={{fontSize: '1rem', color: '#fca5a5'}}>
                                 {letterReplace(brokenElements.includes('text-scrambled') ? "Th3 $y$t3m kn0w$ w3 @r3 h3r3. Th3 r00t$ @r3 w@tch1ng." : "The system knows we are here. The roots are watching.")}
