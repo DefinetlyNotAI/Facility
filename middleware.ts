@@ -68,6 +68,8 @@ export async function middleware(request: NextRequest) {
     const endQ = request.cookies.get('End?');
     const response = NextResponse.next();
 
+    // If run by a script, skip the middleware by uncommenting this line
+    // return response;
 
     // Skip static + API routes
     if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {

@@ -29,7 +29,7 @@ export const routes = {
     scroll: "/scroll"
 }
 
-export const cookies = {
+const rawCookies = {
     // Cookie to check if the user is allowed to see temporarily access the moonlight page
     theMoon: "themoon",
     // Cookie to check if the user saw KILL TAS cutscene
@@ -76,11 +76,25 @@ export const cookies = {
     end: "End",
     // Cookie to check if the user can access the media page
     media: "Media_Unlocked",
-    // Cookie storing the hash of the admin password inputted by user - Does not reflect the actual password unless the user successfully logged in
+    // Cookie storing the hash of the admin password inputted by user
     adminPass: "admin-pass",
     // Cookie to check if the user has accepted the disclaimers
-    disclaimersAccepted: "accepted",
-}
+    disclaimersAccepted: "accepted"
+};
+
+export const cookies = process.env.NODE_ENV !== "production"
+    ? new Proxy(rawCookies, {
+        get(target, prop) {
+            if (prop in target) {
+                const value = target[prop as keyof typeof target];
+                console.log(`[USED_COOKIE] ${value}`);
+                return value;
+            }
+            return undefined;
+        }
+    })
+    : rawCookies;
+
 
 export const localStorageKeys = {
     // Check if the TTS message about time was run - LocalStorage key
