@@ -3,13 +3,14 @@ import {routes} from "@/lib/saveData";
 // Layout.tsx
 export const TITLES: Record<string, string> = {
     [routes.root]: "Hope you have fun",
-    [routes.moonlight]: "A night so cold he forgot to smile",
+    [routes.moonlight]: "A night so cold HE forgot to smile",
     [routes.smileking]: ":)",
-    [routes.choices]: "So many choices..",
+    [routes.choices]: "So many choices.. None for you.",
     [routes.h0m3]: "HELP ME FIND HOME",
     [routes.theEnd]: "Thank you.. See you soon, may HE be with you, Praise Be",
     [routes.cheater]: "HYPOCRITE",
     [routes.smilekingAuth]: "Authorized Access Only - Smile King Terminal",
+    [routes.notFound]: "The doors don't open just because you found them.",
 };
 export const FAVICON = "/favicon.ico";
 
@@ -27,7 +28,7 @@ export const text = {
             "Audio access, notifications, camera access, and media permissions needed as well as allowance to download files.",
             "Psychological evaluation protocols active"
         ],
-        morality: `All audio tracks used are not my own, nor owned by me. Most audio's are royalty-free, and "Never Ending Night" is from the game Deltarune by Toby Fox, who is still taking TOO LONG.`
+        morality: `All audio tracks used are not my own, nor owned by me. Most audio's are royalty-free and inspired by a nice game.`
     },
     warnings: {
         title: "⚠️ CONTENT WARNINGS ⚠️",
@@ -55,7 +56,7 @@ export const text = {
                 class: "text-red-400"
             },
             {text: "Console usage only permitted when explicitly instructed by the system.", class: "text-yellow-400"},
-            {text: "THIS IS NOT FOR EPILEPTIC PEOPLE", class: "text-yellow-400"},
+            {text: "THIS IS NOT FOR EPILEPTIC PEOPLE OR PEOPLE THAT ARE WEAK OF HEART", class: "text-yellow-400"},
             {
                 text: "The Facility heavily relies on cookies for SAVE data. Please do not use incognito or delete the cookies or your progress may be reset.",
                 class: "text-yellow-400"
