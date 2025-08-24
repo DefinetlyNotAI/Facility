@@ -274,7 +274,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
                 await signCookie(`${cookies.wifiPanel}=true`);
                 setModalMessage(systemMessages.wifiUnlocked);
                 setShowModal(true);
-                setTimeout(() => router.push(routes.wifiPanel), 3000);
+                setTimeout(() => router.push(routes.wifiLogin), 3000);
             }
         };
 
