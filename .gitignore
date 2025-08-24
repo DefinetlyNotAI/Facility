@@ -30,3 +30,4 @@ next-env.d.ts
 .env
 /app/wifi-login/info.ignore
 /ARG_Performance_Results.json
+/TEST CHECK.md

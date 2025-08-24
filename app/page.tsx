@@ -19,17 +19,24 @@ export default function RootPage() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
 
     useEffect(() => {
+        if (!isLoading && accepted === false) {
+            const cookieAccepted = Cookies.get(cookies.disclaimersAccepted);
+            if (cookieAccepted) {
+                router.replace(routes.home);
+            }
+        }
+    }, [isLoading, accepted, router]);
+
+    useEffect(() => {
         // Simulate system boot
         setTimeout(() => {
             setIsLoading(false);
             const cookieAccepted = Cookies.get(cookies.disclaimersAccepted);
-            if (cookieAccepted) {
-                router.replace(routes.home)
-            } else {
-                setAccepted(false)
+            if (!cookieAccepted) {
+                setAccepted(false);
             }
         }, 2000);
-    }, [router]);
+    }, []);
 
     async function handleAccept() {
         // Play success sound
