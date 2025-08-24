@@ -3,8 +3,8 @@ import {KeywordKey, PlaceholderKeys} from "@/lib/types/terminal";
 
 // Data used for the terminal
 export const vesselLoc = {
-    href: "/static/terminal/VESSEL.exe.placeholder",
-    name: "VESSEL.exe.placeholder"
+    href: "https://github.com/c0rRUpT-TREE/research/releases/download/imscared/VESSEL.zip",
+    name: "VESSEL.zip"
 }
 export const wingdingsTitles: string[] = [
     "👎︎☜︎✌︎❄︎☟︎",
