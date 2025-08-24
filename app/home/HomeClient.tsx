@@ -45,7 +45,11 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         setMounted(true);
 
         const updateTime = () => {
-            setCurrentTime(new Date().toLocaleString());
+            const now = new Date();
+            setCurrentTime(
+                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ` +
+                `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+            );
         };
 
         updateTime();
@@ -264,8 +268,8 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         if (!mounted) return;
 
         const checkTime = async () => {
-            const current = new Date();
-            const timeNow = `${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
+            const now = new Date();
+            const timeNow = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             if (timeNow === text.puzzlePanel.timePuzzleVal) {
                 await signCookie(`${cookies.wifiPanel}=true`);
                 setModalMessage(systemMessages.wifiUnlocked);
@@ -275,7 +279,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
         };
 
         checkTime().catch(console.error);
-        const interval = setInterval(checkTime, 60000);
+        const interval = setInterval(checkTime, 1000);
         return () => clearInterval(interval);
     }, [router, mounted]);
 
