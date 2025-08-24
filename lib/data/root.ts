@@ -52,7 +52,7 @@ export const text = {
                 class: "text-red-400"
             },
             {
-                text: "DO NOT MANUALLY MODIFY COOKIES TO SKIP CERTAIN ASPECTS OF THE FACILITY - NOR SHOULD DELETE SOME COOKIES",
+                text: "DO NOT MANUALLY MODIFY COOKIES TO SKIP CERTAIN ASPECTS OF THE FACILITY - NOR SHOULD YOU DELETE COOKIES",
                 class: "text-red-400"
             },
             {text: "Console usage only permitted when explicitly instructed by the system.", class: "text-yellow-400"},
