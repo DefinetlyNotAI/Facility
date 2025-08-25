@@ -40,7 +40,7 @@ export const konamiSequence: string[] = [
 ];
 // System messages used for either notifications or TTS speech etc.
 export const systemMessages = {
-    fileUnlocked: "System integrity verified. Proceed to the void.",
+    scroll: "System integrity verified. Proceed to the void.",
     time: "Time dissolves into the void... here, eternity and instant are one.",
     invalidLogPerm: "TREE System Authorisation - You do not have enough admin permissions to view this",
     wifiUnlocked: "Network access granted. Use curl/wget there with the prefix /api/ for a prize to the next ;)",

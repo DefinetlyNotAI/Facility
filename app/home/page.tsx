@@ -9,7 +9,6 @@ export default async function HomePage() {
     // Check cookies server-side
     const corrupt = cookieStore.get(savedCookies.corrupt)?.value;
     const end = cookieStore.get(savedCookies.end)?.value;
-    const endQuestion = cookieStore.get(savedCookies.endQuestion)?.value;
 
     // Handle redirects server-side
     if (corrupt) {
@@ -20,15 +19,5 @@ export default async function HomePage() {
         redirect(routes.theEnd);
     }
 
-    // Pass initial cookie state to client component
-    const initialCookies = {
-        corrupt: !!corrupt,
-        end: !!end,
-        endQuestion: !!endQuestion,
-        noCorruption: !!cookieStore.get(savedCookies.noCorruption)?.value,
-        fileUnlocked: !!cookieStore.get(savedCookies.fileConsole)?.value,
-        bnwUnlocked: !!cookieStore.get(savedCookies.blackAndWhite)?.value,
-    };
-
-    return <HomeClient initialCookies={initialCookies}/>;
+    return <HomeClient/>;
 }

@@ -7,12 +7,3 @@ export interface ResearchLog {
     corrupted: boolean;
     content: string;
 }
-
-export interface InitialCookies {
-    corrupt: boolean;
-    end: boolean;
-    endQuestion: boolean;
-    noCorruption: boolean;
-    fileUnlocked: boolean;
-    bnwUnlocked: boolean;
-}

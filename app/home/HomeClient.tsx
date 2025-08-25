@@ -15,10 +15,11 @@ import {
     systemMetrics,
     text
 } from '@/lib/data/home';
-import {InitialCookies, ResearchLog} from '@/lib/types/home';
+import {ResearchLog} from '@/lib/types/home';
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
+import Cookies from "js-cookie";
 
-export default function HomeClient({initialCookies}: { initialCookies: InitialCookies }) {
+export default function HomeClient() {
     const router = useRouter();
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
@@ -188,26 +189,28 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
     useEffect(() => {
         if (!mounted) return;
 
-        if (initialCookies.corrupt) {
+        if (Cookies.get(cookies.corrupt)) {
             router.replace(routes.h0m3);
             return;
         }
 
+        // Check if scroll is allowed
         const runAsync = async () => {
             setTimeout(() => setSystemStatus('ONLINE'), 1000);
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
-            if (initialCookies.noCorruption && !initialCookies.fileUnlocked) {
-                setModalMessage(systemMessages.fileUnlocked);
+            if (Cookies.get(cookies.noCorruption) && !Cookies.get(cookies.blackAndWhite)) {
+                setModalMessage(systemMessages.scroll);
                 setShowModal(true);
                 await signCookie(`${cookies.scroll}=true`);
+                setTimeout(() => router.push(routes.scroll), 2000);
             }
 
             setCountdown(Math.floor(Math.random() * 6) + 5);
         };
 
         runAsync().catch(console.error);
-    }, [router, initialCookies, mounted]);
+    }, [router, mounted]);
 
     // Countdown and TTS logic (play only once ever)
     useEffect(() => {
@@ -332,14 +335,14 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
     useEffect(() => {
         if (
             !mounted ||
-            initialCookies.noCorruption
+            Cookies.get(cookies.noCorruption)
         ) return;
 
         const handler = async (e: KeyboardEvent) => {
             if (e.code === konamiSequence[indexRef.current]) {
                 indexRef.current++;
                 if (indexRef.current === konamiSequence.length) {
-                    if (initialCookies.fileUnlocked) {
+                    if (Cookies.get(cookies.fileConsole)) {
                         await signCookie(`${cookies.corrupt}=true`);
                         setModalMessage(systemMessages.konamiUnlock);
                         setShowModal(true);
@@ -354,7 +357,7 @@ export default function HomeClient({initialCookies}: { initialCookies: InitialCo
 
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [initialCookies.fileUnlocked, initialCookies.noCorruption, mounted]);
+    }, [Cookies.get(cookies.fileConsole), Cookies.get(cookies.noCorruption), mounted]);
 
     const openLog = (log: ResearchLog) => {
         setSelectedLog(log);
