@@ -129,16 +129,41 @@ export default function FileConsole() {
         }
     };
 
-    function downloadFile(filename: string) {
-        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
+    async function downloadFile(filename: string) {
+        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS);
 
-        const link = document.createElement('a');
-        link.href = `/static/file-console/${filename}`;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Special handling for riddle.pdf
+        if (filename === 'riddle.pdf') {
+            try {
+                // Fetch the binary file
+                const response = await fetch('/static/file-console/riddle.bin');
+                if (!response.ok) throw new Error('Failed to fetch riddle.bin');
+
+                const arrayBuffer = await response.arrayBuffer();
+                const blob = new Blob([arrayBuffer], {type: 'application/pdf'});
+
+                // Trigger download
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'riddle.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } catch (err) {
+                console.error('Error downloading riddle.pdf:', err);
+            }
+        } else {
+            // Default download for other files
+            const link = document.createElement('a');
+            link.href = `/static/file-console/${filename}`;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     }
+
 
     const execute = (raw: string) => {
         appendMessage({text: `${cwd}$ ${raw}`, mode: 'instant'});
@@ -208,7 +233,7 @@ export default function FileConsole() {
                 if (message !== undefined) {
                     found = true;
                     appendMessage({text: message, mode: 'instant'});
-                    downloadFile(fn);
+                    downloadFile(fn).catch(console.error);
                 }
 
                 playSafeSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
