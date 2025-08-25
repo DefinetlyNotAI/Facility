@@ -94,10 +94,11 @@ const WifiLoginPage: React.FC = () => {
 
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
 
-    if (!Cookies.get(cookies.wifiLogin)) {
-        router.replace(routes.notFound);
-        return null;
-    }
+    useEffect(() => {
+        if (!Cookies.get(cookies.wifiLogin)) {
+            router.replace(routes.notFound);
+        }
+    }, [router]);
 
     useEffect(() => {
         const wifiUnlocked = Cookies.get(cookies.wifiPanel);
