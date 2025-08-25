@@ -11,6 +11,7 @@ export const TITLES: Record<string, string> = {
     [routes.cheater]: "HYPOCRITE",
     [routes.smilekingAuth]: "Authorized Access Only - Smile King Terminal",
     [routes.notFound]: "The doors don't open just because you found them.",
+    [routes.scroll]: "Scroll till the end, then turn around, to find your way out.",
 };
 export const FAVICON = "/favicon.ico";
 

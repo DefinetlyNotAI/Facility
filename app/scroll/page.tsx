@@ -107,7 +107,7 @@ export default function ScrollPage() {
 
         const triggerFileDownload = () => {
             // Play file download sound
-            playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.FILE_DELETE, true);
+            playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.FILE_DELETE, false);
             const blob = new Blob([begStop], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -130,14 +130,16 @@ export default function ScrollPage() {
         if (!scrollUnlocked || !hasInteractedRef.current) return;
 
         ttsTimeoutRef.current = setTimeout(() => {
-            // Play horror sound before TTS
-            playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.HORROR, true);
-
+            audioRef.current[0].volume = 0.2;
             const utterance = new SpeechSynthesisUtterance(creepyTTS);
+            audioRef.current[0].volume = 0.7;
             utterance.lang = 'en-US';
+            utterance.onend = () => {
+                playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.HORROR, true);
+                setShowEscape(true);
+            };
             window.speechSynthesis.speak(utterance);
-            utterance.onend = () => setShowEscape(true);
-        }, 95000);
+        }, 5000);  // 95 seconds
 
         return () => {
             if (ttsTimeoutRef.current) clearTimeout(ttsTimeoutRef.current);
@@ -163,7 +165,7 @@ export default function ScrollPage() {
                 }}
                 src={showEscape ? BACKGROUND_AUDIO.SCROLL_ESCAPE : BACKGROUND_AUDIO.SCROLL}
                 autoPlay
-                loop={showEscape}
+                loop={true}
                 hidden
             />
             <div
@@ -178,28 +180,38 @@ export default function ScrollPage() {
 
                 {showEscape && (
                     <div style={{textAlign: 'center', marginTop: '50vh'}}>
-                        <button
-                            style={{
-                                fontSize: '1.5rem',
-                                fontFamily: 'Courier New, monospace',
-                                padding: '1rem 2rem',
-                                backgroundColor: 'black',
-                                color: 'white',
-                                border: '2px solid white',
-                                cursor: 'default',
-                            }}
-                            onMouseEnter={() => setEscapeHovered(true)}
-                            onMouseLeave={() => setEscapeHovered(false)}
-                            onClick={async () => {
-                                // Play success sound
-                                playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.STATIC, true);
-
-                                await signCookie(`${cookies.blackAndWhite}=true`);
-                                router.push(routes.blackAndWhite);
-                            }}
-                        >
-                            {escapeHovered ? ipAddress : emergencyIP}
-                        </button>
+                        {!escapeHovered && (
+                            <button
+                                style={{
+                                    fontSize: '1.5rem',
+                                    fontFamily: 'Courier New, monospace',
+                                    padding: '1rem 2rem',
+                                    backgroundColor: 'black',
+                                    color: 'white',
+                                    border: '2px solid white',
+                                    cursor: 'default',
+                                }}
+                                onMouseEnter={() => setEscapeHovered(true)}
+                                onMouseLeave={() => setEscapeHovered(false)}
+                                onClick={async () => {
+                                    // Play success sound
+                                    playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.STATIC, true);
+                                    // Wait for sound to finish then redirect
+                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    // Stop all audio
+                                    audioRef.current.forEach(audio => {
+                                        audio.pause();
+                                        audio.currentTime = 0;
+                                        audio.src = '';
+                                    });
+                                    await signCookie(`${cookies.blackAndWhite}=true`);
+                                    router.push(routes.blackAndWhite);
+                                    setEscapeHovered(true); // Hide button after click
+                                }}
+                            >
+                                {escapeHovered ? ipAddress : emergencyIP}
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
