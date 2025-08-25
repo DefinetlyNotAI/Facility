@@ -86,9 +86,8 @@ export const cookies = process.env.NODE_ENV !== "production"
     ? new Proxy(rawCookies, {
         get(target, prop) {
             if (prop in target) {
-                const value = target[prop as keyof typeof target];
-                console.log(`[USED_COOKIE] ${value}`);
-                return value;
+                // console.log(`[USED_COOKIE] ${value}`);
+                return target[prop as keyof typeof target];
             }
             return undefined;
         }
