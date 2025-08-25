@@ -56,17 +56,26 @@ export const text = {
                 text: "DO NOT MANUALLY MODIFY COOKIES TO SKIP CERTAIN ASPECTS OF THE FACILITY - NOR SHOULD YOU DELETE COOKIES",
                 class: "text-red-400"
             },
-            {text: "Console usage only permitted when explicitly instructed by the system.", class: "text-yellow-400"},
-            {text: "THIS IS NOT FOR EPILEPTIC PEOPLE OR PEOPLE THAT ARE WEAK OF HEART", class: "text-yellow-400"},
             {
-                text: "The Facility heavily relies on cookies for SAVE data. Please do not use incognito or delete the cookies or your progress may be reset.",
+                text: "Console usage only permitted when explicitly instructed by the system",
                 class: "text-yellow-400"
             },
             {
-                text: "TAS is your friend. Use it if you are stuck, I don't recommend using TAS however.",
+                text: "THIS IS NOT FOR EPILEPTIC PEOPLE OR PEOPLE THAT ARE WEAK OF HEART",
+                class: "text-yellow-400"
+            },
+            {
+                text: "The Facility heavily relies on cookies for SAVE data. Please do not use incognito or delete the cookies or your progress may be reset",
+                class: "text-yellow-400"
+            },
+            {
+                text: "TAS is your friend. Use it if you are stuck, but don't rely on it too much",
                 class: "text-green-700"
             },
-            {text: "Use headphones, it is part of the experience!.", class: "text-green-700"}
+            {
+                text: "Use headphones, it is part of the experience, and you won't enjoy the experience without it",
+                class: "text-green-700"
+            }
         ],
         redirect: "Redirecting to secure terminal in",
         links: {

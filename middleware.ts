@@ -95,13 +95,13 @@ export async function middleware(request: NextRequest) {
         )
     ) {
         if (!accepted && pathname !== '/') {
-            console.debug('[middleware] Redirecting to / due to missing accepted cookie');
+            // console.debug('[middleware] Redirecting to / due to missing accepted cookie');
             return NextResponse.redirect(new URL('/', request.url));
         } else if (corrupting && pathname !== '/h0m3') {
-            console.debug('[middleware] Redirecting to /h0m3 due to Corrupting cookie');
+            // console.debug('[middleware] Redirecting to /h0m3 due to Corrupting cookie');
             return NextResponse.redirect(new URL('/h0m3', request.url));
         } else if (end && pathname !== '/the-end') {
-            console.debug('[middleware] Redirecting to /the-end due to End cookie');
+            // console.debug('[middleware] Redirecting to /the-end due to End cookie');
             return NextResponse.redirect(new URL('/the-end', request.url));
         }
     }
@@ -118,23 +118,23 @@ export async function middleware(request: NextRequest) {
         response.headers.set('Referrer-Policy', 'no-referrer');
         response.headers.set('Permissions-Policy', 'geolocation=(), microphone=()');
     } catch (err) {
-        console.error(`[middleware.ts] Failed to set security headers:`, err);
+        // console.error(`[middleware.ts] Failed to set security headers:`, err);
     }
 
     // === Begin Conflict Resolution ===
     if (noCorruption) {
         if (corrupt) {
-            console.debug('[middleware] Conflict: Corrupt + No_corruption -> deleting Corrupt');
+            // console.debug('[middleware] Conflict: Corrupt + No_corruption -> deleting Corrupt');
             response.cookies.delete('Corrupt');
         }
         if (corrupting) {
-            console.debug('[middleware] Conflict: corrupting + No_corruption -> deleting corrupting');
+            // console.debug('[middleware] Conflict: corrupting + No_corruption -> deleting corrupting');
             response.cookies.delete('corrupting');
         }
     }
 
     if (endQ && end) {
-        console.debug('[middleware] Conflict: End? + End -> deleting End?');
+        // console.debug('[middleware] Conflict: End? + End -> deleting End?');
         response.cookies.delete('End?');
     }
     // === End Conflict Resolution ===

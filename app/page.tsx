@@ -108,15 +108,18 @@ export default function RootPage() {
                                     <div className="terminal-dot green"></div>
                                     <span className="text-xs text-gray-400 ml-2">PERMISSIONS REQUIRED</span>
                                 </div>
-                                <div className="terminal-content">
+                                <div
+                                    className="terminal-content flex flex-col gap-2 bg-gray-900/80 rounded-md p-4 border border-gray-700">
                                     {text.restrictedAccess.systemLines.map((line, i) => (
-                                        <div className="terminal-line" key={i}>
-                                            <span className="terminal-prompt">SYSTEM:</span> {line}
+                                        <div className="terminal-line flex items-center text-green-300 font-mono"
+                                             key={i}>
+                                            <span
+                                                className="terminal-prompt font-bold text-green-400 mr-2">SYSTEM:</span> {line}
                                         </div>
                                     ))}
-                                    <div className="terminal-line">
+                                    <div className="terminal-line flex items-center text-yellow-300 font-mono">
                                         <span
-                                            className="terminal-prompt">MORALITY:</span> {text.restrictedAccess.morality}
+                                            className="terminal-prompt font-bold text-yellow-400 mr-2">MORALS:</span> {text.restrictedAccess.morality}
                                     </div>
                                 </div>
                             </div>
@@ -171,13 +174,17 @@ export default function RootPage() {
                             <h1 className="text-3xl font-bold text-red-400 mb-6">
                                 {text.consoleWarning.header}
                             </h1>
-                            <div className="terminal mb-6">
-                                <div className="terminal-content">
+                            <div
+                                className="terminal mb-6 rounded-lg shadow-lg border border-gray-700 bg-gray-950/90 p-4">
+                                <div className="terminal-content space-y-2">
                                     {text.consoleWarning.lines.map((line, i) => {
-                                        const [prefix, ...rest] = line.text.split(': ');
+                                        const [prefix, ...rest] = line.text.split('! ');
                                         return (
-                                            <div key={i} className={`terminal-line ${line.class}`}>
-                                                <span className="terminal-prompt">{prefix}:</span> {rest.join(': ')}
+                                            <div key={i}
+                                                 className={`terminal-line ${line.class} flex items-center px-3 py-2 rounded bg-gray-900/80`}>
+                                                <span
+                                                    className="terminal-prompt font-bold text-green-400 mr-2">{prefix}</span>
+                                                <span className="text-gray-200">{rest.join('! ')}</span>
                                             </div>
                                         );
                                     })}

@@ -14,7 +14,7 @@ import {
     SPECIAL_EASTER_EGG,
 } from "@/lib/data/choices";
 import TASGoodBye from "./TASGoodBye";
-import {BACKGROUND_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 import {useTypewriter} from "@/hooks/useTypeWriter";
 import {detectOsBrowser, renderMsg, signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
@@ -214,6 +214,7 @@ export default function ChoicesPage() {
         setJumpscare(true);
         setMonologueInstant(true);
         setTimeout(() => {
+            playSafeSFX(audioRef, SFX_AUDIO.HORROR, true)
             setJumpscare(false);
             setPunishment(true);
             setPunishCountdown(25);
