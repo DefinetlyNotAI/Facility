@@ -12,6 +12,7 @@ export const TITLES: Record<string, string> = {
     [routes.smilekingAuth]: "Authorized Access Only - Smile King Terminal",
     [routes.notFound]: "The doors don't open just because you found them.",
     [routes.scroll]: "Scroll till the end, then turn around, to find your way out.",
+    [routes.codex]: "System Codex - Facility OS v3.15.25",
 };
 export const FAVICON = "/favicon.ico";
 
