@@ -1,6 +1,19 @@
 import {Chapter, CodexOverlay} from "@/lib/types/codex";
 
 
+// Data for main codex page
+export const CODEX_TEXT: Record<string, string> = {
+    title: "The Codex",
+    loading: "Loading chapter...",
+    footerLine1: "The pattern continues.",
+    footerLine2: "The Entity observes.",
+    error: "ERROR: CHAPTER DATA CORRUPTED\n\n[UNABLE TO RETRIEVE CONTENT]\n[PATTERN INTERRUPTED]",
+    curiosity: "Curiosity satisfied for now?",
+};
+
+
+
+// Codex Data for components
 export const CHAPTERS: Chapter[] = [
     {id: 1, title: 'Chapter I', subtitle: 'Entity and the Eldritch', filename: 'Chapter_I_Entity_and_the_Eldritch.txt'},
     {id: 2, title: 'Chapter II', subtitle: 'TAS', filename: 'Chapter_II_TAS.txt'},

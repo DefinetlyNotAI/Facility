@@ -6,10 +6,10 @@ import ChapterNavigation from '@/components/codex/ChapterNavigation';
 import OverlaySystem from '@/components/codex/OverlaySystem';
 import styles from '@/styles/Codex.module.css';
 import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/audio';
-import Cookies from "js-cookie";
-import {cookies, routes} from "@/lib/saveData";
-import {useRouter} from "next/navigation";
-import {CHAPTERS, OVERLAYS} from "@/lib/data/codex";
+import Cookies from 'js-cookie';
+import {cookies, routes} from '@/lib/saveData';
+import {useRouter} from 'next/navigation';
+import {CHAPTERS, CODEX_TEXT, OVERLAYS} from '@/lib/data/codex';
 
 
 function Codex() {
@@ -45,19 +45,15 @@ function Codex() {
             setRevealedLines(0);
         } catch (error) {
             console.error('Failed to load chapter:', error);
-            setChapterText('ERROR: CHAPTER DATA CORRUPTED\n\n[UNABLE TO RETRIEVE CONTENT]\n[PATTERN INTERRUPTED]');
+            setChapterText(CODEX_TEXT.error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleChapterSelect = (chapterId: number) => {
-        setCurrentChapter(chapterId);
-    };
+    const handleChapterSelect = (chapterId: number) => setCurrentChapter(chapterId);
 
-    const handleChapterComplete = () => {
-        console.log('Curiosity satisfied for now?');
-    };
+    const handleChapterComplete = () => console.log(CODEX_TEXT.curiosity);
 
     return (
         <div className={`${styles.body} min-h-screen relative overflow-hidden`}>
@@ -87,18 +83,17 @@ function Codex() {
             <main className="relative z-10 container mx-auto px-4 py-12 sm:py-16 md:py-20 pb-24 sm:pb-28">
                 <header className={`${styles.animateFadeIn} text-center mb-8 sm:mb-12 md:mb-16`}>
                     <h1 className={`${styles.heading} ${styles.textShadowGlow} text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-amber-200 mb-3 sm:mb-4 px-2`}>
-                        The Codex
+                        {CODEX_TEXT.title}
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl text-amber-100/70 italic px-4">
                         {CHAPTERS[currentChapter - 1]?.subtitle}
                     </p>
-                    <div
-                        className="w-48 sm:w-64 h-px bg-gradient-to-r from-transparent via-amber-700 to-transparent mx-auto mt-6 sm:mt-8"/>
+                    <div className="w-48 sm:w-64 h-px bg-gradient-to-r from-transparent via-amber-700 to-transparent mx-auto mt-6 sm:mt-8"/>
                 </header>
 
                 {isLoading ? (
                     <div className="text-center text-amber-100/60 text-base sm:text-lg md:text-xl animate-pulse">
-                        Loading chapter...
+                        {CODEX_TEXT.loading}
                     </div>
                 ) : (
                     <CodexReader
@@ -110,8 +105,8 @@ function Codex() {
                 )}
 
                 <footer className="text-center mt-12 sm:mt-16 md:mt-20 text-amber-100/40 text-xs sm:text-sm px-4">
-                    <p>The pattern continues.</p>
-                    <p className="mt-2">The Entity observes.</p>
+                    <p>{CODEX_TEXT.footerLine1}</p>
+                    <p className="mt-2">{CODEX_TEXT.footerLine2}</p>
                 </footer>
             </main>
 
