@@ -26,7 +26,8 @@ export const routes = {
     root: "/",
     cheater: "/CHEATER",
     tree98: "/file-console/tree98",
-    scroll: "/scroll"
+    scroll: "/scroll",
+    codex: "/codex",
 }
 
 const rawCookies = {
