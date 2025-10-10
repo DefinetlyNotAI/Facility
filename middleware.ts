@@ -37,7 +37,7 @@ async function verifyRelevantCookies(request: NextRequest): Promise<boolean> {
         const raw = cookie?.value || '';
         const lastDot = raw.lastIndexOf('.');
         if (lastDot === -1) {
-            //console.debug(`[verifyRelevantCookies] Cookie ${cookie.name} missing signature, invalid`);
+            console.warn(`[verifyRelevantCookies] Cookie ${cookie.name} missing signature, invalid`);
             return false;
         }
 
@@ -48,7 +48,7 @@ async function verifyRelevantCookies(request: NextRequest): Promise<boolean> {
         //console.debug(`[verifyRelevantCookies] Expected signature: ${expectedSignature} vs Actual signature: ${signature}`);
 
         if (signature !== expectedSignature) {
-            //console.debug(`[verifyRelevantCookies] Signature mismatch on cookie ${cookie.name}, invalid`);
+            console.warn(`[verifyRelevantCookies] Signature mismatch on cookie ${cookie.name}, invalid`);
             return false;
         }
     }
@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
         pathname !== '/smileking-auth' &&
         pathname !== '/CHEATER' &&
         !pathname.match(
-            /^(\/styles\/|\/public\/|.*\.(?:js|css|png|jpg|jpeg|gif|svg|ico|webp|mp3|mp4|m4a|woff2?|ttf|eot|map))$/
+            /^(\/styles\/|\/public\/|.*\.(?:js|css|png|jpg|jpeg|gif|svg|ico|webp|mp3|mp4|m4a|woff2?|ttf|eot|map|txt))$/
         )
     ) {
         if (!accepted && pathname !== '/') {
@@ -100,9 +100,6 @@ export async function middleware(request: NextRequest) {
         } else if (corrupting && pathname !== '/h0m3') {
             // console.debug('[middleware] Redirecting to /h0m3 due to Corrupting cookie');
             return NextResponse.redirect(new URL('/h0m3', request.url));
-        } else if (end && pathname !== '/the-end') {
-            // console.debug('[middleware] Redirecting to /the-end due to End cookie');
-            return NextResponse.redirect(new URL('/the-end', request.url));
         }
     }
 
