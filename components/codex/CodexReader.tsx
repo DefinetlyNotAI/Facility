@@ -115,7 +115,7 @@ export default function CodexReader({
             const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
             result = result.replace(
                 regex,
-                match => `<span class="${styles.keyword}" data-keyword="${match}">${match}</span>`
+                match => `<span class="${styles.keyword}" data-keyword="${match.toLowerCase()}">${match}</span>`
             );
         });
         return result;
@@ -210,8 +210,8 @@ export default function CodexReader({
                     }}
                 >
                     <span className="text-amber-400 font-semibold">{hovered.keyword}</span>
-                    {' — '}
-                    {keywordInfo[hovered.keyword] ?? "A key term in the Codex"}
+                    {' - '}
+                    {keywordInfo[hovered.keyword.toLowerCase()] ?? "A key term in the Codex"}
                 </div>
             )}
         </div>
