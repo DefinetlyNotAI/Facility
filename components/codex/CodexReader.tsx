@@ -127,11 +127,13 @@ export default function CodexReader({
         const keyword = target.getAttribute("data-keyword");
         if (!keyword) return;
 
+        // Use viewport coordinates (getBoundingClientRect) and store them as-is.
+        // We'll render the tooltip with position: fixed so these coordinates align with the tooltip.
         const rect = target.getBoundingClientRect();
         setHovered({
             keyword,
             x: rect.left + rect.width / 2,
-            y: rect.top - 8
+            y: rect.top
         });
     };
 
@@ -194,11 +196,13 @@ export default function CodexReader({
             {/* Floating Tooltip */}
             {hovered && (
                 <div
-                    className={`${styles.animateFadeIn} absolute`}
+                    className={`${styles.animateFadeIn} fixed`} // use fixed so coordinates are viewport-based
                     style={{
-                        top: hovered.y + window.scrollY,
+                        // Use the raw viewport coords stored in hovered.
+                        top: hovered.y,
                         left: hovered.x,
-                        transform: 'translate(-50%, -100%)',
+                        transform: 'translate(-50%, -100%)', // bottom-center of tooltip aligns with keyword top-center
+                        position: 'fixed',
                         background: 'rgba(0,0,0,0.9)',
                         border: '1px solid rgba(146,64,14,0.6)',
                         borderRadius: '0.5rem',
@@ -206,7 +210,8 @@ export default function CodexReader({
                         color: '#fef3c7',
                         backdropFilter: 'blur(4px)',
                         whiteSpace: 'nowrap',
-                        zIndex: 50
+                        zIndex: 50,
+                        pointerEvents: 'none' // avoid tooltip stealing pointer events and causing flicker
                     }}
                 >
                     <span className="text-amber-400 font-semibold">{hovered.keyword}</span>

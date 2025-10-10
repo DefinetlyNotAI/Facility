@@ -62,8 +62,8 @@ export interface CodexReaderProps {
 export interface HoverState {
     // The hovered keyword text.
     keyword: string;
-    // X coordinate of the hover position in pixels (relative to viewport or container).
+    // X coordinate of the hover position in pixels (viewport / client coordinates).
     x: number;
-    // Y coordinate of the hover position in pixels (relative to viewport or container).
+    // Y coordinate of the hover position in pixels (viewport / client coordinates).
     y: number;
 }
