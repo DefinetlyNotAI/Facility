@@ -36,3 +36,16 @@ export const OVERLAYS: CodexOverlay[] = [
         triggerKeyword: 'TR33',
     },
 ];
+
+export const keywordInfo: Record<string, string> = {
+    Whispers: "The teeth of the dark - they echo truths unspoken. A fragment of your past.",
+    Fletchling: "A fragment of innocence; the last to fall. A fragment of your past.",
+    Dithed: "A word erased from history, yet remembered by the code. A fragment of your past.",
+    Nullskin: "That which wears nothing, and yet consumes all form. A fragment of your past.",
+    Echoes: "Residual signals left by HIM. A fragment of your past.",
+    TR33: "Corrupted caretaker, was once a TREE",
+    TAS: "The Interface between the Vessel and the Eldritch.",
+    Entity: "Future YOU.",
+    Vessel: "Present YOU.",
+    Eldritch: "An ancient cosmic force, beyond comprehension. Only partially understood."
+};

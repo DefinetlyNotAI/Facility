@@ -58,3 +58,12 @@ export interface CodexReaderProps {
     // Reveal speed in milliseconds per character or chunk (when autoReveal is true)
     revealSpeed?: number;
 }
+
+export interface HoverState {
+    // The hovered keyword text.
+    keyword: string;
+    // X coordinate of the hover position in pixels (relative to viewport or container).
+    x: number;
+    // Y coordinate of the hover position in pixels (relative to viewport or container).
+    y: number;
+}
