@@ -4,7 +4,7 @@ import styles from '@/styles/Bonus.module.css';
 import {bonusErrorText} from "@/lib/data/bonus";
 import {useEffect, useRef} from "react";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {router} from "next/client";
 
 

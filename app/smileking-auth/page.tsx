@@ -2,7 +2,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {SFX_AUDIO} from "@/lib/audio";
+import {SFX_AUDIO} from "@/lib/data/audio";
 import {authText, errorMsg, warningMsg} from "@/lib/data/smileking";
 import {cookies, routes} from "@/lib/saveData";
 

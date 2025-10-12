@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 import {cookies, routes} from "@/lib/saveData";
 import {text} from "@/lib/data/root";
 import {signCookie} from "@/lib/utils";

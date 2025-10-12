@@ -3,7 +3,7 @@
 import styles from '@/styles/NoTimeLeft.module.css';
 import { useSearchParams } from "next/navigation";
 import {chapterMessages, chapterStyles} from "@/lib/data/bonus";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 import {useEffect, useRef} from "react";
 import {router} from "next/client";
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useEffect, useRef, useState} from 'react';
-import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/audio';
+import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
 import {IMAGE_CAPTION, SMILE_LOC, WHISPER_TEXTS} from '@/lib/data/dream';
 import styles from '@/styles/Dream.module.css';
 import Cookies from "js-cookie";

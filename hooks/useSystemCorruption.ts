@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
 import {signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
-import {playSafeSFX, SFX_AUDIO} from "@/lib/audio";
+import {playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {ErrorDialog} from "@/components/tree98/dialogs/ErrorPopup";
 
 export const useSystemCorruption = (createWindow: any, audioRef: React.RefObject<HTMLAudioElement>) => {

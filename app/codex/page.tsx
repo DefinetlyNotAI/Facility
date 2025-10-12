@@ -5,7 +5,7 @@ import CodexReader from '@/components/codex/CodexReader';
 import ChapterNavigation from '@/components/codex/ChapterNavigation';
 import OverlaySystem from '@/components/codex/OverlaySystem';
 import styles from '@/styles/Codex.module.css';
-import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/audio';
+import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
 import Cookies from 'js-cookie';
 import {cookies, routes} from '@/lib/saveData';
 import {useRouter} from 'next/navigation';

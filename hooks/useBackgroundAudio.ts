@@ -1,5 +1,5 @@
 import React, {useEffect} from "react";
-import {cleanupAudio, initializeBackgroundAudio} from "@/lib/audio";
+import {cleanupAudio, initializeBackgroundAudio} from "@/lib/data/audio";
 
 // Custom hook to manage background audio with user interaction
 // You will need to pass a html audio element reference with both the audioRef and audioSrc for this to work

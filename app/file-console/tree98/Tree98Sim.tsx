@@ -22,7 +22,7 @@ import {CMD} from '@/components/tree98/applications/CMD';
 import {ControlPanel} from "@/components/tree98/dialogs/ControlPanel";
 import {VesselBootDialog} from "@/components/tree98/dialogs/VesselBootDialog";
 import {FileViewer} from "@/components/tree98/dialogs/FileViewer";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 const Tree98Sim: React.FC<{
     audioRef: React.RefObject<HTMLAudioElement>;

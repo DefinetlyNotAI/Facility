@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 import {LARGE_NUMBER, MESSAGE, MOONLIGHT_TEXT, SUBTITLE, TERMINAL_MESSAGES, TITLE, WINGDINGS} from "@/lib/data/404";
 import {cookies, routes} from "@/lib/saveData";
 import {signCookie} from "@/lib/utils";
