@@ -1,6 +1,8 @@
 import {NextResponse} from 'next/server';
 import React from "react";
-import {localStorageKeys} from "@/lib/saveData";
+import {localStorageKeys, routes} from "@/lib/saveData";
+import Cookies from "js-cookie";
+import {BonusAct, BonusResponse} from "@/lib/types/api";
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -93,3 +95,39 @@ export function detectOsBrowser(ua: string) {
     else if (/edg/i.test(ua)) browser = "Edge";
     return {os, browser};
 }
+
+// Bonus API Helpers - Contains functions to interact with the bonus API (get, get all, toggle)
+export const bonusApi = {
+    // Toggle act to opposite value
+    async changeToOpp(act: BonusAct): Promise<BonusResponse> {
+        const csrfToken = Cookies.get("csrf-token") ?? "";
+        const res = await fetch(routes.api.bonus.changeToOpp, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": csrfToken,
+            },
+            body: JSON.stringify({ act }),
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    },
+
+    // Get all acts
+    async getAll(): Promise<BonusResponse> {
+        const res = await fetch(routes.api.bonus.getAll);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    },
+
+    // Get a single act
+    async getOne(act: BonusAct): Promise<BonusResponse> {
+        const url = new URL(routes.api.bonus.getOne, window.location.origin);
+        url.searchParams.append("act", act);
+
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    },
+};
