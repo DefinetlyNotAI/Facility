@@ -1,4 +1,3 @@
-// Type for all Acts
 export type BonusAct =
     | "Act_I"
     | "Act_II"
@@ -11,13 +10,12 @@ export type BonusAct =
     | "Act_IX"
     | "Act_X";
 
-// Type for responses
-export type BonusResponse = Record<BonusAct, boolean> & { success?: boolean };
-
-// Define 4 states as a TypeScript enum
 export enum ActionState {
-    NotReleased = 'not_released',
-    Released = 'released',
-    Failed = 'failed',
-    Succeeded = 'succeeded',
+    NotReleased = "not_released",
+    Released = "released",
+    Failed = "failed",
+    Succeeded = "succeeded",
 }
+
+// Each act maps to its current state
+export type BonusResponse = Record<BonusAct, ActionState>;
