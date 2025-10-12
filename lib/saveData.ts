@@ -42,6 +42,22 @@ export const routes = {
     tree98: "/file-console/tree98",
     scroll: "/scroll",
     codex: "/codex",
+    bonus: {
+        notYet: "/chapters/not_yet_child",
+        // Use ?chapter={chapterId} to specify which chapter (i, ii, vi, vii, viii, ix), rest are null
+        noTime: "/chapters/no_time_left",
+        locked: "/chapters/locked_behind_doors",
+        actI: "/chapters/I",
+        actII: "/chapters/II",
+        actIII: "/chapters/III",
+        actIV: "/chapters/IV",
+        actV: "/chapters/V",
+        actVI: "/chapters/VI",
+        actVII: "/chapters/VII",
+        actVIII: "/chapters/VIII",
+        actIX: "/chapters/IX",
+        actX: "/chapters/X"
+    }
 }
 
 const rawCookies = {

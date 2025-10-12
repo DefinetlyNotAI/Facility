@@ -13,7 +13,11 @@ export const TITLES: Record<string, string> = {
     [routes.notFound]: "The doors don't open just because you found them.",
     [routes.scroll]: "Scroll till the end, then turn around, to find your way out.",
     [routes.codex]: "System Codex - Facility OS v3.15.25",
+    [routes.bonus.notYet]: "A door being built",
+    [routes.bonus.locked]: "A locked door",
+    [routes.bonus.noTime]: "A broken down door, time the perpetrator"
 };
+
 export const FAVICON = "/favicon.ico";
 
 // Page.tsx
