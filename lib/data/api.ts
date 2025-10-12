@@ -34,3 +34,8 @@ export const state = {
 export const wifiPanel = {
     useTools: "USE WHAT TOOLS WERE IMPOSED ON YOU"
 }
+
+export const allowedActs: string[] = [
+    'Act_I','Act_II','Act_III','Act_IV','Act_V',
+    'Act_VI','Act_VII','Act_VIII','Act_IX','Act_X'
+];
