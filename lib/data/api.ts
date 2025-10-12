@@ -34,8 +34,15 @@ export const state = {
 export const wifiPanel = {
     useTools: "USE WHAT TOOLS WERE IMPOSED ON YOU"
 }
-
 export const allowedActs: string[] = [
     'Act_I', 'Act_II', 'Act_III', 'Act_IV', 'Act_V',
     'Act_VI', 'Act_VII', 'Act_VIII', 'Act_IX', 'Act_X'
 ];
+export const bonusMsg = {
+    invalidCsrf: "Invalid CSRF token",
+    invalidAct: "Invalid or missing act",
+    toggleError: "Failed to toggle act",
+    checkError: "Failed to check act",
+    missingParam: "Invalid or missing act parameter, try /api/bonus-check-all to see all available acts",
+    fetchError: "Failed to fetch progress for all acts",
+}

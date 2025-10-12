@@ -1,7 +1,7 @@
 import {NextRequest} from 'next/server';
 import {createSecureResponse} from '@/lib/utils';
 import {dbPool} from '@/lib/db';
-import {allowedActs} from "@/lib/data/api";
+import {allowedActs, bonusMsg} from "@/lib/data/api";
 
 
 
@@ -11,14 +11,14 @@ export async function POST(req: NextRequest) {
         const csrfTokenFromHeader = req.headers.get('x-csrf-token');
 
         if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromCookie !== csrfTokenFromHeader) {
-            return createSecureResponse({error: 'Invalid CSRF token'}, 403);
+            return createSecureResponse({error: bonusMsg.invalidCsrf}, 403);
         }
 
         const body = await req.json();
         const act = body?.act;
 
         if (!act || !allowedActs.includes(act)) {
-            return createSecureResponse({error: 'Invalid or missing act'}, 400);
+            return createSecureResponse({error: bonusMsg.invalidAct}, 400);
         }
 
         const client = await dbPool.connect();
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
         return createSecureResponse({success: true, [act]: !current});
     } catch (error) {
-        console.error('Error toggling act', error);
-        return createSecureResponse({error: 'Failed to toggle act'}, 500);
+        console.error(bonusMsg.toggleError, error);
+        return createSecureResponse({error: bonusMsg.toggleError}, 500);
     }
 }

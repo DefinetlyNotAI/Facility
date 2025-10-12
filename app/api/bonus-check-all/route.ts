@@ -1,5 +1,6 @@
 import {createSecureResponse} from '@/lib/utils';
 import {dbPool} from '@/lib/db';
+import {bonusMsg} from "@/lib/data/api";
 
 
 export async function GET() {
@@ -37,7 +38,7 @@ export async function GET() {
 
         return createSecureResponse(result);
     } catch (error) {
-        console.error('Error fetching bonus progress', error);
-        return createSecureResponse({error: 'Failed to fetch bonus progress'}, 500);
+        console.error(bonusMsg.fetchError, error);
+        return createSecureResponse({error: bonusMsg.fetchError}, 500);
     }
 }
