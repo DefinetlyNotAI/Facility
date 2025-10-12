@@ -98,7 +98,7 @@ export function detectOsBrowser(ua: string) {
 
 // Bonus API Helpers - Contains functions to interact with the bonus API (get, get all, toggle)
 export const bonusApi = {
-    // Toggle act to opposite value
+    // Toggle act to next from not_released -> released -> failed -> succeeded
     async changeToOpp(act: BonusAct): Promise<BonusResponse> {
         const csrfToken = Cookies.get("csrf-token") ?? "";
         const res = await fetch(routes.api.bonus.changeToOpp, {
