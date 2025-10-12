@@ -16,11 +16,13 @@ export interface Window {
     zIndex: number;
     props?: any;
 }
+
 export interface ContextMenu {
     x: number;
     y: number;
     visible: boolean;
 }
+
 export interface DragState {
     isDragging: boolean;
     windowId: string | null;

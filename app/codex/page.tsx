@@ -88,7 +88,8 @@ function Codex() {
                     <p className="text-base sm:text-lg md:text-xl text-amber-100/70 italic px-4">
                         {CHAPTERS[currentChapter - 1]?.subtitle}
                     </p>
-                    <div className="w-48 sm:w-64 h-px bg-gradient-to-r from-transparent via-amber-700 to-transparent mx-auto mt-6 sm:mt-8"/>
+                    <div
+                        className="w-48 sm:w-64 h-px bg-gradient-to-r from-transparent via-amber-700 to-transparent mx-auto mt-6 sm:mt-8"/>
                 </header>
 
                 {isLoading ? (

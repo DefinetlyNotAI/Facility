@@ -6,7 +6,7 @@ import "./globals.css";
 import styles from "@/styles/Layout.module.css";
 import TAS from "@/components/TAS";
 import {FAVICON, TITLES} from "@/lib/data/root";
-import { Analytics } from "@vercel/analytics/next"
+import {Analytics} from "@vercel/analytics/next"
 
 
 function getTitle(pathname: string) {
@@ -93,7 +93,7 @@ export default function RootLayout({children,}: { children: React.ReactNode; }) 
         )}
         <div className="scanlines crt-effect">
             {children}
-            <Analytics />
+            <Analytics/>
             <TAS/>
         </div>
         </body>

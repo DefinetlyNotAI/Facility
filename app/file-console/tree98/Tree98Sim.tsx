@@ -410,9 +410,9 @@ const Tree98Sim: React.FC<{
             {/* System Crash Overlay */}
             {isSystemCrashing && (
                 <div className="text-white text-center" style={{fontFamily: sysConfigDefaults.fonts.system}}>
-                        <div className="text-2xl animate-pulse">SYSTEM FAILURE</div>
-                        <div className="text-sm mt-4">Please wait...</div>
-                    </div>
+                    <div className="text-2xl animate-pulse">SYSTEM FAILURE</div>
+                    <div className="text-sm mt-4">Please wait...</div>
+                </div>
             )}
         </div>
     );

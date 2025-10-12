@@ -11,7 +11,21 @@ export const routes = {
         csrfToken: "/api/csrf-token",
         state: "/api/state",
         press: "/api/press",
-        auth: "/api/auth"
+        auth: "/api/auth",
+        bonus: {
+            // API: POST /api/bonus-change-opp - toggles (opposite) the requested bonus act (Act_I..Act_X).
+            // Need: JSON body { act: "Act_I" } and matching CSRF token in cookie 'csrf-token' and header 'x-csrf-token'.
+            // Return: JSON object like { success: true, Act_I: true } showing the new value, or an error object with status.
+            changeToOpp: "/api/bonus-change-opp",
+            // API: GET /api/bonus-check-all - returns boolean progress for all bonus acts (Act_I..Act_X).
+            // Need: none (reads from actions table).
+            // Return: JSON object like { Act_I: false, Act_II: true, ... } or an error object with appropriate status.
+            getAll: "/api/bonus-check-all",
+            // API: GET /api/bonus-check - returns the boolean progress for a single bonus act (Act_I..Act_X).
+            // Need: query parameter "act" (one of Act_I, Act_II, ..., Act_X).
+            // Return: JSON object like { "Act_I": true } or an error object with appropriate status.
+            getOne: "/api/bonus-check",
+        }
     },
     fileConsole: "/file-console",
     home: "/home",

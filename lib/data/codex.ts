@@ -12,7 +12,6 @@ export const CODEX_TEXT: Record<string, string> = {
 };
 
 
-
 // Codex Data for components
 export const CHAPTERS: Chapter[] = [
     {id: 1, title: 'Chapter I', subtitle: 'Entity and the Eldritch', filename: 'Chapter_I_Entity_and_the_Eldritch.txt'},
@@ -20,7 +19,12 @@ export const CHAPTERS: Chapter[] = [
     {id: 3, title: 'Chapter III', subtitle: 'The VESSEL', filename: 'Chapter_III_The_VESSEL.txt'},
     {id: 4, title: 'Chapter IV', subtitle: 'The 5 Keywords', filename: 'Chapter_IV_The_5_Keywords.txt'},
     {id: 5, title: 'Chapter V', subtitle: 'Mechanics', filename: 'Chapter_V_Mechanics.txt'},
-    {id: 6, title: 'Chapter VI', subtitle: 'Fate, Sacrifice, and Revelation', filename: 'Chapter_VI_Fate,_Sacrifice,_and_Revelation.txt'},
+    {
+        id: 6,
+        title: 'Chapter VI',
+        subtitle: 'Fate, Sacrifice, and Revelation',
+        filename: 'Chapter_VI_Fate,_Sacrifice,_and_Revelation.txt'
+    },
     {id: 7, title: 'Chapter VII', subtitle: 'The End and Ascension', filename: 'Chapter_VII_The_End_and_Ascension.txt'},
     {id: 8, title: 'Chapter VIII', subtitle: 'Apotheosis', filename: 'Chapter_VIII_Apotheosis.txt'},
 ];
