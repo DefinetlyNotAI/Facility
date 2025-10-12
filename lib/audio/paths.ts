@@ -24,6 +24,11 @@ export const BACKGROUND_AUDIO = {
     COMPUTER_BOOT: "/music/boot.mp3",
     BSOD: "/music/bsod.mp3",
     CODEX: "/music/ourFinaleOurEndWillIEverSeeYouAgain.mp3",
+    BONUS: {
+        NO_TIME: "/music/3OClock.mp3",
+        NOT_YET: "/music/3OClock.mp3",
+        LOCKED: "/music/3OClock.mp3",
+    },
 } as const;
 
 // Sound Effects
