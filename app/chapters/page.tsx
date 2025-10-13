@@ -1,12 +1,13 @@
 'use client';
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import styles from "@/styles/ChapterBonusRoot.module.css";
 import {bonusApi} from "@/lib/utils";
 import {validRomans, successQuestNames, failQuestNames, CHAPTER_TEXT} from "@/lib/data/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/lib/types/api";
+import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 
 export default function ChapterBonusPage() {
@@ -14,6 +15,10 @@ export default function ChapterBonusPage() {
     const [data, setData] = useState<BonusResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const POLL_MS = 5000;
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Initialize background audio
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.MAIN)
 
     const fetchAll = async () => {
         try {
@@ -42,66 +47,74 @@ export default function ChapterBonusPage() {
     };
 
     return (
-        <main className={styles.root}>
-            <div className={styles.vignette}/>
-            <section className={styles.container}>
-                <h1 className={styles.title}>{CHAPTER_TEXT.pageTitle}</h1>
-                <p className={styles.subtitle}>{CHAPTER_TEXT.pageSubtitle}</p>
+        <>
+            <audio
+                ref={audioRef}
+                src={BACKGROUND_AUDIO.BONUS.MAIN}
+                loop={true}
+                preload="auto"
+                style={{display: "none"}}/>
+            <main className={styles.root}>
+                <div className={styles.vignette}/>
+                <section className={styles.container}>
+                    <h1 className={styles.title}>{CHAPTER_TEXT.pageTitle}</h1>
+                    <p className={styles.subtitle}>{CHAPTER_TEXT.pageSubtitle}</p>
 
-                <div className={styles.grid}>
-                    {validRomans.map((roman, idx) => {
-                        const actKey = `Act_${roman.toUpperCase()}` as keyof BonusResponse;
-                        const state = data ? data[actKey] : undefined;
+                    <div className={styles.grid}>
+                        {validRomans.map((roman, idx) => {
+                            const actKey = `Act_${roman.toUpperCase()}` as keyof BonusResponse;
+                            const state = data ? data[actKey] : undefined;
 
-                        let label = CHAPTER_TEXT.unknownLabel;
-                        let cls = styles.btnGrey;
-                        let disabled = true;
+                            let label = CHAPTER_TEXT.unknownLabel;
+                            let cls = styles.btnGrey;
+                            let disabled = true;
 
-                        if (!state) {
-                            label = loading ? CHAPTER_TEXT.loadingLabel : CHAPTER_TEXT.unknownLabel;
-                        } else {
-                            switch (state) {
-                                case ActionState.NotReleased:
-                                    label = CHAPTER_TEXT.unknownLabel;
-                                    cls = styles.btnGrey;
-                                    disabled = true;
-                                    break;
-                                case ActionState.Released:
-                                    label = CHAPTER_TEXT.actLabel(roman);
-                                    cls = styles.btnCyan;
-                                    disabled = false;
-                                    break;
-                                case ActionState.Failed:
-                                    label = failQuestNames[idx] ?? CHAPTER_TEXT.failDefault;
-                                    cls = styles.btnRed;
-                                    disabled = false;
-                                    break;
-                                case ActionState.Succeeded:
-                                    label = successQuestNames[idx] ?? CHAPTER_TEXT.actLabel(roman);
-                                    cls = styles.btnGreen;
-                                    disabled = false;
-                                    break;
+                            if (!state) {
+                                label = loading ? CHAPTER_TEXT.loadingLabel : CHAPTER_TEXT.unknownLabel;
+                            } else {
+                                switch (state) {
+                                    case ActionState.NotReleased:
+                                        label = CHAPTER_TEXT.unknownLabel;
+                                        cls = styles.btnGrey;
+                                        disabled = true;
+                                        break;
+                                    case ActionState.Released:
+                                        label = CHAPTER_TEXT.actLabel(roman);
+                                        cls = styles.btnCyan;
+                                        disabled = false;
+                                        break;
+                                    case ActionState.Failed:
+                                        label = failQuestNames[idx] ?? CHAPTER_TEXT.failDefault;
+                                        cls = styles.btnRed;
+                                        disabled = false;
+                                        break;
+                                    case ActionState.Succeeded:
+                                        label = successQuestNames[idx] ?? CHAPTER_TEXT.actLabel(roman);
+                                        cls = styles.btnGreen;
+                                        disabled = false;
+                                        break;
+                                }
                             }
-                        }
 
-                        return (
-                            <button
-                                key={roman}
-                                className={`${styles.btn} ${cls}`}
-                                onClick={() => handleClick(roman, idx, state as ActionState)}
-                                disabled={disabled}
-                                aria-disabled={disabled}
-                                title={label}
-                            >
-                                <div className={styles.btnInner}>
-                                    <span className={styles.btnLabel}>{label}</span>
-                                    <span className={styles.btnRoman}>{roman}</span>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-            </section>
-        </main>
+                            return (
+                                <button
+                                    key={roman}
+                                    className={`${styles.btn} ${cls}`}
+                                    onClick={() => handleClick(roman, idx, state as ActionState)}
+                                    disabled={disabled}
+                                    aria-disabled={disabled}
+                                    title={label}
+                                >
+                                    <div className={styles.btnInner}>
+                                        <span className={styles.btnLabel}>{label}</span>
+                                        <span className={styles.btnRoman}>{roman}</span>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </section>
+            </main>
+        </>
     );
 }
