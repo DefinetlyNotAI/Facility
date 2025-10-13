@@ -7,7 +7,8 @@ import React, { useRef, useEffect } from 'react';
 import { useCheckActStatus } from '@/hooks/useCheckActStatus';
 import { bonusApi } from "@/lib/utils";
 import { ActionState, BonusAct } from "@/lib/types/api";
-import { routes } from "@/lib/saveData";
+import {cookies, routes} from "@/lib/saveData";
+import Cookies from "js-cookie";
 
 
 // No Time Left when chapter failed
@@ -19,6 +20,12 @@ export default function NoTimeLeft() {
     const router = useRouter();
     const roman = searchParams.get('chapter');
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    useEffect(() => {
+        if (!Cookies.get(cookies.end)) {
+            router.replace(routes.bonus.locked);
+        }
+    }, [router]);
 
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NO_TIME);

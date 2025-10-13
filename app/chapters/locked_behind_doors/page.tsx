@@ -6,11 +6,19 @@ import React, {useEffect, useRef} from "react";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {useRouter} from "next/navigation";
+import Cookies from "js-cookie";
+import {cookies, routes} from "@/lib/saveData";
 
 // Use when user is missing "End" cookie and tries to access the chapters
 export default function LockedBehindDoors() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        if (Cookies.get(cookies.end)) {
+            router.replace(routes.notFound);
+        }
+    }, [router]);
 
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.LOCKED)

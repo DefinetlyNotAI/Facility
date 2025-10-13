@@ -6,11 +6,18 @@ import React, {useEffect, useRef} from "react";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {useRouter} from "next/navigation";
+import Cookies from "js-cookie";
+import {cookies, routes} from "@/lib/saveData";
 
 // Page when the bonus chapter is not yet released
 export default function NotYetChild() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const router = useRouter();
+    useEffect(() => {
+        if (!Cookies.get(cookies.end)) {
+            router.replace(routes.bonus.locked);
+        }
+    }, [router]);
 
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NOT_YET)
