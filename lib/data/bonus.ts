@@ -32,8 +32,8 @@ export const chapterMessages: Record<string, string> = {
 export const validRomans: string[] = ['i', 'ii', 'iii', "iv", 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
 
 export const successQuestNames: string[] = [
-    "Saga",
     "Connecting...",
+    "Empty?",
     "3:Clocks and Hands",
     "3:Registration",
     "Narrator: A Harbinger",
@@ -46,8 +46,8 @@ export const successQuestNames: string[] = [
 
 
 export const failQuestNames: string[] = [
-    "Quest Name",
-    "Empty?",
+    "Timeout",
+    "Empty...",
     "Broken Me",
     "Broken You",
     "You’re not that special",
