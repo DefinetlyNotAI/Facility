@@ -12,10 +12,20 @@ export const TITLES: Record<string, string> = {
     [routes.smilekingAuth]: "Authorized Access Only - Smile King Terminal",
     [routes.notFound]: "The doors don't open just because you found them.",
     [routes.scroll]: "Scroll till the end, then turn around, to find your way out.",
-    [routes.codex]: "System Codex - Facility OS v3.15.25",
+    [routes.codex]: "Codex - Library of Ruin",
     [routes.bonus.notYet]: "A door being built",
     [routes.bonus.locked]: "A locked door",
-    [routes.bonus.noTime]: "A broken down door, time the perpetrator"
+    [routes.bonus.noTime]: "A broken down door, time the perpetrator",
+    [routes.bonus.actID("i")]: "Connecting...",
+    [routes.bonus.actID("ii")]: "Empty?",
+    [routes.bonus.actID("iii")]: "3:Clocks and Hands",
+    [routes.bonus.actID("iv")]: "3:Registration",
+    [routes.bonus.actID("v")]: "Narrator: I",
+    [routes.bonus.actID("vi")]: "Clocks",
+    [routes.bonus.actID("vii")]: "Timelines",
+    [routes.bonus.actID("viii")]: "Bloom, Live and Die",
+    [routes.bonus.actID("ix")]: "Philosophy",
+    [routes.bonus.actID("x")]: "Narrator:II",
 };
 
 export const FAVICON = "/favicon.ico";
