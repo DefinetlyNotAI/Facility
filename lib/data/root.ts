@@ -1,4 +1,5 @@
 import {routes} from "@/lib/saveData";
+import {successQuestNames, validRomans} from "@/lib/data/bonus";
 
 // Layout.tsx
 export const TITLES: Record<string, string> = {
@@ -16,16 +17,11 @@ export const TITLES: Record<string, string> = {
     [routes.bonus.notYet]: "A door being built",
     [routes.bonus.locked]: "A locked door",
     [routes.bonus.noTime]: "A broken down door, time the perpetrator",
-    [routes.bonus.actID("i")]: "Connecting...",
-    [routes.bonus.actID("ii")]: "Empty?",
-    [routes.bonus.actID("iii")]: "3:Clocks and Hands",
-    [routes.bonus.actID("iv")]: "3:Registration",
-    [routes.bonus.actID("v")]: "Narrator: I",
-    [routes.bonus.actID("vi")]: "Clocks",
-    [routes.bonus.actID("vii")]: "Timelines",
-    [routes.bonus.actID("viii")]: "Bloom, Live and Die",
-    [routes.bonus.actID("ix")]: "Philosophy",
-    [routes.bonus.actID("x")]: "Narrator:II",
+    // Dynamically create act titles, these are the success quest names mapped to their roman numeral
+    ...validRomans.reduce((acc, roman, index) => {
+        acc[routes.bonus.actID(roman)] = successQuestNames[index];
+        return acc;
+    }, {} as Record<string, string>)
 };
 
 export const FAVICON = "/favicon.ico";

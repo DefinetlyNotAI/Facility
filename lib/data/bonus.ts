@@ -28,4 +28,32 @@ export const chapterMessages: Record<string, string> = {
     VII: bonusErrorText.noTimeLeft.VII,
     IX: bonusErrorText.noTimeLeft.IX,
 };
+
 export const validRomans: string[] = ['i', 'ii', 'iii', "iv", 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
+
+export const successQuestNames: string[] = [
+    "Saga",
+    "Connecting...",
+    "3:Clocks and Hands",
+    "3:Registration",
+    "Narrator: A Harbinger",
+    "He who lives in clocks",
+    "The timeline",
+    "Bloom, Live and Die",
+    "Philosophy",
+    "Narrator: Tenacity"
+];
+
+
+export const failQuestNames: string[] = [
+    "Quest Name",
+    "Empty?",
+    "Broken Me",
+    "Broken You",
+    "You’re not that special",
+    "No time left",
+    "Lost history",
+    "All dead",
+    "Deranged Nonsense",
+    ":("
+];
