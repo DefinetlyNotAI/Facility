@@ -46,12 +46,12 @@ export const routes = {
         main: "/chapters",
         notYet: "/chapters/not_yet_child",
         noTime: "/chapters/no_time_left",
+        locked: "/chapters/locked_behind_doors",
         noTimeChID(chID: string): string {
             return `/chapters/no_time_left?chapter=${chID}`;
         },
-        locked: "/chapters/locked_behind_doors",
         actID(chID: string): string {
-            return `/chapters/${chID}`
+            return `/chapters/${chID.toUpperCase()}`
         },
     }
 }

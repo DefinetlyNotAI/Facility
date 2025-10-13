@@ -66,3 +66,37 @@ export const CHAPTER_TEXT = {
     actLabel: (roman: string): string => `Act ${roman.toUpperCase()}`.replace("_", " "),
 };
 
+export const fileLinks = {
+    I: {
+        donecAnteDolorEXE: "/static/chapters/I/donec_ante_dolor.exe",
+    },
+    II: {
+        timeShallStrikeEXE: "/static/chapters/II/time_shall_strike.exe",
+    },
+    IV: {
+        E_TXT: "/static/chapters/IV/E.txt",
+        TAS_TXT: "/static/chapters/IV/TAS.txt",
+        TREE_TXT: "/static/chapters/IV/TREE.txt",
+    },
+    V: {
+        NarratorTXT: "/static/chapters/V/Narrator_I.txt",
+        lost: {
+            cambiumKnotholeMP4: "/static/chapters/V/lost/CambiumKnothole.mp4",
+            riddlePNG: "/static/chapters/V/lost/riddle.png",
+            fryingAliveWAV: "/static/chapters/V/lost/fryingalive.wav",
+        },
+        tools: {
+            provideMeTheOilEXE: "/static/chapters/V/tools/Provide_Me_The_Oil.exe"
+        },
+    },
+    IX: {
+        txt15: "/static/chapters/IX/15.txt"
+    },
+    X: {
+        NarratorTXT: "/static/chapters/X/Narrator_II.txt",
+    },
+    finale: {
+        whatLogZip: "/static/chapters/finale/what.log.zip",
+        deletionLogMD: "/static/chapters/finale/deletion.log.md",
+    }
+}
