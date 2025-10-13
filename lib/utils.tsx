@@ -105,7 +105,7 @@ export const bonusApi = {
             const Cookies = (await import("js-cookie")).default;
             csrfToken = Cookies.get("csrf-token") ?? "";
         } catch {
-            // running in an environment without js-cookie — assume cookie will still be sent via credentials
+            // running in an environment without js-cookie - assume cookie will still be sent via credentials
             csrfToken = "";
         }
 
