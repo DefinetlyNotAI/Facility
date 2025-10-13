@@ -41,7 +41,11 @@ export default function TAS({className = ''}: TASProps) {
             pathname === routes.moonlight ||
             pathname === routes.notFound ||
             pathname === routes.tree98 ||
-            pathname === routes.cheater
+            pathname === routes.cheater ||
+            pathname === routes.bonus.locked ||
+            pathname === routes.bonus.noTime ||
+            pathname === routes.bonus.notYet ||
+            pathname === routes.bonus.main
         ) {
             setIsVisible(false);
             return;

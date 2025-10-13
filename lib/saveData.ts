@@ -43,6 +43,7 @@ export const routes = {
     scroll: "/scroll",
     codex: "/codex",
     bonus: {
+        main: "/chapters",
         notYet: "/chapters/not_yet_child",
         noTime: "/chapters/no_time_left",
         noTimeChID(chID: string): string {
