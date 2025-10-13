@@ -5,11 +5,12 @@ import {bonusErrorText} from "@/lib/data/bonus";
 import React, {useEffect, useRef} from "react";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 // Page when the bonus chapter is not yet released
 export default function NotYetChild() {
     const audioRef = useRef<HTMLAudioElement>(null);
+    const router = useRouter();
 
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NOT_YET)

@@ -5,11 +5,12 @@ import {bonusErrorText} from "@/lib/data/bonus";
 import React, {useEffect, useRef} from "react";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 // Use when user is missing "End" cookie and tries to access the chapters
 export default function LockedBehindDoors() {
     const audioRef = useRef<HTMLAudioElement>(null);
+    const router = useRouter();
 
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.LOCKED)

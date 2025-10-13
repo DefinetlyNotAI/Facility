@@ -28,3 +28,4 @@ export const chapterMessages: Record<string, string> = {
     VII: bonusErrorText.noTimeLeft.VII,
     IX: bonusErrorText.noTimeLeft.IX,
 };
+export const validRomans: string[] = ['i', 'ii', 'vi', 'vii', 'viii', 'ix'];
