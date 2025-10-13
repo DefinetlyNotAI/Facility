@@ -126,12 +126,15 @@ export const bonusApi = {
     },
 
     // Get a single act
-    async getOne(act: BonusAct): Promise<BonusResponse> {
+    async getOne(roman: string): Promise<BonusResponse> {
+        // Convert Roman numeral to act column
+        const act = `Act_${roman.toUpperCase()}` as BonusAct;
+
         const url = new URL(routes.api.bonus.getOne, window.location.origin);
         url.searchParams.append("act", act);
 
         const res = await fetch(url.toString());
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
-    },
+    }
 };

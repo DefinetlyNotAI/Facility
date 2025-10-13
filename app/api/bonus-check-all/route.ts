@@ -6,10 +6,13 @@ import { ActionState } from "@/lib/types/api";
 export async function GET() {
     try {
         const client = await dbPool.connect();
+
+        // Map all allowedActs to lowercase for querying
+        const cols = allowedActs.map(act => act.toLowerCase()).join(', ');
         const res = await client.query(`
-            SELECT ${allowedActs.join(', ')}
-            FROM actions
-                     LIMIT 1;
+            SELECT ${cols} 
+            FROM actions 
+            LIMIT 1;
         `);
         client.release();
 
@@ -26,7 +29,8 @@ export async function GET() {
         // Map each act to its current ActionState (fallback to NotReleased)
         const row = res.rows[0];
         const result: Record<string, ActionState> = allowedActs.reduce((acc, act) => {
-            acc[act] = (row[act] as ActionState) ?? ActionState.NotReleased;
+            const col = act.toLowerCase(); // match DB column
+            acc[act] = (row[col] as ActionState) ?? ActionState.NotReleased;
             return acc;
         }, {} as Record<string, ActionState>);
 

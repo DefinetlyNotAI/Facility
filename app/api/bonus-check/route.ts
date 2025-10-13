@@ -14,7 +14,10 @@ export async function GET(req: NextRequest) {
         }
 
         const client = await dbPool.connect();
-        const q = `SELECT ${act} FROM actions LIMIT 1;`;
+
+        // Map to lowercase column
+        const col = act.toLowerCase();
+        const q = `SELECT ${col} FROM actions LIMIT 1;`;
         const res = await client.query(q);
         client.release();
 
@@ -22,7 +25,7 @@ export async function GET(req: NextRequest) {
         const state: ActionState =
             res.rowCount === 0
                 ? ActionState.NotReleased
-                : (res.rows[0][act] as ActionState) ?? ActionState.NotReleased;
+                : (res.rows[0][col] as ActionState) ?? ActionState.NotReleased;
 
         return createSecureResponse({ [act]: state });
     } catch (error) {
