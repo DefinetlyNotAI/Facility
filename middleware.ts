@@ -11,6 +11,8 @@ const cookiesList = [
     'Interference_cutscene_seen', 'KILLTAS_cutscene_seen', 'TREE', "THP_Play"
 ];
 
+const validRomans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+
 const SECRET = process.env.COOKIE_SECRET || 'Unsecure';
 
 async function sign(data: string): Promise<string> {
@@ -74,6 +76,22 @@ export async function middleware(request: NextRequest) {
     // Skip static + API routes
     if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
         return response;
+    }
+
+    if (pathname.startsWith('/chapters/')) {
+        const parts = pathname.split('/');
+        const chID = parts[2]; // e.g., 'i'
+
+        if (chID) {
+            const upper = chID.toUpperCase();
+
+            // redirect only if uppercase is valid and the path is lowercase
+            if (chID !== upper && validRomans.includes(upper)) {
+                const url = request.nextUrl.clone();
+                url.pathname = `/chapters/${upper}`;
+                return NextResponse.redirect(url, 301); // 301 perma redirect
+            }
+        }
     }
 
     // If cheating via cookies, redirect to /CHEATER
