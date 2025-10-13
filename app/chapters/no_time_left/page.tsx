@@ -1,7 +1,7 @@
 'use client';
 import styles from '@/styles/NoTimeLeft.module.css';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {chapterMessages, chapterStyles} from '@/lib/data/bonus';
+import {chapterMessages, chapterStyles} from '@/lib/data/chapters';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
 import React, {useEffect, useRef} from 'react';
 import {cookies, routes} from '@/lib/saveData';
@@ -31,16 +31,16 @@ export default function NoTimeLeft() {
         return null
     }
     const ready: boolean = usePreloadActStates(roman);
-    // Wait for readiness or invalid roman
-    if (!ready || !chapterMessages[roman.toUpperCase()]) {
-        return null
-    }
 
     // Play error SFX on mount
     useEffect(() => {
         playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
     }, []);
 
+    // Wait for readiness or invalid roman
+    if (!ready || !chapterMessages[roman.toUpperCase()]) {
+        return null
+    }
 
     return (
         <>

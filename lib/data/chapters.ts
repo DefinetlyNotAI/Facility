@@ -57,3 +57,12 @@ export const failQuestNames: string[] = [
     "Deranged Nonsense",
     ":("
 ];
+
+export const CHAPTER_TEXT = {
+    pageTitle: "unbirth • bonus chapters",
+    pageSubtitle: "Will HE who sees all be satisfied?",
+    unknownLabel: "???",
+    loadingLabel: "...",
+    failDefault: "Fail",
+    actLabel: (roman: string): string => `Act ${roman.toUpperCase()}`.replace("_", " "),
+};

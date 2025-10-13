@@ -3,7 +3,7 @@ import {useRouter} from "next/navigation";
 import {bonusApi} from "@/lib/utils";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusAct} from "@/lib/types/api";
-import {validRomans} from "@/lib/data/bonus";
+import {validRomans} from "@/lib/data/chapters";
 
 export function useActStateCheck(
     roman: string | null,

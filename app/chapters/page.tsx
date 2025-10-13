@@ -4,9 +4,10 @@ import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import styles from "@/styles/ChapterBonusRoot.module.css";
 import {bonusApi} from "@/lib/utils";
-import {validRomans, successQuestNames, failQuestNames} from "@/lib/data/bonus";
+import {validRomans, successQuestNames, failQuestNames, CHAPTER_TEXT} from "@/lib/data/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/lib/types/api";
+
 
 export default function ChapterBonusPage() {
     const router = useRouter();
@@ -26,18 +27,17 @@ export default function ChapterBonusPage() {
     };
 
     useEffect(() => {
-        fetchAll();
+        fetchAll().catch(console.error);
         const id = setInterval(fetchAll, POLL_MS);
         return () => clearInterval(id);
     }, []);
 
-    const handleClick = (roman: string, idx: number, state: ActionState) => {
+    const handleClick = (roman: string, _idx: number, state: ActionState) => {
         if (state === ActionState.NotReleased) return;
         if (state === ActionState.Failed) {
             router.push(routes.bonus.noTimeChID(roman));
             return;
         }
-        // Released or Succeeded -> go to act page
         router.push(routes.bonus.actID(roman));
     };
 
@@ -45,40 +45,39 @@ export default function ChapterBonusPage() {
         <main className={styles.root}>
             <div className={styles.vignette}/>
             <section className={styles.container}>
-                <h1 className={styles.title}>void • bonus acts</h1>
-                <p className={styles.subtitle}>Interact with available bonus acts. Status updates in real time.</p>
+                <h1 className={styles.title}>{CHAPTER_TEXT.pageTitle}</h1>
+                <p className={styles.subtitle}>{CHAPTER_TEXT.pageSubtitle}</p>
 
                 <div className={styles.grid}>
                     {validRomans.map((roman, idx) => {
                         const actKey = `Act_${roman.toUpperCase()}` as keyof BonusResponse;
                         const state = data ? data[actKey] : undefined;
 
-                        let label = "???";
+                        let label = CHAPTER_TEXT.unknownLabel;
                         let cls = styles.btnGrey;
                         let disabled = true;
 
                         if (!state) {
-                            // loading or no data
-                            label = loading ? "..." : "???";
+                            label = loading ? CHAPTER_TEXT.loadingLabel : CHAPTER_TEXT.unknownLabel;
                         } else {
                             switch (state) {
                                 case ActionState.NotReleased:
-                                    label = "???";
+                                    label = CHAPTER_TEXT.unknownLabel;
                                     cls = styles.btnGrey;
                                     disabled = true;
                                     break;
                                 case ActionState.Released:
-                                    label = `Act ${roman.toUpperCase()}`.replace("_", " ");
+                                    label = CHAPTER_TEXT.actLabel(roman);
                                     cls = styles.btnCyan;
                                     disabled = false;
                                     break;
                                 case ActionState.Failed:
-                                    label = failQuestNames[idx] ?? "Fail";
+                                    label = failQuestNames[idx] ?? CHAPTER_TEXT.failDefault;
                                     cls = styles.btnRed;
                                     disabled = false;
                                     break;
                                 case ActionState.Succeeded:
-                                    label = successQuestNames[idx] ?? `Act ${roman.toUpperCase()}`;
+                                    label = successQuestNames[idx] ?? CHAPTER_TEXT.actLabel(roman);
                                     cls = styles.btnGreen;
                                     disabled = false;
                                     break;
@@ -106,4 +105,3 @@ export default function ChapterBonusPage() {
         </main>
     );
 }
-

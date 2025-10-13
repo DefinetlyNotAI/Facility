@@ -2,6 +2,7 @@ import {NextResponse} from 'next/server';
 import React from "react";
 import {localStorageKeys, routes} from "@/lib/saveData";
 import {BonusAct, BonusResponse} from "@/lib/types/api";
+import {errorText} from "@/lib/data/utils";
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -70,7 +71,7 @@ export async function signCookie(data: string): Promise<{ success: boolean; erro
 
         if (!res.ok) {
             const errorData = await res.json();
-            return {success: false, error: errorData.error || 'Failed to sign cookie'};
+            return {success: false, error: errorData.error || errorText.CookieSignFailed};
         }
 
         return {success: true};
@@ -126,7 +127,7 @@ export const bonusApi = {
         if (!res.ok) {
             let text = "";
             try { text = await res.text(); } catch {}
-            throw new Error(`bonus.changeToOpp failed HTTP ${res.status}: ${text}`);
+            throw new Error(`${errorText.HTTPFail("bonus.changeToOpp")} ${res.status}: ${text}`);
         }
 
         return res.json();
@@ -138,7 +139,7 @@ export const bonusApi = {
         if (!res.ok) {
             let text = "";
             try { text = await res.text(); } catch {}
-            throw new Error(`bonus.getAll failed HTTP ${res.status}: ${text}`);
+            throw new Error(`${errorText.HTTPFail("bonus.getAll")} ${res.status}: ${text}`);
         }
         return res.json();
     },
@@ -155,7 +156,7 @@ export const bonusApi = {
         if (!res.ok) {
             let text = "";
             try { text = await res.text(); } catch {}
-            throw new Error(`bonus.getOne failed HTTP ${res.status}: ${text}`);
+            throw new Error(`${errorText.HTTPFail("bonus.getOne")} ${res.status}: ${text}`);
         }
         return res.json();
     }

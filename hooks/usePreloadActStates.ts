@@ -2,7 +2,7 @@ import {useActStateCheck, useFailed, useNotReleased, useReleased, useSucceeded} 
 import {useEffect, useMemo, useState} from "react";
 import {ActionState} from "@/lib/types/api";
 import {usePathname, useRouter} from "next/navigation";
-import {validRomans} from "@/lib/data/bonus";
+import {validRomans} from "@/lib/data/chapters";
 import {routes} from "@/lib/saveData";
 
 export function usePreloadActStates(roman: string) {
