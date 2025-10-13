@@ -44,7 +44,6 @@ export const successQuestNames: string[] = [
     "Narrator: Tenacity"
 ];
 
-
 export const failQuestNames: string[] = [
     "Timeout",
     "Empty...",
@@ -66,3 +65,4 @@ export const CHAPTER_TEXT = {
     failDefault: "Fail",
     actLabel: (roman: string): string => `Act ${roman.toUpperCase()}`.replace("_", " "),
 };
+
