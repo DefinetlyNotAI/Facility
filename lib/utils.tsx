@@ -1,7 +1,6 @@
 import {NextResponse} from 'next/server';
 import React from "react";
 import {localStorageKeys, routes} from "@/lib/saveData";
-import Cookies from "js-cookie";
 import {BonusAct, BonusResponse} from "@/lib/types/api";
 
 // Message Render Helper - Used for /choices
@@ -100,19 +99,34 @@ export function detectOsBrowser(ua: string) {
 export const bonusApi = {
     // Toggle an act to the next state
     async changeToOpp(act: BonusAct): Promise<BonusResponse> {
-        const csrfToken = Cookies.get("csrf-token") ?? "";
+        // dynamically import js-cookie only on client
+        let csrfToken = "";
+        try {
+            const Cookies = (await import("js-cookie")).default;
+            csrfToken = Cookies.get("csrf-token") ?? "";
+        } catch {
+            // running in an environment without js-cookie — assume cookie will still be sent via credentials
+            csrfToken = "";
+        }
+
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+        };
+        if (csrfToken) {
+            headers["X-CSRF-Token"] = csrfToken;
+        }
+
         const res = await fetch(routes.api.bonus.changeToOpp, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-Token": csrfToken,
-            },
+            credentials: "include",
+            headers,
             body: JSON.stringify({act}),
         });
 
         if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`HTTP ${res.status}: ${text}`);
+            let text = "";
+            try { text = await res.text(); } catch {}
+            throw new Error(`bonus.changeToOpp failed HTTP ${res.status}: ${text}`);
         }
 
         return res.json();
@@ -120,8 +134,12 @@ export const bonusApi = {
 
     // Get all acts
     async getAll(): Promise<BonusResponse> {
-        const res = await fetch(routes.api.bonus.getAll);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(routes.api.bonus.getAll, { credentials: "include" });
+        if (!res.ok) {
+            let text = "";
+            try { text = await res.text(); } catch {}
+            throw new Error(`bonus.getAll failed HTTP ${res.status}: ${text}`);
+        }
         return res.json();
     },
 
@@ -133,8 +151,12 @@ export const bonusApi = {
         const url = new URL(routes.api.bonus.getOne, window.location.origin);
         url.searchParams.append("act", act);
 
-        const res = await fetch(url.toString());
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(url.toString(), { credentials: "include" });
+        if (!res.ok) {
+            let text = "";
+            try { text = await res.text(); } catch {}
+            throw new Error(`bonus.getOne failed HTTP ${res.status}: ${text}`);
+        }
         return res.json();
     }
 };
