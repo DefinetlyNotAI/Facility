@@ -7,10 +7,10 @@ import {routes} from "@/lib/saveData";
 
 export function usePreloadActStates(roman: string) {
     // Run all checks immediately (these  handle redirects internally)
-    useFailed(roman);
-    useSucceeded(roman);
-    useReleased(roman);
-    useNotReleased(roman);
+    useFailed(roman.toLowerCase());
+    useSucceeded(roman.toLowerCase());
+    useReleased(roman.toLowerCase());
+    useNotReleased(roman.toLowerCase());
 
     const [ready, setReady] = useState(false);
     useEffect(() => {
@@ -34,15 +34,15 @@ export function useIsSucceeded() {
 
     // Validate chapter and redirect if invalid
     useEffect(() => {
-        if (!chapter || !validRomans.includes(chapter)) {
+        if (!chapter || !validRomans.includes(chapter.toLowerCase())) {
             router.push(routes.notFound);
         }
     }, [chapter, router]);
 
     // Run required state checks
-    useNotReleased(chapter);
-    useFailed(chapter);
+    useNotReleased(chapter.toLowerCase());
+    useFailed(chapter.toLowerCase());
 
     // Return the main act state check (for succeeded)
-    return useActStateCheck(chapter, ActionState.Succeeded);
+    return useActStateCheck(chapter.toLowerCase(), ActionState.Succeeded);
 }

@@ -44,7 +44,6 @@ export const routes = {
     codex: "/codex",
     bonus: {
         notYet: "/chapters/not_yet_child",
-        // Use ?chapter={chapterId} to specify which chapter (i, ii, vi, vii, viii, ix), rest are null
         noTime: "/chapters/no_time_left",
         noTimeChID(chID: string): string {
             return `/chapters/no_time_left?chapter=${chID}`;
@@ -52,7 +51,7 @@ export const routes = {
         locked: "/chapters/locked_behind_doors",
         actID(chID: string): string {
             return `/chapters/${chID}`
-        } ,
+        },
     }
 }
 
