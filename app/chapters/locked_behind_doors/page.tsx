@@ -7,6 +7,7 @@ import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {router} from "next/client";
 
+// Use when user is missing "End" cookie and tries to access the chapters
 export default function LockedBehindDoors() {
     const audioRef = useRef<HTMLAudioElement>(null);
 

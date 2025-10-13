@@ -10,6 +10,8 @@ import {ActionState, BonusAct} from "@/lib/types/api";
 import {routes} from "@/lib/saveData";
 
 
+// No Time Left when chapter failed
+// Valid chapters: i, ii, vi, vii, viii, ix
 // To use: /no_time_left?chapter=i etc
 export default function NoTimeLeft() {
     const searchParams = useSearchParams();
@@ -28,7 +30,12 @@ export default function NoTimeLeft() {
 
     // Check act status
     useEffect(() => {
-        if (!roman) return;
+        const validRomans = ['i', 'ii', 'vi', 'vii', 'viii', 'ix'];
+
+        if (!roman || !validRomans.includes(roman.toLowerCase())) {
+            router.push(routes.notFound);
+            return;
+        }
 
         bonusApi.getOne(roman)
             .then(res => {
@@ -36,6 +43,8 @@ export default function NoTimeLeft() {
                 const state = res[actKey];
                 if (state === ActionState.NotReleased) {
                     router.push(routes.bonus.notYet);
+                } else if (state === ActionState.Succeeded || state === ActionState.Released) {
+                    router.push(routes.notFound);
                 } else {
                     setIsValid(true);
                 }

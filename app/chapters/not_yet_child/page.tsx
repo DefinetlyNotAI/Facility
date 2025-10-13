@@ -7,7 +7,7 @@ import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {router} from "next/client";
 
-
+// Page when the bonus chapter is not yet released
 export default function NotYetChild() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
