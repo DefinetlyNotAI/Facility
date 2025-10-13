@@ -107,7 +107,7 @@ export const bonusApi = {
                 "Content-Type": "application/json",
                 "X-CSRF-Token": csrfToken,
             },
-            body: JSON.stringify({ act }),
+            body: JSON.stringify({act}),
         });
 
         if (!res.ok) {

@@ -1,10 +1,10 @@
 'use client';
 import styles from '@/styles/NoTimeLeft.module.css';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { chapterMessages, chapterStyles } from '@/lib/data/bonus';
-import { BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio } from '@/lib/data/audio';
-import React, { useRef, useEffect } from 'react';
-import { cookies, routes } from '@/lib/saveData';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {chapterMessages, chapterStyles} from '@/lib/data/bonus';
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
+import React, {useEffect, useRef} from 'react';
+import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
 import {usePreloadActStates} from "@/hooks/usePreloadActStates";
 
@@ -27,10 +27,14 @@ export default function NoTimeLeft() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NO_TIME);
 
     // Run all act checks before showing anything
-    if (!roman) { return null }
+    if (!roman) {
+        return null
+    }
     const ready: boolean = usePreloadActStates(roman);
     // Wait for readiness or invalid roman
-    if (!ready || !chapterMessages[roman.toUpperCase()]) { return null }
+    if (!ready || !chapterMessages[roman.toUpperCase()]) {
+        return null
+    }
 
     // Play error SFX on mount
     useEffect(() => {
@@ -45,7 +49,7 @@ export default function NoTimeLeft() {
                 src={BACKGROUND_AUDIO.BONUS.NO_TIME}
                 loop
                 preload="auto"
-                style={{ display: 'none' }}
+                style={{display: 'none'}}
             />
             <div className={styles.container}>
                 <p className={chapterStyles[roman.toUpperCase()]}>

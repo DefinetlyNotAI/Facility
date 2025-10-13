@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {bonusApi, signCookie} from '@/lib/utils';
-import { buttonState, text } from '@/lib/data/smileking';
+import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
-import { cookies, routes } from '@/lib/saveData';
-import { BonusAct, BonusResponse, ActionState } from '@/lib/types/api';
+import {cookies, routes} from '@/lib/saveData';
+import {ActionState, BonusAct, BonusResponse} from '@/lib/types/api';
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {
@@ -93,7 +93,7 @@ export default function SmilekingClient() {
 
         const updatedCookies = getCookiesMap();
         setCookieState(prev => {
-            const newState = { ...prev };
+            const newState = {...prev};
             Object.values(cookies).forEach(cookie => {
                 newState[cookie] = updatedCookies.hasOwnProperty(cookie);
             });
@@ -110,14 +110,14 @@ export default function SmilekingClient() {
                 'X-CSRF-Token': csrfToken ?? '',
                 'ignore-already-pressed': 'true',
             },
-            body: JSON.stringify({ browser }),
+            body: JSON.stringify({browser}),
         });
 
         const result = await res.json();
         if (result.success) {
             setButtonStates(prev =>
                 prev.map(b =>
-                    b.browser === browser ? { ...b, clicked: result.clicked } : b
+                    b.browser === browser ? {...b, clicked: result.clicked} : b
                 )
             );
         } else {
@@ -128,7 +128,7 @@ export default function SmilekingClient() {
     const toggleBonusAct = async (act: BonusAct) => {
         try {
             const data = await bonusApi.changeToOpp(act);
-            setBonusState(prev => ({ ...prev, ...data }));
+            setBonusState(prev => ({...prev, ...data}));
         } catch (e) {
             alert(`Failed to toggle act ${act}: ${e}`);
         }
@@ -195,7 +195,7 @@ export default function SmilekingClient() {
                             <li key={act}>
                                 <button
                                     className={styles.button}
-                                    style={{ backgroundColor: getActColor(state as ActionState) }}
+                                    style={{backgroundColor: getActColor(state as ActionState)}}
                                     onClick={() => toggleBonusAct(act as BonusAct)}
                                 >
                                     {act}: {state}

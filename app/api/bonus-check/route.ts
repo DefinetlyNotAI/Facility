@@ -1,8 +1,8 @@
-import { NextRequest } from 'next/server';
-import { createSecureResponse } from '@/lib/utils';
-import { dbPool } from '@/lib/db';
-import { allowedActs, bonusMsg } from "@/lib/data/api";
-import { ActionState } from "@/lib/types/api";
+import {NextRequest} from 'next/server';
+import {createSecureResponse} from '@/lib/utils';
+import {dbPool} from '@/lib/db';
+import {allowedActs, bonusMsg} from "@/lib/data/api";
+import {ActionState} from "@/lib/types/api";
 
 export async function GET(req: NextRequest) {
     try {
@@ -10,14 +10,15 @@ export async function GET(req: NextRequest) {
         const act = url.searchParams.get('act');
 
         if (!act || !allowedActs.includes(act)) {
-            return createSecureResponse({ error: bonusMsg.missingParam }, 400);
+            return createSecureResponse({error: bonusMsg.missingParam}, 400);
         }
 
         const client = await dbPool.connect();
 
         // Map to lowercase column
         const col = act.toLowerCase();
-        const q = `SELECT ${col} FROM actions LIMIT 1;`;
+        const q = `SELECT ${col}
+                   FROM actions LIMIT 1;`;
         const res = await client.query(q);
         client.release();
 
@@ -27,9 +28,9 @@ export async function GET(req: NextRequest) {
                 ? ActionState.NotReleased
                 : (res.rows[0][col] as ActionState) ?? ActionState.NotReleased;
 
-        return createSecureResponse({ [act]: state });
+        return createSecureResponse({[act]: state});
     } catch (error) {
         console.error(bonusMsg.checkError, error);
-        return createSecureResponse({ error: bonusMsg.checkError }, 500);
+        return createSecureResponse({error: bonusMsg.checkError}, 500);
     }
 }

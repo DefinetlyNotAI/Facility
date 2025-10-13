@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { bonusApi } from "@/lib/utils";
-import { routes } from "@/lib/saveData";
-import { ActionState, BonusAct } from "@/lib/types/api";
-import { validRomans } from "@/lib/data/bonus";
+import {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
+import {bonusApi} from "@/lib/utils";
+import {routes} from "@/lib/saveData";
+import {ActionState, BonusAct} from "@/lib/types/api";
+import {validRomans} from "@/lib/data/bonus";
 
 export function useActStateCheck(
     roman: string | null,
