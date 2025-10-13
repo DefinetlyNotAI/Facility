@@ -4,23 +4,19 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { chapterMessages, chapterStyles } from '@/lib/data/bonus';
 import { BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio } from '@/lib/data/audio';
 import React, { useRef, useEffect } from 'react';
-import { useCheckActStatus } from '@/hooks/useCheckActStatus';
-import { bonusApi } from "@/lib/utils";
-import { ActionState, BonusAct } from "@/lib/types/api";
-import {cookies, routes} from "@/lib/saveData";
-import Cookies from "js-cookie";
+import { cookies, routes } from '@/lib/saveData';
+import Cookies from 'js-cookie';
+import {usePreloadActStates} from "@/hooks/usePreloadActStates";
 
 
-// No Time Left when chapter failed
-// Valid chapters: i, ii, vi, vii, viii, ix
-// To use: /no_time_left?chapter=i etc.
-// You can also use routes.bonus.noTimeChID('i') to get the route with the correct query param already set
+// --- Main component ---
 export default function NoTimeLeft() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const roman = searchParams.get('chapter');
+    const roman = searchParams.get('chapter')?.toLowerCase() ?? null;
     const audioRef = useRef<HTMLAudioElement>(null);
 
+    // Redirect if global end cookie not set
     useEffect(() => {
         if (!Cookies.get(cookies.end)) {
             router.replace(routes.bonus.locked);
@@ -30,35 +26,17 @@ export default function NoTimeLeft() {
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NO_TIME);
 
-    // Hook handles act validity
-    const isValid = useCheckActStatus(roman);
+    // Run all act checks before showing anything
+    if (!roman) { return null }
+    const ready: boolean = usePreloadActStates(roman);
+    // Wait for readiness or invalid roman
+    if (!ready || !chapterMessages[roman.toUpperCase()]) { return null }
 
-    // Redirect if act is invalid or not found
-    useEffect(() => {
-        if (!roman || !chapterMessages[roman.toUpperCase()] || isValid === false) {
-            router.push(routes.notFound);
-            return;
-        }
-
-        // Check act state from API
-        bonusApi.getOne(roman!).then(res => {
-            const actKey = `Act_${roman!.toUpperCase()}` as BonusAct;
-            const state = res[actKey];
-            if (state === ActionState.Succeeded || state === ActionState.Released) {
-                router.push(routes.notFound);
-            }
-        });
-    }, [roman, isValid, router]);
-
-    // Play SFX on mount
+    // Play error SFX on mount
     useEffect(() => {
         playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
     }, []);
 
-    // Render content only if valid
-    if (!roman || !chapterMessages[roman.toUpperCase()] || isValid === false) {
-        return null;
-    }
 
     return (
         <>

@@ -50,16 +50,9 @@ export const routes = {
             return `/chapters/no_time_left?chapter=${chID}`;
         },
         locked: "/chapters/locked_behind_doors",
-        actI: "/chapters/I",
-        actII: "/chapters/II",
-        actIII: "/chapters/III",
-        actIV: "/chapters/IV",
-        actV: "/chapters/V",
-        actVI: "/chapters/VI",
-        actVII: "/chapters/VII",
-        actVIII: "/chapters/VIII",
-        actIX: "/chapters/IX",
-        actX: "/chapters/X"
+        actID(chID: string): string {
+            return `/chapters/${chID}`
+        } ,
     }
 }
 

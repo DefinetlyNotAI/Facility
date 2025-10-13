@@ -13,6 +13,7 @@ import {cookies, routes} from "@/lib/saveData";
 export default function NotYetChild() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const router = useRouter();
+
     useEffect(() => {
         if (!Cookies.get(cookies.end)) {
             router.replace(routes.bonus.locked);
