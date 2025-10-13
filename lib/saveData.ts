@@ -46,6 +46,9 @@ export const routes = {
         notYet: "/chapters/not_yet_child",
         // Use ?chapter={chapterId} to specify which chapter (i, ii, vi, vii, viii, ix), rest are null
         noTime: "/chapters/no_time_left",
+        noTimeChID(chID: string): string {
+            return `/chapters/no_time_left?chapter=${chID}`;
+        },
         locked: "/chapters/locked_behind_doors",
         actI: "/chapters/I",
         actII: "/chapters/II",

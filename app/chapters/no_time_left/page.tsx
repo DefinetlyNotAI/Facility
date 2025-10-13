@@ -12,7 +12,8 @@ import {routes} from "@/lib/saveData";
 
 // No Time Left when chapter failed
 // Valid chapters: i, ii, vi, vii, viii, ix
-// To use: /no_time_left?chapter=i etc
+// To use: /no_time_left?chapter=i etc.
+// You can also use routes.bonus.noTimeChID('i') to get the route with the correct query param already set
 export default function NoTimeLeft() {
     const searchParams = useSearchParams();
     const roman = searchParams.get('chapter');
