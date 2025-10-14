@@ -61,6 +61,16 @@ export const routes = {
         actID(chID: string): string {
             return `/chapters/${chID.toUpperCase()}`
         },
+        chapterIISpecial: {
+            path3: '/chapters/II/3',
+            path15: '/chapters/II/15',
+            path25: '/chapters/II/25',
+            pathTree: '/chapters/II/TREE',
+            pathVessel: '/chapters/II/VESSEL',
+            pathTr33: '/chapters/II/TR33',
+            path1033333013: '/chapters/II/1033333013',
+            pathTimedUrl: '/chapters/II/3h-15m-25th-utc',
+        },
     }
 }
 
@@ -114,7 +124,9 @@ const rawCookies = {
     // Cookie storing the hash of the admin password inputted by user
     adminPass: "admin-pass",
     // Cookie to check if the user has accepted the disclaimers
-    disclaimersAccepted: "accepted"
+    disclaimersAccepted: "accepted",
+    // Cookie to check if the user already checked chapter II password for 3h15m25thUTC page
+    chII_passDone: '3h15m25thUTC_passDone',
 };
 
 export const cookies = process.env.NODE_ENV !== "production"

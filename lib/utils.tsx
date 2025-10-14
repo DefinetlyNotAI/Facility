@@ -3,6 +3,8 @@ import React from "react";
 import {localStorageKeys, routes} from "@/lib/saveData";
 import {BonusAct, BonusResponse} from "@/lib/types/api";
 import {errorText} from "@/lib/data/utils";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -160,4 +162,17 @@ export const bonusApi = {
         }
         return res.json();
     }
+};
+
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}
+
+export const formatTime = (milliseconds: number) => {
+    const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((milliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 };

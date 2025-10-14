@@ -8,7 +8,7 @@ const cookiesList = [
     'corrupting', 'No_corruption', 'BnW_unlocked', 'Choice_Unlocked',
     'terminal_unlocked', 'End?', 'End', 'tree98_cutscene_seen', 'tree98_logged_in',
     'moonlight_time_cutscene_played', 'themoon',
-    'Interference_cutscene_seen', 'KILLTAS_cutscene_seen', 'TREE', "THP_Play"
+    'Interference_cutscene_seen', 'KILLTAS_cutscene_seen', 'TREE', "THP_Play", "3h15m25thUTC_passDone"
 ];
 
 const validRomans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
