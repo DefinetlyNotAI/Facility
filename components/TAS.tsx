@@ -121,7 +121,7 @@ export default function TAS({className = ''}: TASProps) {
         const utterance = new SpeechSynthesisUtterance(nextText);
         utterance.rate = 0.9;
         utterance.pitch = 0.8;
-        utterance.volume = 0.8;
+        utterance.volume = 1;
 
         // Select a friendly voice
         const voices = speechSynthesis.getVoices();

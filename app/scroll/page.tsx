@@ -20,7 +20,7 @@ function getRandomFilename(length = 8) {
 export default function ScrollPage() {
     const router = useRouter();
     const [scrollUnlocked, setScrollUnlocked] = useState<boolean | null>(null);
-    const [contentHeight, setContentHeight] = useState(2000); // grows as you scroll
+    const [contentHeight, setContentHeight] = useState(2000);
     const [showEscape, setShowEscape] = useState(false);
     const [escapeHovered, setEscapeHovered] = useState(false);
     const [ipAddress, setIpAddress] = useState('...loading...');
@@ -72,15 +72,13 @@ export default function ScrollPage() {
                 const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'cyan', 'white'];
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="${color}" />
-            </svg>`;
+                  <circle cx="50" cy="50" r="40" fill="${color}" />
+                </svg>`;
                 faviconRef.current.href = `data:image/svg+xml;base64,${btoa(svg)}`;
             }
 
-            // Trigger audio playback on first scroll
             if (!hasInteractedRef.current && audioRef.current[0]) {
-                audioRef.current[0].play().catch(() => {
-                });
+                audioRef.current[0].play().catch(() => {});
                 hasInteractedRef.current = true;
             }
         };
@@ -93,7 +91,6 @@ export default function ScrollPage() {
         if (!scrollUnlocked) return;
 
         const errorLog = setInterval(() => {
-
             if (Math.random() < 0.3) {
                 console.error(errors[Math.floor(Math.random() * errors.length)]);
             }
@@ -106,7 +103,6 @@ export default function ScrollPage() {
         if (!scrollUnlocked) return;
 
         const triggerFileDownload = () => {
-            // Play file download sound
             playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.FILE_DELETE, false);
             const blob = new Blob([begStop], {type: 'text/plain'});
             const a = document.createElement('a');
@@ -139,7 +135,7 @@ export default function ScrollPage() {
                 setShowEscape(true);
             };
             window.speechSynthesis.speak(utterance);
-        }, 5000);  // 95 seconds
+        }, 5000);
 
         return () => {
             if (ttsTimeoutRef.current) clearTimeout(ttsTimeoutRef.current);
@@ -150,8 +146,7 @@ export default function ScrollPage() {
     useEffect(() => {
         if (audioRef.current[0]) {
             audioRef.current[0].load();
-            audioRef.current[0].play().catch(() => {
-            });
+            audioRef.current[0].play().catch(() => {});
         }
     }, [showEscape]);
 
@@ -180,38 +175,34 @@ export default function ScrollPage() {
 
                 {showEscape && (
                     <div style={{textAlign: 'center', marginTop: '50vh'}}>
-                        {!escapeHovered && (
-                            <button
-                                style={{
-                                    fontSize: '1.5rem',
-                                    fontFamily: 'Courier New, monospace',
-                                    padding: '1rem 2rem',
-                                    backgroundColor: 'black',
-                                    color: 'white',
-                                    border: '2px solid white',
-                                    cursor: 'default',
-                                }}
-                                onMouseEnter={() => setEscapeHovered(true)}
-                                onMouseLeave={() => setEscapeHovered(false)}
-                                onClick={async () => {
-                                    // Play success sound
-                                    playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.STATIC, true);
-                                    // Wait for sound to finish then redirect
-                                    await new Promise(resolve => setTimeout(resolve, 10000));
-                                    // Stop all audio
-                                    audioRef.current.forEach(audio => {
-                                        audio.pause();
-                                        audio.currentTime = 0;
-                                        audio.src = '';
-                                    });
-                                    await signCookie(`${cookies.blackAndWhite}=true`);
-                                    router.push(routes.blackAndWhite);
-                                    setEscapeHovered(true); // Hide button after click
-                                }}
-                            >
-                                {escapeHovered ? ipAddress : emergencyIP}
-                            </button>
-                        )}
+                        <button
+                            style={{
+                                fontSize: '1.5rem',
+                                fontFamily: 'Courier New, monospace',
+                                padding: '1rem 2rem',
+                                backgroundColor: escapeHovered ? '#111' : 'black',
+                                color: 'white',
+                                border: '2px solid white',
+                                cursor: 'default',
+                                transition: 'background-color 0.3s ease'
+                            }}
+                            onMouseEnter={() => setEscapeHovered(true)}
+                            onMouseLeave={() => setEscapeHovered(false)}
+                            onClick={async () => {
+                                playSafeSFX({current: audioRef.current[0]}, SFX_AUDIO.STATIC, true);
+                                await new Promise(resolve => setTimeout(resolve, 10000));
+                                audioRef.current.forEach(audio => {
+                                    audio.pause();
+                                    audio.currentTime = 0;
+                                    audio.src = '';
+                                });
+                                await signCookie(`${cookies.blackAndWhite}=true`);
+                                router.push(routes.blackAndWhite);
+                                setEscapeHovered(true);
+                            }}
+                        >
+                            {escapeHovered ? ipAddress : emergencyIP}
+                        </button>
                     </div>
                 )}
             </div>
