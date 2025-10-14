@@ -33,7 +33,7 @@ export default function SmilekingAuth() {
         }
 
         try {
-            const res = await fetch(routes.api.auth, {
+            const res = await fetch(routes.api.security.auth, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

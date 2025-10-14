@@ -43,6 +43,6 @@ export const bonusMsg = {
     invalidAct: "Invalid or missing act",
     toggleError: "Failed to toggle act",
     checkError: "Failed to check act",
-    missingParam: "Invalid or missing act parameter, try /api/bonus-check-all to see all available acts",
+    missingParam: "Invalid or missing act parameter, try /api/checkAll to see all available acts",
     fetchError: "Failed to fetch progress for all acts",
 }

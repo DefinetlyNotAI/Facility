@@ -25,7 +25,7 @@ export default function SmilekingClient() {
 
     // Pre-fetch CSRF token
     useEffect(() => {
-        axios.get(routes.api.csrfToken).catch(() => {
+        axios.get(routes.api.security.csrfToken).catch(() => {
         });
     }, []);
 
@@ -40,7 +40,7 @@ export default function SmilekingClient() {
 
         const fetchState = async () => {
             try {
-                const res = await fetch(routes.api.state);
+                const res = await fetch(routes.api.browser.getBrowserState);
                 const data = await res.json();
                 setButtonStates(Array.isArray(data) ? data : []);
             } catch {
@@ -103,7 +103,7 @@ export default function SmilekingClient() {
 
     const pressButton = async (browser: string) => {
         const csrfToken = Cookies.get('csrf-token');
-        const res = await fetch(routes.api.press, {
+        const res = await fetch(routes.api.browser.flipBrowserState, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

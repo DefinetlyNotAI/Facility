@@ -8,23 +8,31 @@ export const routes = {
     terminal: "/terminal",
     oArvoreDaCarne: "/O-ARVORE-DA-CARNE",
     api: {
-        csrfToken: "/api/csrf-token",
-        state: "/api/state",
-        press: "/api/press",
-        auth: "/api/auth",
-        bonus: {
-            // API: POST /api/bonus-change-opp - toggles (opposite) the requested bonus act (Act_I..Act_X).
+        utils: {
+            signCookie: "/api/utils/signCookie",
+            checkKeyword: "/api/utils/checkKeyword",
+        },
+        security: {
+            csrfToken: "/api/security/csrf-token",
+            auth: "/api/security/auth",
+        },
+        browser: {
+            getBrowserState: "/api/browser/getBrowserState",
+            flipBrowserState: "/api/browser/flipBrowserState",
+        },
+        chapters: {
+            // API: POST /api/changeNextState - toggles the requested bonus act (Act_I..Act_X).
             // Need: JSON body { act: "Act_I" } and matching CSRF token in cookie 'csrf-token' and header 'x-csrf-token'.
-            // Return: JSON object like { success: true, Act_I: true } showing the new value, or an error object with status.
-            changeToOpp: "/api/bonus-change-opp",
-            // API: GET /api/bonus-check-all - returns boolean progress for all bonus acts (Act_I..Act_X).
+            // Return: JSON object like { Act_I: "New State" } showing the new value, or an error object with status.
+            changeToNextState: "/api/chapters/changeNextState",
+            // API: GET /api/checkAll - returns boolean progress for all bonus acts (Act_I..Act_X).
             // Need: none (reads from actions table).
-            // Return: JSON object like { Act_I: false, Act_II: true, ... } or an error object with appropriate status.
-            getAll: "/api/bonus-check-all",
-            // API: GET /api/bonus-check - returns the boolean progress for a single bonus act (Act_I..Act_X).
+            // Return: JSON object like { Act_I: "New State", Act_II: "New State", ... } or an error object with appropriate status.
+            getAll: "/api/chapters/checkAll",
+            // API: GET /api/checkOne - returns the boolean progress for a single bonus act (Act_I..Act_X).
             // Need: query parameter "act" (one of Act_I, Act_II, ..., Act_X).
-            // Return: JSON object like { "Act_I": true } or an error object with appropriate status.
-            getOne: "/api/bonus-check",
+            // Return: JSON object like { "Act_I": "New State" } or an error object with appropriate status.
+            getOne: "/api/chapters/checkOne",
         }
     },
     fileConsole: "/file-console",

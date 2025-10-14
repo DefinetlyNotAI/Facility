@@ -30,7 +30,7 @@ export function createSecureResponse(body: any, status = 200) {
 
 // Keyword Check - Used for many endpoints to securely check if a keyword is valid without exposing the keyword itself
 export const checkKeyword = async (keyword: string, number: number): Promise<boolean> => {
-    const res = await fetch('/api/keyword', {
+    const res = await fetch(routes.api.utils.checkKeyword, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({keyword, number}),
@@ -63,7 +63,7 @@ export const getOrCreateSessionId = () => {
 // Sign Cookie Function - Used to sign cookies securely
 export async function signCookie(data: string): Promise<{ success: boolean; error?: string }> {
     try {
-        const res = await fetch('/api/sign-cookie', {
+        const res = await fetch(routes.api.utils.signCookie, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({data}),
@@ -117,7 +117,7 @@ export const bonusApi = {
             headers["X-CSRF-Token"] = csrfToken;
         }
 
-        const res = await fetch(routes.api.bonus.changeToOpp, {
+        const res = await fetch(routes.api.chapters.changeToNextState, {
             method: "POST",
             credentials: "include",
             headers,
@@ -135,7 +135,7 @@ export const bonusApi = {
 
     // Get all acts
     async getAll(): Promise<BonusResponse> {
-        const res = await fetch(routes.api.bonus.getAll, { credentials: "include" });
+        const res = await fetch(routes.api.chapters.getAll, { credentials: "include" });
         if (!res.ok) {
             let text = "";
             try { text = await res.text(); } catch {}
@@ -149,7 +149,7 @@ export const bonusApi = {
         // Convert Roman numeral to act column
         const act = `Act_${roman.toUpperCase()}` as BonusAct;
 
-        const url = new URL(routes.api.bonus.getOne, window.location.origin);
+        const url = new URL(routes.api.chapters.getOne, window.location.origin);
         url.searchParams.append("act", act);
 
         const res = await fetch(url.toString(), { credentials: "include" });

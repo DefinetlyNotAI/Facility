@@ -67,7 +67,7 @@ export default function ButtonsPage() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS)
 
     useEffect(() => {
-        axios.get(routes.api.csrfToken).catch(() => {
+        axios.get(routes.api.security.csrfToken).catch(() => {
         });
     }, []);
 
@@ -83,7 +83,7 @@ export default function ButtonsPage() {
         setUserBrowser(detected);
 
         axios
-            .get(routes.api.state)
+            .get(routes.api.browser.getBrowserState)
             .then(async (res) => {
                 const newStates: Record<BrowserName, boolean> = {
                     Chrome: false,
@@ -114,7 +114,7 @@ export default function ButtonsPage() {
         try {
             const csrfToken = Cookies.get('csrf-token');
             await axios.post(
-                routes.api.press,
+                routes.api.browser.flipBrowserState,
                 {browser},
                 {headers: {'X-CSRF-Token': csrfToken ?? ''}}
             );
