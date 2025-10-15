@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { cookies, routes } from '@/lib/saveData';
 import { useIsSucceeded } from "@/hooks/usePreloadActStates";
 import { formatTime } from "@/lib/utils";
-import {chIIData} from "@/lib/data/chapters";
+import {chIIData, fileLinks} from "@/lib/data/chapters";
+import {Button} from "@/components/ui/button";
 
 
 // ---------- Component ----------
@@ -82,6 +83,12 @@ export default function ChapterIIPage() {
                     {chIIData.root.text.complete.title}
                 </div>
                 <p className="text-gray-400 font-mono">{chIIData.root.text.complete.message}</p>
+                <Button
+                    onClick={() => { window.location.href = fileLinks.II.timeShallStrikeEXE; }}
+                    className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
+                >
+                    {chIIData.utcPage.successText.downloadButton}
+                </Button>
             </div>
         </div>
     );

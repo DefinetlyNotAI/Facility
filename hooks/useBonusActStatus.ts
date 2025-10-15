@@ -60,8 +60,8 @@ export function useFailed(roman: string) {
             : null // don't redirect if not allowed
     );
 
-    // If roman is not in validRomansNoTimeLeft, force matches to false
-    if (!validRomansNoTimeLeft.includes(roman.toLowerCase())) return false;
+    // If roman is not in validRomansNoTimeLeft, force matches to true
+    if (!validRomansNoTimeLeft.includes(roman.toLowerCase())) return true;
 
     return matches;
 }

@@ -234,6 +234,7 @@ export const chapterIIIData = {
     text: {
         loading: 'Loading...',
         header: '3: Clocks and Hands',
+        failHeader: 'TIME HAS RUN OUT',
         instructions: 'Send keywords to Discord bot: /clock_the_hand {keyword}',
         final: {
             title: 'TIME HAS SPOKEN',
@@ -300,4 +301,4 @@ export const chapterIVData: ChapterIVDatatype = {
         },
     ]
 };
-// todo, all chapter cleanup and const refactoring, add audios/sfx, then testing
+// todo, add audios/sfx, then testing
