@@ -57,13 +57,6 @@ export const routes = {
             // Need: query parameter "act" (one of Act_I, Act_II, ..., Act_X).
             // Return: JSON object like { "Act_I": "New State" } or an error object with appropriate status.
             getOne: "/api/chapters/checkOne",
-            // API Bundle for Chapter IV
-            IV: {
-                // API: GET /api/chapters/IV/checkOne - fetches public chapter IV checkOne data
-                // Return: JSON object with chapter status and progress data,
-                // or an error object with appropriate status.
-                progress: "/api/chapters/IV/checkOne",
-            }
         },
     },
     fileConsole: "/file-console",

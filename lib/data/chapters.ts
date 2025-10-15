@@ -1,4 +1,5 @@
 import ntl_styles from "@/styles/NoTimeLeft.module.css";
+import {ChapterIVDatatype} from "@/lib/types/chapters";
 
 
 // All texts used in bonus chapters for errors or messages
@@ -102,7 +103,7 @@ export const fileLinks = {
             // A tree - Same image of the tree can be used
             TREE: '/static/chapters/images/tr33.png',
             // Bot PNG
-            TAS: '/static/chapters/images/tas.jpeg',
+            TAS: '/static/chapters/images/tas.png',
             // Question mark.. the entity?
             Entity: '/static/chapters/images/entity.jpeg',
         },
@@ -245,7 +246,12 @@ export const chapterIIIData = {
 };
 
 // Chapter IV data
-export const chapterIVData = {
+export const chapterIVData: ChapterIVDatatype = {
+    plaqueStatus: [
+        { id: 'TREE', status: 'solved' },
+        { id: 'TAS', status: 'pending' },
+        { id: 'Entity', status: 'failed' },
+    ],
     text: {
         loading: 'Loading...',
         header: '3: Registration',

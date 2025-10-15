@@ -24,16 +24,4 @@ export enum ActionState {
 // Each act maps to its current state
 export type BonusResponse = Record<BonusAct, ActionState>;
 
-// Response from checking all acts in chapter IV
-export interface ChapterIVCheckAllResponse {
-    [act: string]: string; // e.g., { "Act_I": "succeeded", "Act_II": "not_released" }
-}
-
-// Response from changing an act to the next state in chapter IV
-export interface ChangeNextStateResponse {
-    data?: BonusResponse;
-    error?: string;
-}
-
-// Mapping of current state to next state (for cycling states) in chapter IV
-export type NextMap = Record<ActionState, ActionState>;
+export type AllowedPlaqueStatus = 'active' | 'succeeded' | 'failed'

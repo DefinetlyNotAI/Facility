@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import React from "react";
 import {localStorageKeys, routes} from "@/lib/saveData";
-import {BonusAct, BonusResponse, ChangeNextStateResponse, ChapterIVCheckAllResponse} from "@/lib/types/api";
+import {BonusAct, BonusResponse} from "@/lib/types/api";
 import {errorText} from "@/lib/data/utils";
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
@@ -178,63 +178,3 @@ export const formatTime = (milliseconds: number) => {
 
     return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 };
-
-// Fetch Chapter IV Progress - Client-side function to fetch public chapter IV checkOne data
-export async function fetchChapterIVProgress() {
-    const res = await fetch(`/api/chapters/IV/checkOne`, { cache: 'no-store' });
-    if (!res.ok) {
-        // keep it simple: throw so callers can catch
-        throw new Error(`Failed to fetch IV progress: ${res.status}`);
-    }
-    return res.json();
-}
-
-// Fetch Chapter IV Check All - Client-side function to fetch all Chapter IV act states
-export async function fetchChapterIVCheckAll(): Promise<ChapterIVCheckAllResponse> {
-    // include credentials so cookies (auth/session) are sent
-    const res = await fetch('/api/chapters/IV/checkAll', { cache: 'no-store', credentials: 'include' });
-
-    if (!res.ok) {
-        throw new Error(`Failed to fetch Chapter IV acts: ${res.status}`);
-    }
-
-    return await res.json();
-}
-
-// Change Next State - Client-side function to change an act to its next state for chapter IV
-export async function changeNextState(act: string): Promise<ChangeNextStateResponse> {
-    try {
-        // try to obtain CSRF token from js-cookie if available
-        let csrfToken: string;
-        try {
-            const Cookies = (await import("js-cookie")).default;
-            csrfToken = Cookies.get("csrf-token") ?? "";
-        } catch {
-            csrfToken = "";
-        }
-
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
-
-        const res = await fetch('/api/chapters/IV/changeNextState', {
-            method: 'POST',
-            headers,
-            credentials: 'include',
-            body: JSON.stringify({ act }),
-            cache: 'no-store',
-        });
-
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            return { error: errorData?.error || `Failed with status ${res.status}` };
-        }
-
-        const data: BonusResponse = await res.json();
-        return { data };
-    } catch (err) {
-        console.error('Error calling changeNextState:', err);
-        return { error: 'Network or unexpected error' };
-    }
-}
-
-// todo Remove chIV db progress, make it hardcoded for simplicity

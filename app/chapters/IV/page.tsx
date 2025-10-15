@@ -9,16 +9,16 @@ import { X } from 'lucide-react';
 import { useIsSucceeded } from "@/hooks/usePreloadActStates";
 import { cookies, routes } from "@/lib/saveData";
 import { chapterIVData } from "@/lib/data/chapters";
-import {ChapterIVProgress, PlaqueStatus} from "@/lib/types/chapters";
-import {fetchChapterIVProgress} from "@/lib/utils";
+import { PlaqueStatus } from "@/lib/types/chapters";
+import {AllowedPlaqueStatus} from "@/lib/types/api";
 
 
 // ---------- Component ----------
 export default function ChapterIVPage() {
     const router = useRouter();
     const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
-    const [plaqueStatuses, setPlaqueStatuses] = useState<PlaqueStatus[]>([]);
-    const [questStatus, setQuestStatus] = useState<'active' | 'succeeded' | 'failed'>('active');
+    const [plaqueStatuses] = useState<PlaqueStatus[]>(chapterIVData.plaqueStatus);
+    const [questStatus] = useState<AllowedPlaqueStatus>('active');
 
     const succeeded = useIsSucceeded();
 
@@ -33,30 +33,6 @@ export default function ChapterIVPage() {
             setIsCurrentlySolved(succeeded);
         }
     }, [succeeded]);
-
-    useEffect(() => {
-        async function loadPlaqueStatuses() {
-            try {
-                const resp: ChapterIVProgress = await fetchChapterIVProgress();
-
-                if (!resp?.chapter) return;
-
-                setQuestStatus(resp.chapter.status);
-
-                const plaques: PlaqueStatus[] = resp.progress?.chapterIVData?.plaques
-                    ?? resp.progress?.plaques
-                    ?? chapterIVData.chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }));
-
-                setPlaqueStatuses(plaques);
-            } catch (err) {
-                console.error(err);
-                const fallback = chapterIVData.chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }));
-                setPlaqueStatuses(fallback);
-            }
-        }
-
-        loadPlaqueStatuses().catch(console.error);
-    }, []);
 
 
     if (isCurrentlySolved === null) {
@@ -90,17 +66,17 @@ export default function ChapterIVPage() {
                                 >
                                     <CardHeader className="relative p-0">
                                         <div className="absolute top-2 right-2 bg-gray-800 px-3 py-1 rounded z-10">
-                      <span className={`font-mono text-xs ${isFailed ? 'text-red-500' : 'text-gray-400'}`}>
-                        {isFailed ? chapterIVData.text.statuses.failedLabel : plaque.id}
-                      </span>
+                                            <span className={`font-mono text-xs ${isFailed ? 'text-red-500' : 'text-gray-400'}`}>
+                                                {isFailed ? chapterIVData.text.statuses.failedLabel : plaque.id}
+                                            </span>
                                         </div>
 
-                                        <div className="relative w-full aspect-square bg-gray-800">
+                                        <div className="relative w-full aspect-square bg-black">
                                             <Image
                                                 src={plaque.image}
                                                 alt={plaque.id}
                                                 fill
-                                                className={`object-cover ${isPending ? 'filter blur-sm grayscale' : ''}`}
+                                                className={`object-contain bg-black ${isPending ? 'filter blur-sm grayscale' : ''}`}
                                             />
 
                                             {isFailed && (

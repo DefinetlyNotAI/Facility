@@ -1,31 +1,6 @@
-export type ChapterStatus = 'pending' | 'active' | 'succeeded' | 'failed' | 'archived';
-
-export interface Chapter {
-    id: string;
-    roman_numeral: string;
-    quest_name: string;
-    status: ChapterStatus;
-    unlock_date: string;
-    deadline: string;
-    created_at: string;
-    updated_at: string;
-}
-
 export interface PlaqueStatus {
     id: string;
     status: 'pending' | 'solved' | 'failed';
-}
-
-export interface ChapterIVProgress {
-    chapter: {
-        status: 'active' | 'succeeded' | 'failed';
-    };
-    progress?: {
-        chapterIVData?: {
-            plaques?: PlaqueStatus[];
-        };
-        plaques?: PlaqueStatus[];
-    };
 }
 
 export interface ClockState {
@@ -35,4 +10,32 @@ export interface ClockState {
     revealDay: number;
     isRevealed: boolean;
     timeRemaining: number;
+}
+
+export interface ChapterIVDatatype {
+    plaqueStatus: PlaqueStatus[];
+    text: {
+        loading: string;
+        header: string;
+        subHeader: string;
+        questReminder: string;
+        complete: {
+            title: string;
+            message: string;
+        };
+        statuses: {
+            pendingLabel: string;
+            solvedLabel: string;
+            failedLabel: string;
+        };
+    };
+    chapterIVPlaques: {
+        id: string;
+        riddle: string;
+        solvedName: string;
+        solvedCaption: string;
+        unsolvedCaption: string;
+        failedCaption: string;
+        image: string;
+    }[];
 }

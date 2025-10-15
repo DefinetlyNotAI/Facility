@@ -1,5 +1,3 @@
-import {ActionState, NextMap} from "@/lib/types/api";
-
 export const auth = {
     passReqErr: "Password required",
     incorrectPass: "Incorrect password",
@@ -48,10 +46,3 @@ export const bonusMsg = {
     missingParam: "Invalid or missing act parameter, try /api/checkAll to see all available acts",
     fetchError: "Failed to fetch progress for all acts",
 }
-
-export const chIVStateMap: NextMap = {
-    [ActionState.NotReleased]: ActionState.Released,
-    [ActionState.Released]: ActionState.Succeeded,
-    [ActionState.Succeeded]: ActionState.Failed,
-    [ActionState.Failed]: ActionState.NotReleased,
-};

@@ -3,11 +3,11 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import {bonusApi, signCookie, fetchChapterIVCheckAll, changeNextState} from '@/lib/utils';
+import {bonusApi, signCookie} from '@/lib/utils';
 import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
 import {cookies, routes} from '@/lib/saveData';
-import {ActionState, BonusAct, BonusResponse, ChapterIVCheckAllResponse} from '@/lib/types/api';
+import {ActionState, BonusAct, BonusResponse} from '@/lib/types/api';
 
 function getCookiesMap(): Record<string, string> {
     return document.cookie.split(';').reduce((acc, cookie) => {
@@ -22,29 +22,6 @@ export default function SmilekingClient() {
     const [cookieState, setCookieState] = useState<Record<string, boolean>>({});
     const [buttonStates, setButtonStates] = useState<any[]>([]);
     const [bonusState, setBonusState] = useState<BonusResponse | null>(null);
-
-    // Chapter IV puzzle states
-    const [chapterIV, setChapterIV] = useState<Record<string, ActionState> | null>(null);
-    const [ivLoading, setIvLoading] = useState(false);
-
-    // Normalize various possible API shapes into the component's expected map
-    const normalizeChapterIV = (data: ChapterIVCheckAllResponse | BonusResponse | Record<string, ActionState> | any): Record<string, ActionState> | null => {
-        if (!data) return null;
-        // Common shape: { acts: { Act_I: "Released", ... } }
-        if (typeof data === 'object' && data.acts && typeof data.acts === 'object') {
-            return data.acts as Record<string, ActionState>;
-        }
-        // Bonus-like shape: { Act_I: "Released", ... }
-        if (typeof data === 'object' && !('acts' in data) && !('data' in data)) {
-            // assume it's already the map
-            return data as Record<string, ActionState>;
-        }
-        // Some endpoints may wrap under data
-        if (typeof data === 'object' && data.data && typeof data.data === 'object') {
-            return data.data as Record<string, ActionState>;
-        }
-        return null;
-    };
 
     // Pre-fetch CSRF token
     useEffect(() => {
@@ -83,26 +60,6 @@ export default function SmilekingClient() {
 
         fetchState().catch(console.error);
         fetchBonus().catch(console.error);
-    }, []);
-
-    // Fetch Chapter IV acts on mount
-    useEffect(() => {
-        const loadIV = async () => {
-            setIvLoading(true);
-            try {
-                const data = await fetchChapterIVCheckAll();
-                // normalize API response into Record<string, ActionState>
-                const parsed = normalizeChapterIV(data);
-                setChapterIV(parsed);
-            } catch (e) {
-                console.error('Failed to fetch Chapter IV acts', e);
-                setChapterIV(null);
-            } finally {
-                setIvLoading(false);
-            }
-        };
-
-        loadIV().catch(console.error);
     }, []);
 
     const toggleCookie = async (name: string) => {
@@ -177,45 +134,6 @@ export default function SmilekingClient() {
         }
     };
 
-    const refreshChapterIV = async () => {
-        setIvLoading(true);
-        try {
-            const data = await fetchChapterIVCheckAll();
-            setChapterIV(normalizeChapterIV(data));
-        } catch (e) {
-            alert('Failed to refresh Chapter IV acts');
-            console.error(e);
-        } finally {
-            setIvLoading(false);
-        }
-    };
-
-    const handleChangeNext = async (act: string) => {
-        try {
-            const res = await changeNextState(act);
-            if (res.error) {
-                alert(`Failed to change state for ${act}: ${res.error}`);
-                return;
-            }
-            // expect res.data to be a map-like response; merge into chapterIV
-            if (res.data) {
-                const parsed = normalizeChapterIV(res.data);
-                if (parsed) {
-                    setChapterIV(prev => ({...(prev ?? {}), ...parsed}));
-                } else {
-                    // fallback: refresh full list
-                    await refreshChapterIV();
-                }
-            } else {
-                // fallback: refresh full list
-                await refreshChapterIV();
-            }
-        } catch (e) {
-            alert(`Failed to change state for ${act}`);
-            console.error(e);
-        }
-    };
-
     const getActColor = (state: ActionState) => {
         switch (state) {
             case ActionState.NotReleased:
@@ -284,34 +202,6 @@ export default function SmilekingClient() {
                                 </button>
                             </li>
                         ))}
-                </ul>
-            </div>
-
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Chapter IV - Puzzle States</h2>
-                <div style={{marginBottom: 8}}>
-                    <button className={styles.button} onClick={refreshChapterIV} disabled={ivLoading}>
-                        {ivLoading ? 'Refreshing...' : 'Refresh Chapter IV'}
-                    </button>
-                </div>
-                <ul className={styles.gridList}>
-                    {chapterIV ? (
-                        Object.entries(chapterIV).map(([act, state]) => (
-                            <li key={act}>
-                                <button
-                                    className={styles.button}
-                                    style={{backgroundColor: getActColor(state as ActionState)}}
-                                    onClick={() => handleChangeNext(act)}
-                                >
-                                    {act}: {state}
-                                </button>
-                            </li>
-                        ))
-                    ) : (
-                        <li>
-                            <em>No Chapter IV data loaded</em>
-                        </li>
-                    )}
                 </ul>
             </div>
         </div>
