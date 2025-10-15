@@ -9,15 +9,39 @@ export const routes = {
     oArvoreDaCarne: "/O-ARVORE-DA-CARNE",
     api: {
         utils: {
+            // API: POST /api/utils/signCookie - signs a cookie value using server-side secret.
+            // Receives a JSON body with "key=value", validates it, and signs the data using HMAC-SHA256.
+            // Combines the value with its signature to ensure integrity and prevent tampering.
+            // Returns a JSON response while setting a secure, long-lived cookie with the signed value.
             signCookie: "/api/utils/signCookie",
+            // API: POST /api/utils/checkKeyword - checks if a provided keyword matches a pre-defined hash.
+            // Accepts a keyword and number, validating input for type and range correctness.
+            // Hashes the keyword (case-insensitive) using a salt and compares it to a known hash list.
+            // Returns a JSON response indicating which number was checked and whether the keyword matched.
             checkKeyword: "/api/utils/checkKeyword",
         },
         security: {
+            // API: GET /api/security/csrf-token - provides a CSRF token for form submissions.
+            // Generates a 32-byte random CSRF token and sends it as a cookie to the client.
+            // The cookie is readable by JavaScript (not HttpOnly) for frontend use in requests.
+            // Returns a JSON success response with a secure, short-lived CSRF token cookie.
             csrfToken: "/api/security/csrf-token",
+            // API: POST /api/security/auth - authenticates a user based on a provided password.
+            // Handles POST requests for authentication by verifying the provided password.
+            // If correct, hashes the environment password with a salt using SHA-256 and returns it.
+            // Blocks GET requests, responding with an error indicating the method is not allowed.
             auth: "/api/security/auth",
         },
         browser: {
+            // API: GET /api/browser/getBrowserState - retrieves the clicked state of a specified browser button.
+            // Validates CSRF tokens from cookie and header before processing a button press request.
+            // Checks or updates the button’s clicked state in the database, handling duplicate presses safely.
+            // Returns a secure JSON response indicating success or relevant error conditions.
             getBrowserState: "/api/browser/getBrowserState",
+            // API: POST /api/browser/flipBrowserState - toggles or sets the clicked state of a specified browser button.
+            // Fetches all button states from the database, including each browser and its click status.
+            // Safely releases the database connection after querying to prevent leaks.
+            // Returns a secure JSON response with the data or an error if the query fails.
             flipBrowserState: "/api/browser/flipBrowserState",
         },
         chapters: {
@@ -33,7 +57,14 @@ export const routes = {
             // Need: query parameter "act" (one of Act_I, Act_II, ..., Act_X).
             // Return: JSON object like { "Act_I": "New State" } or an error object with appropriate status.
             getOne: "/api/chapters/checkOne",
-        }
+            // API Bundle for Chapter IV
+            IV: {
+                // API: GET /api/chapters/IV/checkOne - fetches public chapter IV checkOne data
+                // Return: JSON object with chapter status and progress data,
+                // or an error object with appropriate status.
+                progress: "/api/chapters/IV/checkOne",
+            }
+        },
     },
     fileConsole: "/file-console",
     home: "/home",

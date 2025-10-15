@@ -16,6 +16,18 @@ export interface PlaqueStatus {
     status: 'pending' | 'solved' | 'failed';
 }
 
+export interface ChapterIVProgress {
+    chapter: {
+        status: 'active' | 'succeeded' | 'failed';
+    };
+    progress?: {
+        chapterIVData?: {
+            plaques?: PlaqueStatus[];
+        };
+        plaques?: PlaqueStatus[];
+    };
+}
+
 export interface ClockState {
     id: number;
     keyword: string;

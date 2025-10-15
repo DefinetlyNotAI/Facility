@@ -9,7 +9,8 @@ import { X } from 'lucide-react';
 import { useIsSucceeded } from "@/hooks/usePreloadActStates";
 import { cookies, routes } from "@/lib/saveData";
 import { chapterIVData } from "@/lib/data/chapters";
-import { PlaqueStatus } from "@/lib/types/chapters";
+import {ChapterIVProgress, PlaqueStatus} from "@/lib/types/chapters";
+import {fetchChapterIVProgress} from "@/lib/utils";
 
 
 // ---------- Component ----------
@@ -33,40 +34,30 @@ export default function ChapterIVPage() {
         }
     }, [succeeded]);
 
-    // todo make an api to call my database rather than supabase
     useEffect(() => {
         async function loadPlaqueStatuses() {
-            const { data: chapter } = await supabase
-                .from('chapters')
-                .select('id, status')
-                .eq('roman_numeral', 'IV')
-                .maybeSingle();
+            try {
+                const resp: ChapterIVProgress = await fetchChapterIVProgress();
 
-            if (!chapter) return;
+                if (!resp?.chapter) return;
 
-            setQuestStatus(chapter.status as 'active' | 'succeeded' | 'failed');
+                setQuestStatus(resp.chapter.status);
 
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+                const plaques: PlaqueStatus[] = resp.progress?.chapterIVData?.plaques
+                    ?? resp.progress?.plaques
+                    ?? chapterIVData.chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }));
 
-            const { data: progress } = await supabase
-                .from('chapter_progress')
-                .select('data')
-                .eq('chapter_id', chapter.id)
-                .eq('user_id', user.id)
-                .maybeSingle();
-
-            if (progress?.data?.plaques) {
-                setPlaqueStatuses(progress.chapterIVData.plaques);
-            } else {
-                setPlaqueStatuses(
-                    chapterIVData.chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }))
-                );
+                setPlaqueStatuses(plaques);
+            } catch (err) {
+                console.error(err);
+                const fallback = chapterIVData.chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }));
+                setPlaqueStatuses(fallback);
             }
         }
 
         loadPlaqueStatuses().catch(console.error);
-    }, [supabase]);
+    }, []);
+
 
     if (isCurrentlySolved === null) {
         return (

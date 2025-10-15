@@ -1,10 +1,10 @@
 import {NextResponse} from 'next/server';
 import React from "react";
 import {localStorageKeys, routes} from "@/lib/saveData";
-import {BonusAct, BonusResponse} from "@/lib/types/api";
+import {BonusAct, BonusResponse, ChangeNextStateResponse, ChapterIVCheckAllResponse} from "@/lib/types/api";
 import {errorText} from "@/lib/data/utils";
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import {type ClassValue, clsx} from 'clsx';
+import {twMerge} from 'tailwind-merge';
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -161,13 +161,15 @@ export const bonusApi = {
             throw new Error(`${errorText.HTTPFail("bonus.getOne")} ${res.status}: ${text}`);
         }
         return res.json();
-    }
+    },
 };
 
+// Utility to merge class names (clsx + tailwind-merge)
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+// Time Formatting Utility - Converts milliseconds to "Xd Xh Xm Xs" format
 export const formatTime = (milliseconds: number) => {
     const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
     const hours = Math.floor((milliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -176,3 +178,47 @@ export const formatTime = (milliseconds: number) => {
 
     return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 };
+
+// Fetch Chapter IV Progress - Client-side function to fetch public chapter IV checkOne data
+export async function fetchChapterIVProgress() {
+    const res = await fetch(`/api/chapters/IV/progress`, { cache: 'no-store' });
+    if (!res.ok) {
+        // keep it simple: throw so callers can catch
+        throw new Error(`Failed to fetch IV progress: ${res.status}`);
+    }
+    return res.json();
+}
+
+// Fetch Chapter IV Check All - Client-side function to fetch all Chapter IV act states
+export async function fetchChapterIVCheckAll(): Promise<ChapterIVCheckAllResponse> {
+    const res = await fetch('/api/chapters/IV/checkAll', { cache: 'no-store' });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch Chapter IV acts: ${res.status}`);
+    }
+
+    return await res.json();
+}
+
+// Change Next State - Client-side function to change an act to its next state for chapter IV
+export async function changeNextState(act: string): Promise<ChangeNextStateResponse> {
+    try {
+        const res = await fetch('/api/chapters/IV/changeNextState', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ act }),
+            cache: 'no-store',
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            return { error: errorData?.error || `Failed with status ${res.status}` };
+        }
+
+        const data: BonusResponse = await res.json();
+        return { data };
+    } catch (err) {
+        console.error('Error calling changeNextState:', err);
+        return { error: 'Network or unexpected error' };
+    }
+}
