@@ -3,7 +3,7 @@ import {useRouter} from "next/navigation";
 import {bonusApi} from "@/lib/utils";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusAct} from "@/lib/types/api";
-import {validRomans} from "@/lib/data/chapters";
+import {validRomans, validRomansNoTimeLeft} from "@/lib/data/chapters";
 
 export function useActStateCheck(
     roman: string | null,
@@ -52,8 +52,20 @@ export function useReleased(roman: string) {
 }
 
 export function useFailed(roman: string) {
-    return useActStateCheck(roman, ActionState.Failed, routes.bonus.noTimeChID(roman));
+    const matches = useActStateCheck(
+        roman,
+        ActionState.Failed,
+        validRomansNoTimeLeft.includes(roman.toLowerCase())
+            ? routes.bonus.noTimeChID(roman)
+            : null // don't redirect if not allowed
+    );
+
+    // If roman is not in validRomansNoTimeLeft, force matches to false
+    if (!validRomansNoTimeLeft.includes(roman.toLowerCase())) return false;
+
+    return matches;
 }
+
 
 export function useSucceeded(roman: string) {
     const actKey = `Act_${roman?.toUpperCase()}` as BonusAct;

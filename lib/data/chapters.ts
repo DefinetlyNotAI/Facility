@@ -34,6 +34,8 @@ export const chapterMessages: Record<string, string> = {
 
 export const validRomans: string[] = ['i', 'ii', 'iii', "iv", 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
 
+export const validRomansNoTimeLeft: string[] = ['i', 'ii', 'vi', 'vii', 'viii', 'ix'];
+
 export const successQuestNames: string[] = [
     "Connecting...",
     "Empty?",
