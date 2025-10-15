@@ -75,15 +75,23 @@ export const fileLinks = {
     },
     II: {
         timeShallStrikeEXE: "/static/chapters/II/time_shall_strike.exe",
-        // todo get these images
         images: {
-            '3': '/static/chapters/II/images/3.jpg',
-            '15': '/static/chapters/II/images/15.jpg',
-            '25': '/static/chapters/II/images/25.jpg',
-            'TREE': '/static/chapters/II/images/tree.jpg',
-            'VESSEL': '/static/chapters/II/images/vessel.jpg',
-            'TR33': '/static/chapters/II/images/tr33.jpg',
-            '1033333013': '/static/chapters/II/images/clock.jpg',
+            // Human, robot, and blackness
+            '3': '/static/chapters/images/3.png',
+            // 15 flowers
+            '15': '/static/chapters/images/15.png',
+            // 25 graves
+            '25': '/static/chapters/images/25.png',
+            // A Tree
+            'TREE': '/static/chapters/images/tree.png',
+            // Darkness
+            'VESSEL': '/static/chapters/images/vessel.png',
+            // Upside-down black tree
+            'TR33': '/static/chapters/images/tr33.png',
+            // Clock
+            '1033333013': '/static/chapters/images/clock.png',
+            // Melted Clock
+            '3h-15m-25th-utc': '/static/chapters/images/melted.jpeg',
         },
     },
     IV: {
@@ -91,10 +99,12 @@ export const fileLinks = {
         TAS_TXT: "/static/chapters/IV/TAS.txt",
         TREE_TXT: "/static/chapters/IV/TREE.txt",
         plaques: {
-            // todo get these images
-            TREE: '/static/chapters/IV/images/tree.jpg',
-            TAS: '/static/chapters/IV/images/tas.jpg',
-            Entity: '/static/chapters/IV/images/entity.jpg',
+            // A tree - Same image of the tree can be used
+            TREE: '/static/chapters/images/tr33.png',
+            // Bot PNG
+            TAS: '/static/chapters/images/tas.jpeg',
+            // Question mark.. the entity?
+            Entity: '/static/chapters/images/entity.jpeg',
         },
     },
     V: {
