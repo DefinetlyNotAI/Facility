@@ -191,7 +191,8 @@ export async function fetchChapterIVProgress() {
 
 // Fetch Chapter IV Check All - Client-side function to fetch all Chapter IV act states
 export async function fetchChapterIVCheckAll(): Promise<ChapterIVCheckAllResponse> {
-    const res = await fetch('/api/chapters/IV/checkAll', { cache: 'no-store' });
+    // include credentials so cookies (auth/session) are sent
+    const res = await fetch('/api/chapters/IV/checkAll', { cache: 'no-store', credentials: 'include' });
 
     if (!res.ok) {
         throw new Error(`Failed to fetch Chapter IV acts: ${res.status}`);
@@ -203,9 +204,22 @@ export async function fetchChapterIVCheckAll(): Promise<ChapterIVCheckAllRespons
 // Change Next State - Client-side function to change an act to its next state for chapter IV
 export async function changeNextState(act: string): Promise<ChangeNextStateResponse> {
     try {
+        // try to obtain CSRF token from js-cookie if available
+        let csrfToken: string;
+        try {
+            const Cookies = (await import("js-cookie")).default;
+            csrfToken = Cookies.get("csrf-token") ?? "";
+        } catch {
+            csrfToken = "";
+        }
+
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
         const res = await fetch('/api/chapters/IV/changeNextState', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
+            credentials: 'include',
             body: JSON.stringify({ act }),
             cache: 'no-store',
         });
