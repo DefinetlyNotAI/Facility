@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { X } from 'lucide-react';
 import { useIsSucceeded } from "@/hooks/usePreloadActStates";
 import { cookies, routes } from "@/lib/saveData";
 import { chapterIVData } from "@/lib/data/chapters";
@@ -81,7 +80,12 @@ export default function ChapterIVPage() {
 
                                             {isFailed && (
                                                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                                    <X className="w-32 h-32 text-red-600" strokeWidth={4} />
+                                                    <Image
+                                                        src={chapterIVData.gifCrossPath}
+                                                        alt="Failed Cross"
+                                                        fill
+                                                        className="object-contain"
+                                                    />
                                                 </div>
                                             )}
                                         </div>

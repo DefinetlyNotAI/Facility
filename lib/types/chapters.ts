@@ -13,6 +13,7 @@ export interface ClockState {
 }
 
 export interface ChapterIVDatatype {
+    gifCrossPath: string;
     plaqueStatus: PlaqueStatus[];
     text: {
         loading: string;

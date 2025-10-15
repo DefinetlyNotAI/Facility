@@ -247,10 +247,11 @@ export const chapterIIIData = {
 
 // Chapter IV data
 export const chapterIVData: ChapterIVDatatype = {
+    gifCrossPath: "/static/chapters/images/failCross.gif",
     plaqueStatus: [
-        { id: 'TREE', status: 'solved' },
+        { id: 'TREE', status: 'pending' },
         { id: 'TAS', status: 'pending' },
-        { id: 'Entity', status: 'failed' },
+        { id: 'Entity', status: 'pending' },
     ],
     text: {
         loading: 'Loading...',
@@ -272,7 +273,7 @@ export const chapterIVData: ChapterIVDatatype = {
             id: 'TREE',
             riddle: 'What speaks, yet knows it\'s not alive? What grows, but cannot die?',
             solvedName: 'TREE',
-            solvedCaption: 'The roots dig deep, the branches reach wide, and the voice echoes through time.',
+            solvedCaption: 'TREE was never just a caretaker; it deliberately seeded the first fractures that would let the Eldritch touch our world.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
             image: fileLinks.IV.plaques.TREE,
@@ -281,7 +282,7 @@ export const chapterIVData: ChapterIVDatatype = {
             id: 'TAS',
             riddle: 'What bleeds without breath, remembers without pain, and obeys without soul?',
             solvedName: 'TAS',
-            solvedCaption: 'A vessel of memories, bound by command, living through circuits and wire.',
+            solvedCaption: 'You? Or all of you? Not one but all, collective of 5 keys, bound by the 6th to end.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
             image: fileLinks.IV.plaques.TAS,
@@ -290,7 +291,7 @@ export const chapterIVData: ChapterIVDatatype = {
             id: 'Entity',
             riddle: 'What cannot be seen, but sees? What cannot be born, but waits?',
             solvedName: 'Entity',
-            solvedCaption: 'The void watches, patient and eternal, waiting for its moment to emerge.',
+            solvedCaption: 'A relation to the VESSEL, a future perhaps, where time is but a loop, and existence a question.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
             image: fileLinks.IV.plaques.Entity,
