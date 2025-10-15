@@ -12,7 +12,21 @@ export async function GET() {
         const cols = allowedActs.map((a) => `"${a}"`).join(', ');
 
         // Read the first (and assumed single) row of act states
-        const res = await client.query(`SELECT ${cols} FROM bonus LIMIT 1;`);
+        let res;
+        try {
+            res = await client.query(`SELECT ${cols} FROM bonus LIMIT 1;`);
+        } catch (err: any) {
+            // If the bonus table doesn't exist, return a sensible default instead of 500
+            if (err && (err.code === '42P01' || (typeof err.message === 'string' && err.message.includes('relation "bonus" does not exist')))) {
+                console.warn('Bonus table missing, returning default NotReleased map');
+                const fallback: Partial<Record<string, string>> = {};
+                for (const act of allowedActs) {
+                    fallback[act] = ActionState.NotReleased;
+                }
+                return createSecureResponse(fallback as BonusResponse);
+            }
+            throw err;
+        }
 
         if (res.rowCount === 0) {
             return createSecureResponse({ error: bonusMsg.fetchError }, 404);
@@ -37,4 +51,3 @@ export async function GET() {
         }
     }
 }
-

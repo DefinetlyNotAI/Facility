@@ -181,7 +181,7 @@ export const formatTime = (milliseconds: number) => {
 
 // Fetch Chapter IV Progress - Client-side function to fetch public chapter IV checkOne data
 export async function fetchChapterIVProgress() {
-    const res = await fetch(`/api/chapters/IV/progress`, { cache: 'no-store' });
+    const res = await fetch(`/api/chapters/IV/checkOne`, { cache: 'no-store' });
     if (!res.ok) {
         // keep it simple: throw so callers can catch
         throw new Error(`Failed to fetch IV progress: ${res.status}`);
@@ -236,3 +236,5 @@ export async function changeNextState(act: string): Promise<ChangeNextStateRespo
         return { error: 'Network or unexpected error' };
     }
 }
+
+// todo Remove chIV db progress, make it hardcoded for simplicity

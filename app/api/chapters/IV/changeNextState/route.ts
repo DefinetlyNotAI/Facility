@@ -1,12 +1,12 @@
 import { createSecureResponse } from '@/lib/utils';
 import { dbPool } from '@/lib/db';
-import {allowedActs, bonusMsg, chIVStateMap} from '@/lib/data/api';
+import { allowedActs, bonusMsg, chIVStateMap } from '@/lib/data/api';
 import { ActionState, BonusResponse } from '@/lib/types/api';
-
-
 
 export async function POST(req: Request) {
     let client;
+    let missingTable = false;
+
     try {
         const body = await req.json();
         const act = body?.act;
@@ -16,26 +16,45 @@ export async function POST(req: Request) {
 
         client = await dbPool.connect();
 
-        // Read current state
-        const selRes = await client.query(`SELECT "${act}" FROM bonus LIMIT 1;`);
-        if (selRes.rowCount === 0) {
-            return createSecureResponse({ error: bonusMsg.toggleError }, 404);
+        // Try to fetch current state
+        let selRes;
+        try {
+            selRes = await client.query(`SELECT "${act}" FROM bonus LIMIT 1;`);
+        } catch (err: any) {
+            if (err.code === '42P01' || (typeof err.message === 'string' && err.message.includes('relation "bonus" does not exist'))) {
+                console.warn('Bonus table missing; using defaults.');
+                missingTable = true;
+            } else {
+                throw err;
+            }
         }
 
-        const current: ActionState = selRes.rows[0][act] ?? ActionState.NotReleased;
-        const next = chIVStateMap[current] ?? ActionState.NotReleased;
+        // Determine current and next state
+        const current: ActionState = missingTable
+            ? ActionState.NotReleased
+            : ((selRes?.rows[0]?.[act] as ActionState) ?? ActionState.NotReleased);
 
-        // Update the act to next state
-        await client.query(`UPDATE bonus SET "${act}" = $1;`, [next]);
+        const next: ActionState = chIVStateMap[current] ?? ActionState.NotReleased;
 
-        // Return the full current state map
-        const cols = allowedActs.map((a) => `"${a}"`).join(', ');
-        const allRes = await client.query(`SELECT ${cols} FROM bonus LIMIT 1;`);
-        const row = allRes.rows[0];
+        // Update the act state if table exists
+        if (!missingTable) {
+            try {
+                await client.query(`UPDATE bonus SET "${act}" = $1;`, [next]);
+            } catch (err: any) {
+                console.error('Failed to update bonus table (ignored):', err);
+            }
+        }
 
+        // Build full response
         const response: Partial<Record<string, string>> = {};
-        for (const a of allowedActs) {
-            response[a] = (row[a] ?? ActionState.NotReleased) as string;
+        if (missingTable) {
+            for (const a of allowedActs) response[a] = ActionState.NotReleased;
+        } else {
+            const allRes = await client.query(`SELECT ${allowedActs.map(a => `"${a}"`).join(', ')} FROM bonus LIMIT 1;`);
+            const row = allRes.rows[0];
+            for (const a of allowedActs) {
+                response[a] = (row[a] ?? ActionState.NotReleased) as string;
+            }
         }
 
         return createSecureResponse(response as BonusResponse);
@@ -48,4 +67,3 @@ export async function POST(req: Request) {
         }
     }
 }
-
