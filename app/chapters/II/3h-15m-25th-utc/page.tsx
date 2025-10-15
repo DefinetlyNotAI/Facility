@@ -25,7 +25,7 @@ export default function ChapterIITimedPage() {
 
     useEffect(() => {
         const savedPassword = Cookies.get(cookies.chII_passDone);
-        if (savedPassword === 'true') {
+        if (savedPassword?.includes('true')) {
             setIsPasswordVerified(true);
         }
     }, []);
@@ -108,7 +108,7 @@ export default function ChapterIITimedPage() {
                 <div className="max-w-2xl w-full space-y-8">
                     <div className="relative w-full aspect-square bg-gray-900 border border-red-900">
                         <Image
-                            src="/images/ch2/melted-clock.jpg"
+                            src={fileLinks.II.images['3h-15m-25th-utc']}
                             alt="Melted Clock"
                             fill
                             className="object-contain opacity-50"

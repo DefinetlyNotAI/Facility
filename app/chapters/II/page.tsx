@@ -7,6 +7,8 @@ import { cookies, routes } from '@/lib/saveData';
 import {useIsSucceeded} from "@/hooks/usePreloadActStates";
 import {formatTime} from "@/lib/utils";
 
+const chapterIIStartDate = new Date('2025-10-15T00:00:00Z');
+
 export default function ChapterIIPage() {
     const router = useRouter();
     const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
@@ -27,14 +29,14 @@ export default function ChapterIIPage() {
     }, [succeeded]);
 
     useEffect(() => {
-        const deadline = new Date();
-        deadline.setDate(deadline.getDate() + 7);
+        const targetDate = new Date(chapterIIStartDate);
+        targetDate.setDate(targetDate.getDate() + 7);
 
         const interval = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = deadline.getTime() - now;
+            const now = Date.now();
+            const distance = targetDate.getTime() - now;
 
-            if (distance < 0) {
+            if (distance <= 0) {
                 clearInterval(interval);
                 setTimeRemaining(0);
             } else {
@@ -44,6 +46,7 @@ export default function ChapterIIPage() {
 
         return () => clearInterval(interval);
     }, []);
+
 
 
     if (isCurrentlySolved === null) {

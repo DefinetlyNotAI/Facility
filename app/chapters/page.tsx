@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import styles from "@/styles/ChapterBonusRoot.module.css";
 import {bonusApi} from "@/lib/utils";
-import {validRomans, successQuestNames, failQuestNames, CHAPTER_TEXT} from "@/lib/data/chapters";
+import {validRomans, successQuestNames, failQuestNames, rootChapterText} from "@/lib/data/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/lib/types/api";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
@@ -57,39 +57,39 @@ export default function ChapterBonusPage() {
             <main className={styles.root}>
                 <div className={styles.vignette}/>
                 <section className={styles.container}>
-                    <h1 className={styles.title}>{CHAPTER_TEXT.pageTitle}</h1>
-                    <p className={styles.subtitle}>{CHAPTER_TEXT.pageSubtitle}</p>
+                    <h1 className={styles.title}>{rootChapterText.pageTitle}</h1>
+                    <p className={styles.subtitle}>{rootChapterText.pageSubtitle}</p>
 
                     <div className={styles.grid}>
                         {validRomans.map((roman, idx) => {
                             const actKey = `Act_${roman.toUpperCase()}` as keyof BonusResponse;
                             const state = data ? data[actKey] : undefined;
 
-                            let label = CHAPTER_TEXT.unknownLabel;
+                            let label = rootChapterText.unknownLabel;
                             let cls = styles.btnGrey;
                             let disabled = true;
 
                             if (!state) {
-                                label = loading ? CHAPTER_TEXT.loadingLabel : CHAPTER_TEXT.unknownLabel;
+                                label = loading ? rootChapterText.loadingLabel : rootChapterText.unknownLabel;
                             } else {
                                 switch (state) {
                                     case ActionState.NotReleased:
-                                        label = CHAPTER_TEXT.unknownLabel;
+                                        label = rootChapterText.unknownLabel;
                                         cls = styles.btnGrey;
                                         disabled = true;
                                         break;
                                     case ActionState.Released:
-                                        label = CHAPTER_TEXT.actLabel(roman);
+                                        label = rootChapterText.actLabel(roman);
                                         cls = styles.btnCyan;
                                         disabled = false;
                                         break;
                                     case ActionState.Failed:
-                                        label = failQuestNames[idx] ?? CHAPTER_TEXT.failDefault;
+                                        label = failQuestNames[idx] ?? rootChapterText.failDefault;
                                         cls = styles.btnRed;
                                         disabled = false;
                                         break;
                                     case ActionState.Succeeded:
-                                        label = successQuestNames[idx] ?? CHAPTER_TEXT.actLabel(roman);
+                                        label = successQuestNames[idx] ?? rootChapterText.actLabel(roman);
                                         cls = styles.btnGreen;
                                         disabled = false;
                                         break;

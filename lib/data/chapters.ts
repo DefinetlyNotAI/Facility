@@ -59,7 +59,7 @@ export const failQuestNames: string[] = [
     ":("
 ];
 
-export const CHAPTER_TEXT = {
+export const rootChapterText = {
     pageTitle: "unbirth • bonus chapters",
     pageSubtitle: "Will HE who sees all be satisfied?",
     unknownLabel: "???",
