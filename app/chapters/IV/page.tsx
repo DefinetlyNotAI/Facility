@@ -6,12 +6,13 @@ import Cookies from 'js-cookie';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { X } from 'lucide-react';
-import {useIsSucceeded} from "@/hooks/usePreloadActStates";
-import {cookies, routes} from "@/lib/saveData";
-import {chapterIVPlaques} from "@/lib/data/chapters";
-import {PlaqueStatus} from "@/lib/types/chapters";
+import { useIsSucceeded } from "@/hooks/usePreloadActStates";
+import { cookies, routes } from "@/lib/saveData";
+import { chapterIVData } from "@/lib/data/chapters";
+import { PlaqueStatus } from "@/lib/types/chapters";
 
 
+// ---------- Component ----------
 export default function ChapterIVPage() {
     const router = useRouter();
     const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
@@ -56,10 +57,10 @@ export default function ChapterIVPage() {
                 .maybeSingle();
 
             if (progress?.data?.plaques) {
-                setPlaqueStatuses(progress.data.plaques);
+                setPlaqueStatuses(progress.chapterIVData.plaques);
             } else {
                 setPlaqueStatuses(
-                    chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }))
+                    chapterIVData.chapterIVPlaques.map(p => ({ id: p.id, status: 'pending' as const }))
                 );
             }
         }
@@ -70,7 +71,7 @@ export default function ChapterIVPage() {
     if (isCurrentlySolved === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">Loading...</div>
+                <div className="text-white font-mono">{chapterIVData.text.loading}</div>
             </div>
         );
     }
@@ -80,16 +81,12 @@ export default function ChapterIVPage() {
             <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-12">
-                        <h1 className="text-white font-mono text-4xl font-bold mb-4">
-                            3: Registration
-                        </h1>
-                        <p className="text-gray-400 font-mono text-sm">
-                            Solve the riddles before time runs out
-                        </p>
+                        <h1 className="text-white font-mono text-4xl font-bold mb-4">{chapterIVData.text.header}</h1>
+                        <p className="text-gray-400 font-mono text-sm">{chapterIVData.text.subHeader}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {chapterIVPlaques.map((plaque) => {
+                        {chapterIVData.chapterIVPlaques.map((plaque) => {
                             const status = plaqueStatuses.find(p => p.id === plaque.id);
                             const isPending = !status || status.status === 'pending';
                             const isSolved = status?.status === 'solved';
@@ -102,10 +99,8 @@ export default function ChapterIVPage() {
                                 >
                                     <CardHeader className="relative p-0">
                                         <div className="absolute top-2 right-2 bg-gray-800 px-3 py-1 rounded z-10">
-                      <span className={`font-mono text-xs ${
-                          isFailed ? 'text-red-500' : 'text-gray-400'
-                      }`}>
-                        {isFailed ? 'FAILED' : plaque.id}
+                      <span className={`font-mono text-xs ${isFailed ? 'text-red-500' : 'text-gray-400'}`}>
+                        {isFailed ? chapterIVData.text.statuses.failedLabel : plaque.id}
                       </span>
                                         </div>
 
@@ -114,9 +109,7 @@ export default function ChapterIVPage() {
                                                 src={plaque.image}
                                                 alt={plaque.id}
                                                 fill
-                                                className={`object-cover ${
-                                                    isPending ? 'filter blur-sm grayscale' : ''
-                                                }`}
+                                                className={`object-cover ${isPending ? 'filter blur-sm grayscale' : ''}`}
                                             />
 
                                             {isFailed && (
@@ -129,32 +122,26 @@ export default function ChapterIVPage() {
 
                                     <CardContent className="p-6 space-y-4">
                                         <div className="text-center">
-                                            <h3 className={`font-mono text-xl font-bold mb-2 ${
-                                                isSolved ? 'text-green-500' :
-                                                    isFailed ? 'text-red-500' :
-                                                        'text-gray-600'
-                                            }`}>
-                                                {isSolved ? plaque.solvedName :
-                                                    isFailed ? 'YOU CAUSED THIS' :
-                                                        '???'}
+                                            <h3
+                                                className={`font-mono text-xl font-bold mb-2 ${
+                                                    isSolved ? 'text-green-500' : isFailed ? 'text-red-500' : 'text-gray-600'
+                                                }`}
+                                            >
+                                                {isSolved ? plaque.solvedName : isFailed ? chapterIVData.text.statuses.failedLabel : chapterIVData.text.statuses.pendingLabel}
                                             </h3>
 
-                                            <p className={`font-mono text-sm ${
-                                                isPending ? 'text-gray-500' :
-                                                    isSolved ? 'text-gray-400' :
-                                                        'text-red-400'
-                                            }`}>
-                                                {isSolved ? plaque.solvedCaption :
-                                                    isFailed ? plaque.failedCaption :
-                                                        plaque.unsolvedCaption}
+                                            <p
+                                                className={`font-mono text-sm ${
+                                                    isPending ? 'text-gray-500' : isSolved ? 'text-gray-400' : 'text-red-400'
+                                                }`}
+                                            >
+                                                {isSolved ? plaque.solvedCaption : isFailed ? plaque.failedCaption : plaque.unsolvedCaption}
                                             </p>
                                         </div>
 
                                         {isPending && (
                                             <div className="pt-4 border-t border-gray-800">
-                                                <p className="text-gray-500 font-mono text-xs italic text-center">
-                                                    {plaque.riddle}
-                                                </p>
+                                                <p className="text-gray-500 font-mono text-xs italic text-center">{plaque.riddle}</p>
                                             </div>
                                         )}
                                     </CardContent>
@@ -165,9 +152,7 @@ export default function ChapterIVPage() {
 
                     {questStatus === 'active' && (
                         <div className="mt-12 text-center">
-                            <p className="text-gray-600 font-mono text-sm">
-                                Remember the riddles before it's too late...
-                            </p>
+                            <p className="text-gray-600 font-mono text-sm">{chapterIVData.text.questReminder}</p>
                         </div>
                     )}
                 </div>
@@ -178,12 +163,8 @@ export default function ChapterIVPage() {
     return (
         <div className="min-h-screen bg-black flex items-center justify-center p-4">
             <div className="text-center space-y-4">
-                <div className="text-green-500 font-mono text-3xl font-bold">
-                    REGISTRATIONS COMPLETE
-                </div>
-                <p className="text-gray-400 font-mono">
-                    The three have been documented. Their stories are now part of the archive.
-                </p>
+                <div className="text-green-500 font-mono text-3xl font-bold">{chapterIVData.text.complete.title}</div>
+                <p className="text-gray-400 font-mono">{chapterIVData.text.complete.message}</p>
             </div>
         </div>
     );

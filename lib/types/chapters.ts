@@ -11,18 +11,16 @@ export interface Chapter {
     updated_at: string;
 }
 
-export interface ChapterProgress {
-    id: string;
-    chapter_id: string;
-    user_id: string;
-    completed: boolean;
-    completed_at: string | null;
-    data: Record<string, any>;
-    created_at: string;
-    updated_at: string;
-}
-
 export interface PlaqueStatus {
     id: string;
     status: 'pending' | 'solved' | 'failed';
+}
+
+export interface ClockState {
+    id: number;
+    keyword: string;
+    symbol: string;
+    revealDay: number;
+    isRevealed: boolean;
+    timeRemaining: number;
 }

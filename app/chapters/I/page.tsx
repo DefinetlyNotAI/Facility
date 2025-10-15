@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, HelpCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {useIsSucceeded} from "@/hooks/usePreloadActStates";
-import {fileLinks} from "@/lib/data/chapters";
+import {chIData, fileLinks} from "@/lib/data/chapters";
+
 
 export default function ChapterIPage() {
     const router = useRouter();
@@ -40,15 +41,15 @@ export default function ChapterIPage() {
         await new Promise(resolve => setTimeout(resolve, 1500));
 
         // todo make this api called
-        if (port !== '7337') {
-            setError('Port Access Denied - TREE\'s root has blocked this port');
+        if (port !== chIData.portNum) {
+            setError(chIData.portNumErr);
             setIsConnecting(false);
             return;
         }
 
         // todo make this api called
-        if (ip !== '192.168.13.37') {
-            setError('IP address connection failed/not accepting handshake protocol. Maybe try a different address?');
+        if (ip !== chIData.ipAddress) {
+            setError(chIData.ipAddressErr);
             setIsConnecting(false);
             return;
         }
@@ -60,7 +61,7 @@ export default function ChapterIPage() {
     if (isCurrentlySolved === null) {
         return (
             <div className="min-h-screen bg-[#c0c0c0] flex items-center justify-center">
-                <div className="text-black font-mono">Loading...</div>
+                <div className="text-black font-mono">{chIData.text.load}</div>
             </div>
         );
     }
@@ -72,7 +73,7 @@ export default function ChapterIPage() {
                     <div className="bg-gradient-to-r from-[#000080] to-[#1084d0] px-2 py-1 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 bg-white border border-black"></div>
-                            <span className="text-white font-bold text-sm">Connect to Server</span>
+                            <span className="text-white font-bold text-sm">{chIData.text.connect}</span>
                         </div>
                         <Dialog>
                             <DialogTrigger asChild>
@@ -82,12 +83,12 @@ export default function ChapterIPage() {
                             </DialogTrigger>
                             <DialogContent className="bg-[#c0c0c0] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                 <DialogHeader>
-                                    <DialogTitle className="text-black font-mono">Connection Help</DialogTitle>
+                                    <DialogTitle className="text-black font-mono">{chIData.text.connectHelp}</DialogTitle>
                                 </DialogHeader>
                                 <div className="text-black font-mono text-sm space-y-2">
-                                    <p>Find the answers in the first video log</p>
-                                    <p>Find the answers in a leaked mail</p>
-                                    <p>Then open my doors.. to see more doors</p>
+                                    <p>{chIData.text.hints[0]}</p>
+                                    <p>{chIData.text.hints[1]}</p>
+                                    <p>{chIData.text.hints[2]}</p>
                                 </div>
                             </DialogContent>
                         </Dialog>
@@ -95,29 +96,29 @@ export default function ChapterIPage() {
 
                     <div className="p-6 space-y-4">
                         <div className="text-center text-black font-mono mb-6">
-                            <p className="text-lg font-bold mb-2">Attempting connection...</p>
-                            <p className="text-sm">Enter server credentials to proceed</p>
+                            <p className="text-lg font-bold mb-2">{chIData.text.attemptingConn}</p>
+                            <p className="text-sm">{chIData.text.enterCreds}</p>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-black font-mono text-sm font-bold">Port:</label>
+                            <label className="text-black font-mono text-sm font-bold">{chIData.text.inputs.port}</label>
                             <Input
                                 type="text"
                                 value={port}
                                 onChange={(e) => setPort(e.target.value)}
                                 className="font-mono border-2 border-black"
-                                placeholder="Enter port number"
+                                placeholder={chIData.text.inputs.portPlaceholder}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-black font-mono text-sm font-bold">IP Address:</label>
+                            <label className="text-black font-mono text-sm font-bold">{chIData.text.inputs.ip}</label>
                             <Input
                                 type="text"
                                 value={ip}
                                 onChange={(e) => setIp(e.target.value)}
                                 className="font-mono border-2 border-black"
-                                placeholder="Enter IP address"
+                                placeholder={chIData.text.inputs.ipPlaceholder}
                             />
                         </div>
 
@@ -133,13 +134,11 @@ export default function ChapterIPage() {
                             disabled={isConnecting || !port || !ip}
                             className="w-full bg-[#c0c0c0] text-black border-2 border-black hover:bg-[#a0a0a0] font-mono font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                         >
-                            {isConnecting ? 'Connecting...' : 'Connect'}
+                            {isConnecting ? chIData.text.connectButton.trueState : chIData.text.connectButton.falseState}
                         </Button>
 
                         <div className="text-center mt-6 pt-4 border-t-2 border-gray-300">
-                            <p className="text-xs text-gray-600 font-mono">
-                                Need access? Email the administrator TREEFacility@outlook.com
-                            </p>
+                            <p className="text-xs text-gray-600 font-mono">{chIData.text.accessHelpTip}</p>
                         </div>
                     </div>
                 </div>
@@ -151,19 +150,15 @@ export default function ChapterIPage() {
         <div className="min-h-screen bg-[#c0c0c0] flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-8">
                 <div className="text-center space-y-4">
-                    <div className="text-green-600 font-mono text-2xl font-bold">
-                        CONNECTION ESTABLISHED
-                    </div>
-                    <p className="text-black font-mono">
-                        Access granted. Download the gift to continue your journey.
-                    </p>
+                    <div className="text-green-600 font-mono text-2xl font-bold">{chIData.text.completed.title}</div>
+                    <p className="text-black font-mono">{chIData.text.completed.subtitle}</p>
                     <Button
                         onClick={() => {
                             window.location.href = fileLinks.I.donecAnteDolorEXE;
                         }}
                         className="w-full bg-green-600 text-white border-2 border-green-800 hover:bg-green-700 font-mono font-bold shadow-[2px_2px_0px_0px_rgba(0,100,0,1)]"
                     >
-                        Download your gift
+                        {chIData.text.completed.downloadButton}
                     </Button>
                 </div>
             </div>

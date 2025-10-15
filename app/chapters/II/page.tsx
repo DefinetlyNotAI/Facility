@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { cookies, routes } from '@/lib/saveData';
-import {useIsSucceeded} from "@/hooks/usePreloadActStates";
-import {formatTime} from "@/lib/utils";
+import { useIsSucceeded } from "@/hooks/usePreloadActStates";
+import { formatTime } from "@/lib/utils";
+import {chIIData} from "@/lib/data/chapters";
 
-const chapterIIStartDate = new Date('2025-10-15T00:00:00Z');
 
+// ---------- Component ----------
 export default function ChapterIIPage() {
     const router = useRouter();
     const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
@@ -29,7 +30,7 @@ export default function ChapterIIPage() {
     }, [succeeded]);
 
     useEffect(() => {
-        const targetDate = new Date(chapterIIStartDate);
+        const targetDate = new Date(chIIData.root.startDate);
         targetDate.setDate(targetDate.getDate() + 7);
 
         const interval = setInterval(() => {
@@ -47,12 +48,10 @@ export default function ChapterIIPage() {
         return () => clearInterval(interval);
     }, []);
 
-
-
     if (isCurrentlySolved === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">Loading...</div>
+                <div className="text-white font-mono">{chIIData.root.text.loading}</div>
             </div>
         );
     }
@@ -66,11 +65,10 @@ export default function ChapterIIPage() {
                     </div>
 
                     <div className="space-y-4 text-gray-400 font-mono text-sm max-w-2xl">
-                        <p className="text-lg">There are 8 links.</p>
-                        <p>4 are numbers, 2 are foliage, one is you, and one is time.</p>
-                        <p className="text-xs text-gray-600 mt-8">
-                            Each page must be screenshotted and sent to me complete to see.
-                        </p>
+                        {chIIData.root.text.countdown.descriptionLines.map((line, i) => (
+                            <p key={i}>{line}</p>
+                        ))}
+                        <p className="text-xs text-gray-600 mt-8">{chIIData.root.text.countdown.note}</p>
                     </div>
                 </div>
             </div>
@@ -81,11 +79,9 @@ export default function ChapterIIPage() {
         <div className="min-h-screen bg-black flex items-center justify-center p-4">
             <div className="text-center space-y-4">
                 <div className="text-green-500 font-mono text-3xl font-bold">
-                    QUEST COMPLETE
+                    {chIIData.root.text.complete.title}
                 </div>
-                <p className="text-gray-400 font-mono">
-                    You have navigated the paths. The journey continues...
-                </p>
+                <p className="text-gray-400 font-mono">{chIIData.root.text.complete.message}</p>
             </div>
         </div>
     );

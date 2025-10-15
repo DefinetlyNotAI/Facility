@@ -130,53 +130,165 @@ export const fileLinks = {
     }
 }
 
-// Chapter II paths
-export const chapterIIPaths = [
-    { path: '3', image: fileLinks.II.images['3'], caption: 'YOU - ME - IT' },
-    { path: '15', image: fileLinks.II.images['15'], caption: 'They sprout, and bloom from their insides, imagine we could do that?' },
-    { path: '25', image: fileLinks.II.images['25'], caption: 'Your life is pathetic... ask for a refund - AND BECOME 26' },
-    { path: 'TREE', image: fileLinks.II.images['TREE'], caption: 'Ignore the past, find the me with three\'s' },
-    { path: 'VESSEL', image: fileLinks.II.images['VESSEL'], caption: 'Curious or plain suicidal' },
-    { path: 'TR33', image: fileLinks.II.images['TR33'], caption: '1gN0r3 tH3 fUtuR3, @ URL tH3 nUmB3r$ 0f Th1$ t3xT' },
-    { path: '1033333013', image: fileLinks.II.images['1033333013'], caption: 'When the clock strikes the link, go to 3h-15m-25th-utc, you have one shot at this, a 15 min gap' },
-];
 
-// Chapter III clocks
-export const chapterIIIClocks = [
-    { id: 1, keyword: 'Broken', symbol: '∞', revealDay: 1 },
-    { id: 2, keyword: 'Intelligent', symbol: 'Ω', revealDay: 3 },
-    { id: 3, keyword: 'NoName', symbol: '0', revealDay: 5 },
-];
+// Chapter I data
+export const chIData = {
+    portNum: "7337",
+    ipAddress: "192.168.13.37",
+    text: {
+        load: "Loading...",
+        connect: "Connect to Server",
+        connectHelp: "Connection Help",
+        hints: [
+            "Find the answers in the first video log",
+            "Find the answers in a leaked mail",
+            "Then open my doors.. to see more doors"
+        ],
+        attemptingConn: "Attempting connection...",
+        enterCreds: "Enter server credentials to proceed",
+        inputs: {
+            port: "Port:",
+            ip: "IP Address:",
+            ipPlaceholder: "Enter IP address",
+            portPlaceholder: "Enter port number"
+        },
+        connectButton: {
+            trueState: "Connecting...",
+            falseState: "Connect",
+        },
+        accessHelpTip: "Need access? Email the administrator \"TREEFacility@outlook.com\"",
+        completed: {
+            title: "CONNECTION ESTABLISHED",
+            subtitle: "Access granted. Download the gift to continue your journey.",
+            downloadButton: "Download your gift"
+        }
+    },
+    portNumErr: "Port Access Denied - TREE's root has blocked this port",
+    ipAddressErr: "IP address connection failed/not accepting handshake protocol. Maybe try a different address?"
+}
 
-// Chapter IV plaques
-export const chapterIVPlaques = [
-    {
-        id: 'TREE',
-        riddle: 'What speaks, yet knows it\'s not alive? What grows, but cannot die?',
-        solvedName: 'TREE',
-        solvedCaption: 'The roots dig deep, the branches reach wide, and the voice echoes through time.',
-        unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
-        failedCaption: '54 4F 4F 20 4C 41 54 45',
-        image: fileLinks.IV.plaques.TREE,
+// Chapter II data
+export const chIIData = {
+    utcPage: {
+        passwordHash: '72e0d0826d26f416e92314ecba12efa97a58af358e97f99d7112297b910dec84',
+        timeWindow: {
+            hour: 3,
+            minuteStart: 15,
+            minuteEnd: 30,
+            day: 25,
+        },
+        images: {
+            meltedClock: '3h-15m-25th-utc',
+        },
+        accessText: {
+            title: 'Access Required',
+            description: 'A 10-digit number instructed you to come here when the clock strikes me',
+            inputPlaceholder: 'Enter password',
+            error: 'Incorrect password',
+            submit: 'Submit',
+        },
+        timeWindowText: {
+            tooLateEarly: 'TOO LATE OR TOO EARLY',
+            message: 'TIME IS NOT REAL HERE',
+        },
+        successText: {
+            emojis: [':)', ':)', ':)'],
+            downloadButton: 'Download time itself',
+        },
     },
-    {
-        id: 'TAS',
-        riddle: 'What bleeds without breath, remembers without pain, and obeys without soul?',
-        solvedName: 'TAS',
-        solvedCaption: 'A vessel of memories, bound by command, living through circuits and wire.',
-        unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
-        failedCaption: '54 4F 4F 20 4C 41 54 45',
-        image: fileLinks.IV.plaques.TAS,
-    },
-    {
-        id: 'Entity',
-        riddle: 'What cannot be seen, but sees? What cannot be born, but waits?',
-        solvedName: 'Entity',
-        solvedCaption: 'The void watches, patient and eternal, waiting for its moment to emerge.',
-        unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
-        failedCaption: '54 4F 4F 20 4C 41 54 45',
-        image: fileLinks.IV.plaques.Entity,
-    },
-];
+    chapterIIPaths: [
+        { path: '3', image: fileLinks.II.images['3'], caption: 'YOU - ME - IT' },
+        { path: '15', image: fileLinks.II.images['15'], caption: 'They sprout, and bloom from their insides, imagine we could do that?' },
+        { path: '25', image: fileLinks.II.images['25'], caption: 'Your life is pathetic... ask for a refund - AND BECOME 26' },
+        { path: 'TREE', image: fileLinks.II.images['TREE'], caption: 'Ignore the past, find the me with three\'s' },
+        { path: 'VESSEL', image: fileLinks.II.images['VESSEL'], caption: 'Curious or plain suicidal' },
+        { path: 'TR33', image: fileLinks.II.images['TR33'], caption: '1gN0r3 tH3 fUtuR3, @ URL tH3 nUmB3r$ 0f Th1$ t3xT' },
+        { path: '1033333013', image: fileLinks.II.images['1033333013'], caption: 'When the clock strikes the link, go to 3h-15m-25th-utc, you have one shot at this, a 15 min gap' },
+    ],
+    root: {
+        startDate: new Date('2025-10-15T00:00:00Z'),
+        linksCount: 8,
+        text: {
+            loading: 'Loading...',
+            countdown: {
+                descriptionLines: [
+                    'There are 8 links.',
+                    '4 are numbers, 2 are foliage, one is you, and one is time.',
+                ],
+                note: 'Each page must be screenshotted and sent to me complete to see.',
+            },
+            complete: {
+                title: 'QUEST COMPLETE',
+                message: 'You have navigated the paths. The journey continues...',
+            },
+        },
+    }
+};
 
+// Chapter III data
+export const chapterIIIData = {
+    startDate: new Date('2025-10-15T00:00:00Z'),
+    text: {
+        loading: 'Loading...',
+        header: '3: Clocks and Hands',
+        instructions: 'Send keywords to Discord bot: /clock_the_hand {keyword}',
+        final: {
+            title: 'TIME HAS SPOKEN',
+            message: 'The hands have revealed their secrets. Continue forward.',
+        },
+    },
+    clocks: [
+        { id: 1, keyword: 'Broken', symbol: '∞', revealDay: 1 },
+        { id: 2, keyword: 'Intelligent', symbol: 'Ω', revealDay: 3 },
+        { id: 3, keyword: 'NoName', symbol: '0', revealDay: 5 },
+    ]
+};
+
+// Chapter IV data
+export const chapterIVData = {
+    text: {
+        loading: 'Loading...',
+        header: '3: Registration',
+        subHeader: 'Solve the riddles before time runs out',
+        questReminder: "Remember the riddles before it's too late...",
+        complete: {
+            title: 'REGISTRATIONS COMPLETE',
+            message: 'The three have been documented. Their stories are now part of the archive.',
+        },
+        statuses: {
+            pendingLabel: '???',
+            solvedLabel: 'SOLVED',
+            failedLabel: 'YOU CAUSED THIS',
+        },
+    },
+    chapterIVPlaques: [
+        {
+            id: 'TREE',
+            riddle: 'What speaks, yet knows it\'s not alive? What grows, but cannot die?',
+            solvedName: 'TREE',
+            solvedCaption: 'The roots dig deep, the branches reach wide, and the voice echoes through time.',
+            unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
+            failedCaption: '54 4F 4F 20 4C 41 54 45',
+            image: fileLinks.IV.plaques.TREE,
+        },
+        {
+            id: 'TAS',
+            riddle: 'What bleeds without breath, remembers without pain, and obeys without soul?',
+            solvedName: 'TAS',
+            solvedCaption: 'A vessel of memories, bound by command, living through circuits and wire.',
+            unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
+            failedCaption: '54 4F 4F 20 4C 41 54 45',
+            image: fileLinks.IV.plaques.TAS,
+        },
+        {
+            id: 'Entity',
+            riddle: 'What cannot be seen, but sees? What cannot be born, but waits?',
+            solvedName: 'Entity',
+            solvedCaption: 'The void watches, patient and eternal, waiting for its moment to emerge.',
+            unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
+            failedCaption: '54 4F 4F 20 4C 41 54 45',
+            image: fileLinks.IV.plaques.Entity,
+        },
+    ]
+};
 // todo, all chapter cleanup and const refactoring, add audios/sfx, then testing

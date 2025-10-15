@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import {cookies, routes} from '@/lib/saveData';
-import {Input} from '@/components/ui/input';
-import {Button} from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import {signCookie} from "@/lib/utils";
-import {fileLinks} from "@/lib/data/chapters";
+import { signCookie } from "@/lib/utils";
+import {chIIData, fileLinks} from "@/lib/data/chapters";
+import {cookies, routes} from '@/lib/saveData';
 
 export default function ChapterIITimedPage() {
     const router = useRouter();
@@ -37,16 +37,15 @@ export default function ChapterIITimedPage() {
             const utcMinutes = now.getUTCMinutes();
             const utcDay = now.getUTCDate();
 
-            const isCorrectHour = utcHours === 3;
-            const isCorrectMinuteRange = utcMinutes >= 15 && utcMinutes < 30;
-            const isCorrectDay = utcDay === 25;
+            const isCorrectHour = utcHours === chIIData.utcPage.timeWindow.hour;
+            const isCorrectMinuteRange = utcMinutes >= chIIData.utcPage.timeWindow.minuteStart && utcMinutes < chIIData.utcPage.timeWindow.minuteEnd;
+            const isCorrectDay = utcDay === chIIData.utcPage.timeWindow.day;
 
             setIsInTimeWindow(isCorrectHour && isCorrectMinuteRange && isCorrectDay);
         };
 
         checkTimeWindow();
         const interval = setInterval(checkTimeWindow, 1000);
-
         return () => clearInterval(interval);
     }, []);
 
@@ -60,12 +59,12 @@ export default function ChapterIITimedPage() {
 
     const handlePasswordSubmit = async () => {
         const hashed = await hashPassword(password);
-        if (hashed === '72e0d0826d26f416e92314ecba12efa97a58af358e97f99d7112297b910dec84') {
+        if (hashed === chIIData.utcPage.passwordHash) {
             signCookie(`${cookies.chII_passDone}=true`).catch(console.error);
             setIsPasswordVerified(true);
             setError('');
         } else {
-            setError('Incorrect password');
+            setError(chIIData.utcPage.accessText.error);
         }
     };
 
@@ -74,10 +73,8 @@ export default function ChapterIITimedPage() {
             <div className="min-h-screen bg-black flex items-center justify-center p-4">
                 <div className="max-w-md w-full space-y-6 bg-gray-900 border border-gray-800 p-8">
                     <div className="text-center space-y-4">
-                        <h1 className="text-white font-mono text-2xl">Access Required</h1>
-                        <p className="text-gray-400 font-mono text-sm">
-                            A 10-digit number instructed you to come here when the clock strikes me
-                        </p>
+                        <h1 className="text-white font-mono text-2xl">{chIIData.utcPage.accessText.title}</h1>
+                        <p className="text-gray-400 font-mono text-sm">{chIIData.utcPage.accessText.description}</p>
                     </div>
 
                     <div className="space-y-4">
@@ -86,7 +83,7 @@ export default function ChapterIITimedPage() {
                             value={password}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                             className="font-mono bg-black border-gray-700 text-white"
-                            placeholder="Enter password"
+                            placeholder={chIIData.utcPage.accessText.inputPlaceholder}
                             maxLength={10}
                         />
 
@@ -94,8 +91,9 @@ export default function ChapterIITimedPage() {
                             <p className="text-red-500 font-mono text-sm text-center">{error}</p>
                         )}
 
-                        <Button disabled={!password} onClick={handlePasswordSubmit}>Submit</Button>
-
+                        <Button disabled={!password} onClick={handlePasswordSubmit}>
+                            {chIIData.utcPage.accessText.submit}
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -108,7 +106,7 @@ export default function ChapterIITimedPage() {
                 <div className="max-w-2xl w-full space-y-8">
                     <div className="relative w-full aspect-square bg-gray-900 border border-red-900">
                         <Image
-                            src={fileLinks.II.images['3h-15m-25th-utc']}
+                            src={fileLinks.II.images[chIIData.utcPage.images.meltedClock as keyof typeof fileLinks.II.images]}
                             alt="Melted Clock"
                             fill
                             className="object-contain opacity-50"
@@ -117,10 +115,10 @@ export default function ChapterIITimedPage() {
 
                     <div className="text-center">
                         <p className="text-red-500 font-mono text-2xl font-bold glitch">
-                            TOO LATE OR TOO EARLY
+                            {chIIData.utcPage.timeWindowText.tooLateEarly}
                         </p>
                         <p className="text-red-400 font-mono text-lg mt-4">
-                            TIME IS NOT REAL HERE
+                            {chIIData.utcPage.timeWindowText.message}
                         </p>
                     </div>
                 </div>
@@ -132,18 +130,16 @@ export default function ChapterIITimedPage() {
         <div className="min-h-screen bg-black flex items-center justify-center p-4">
             <div className="text-center space-y-8">
                 <div className="text-green-500 font-mono text-6xl space-x-4">
-                    <span>:)</span>
-                    <span>:)</span>
-                    <span>:)</span>
+                    {chIIData.utcPage.successText.emojis.map((e, i) => (
+                        <span key={i}>{e}</span>
+                    ))}
                 </div>
 
                 <Button
-                    onClick={() => {
-                        window.location.href = fileLinks.II.timeShallStrikeEXE;
-                    }}
+                    onClick={() => { window.location.href = fileLinks.II.timeShallStrikeEXE; }}
                     className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
                 >
-                    Download time itself
+                    {chIIData.utcPage.successText.downloadButton}
                 </Button>
             </div>
         </div>

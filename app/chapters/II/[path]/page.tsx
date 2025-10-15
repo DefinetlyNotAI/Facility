@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { chapterIIPaths } from '@/lib/data/chapters';
+import { chIIData } from '@/lib/data/chapters';
 import Image from 'next/image';
+import {routes} from "@/lib/saveData";
 
 export default function ChapterIIPathPage() {
     const router = useRouter();
@@ -14,18 +15,18 @@ export default function ChapterIIPathPage() {
         if (!path) return;
 
         const normalizedPath = path.toUpperCase();
-        const validPath = chapterIIPaths.find(
+        const validPath = chIIData.chapterIIPaths.find(
             (p: { path: string; }) => p.path.toUpperCase() === normalizedPath
         );
 
         if (!validPath && normalizedPath !== path) {
-            router.replace(`/chapters/II/${normalizedPath}`);
+            router.replace(`${routes.bonus.actID("II")}/${normalizedPath}`);
         } else if (!validPath) {
-            router.replace('/chapters/II');
+            router.replace(routes.bonus.actID("II"));
         }
     }, [path, router]);
 
-    const pathData = chapterIIPaths.find(p => p.path.toUpperCase() === path?.toUpperCase());
+    const pathData = chIIData.chapterIIPaths.find(p => p.path.toUpperCase() === path?.toUpperCase());
 
     if (!pathData) {
         return null;
