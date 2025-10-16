@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {cookies, ItemKey, routes} from '@/lib/saveData';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, HelpCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {Input} from '@/components/ui/input';
+import {Button} from '@/components/ui/button';
+import {AlertCircle, HelpCircle} from 'lucide-react';
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
 import {useIsSucceeded} from "@/hooks/usePreloadActStates";
 import {chIData, fileLinks} from "@/lib/data/chapters";
 import {checkPass} from "@/lib/utils";
@@ -74,20 +74,24 @@ export default function ChapterIPage() {
         return (
             <div className="min-h-screen bg-[#c0c0c0] flex items-center justify-center p-4">
                 <div className="w-full max-w-md bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <div className="bg-gradient-to-r from-[#000080] to-[#1084d0] px-2 py-1 flex items-center justify-between">
+                    <div
+                        className="bg-gradient-to-r from-[#000080] to-[#1084d0] px-2 py-1 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 bg-white border border-black"></div>
                             <span className="text-white font-bold text-sm">{chIData.text.connect}</span>
                         </div>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <button className="w-5 h-5 bg-[#c0c0c0] border border-black flex items-center justify-center hover:bg-[#a0a0a0]">
-                                    <HelpCircle className="w-3 h-3" />
+                                <button
+                                    className="w-5 h-5 bg-[#c0c0c0] border border-black flex items-center justify-center hover:bg-[#a0a0a0]">
+                                    <HelpCircle className="w-3 h-3"/>
                                 </button>
                             </DialogTrigger>
-                            <DialogContent className="bg-[#c0c0c0] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            <DialogContent
+                                className="bg-[#c0c0c0] border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                                 <DialogHeader>
-                                    <DialogTitle className="text-black font-mono">{chIData.text.connectHelp}</DialogTitle>
+                                    <DialogTitle
+                                        className="text-black font-mono">{chIData.text.connectHelp}</DialogTitle>
                                 </DialogHeader>
                                 <div className="text-black font-mono text-sm space-y-2">
                                     <p>{chIData.text.hints[0]}</p>
@@ -128,7 +132,7 @@ export default function ChapterIPage() {
 
                         {error && (
                             <div className="flex items-start gap-2 p-3 bg-red-100 border-2 border-red-600">
-                                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"/>
                                 <p className="text-red-800 font-mono text-sm">{error}</p>
                             </div>
                         )}

@@ -24,4 +24,5 @@ export enum ActionState {
 // Each act maps to its current state
 export type BonusResponse = Record<BonusAct, ActionState>;
 
+// Allowed plaque statuses
 export type AllowedPlaqueStatus = 'active' | 'succeeded' | 'failed'

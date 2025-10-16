@@ -199,13 +199,29 @@ export const chIIData = {
         },
     },
     chapterIIPaths: [
-        { path: '3', image: fileLinks.II.images['3'], caption: 'YOU - ME - IT' },
-        { path: '15', image: fileLinks.II.images['15'], caption: 'They sprout, and bloom from their insides, imagine we could do that?' },
-        { path: '25', image: fileLinks.II.images['25'], caption: 'Your life is pathetic... ask for a refund - AND BECOME 26' },
-        { path: 'TREE', image: fileLinks.II.images['TREE'], caption: 'Ignore the past, find the me with three\'s' },
-        { path: 'VESSEL', image: fileLinks.II.images['VESSEL'], caption: 'Curious or plain suicidal' },
-        { path: 'TR33', image: fileLinks.II.images['TR33'], caption: '1gN0r3 tH3 fUtuR3, @ URL tH3 nUmB3r$ 0f Th1$ t3xT' },
-        { path: '1033333013', image: fileLinks.II.images['1033333013'], caption: 'When the clock strikes the link, go to 3h-15m-25th-utc, you have one shot at this, a 15 min gap' },
+        {path: '3', image: fileLinks.II.images['3'], caption: 'YOU - ME - IT'},
+        {
+            path: '15',
+            image: fileLinks.II.images['15'],
+            caption: 'They sprout, and bloom from their insides, imagine we could do that?'
+        },
+        {
+            path: '25',
+            image: fileLinks.II.images['25'],
+            caption: 'Your life is pathetic... ask for a refund - AND BECOME 26'
+        },
+        {path: 'TREE', image: fileLinks.II.images['TREE'], caption: 'Ignore the past, find the me with three\'s'},
+        {path: 'VESSEL', image: fileLinks.II.images['VESSEL'], caption: 'Curious or plain suicidal'},
+        {
+            path: 'TR33',
+            image: fileLinks.II.images['TR33'],
+            caption: '1gN0r3 tH3 fUtuR3, @ URL tH3 nUmB3r$ 0f Th1$ t3xT'
+        },
+        {
+            path: '1033333013',
+            image: fileLinks.II.images['1033333013'],
+            caption: 'When the clock strikes the link, go to 3h-15m-25th-utc, you have one shot at this, a 15 min gap'
+        },
     ],
     root: {
         startDate: new Date('2025-10-15T00:00:00Z'),
@@ -241,9 +257,9 @@ export const chapterIIIData = {
         },
     },
     clocks: [
-        { id: 1, keyword: 'Broken', symbol: '∞', revealDay: 1 },
-        { id: 2, keyword: 'Intelligent', symbol: 'Ω', revealDay: 3 },
-        { id: 3, keyword: 'NoName', symbol: '0', revealDay: 5 },
+        {id: 1, keyword: 'Broken', symbol: '∞', revealDay: 1},
+        {id: 2, keyword: 'Intelligent', symbol: 'Ω', revealDay: 3},
+        {id: 3, keyword: 'NoName', symbol: '0', revealDay: 5},
     ]
 };
 
@@ -251,9 +267,9 @@ export const chapterIIIData = {
 export const chapterIVData: ChapterIVDatatype = {
     gifCrossPath: "/static/chapters/images/failCross.gif",
     plaqueStatus: [
-        { id: 'TREE', status: 'pending' },
-        { id: 'TAS', status: 'pending' },
-        { id: 'Entity', status: 'pending' },
+        {id: 'TREE', status: 'pending'},
+        {id: 'TAS', status: 'pending'},
+        {id: 'Entity', status: 'pending'},
     ],
     text: {
         loading: 'Loading...',

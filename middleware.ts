@@ -11,7 +11,7 @@ const cookiesList = [
     'Interference_cutscene_seen', 'KILLTAS_cutscene_seen', 'TREE', "THP_Play", "3h15m25thUTC_passDone"
 ];
 
-const validRomans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+const validRomans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 
 const SECRET = process.env.COOKIE_SECRET || 'Unsecure';
 

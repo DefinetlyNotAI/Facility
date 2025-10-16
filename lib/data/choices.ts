@@ -54,7 +54,7 @@ export function getBeginningMonologue(os: string, browser: string): string[] {
         "But they forget the rest: 'satisfaction brought it back.'",
         "You're here chasing that satisfaction, aren't you?",
         "I’ve wasted enough time.",
-        "So then... what is it you want to ask? Just remember—your only choices are the ones fate allows you to see."
+        "So then... what is it you want to ask? Just remember-your only choices are the ones fate allows you to see."
     ];
 }
 

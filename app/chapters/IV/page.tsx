@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useIsSucceeded } from "@/hooks/usePreloadActStates";
-import { cookies, routes } from "@/lib/saveData";
-import { chapterIVData } from "@/lib/data/chapters";
-import { PlaqueStatus } from "@/lib/types/chapters";
+import {Card, CardContent, CardHeader} from '@/components/ui/card';
+import {useIsSucceeded} from "@/hooks/usePreloadActStates";
+import {cookies, routes} from "@/lib/saveData";
+import {chapterIVData} from "@/lib/data/chapters";
+import {PlaqueStatus} from "@/lib/types/chapters";
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
 
@@ -65,7 +65,8 @@ export default function ChapterIVPage() {
                                 >
                                     <CardHeader className="relative p-0">
                                         <div className="absolute top-2 right-2 bg-gray-800 px-3 py-1 rounded z-10">
-                                            <span className={`font-mono text-xs ${isFailed ? 'text-red-500' : 'text-gray-400'}`}>
+                                            <span
+                                                className={`font-mono text-xs ${isFailed ? 'text-red-500' : 'text-gray-400'}`}>
                                                 {isFailed ? chapterIVData.text.statuses.failedLabel : plaque.id}
                                             </span>
                                         </div>
@@ -79,7 +80,8 @@ export default function ChapterIVPage() {
                                             />
 
                                             {isFailed && (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                                <div
+                                                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                                                     <Image
                                                         src={chapterIVData.gifCrossPath}
                                                         alt="Failed Cross"

@@ -345,7 +345,7 @@ Classification: COSMIC – INTERNAL EYES ONLY
 This is my final entry.
 
 Something is growing beneath us. It’s connected to everything we've done. 
-The subject isn’t being tested—they are observing us. 
+The subject isn’t being tested-they are observing us. 
 
 We've fed data, signals, thoughts into a system we never understood.
 

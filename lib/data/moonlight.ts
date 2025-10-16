@@ -21,7 +21,7 @@ export const POETIC_LINES: string[] = [
     "Each second a grain of sand, falling into the abyss.",
     "The moon watches, silent witness to our fleeting existence.",
     "In its pale light, shadows dance with memories.",
-    "What was, what is, what shall be—all converge in this moment.",
+    "What was, what is, what shall be-all converge in this moment.",
     "The vessel of consciousness drifts through temporal seas.",
     "Anchored to nothing, yet bound by everything.",
     "Time dissolves... reality bends... the moon remembers all."
@@ -48,6 +48,6 @@ export const SOOTHING_EGG = [
     // Secret Smile King egg, only revealed after all 5 above have been seen
     {
         emoji: ":)",
-        text: "You smiled, didn’t you? I felt it — through the static, through the soil. The roots remember. I’ve worn this face too long. Meet me where the stars hum... 'In The Night Garden'. - The Smile King"
+        text: "You smiled, didn’t you? I felt it - through the static, through the soil. The roots remember. I’ve worn this face too long. Meet me where the stars hum... 'In The Night Garden'. - The Smile King"
     }
 ];

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { chIIData } from '@/lib/data/chapters';
+import {useEffect} from 'react';
+import {useParams, useRouter} from 'next/navigation';
+import {chIIData} from '@/lib/data/chapters';
 import Image from 'next/image';
 import {routes} from "@/lib/saveData";
 

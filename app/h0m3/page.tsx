@@ -737,98 +737,98 @@ export default function H0m3() {
                 )}
 
                 <style jsx>{`
-                @keyframes scroll-left {
-                    0% {
-                        transform: translateX(100%);
+                    @keyframes scroll-left {
+                        0% {
+                            transform: translateX(100%);
+                        }
+                        100% {
+                            transform: translateX(-100%);
+                        }
                     }
-                    100% {
-                        transform: translateX(-100%);
-                    }
-                }
 
-                @keyframes scroll-broken {
-                    0% {
-                        transform: translateX(100%) rotate(0deg);
+                    @keyframes scroll-broken {
+                        0% {
+                            transform: translateX(100%) rotate(0deg);
+                        }
+                        50% {
+                            transform: translateX(0%) rotate(180deg);
+                        }
+                        100% {
+                            transform: translateX(-100%) rotate(360deg);
+                        }
                     }
-                    50% {
-                        transform: translateX(0%) rotate(180deg);
-                    }
-                    100% {
-                        transform: translateX(-100%) rotate(360deg);
-                    }
-                }
 
-                @keyframes flash {
-                    0%, 100% {
-                        opacity: 1;
+                    @keyframes flash {
+                        0%, 100% {
+                            opacity: 1;
+                        }
+                        50% {
+                            opacity: 0.7;
+                        }
                     }
-                    50% {
-                        opacity: 0.7;
-                    }
-                }
 
-                @keyframes pulse {
-                    0%, 100% {
-                        opacity: 1;
+                    @keyframes pulse {
+                        0%, 100% {
+                            opacity: 1;
+                        }
+                        50% {
+                            opacity: 0.5;
+                        }
                     }
-                    50% {
-                        opacity: 0.5;
-                    }
-                }
 
-                @keyframes chaos {
-                    0% {
-                        transform: translate(0px, 0px) rotate(0deg);
+                    @keyframes chaos {
+                        0% {
+                            transform: translate(0px, 0px) rotate(0deg);
+                        }
+                        25% {
+                            transform: translate(-2px, 2px) rotate(1deg);
+                        }
+                        50% {
+                            transform: translate(2px, -2px) rotate(-1deg);
+                        }
+                        75% {
+                            transform: translate(-1px, 1px) rotate(0.5deg);
+                        }
+                        100% {
+                            transform: translate(0px, 0px) rotate(0deg);
+                        }
                     }
-                    25% {
-                        transform: translate(-2px, 2px) rotate(1deg);
-                    }
-                    50% {
-                        transform: translate(2px, -2px) rotate(-1deg);
-                    }
-                    75% {
-                        transform: translate(-1px, 1px) rotate(0.5deg);
-                    }
-                    100% {
-                        transform: translate(0px, 0px) rotate(0deg);
-                    }
-                }
 
-                @keyframes chaos-pulse {
-                    0% {
-                        opacity: 1;
-                        transform: scale(1);
+                    @keyframes chaos-pulse {
+                        0% {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                        50% {
+                            opacity: 0.3;
+                            transform: scale(1.5);
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
                     }
-                    50% {
-                        opacity: 0.3;
-                        transform: scale(1.5);
-                    }
-                    100% {
-                        opacity: 1;
-                        transform: scale(1);
-                    }
-                }
 
-                @keyframes blink {
-                    0%, 50% {
-                        opacity: 1;
+                    @keyframes blink {
+                        0%, 50% {
+                            opacity: 1;
+                        }
+                        51%, 100% {
+                            opacity: 0;
+                        }
                     }
-                    51%, 100% {
-                        opacity: 0;
+
+
+                    .text-scrambled * {
+                        text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #00ff00;
                     }
-                }
 
-
-                .text-scrambled * {
-                    text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #00ff00;
-                }
-
-                .final-breakdown * {
-                    font-family: 'Impact', 'Arial Black', serif !important;
-                    text-transform: uppercase;
-                    letter-spacing: 3px;
-                }
-            `}</style>
+                    .final-breakdown * {
+                        font-family: 'Impact', 'Arial Black', serif !important;
+                        text-transform: uppercase;
+                        letter-spacing: 3px;
+                    }
+                `}</style>
             </div>
         </>
     );

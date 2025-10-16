@@ -78,7 +78,8 @@ export default function ScrollPage() {
             }
 
             if (!hasInteractedRef.current && audioRef.current[0]) {
-                audioRef.current[0].play().catch(() => {});
+                audioRef.current[0].play().catch(() => {
+                });
                 hasInteractedRef.current = true;
             }
         };
@@ -146,7 +147,8 @@ export default function ScrollPage() {
     useEffect(() => {
         if (audioRef.current[0]) {
             audioRef.current[0].load();
-            audioRef.current[0].play().catch(() => {});
+            audioRef.current[0].play().catch(() => {
+            });
         }
     }, [showEscape]);
 

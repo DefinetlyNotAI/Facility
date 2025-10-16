@@ -128,7 +128,10 @@ export const bonusApi = {
 
         if (!res.ok) {
             let text = "";
-            try { text = await res.text(); } catch {}
+            try {
+                text = await res.text();
+            } catch {
+            }
             throw new Error(`${errorText.HTTPFail("bonus.changeToOpp")} ${res.status}: ${text}`);
         }
 
@@ -137,10 +140,13 @@ export const bonusApi = {
 
     // Get all acts
     async getAll(): Promise<BonusResponse> {
-        const res = await fetch(routes.api.chapters.getAll, { credentials: "include" });
+        const res = await fetch(routes.api.chapters.getAll, {credentials: "include"});
         if (!res.ok) {
             let text = "";
-            try { text = await res.text(); } catch {}
+            try {
+                text = await res.text();
+            } catch {
+            }
             throw new Error(`${errorText.HTTPFail("bonus.getAll")} ${res.status}: ${text}`);
         }
         return res.json();
@@ -154,10 +160,13 @@ export const bonusApi = {
         const url = new URL(routes.api.chapters.getOne, window.location.origin);
         url.searchParams.append("act", act);
 
-        const res = await fetch(url.toString(), { credentials: "include" });
+        const res = await fetch(url.toString(), {credentials: "include"});
         if (!res.ok) {
             let text = "";
-            try { text = await res.text(); } catch {}
+            try {
+                text = await res.text();
+            } catch {
+            }
             throw new Error(`${errorText.HTTPFail("bonus.getOne")} ${res.status}: ${text}`);
         }
         return res.json();
@@ -187,18 +196,18 @@ export async function checkPass(
     try {
         const res = await fetch("/api/checkPass", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ itemToCheck, stringToCheck })
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({itemToCheck, stringToCheck})
         });
 
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
-            return { success: false, error: errData.error ?? "Server error" };
+            return {success: false, error: errData.error ?? "Server error"};
         }
 
         return await res.json();
     } catch (err) {
         console.error("checkPass error:", err);
-        return { success: false, error: "Network error" };
+        return {success: false, error: "Network error"};
     }
 }

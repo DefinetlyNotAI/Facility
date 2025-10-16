@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { createHash } from "crypto";
+import {NextResponse} from "next/server";
+import {createHash} from "crypto";
 import {ItemKey} from "@/lib/saveData";
 import {chIData, chIIData} from "@/lib/data/chapters";
 
@@ -18,22 +18,22 @@ const itemHashes: Record<ItemKey, string> = Object.fromEntries(
 
 export async function POST(req: Request) {
     try {
-        const { stringToCheck, itemToCheck } = await req.json();
+        const {stringToCheck, itemToCheck} = await req.json();
 
         if (!stringToCheck || !itemToCheck) {
-            return NextResponse.json({ success: false, error: "Missing data" }, { status: 400 });
+            return NextResponse.json({success: false, error: "Missing data"}, {status: 400});
         }
 
         if (!(itemToCheck in itemHashes)) {
-            return NextResponse.json({ success: false, error: "Invalid item" }, { status: 404 });
+            return NextResponse.json({success: false, error: "Invalid item"}, {status: 404});
         }
 
         const inputHash = createHash("sha256").update(stringToCheck).digest("hex");
         const valid = inputHash === itemHashes[itemToCheck as ItemKey];
 
-        return NextResponse.json({ success: valid });
+        return NextResponse.json({success: valid});
     } catch (err) {
         console.error(err);
-        return NextResponse.json({ success: false, error: "Internal error" }, { status: 500 });
+        return NextResponse.json({success: false, error: "Internal error"}, {status: 500});
     }
 }

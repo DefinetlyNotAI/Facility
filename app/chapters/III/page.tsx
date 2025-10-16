@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import { useIsSucceeded } from "@/hooks/usePreloadActStates";
-import { useFailed } from "@/hooks/useBonusActStatus";
-import { cookies, routes } from "@/lib/saveData";
-import { chapterIIIData } from "@/lib/data/chapters";
-import { formatTime } from "@/lib/utils";
-import { ClockState } from "@/lib/types/chapters";
+import {useIsSucceeded} from "@/hooks/usePreloadActStates";
+import {useFailed} from "@/hooks/useBonusActStatus";
+import {cookies, routes} from "@/lib/saveData";
+import {chapterIIIData} from "@/lib/data/chapters";
+import {formatTime} from "@/lib/utils";
+import {ClockState} from "@/lib/types/chapters";
 
 const renderCorruptedClock = () => {
     const randomRotation = Math.random() * 360;
@@ -24,15 +24,17 @@ const renderCorruptedClock = () => {
             }}
         >
             {/* Melting border layers */}
-            <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-red-500 opacity-80 blur-sm animate-pulse"
-                 style={{ transform: 'translateY(10px) scaleY(1.2)' }} />
+            <div
+                className="absolute inset-0 bg-gray-800 rounded-full border-4 border-red-500 opacity-80 blur-sm animate-pulse"
+                style={{transform: 'translateY(10px) scaleY(1.2)'}}/>
             <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-purple-500 opacity-60"
-                 style={{ transform: 'translateY(-5px) scaleX(1.1)' }} />
-            <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-blue-500 opacity-40 blur-md" />
+                 style={{transform: 'translateY(-5px) scaleX(1.1)'}}/>
+            <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-blue-500 opacity-40 blur-md"/>
 
             {/* Glitching gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-purple-500 to-blue-500 opacity-40 rounded-full mix-blend-screen"
-                 style={{ animation: 'glitchColor 0.2s infinite' }} />
+            <div
+                className="absolute inset-0 bg-gradient-to-br from-red-500 via-purple-500 to-blue-500 opacity-40 rounded-full mix-blend-screen"
+                style={{animation: 'glitchColor 0.2s infinite'}}/>
 
             {/* Corrupted clock hands - multiple overlapping at wrong angles */}
             {[...Array(8)].map((_, i) => (
@@ -54,18 +56,18 @@ const renderCorruptedClock = () => {
 
             {/* Glitch artifacts */}
             <div className="absolute w-full h-1 bg-red-500 opacity-80"
-                 style={{ top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.1s infinite' }} />
+                 style={{top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.1s infinite'}}/>
             <div className="absolute w-full h-1 bg-cyan-500 opacity-80"
-                 style={{ top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.15s infinite reverse' }} />
+                 style={{top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.15s infinite reverse'}}/>
 
             {/* Distorted center */}
-            <div className="absolute w-4 h-4 bg-red-500 rounded-full z-10 animate-ping" />
+            <div className="absolute w-4 h-4 bg-red-500 rounded-full z-10 animate-ping"/>
             <div className="absolute w-2 h-2 bg-white rounded-full z-20"
-                 style={{ animation: 'glitch 0.2s infinite' }} />
+                 style={{animation: 'glitch 0.2s infinite'}}/>
 
             {/* Dripping effect */}
             <div className="absolute bottom-0 left-1/2 w-2 h-8 bg-gradient-to-b from-gray-800 to-transparent opacity-60"
-                 style={{ transform: 'translateX(-50%)', animation: 'drip 1.5s ease-in-out infinite' }} />
+                 style={{transform: 'translateX(-50%)', animation: 'drip 1.5s ease-in-out infinite'}}/>
         </div>
     );
 };
@@ -141,7 +143,8 @@ export default function ChapterIIIPage() {
         const secondDeg = seconds * 6;
 
         return (
-            <div className="relative w-48 h-48 bg-gray-800 rounded-full border-4 border-gray-700 shadow-2xl flex items-center justify-center">
+            <div
+                className="relative w-48 h-48 bg-gray-800 rounded-full border-4 border-gray-700 shadow-2xl flex items-center justify-center">
                 <div
                     className="absolute w-1 h-12 bg-white"
                     style={{
@@ -169,7 +172,7 @@ export default function ChapterIIIPage() {
                         transform: `translate(-50%, -100%) rotate(${secondDeg}deg)`,
                     }}
                 />
-                <div className="absolute w-3 h-3 bg-white rounded-full z-10" />
+                <div className="absolute w-3 h-3 bg-white rounded-full z-10"/>
             </div>
         );
     };
@@ -183,7 +186,8 @@ export default function ChapterIIIPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center p-8 space-y-8">
+        <div
+            className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center p-8 space-y-8">
             {isCurrentlySolved && !failed ? (
                 <div className="text-center space-y-4 mt-8">
                     <div className="text-green-500 font-mono text-3xl font-bold">
@@ -241,7 +245,8 @@ export default function ChapterIIIPage() {
                     if (!shouldShow) {
                         return (
                             <div key={clock.id} className="flex flex-col items-center">
-                                <div className="w-48 h-48 bg-gray-900 rounded-full border-2 border-gray-800 opacity-30" />
+                                <div
+                                    className="w-48 h-48 bg-gray-900 rounded-full border-2 border-gray-800 opacity-30"/>
                             </div>
                         );
                     }
@@ -250,7 +255,8 @@ export default function ChapterIIIPage() {
 
                     return (
                         <div key={clock.id} className="flex flex-col items-center space-y-4">
-                            <div className="relative w-48 h-48 bg-gray-800 rounded-full border-2 border-gray-700 flex items-center justify-center">
+                            <div
+                                className="relative w-48 h-48 bg-gray-800 rounded-full border-2 border-gray-700 flex items-center justify-center">
                                 {isRevealed ? (
                                     <div className="text-6xl text-red-500 font-bold">{clock.symbol}</div>
                                 ) : (

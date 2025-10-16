@@ -1,6 +1,6 @@
 // dream.tsx
 export const IMAGE_CAPTION: Record<string, string> = {
-    'allyounome.png': "The house never needed a foundation—only witnesses.",
+    'allyounome.png': "The house never needed a foundation-only witnesses.",
     'beautiful.png': "They called it beautiful. You kept blinking, but it never stopped.",
     'letsplay.jpeg': "You promised you'd forget. They're still waiting at recess.",
     'perspective.png': "Smile upside down. Maybe then it makes sense.",

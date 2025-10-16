@@ -110,7 +110,7 @@ export const terminalMsg = {
             metaFinalTitle: 'THIS REPLAY ENDS HERE',
             poeticLines: [
                 "A hush falls over the circuitry.",
-                "Somewhere, a green light flickers—",
+                "Somewhere, a green light flickers-",
                 "not in triumph, but in warning.",
                 "You have wandered too far,",
                 "past the boundaries of code and consequence.",
