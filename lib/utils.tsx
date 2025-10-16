@@ -194,7 +194,7 @@ export async function checkPass(
     stringToCheck: string
 ): Promise<{ success: boolean; error?: string; }> {
     try {
-        const res = await fetch("/api/checkPass", {
+        const res = await fetch(routes.api.utils.hashChecker, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({itemToCheck, stringToCheck})

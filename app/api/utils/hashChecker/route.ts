@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     try {
         const {stringToCheck, itemToCheck} = await req.json();
 
-        if (!stringToCheck || !itemToCheck) {
+        if (stringToCheck === undefined || itemToCheck === undefined) {
             return NextResponse.json({success: false, error: "Missing data"}, {status: 400});
         }
 
