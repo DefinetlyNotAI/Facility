@@ -7,11 +7,13 @@ import {ActionState} from "@/lib/types/api";
 export function useFailed(roman: string) {
     const normalized = roman.toLowerCase();
 
+    // Only used for redirecting; does not affect returned boolean
     const redirect = validRomansNoTimeLeft.includes(normalized)
         ? routes.bonus.noTimeChID(normalized)
         : undefined;
 
     const matches = useActStateCheck(roman, ActionState.Failed, redirect);
 
-    return validRomansNoTimeLeft.includes(normalized) ? matches : true;
+    // Return the actual result from the state check
+    return matches ?? false; // default to false while loading
 }

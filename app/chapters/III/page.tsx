@@ -168,7 +168,8 @@ export default function ChapterIIIPage() {
     return (
         <div
             className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center p-8 space-y-8">
-            {isCurrentlySolved && !failed ? (
+            {/* Solved & not failed */}
+            {isCurrentlySolved && !failed && (
                 <div className="text-center space-y-4 mt-8">
                     <div className="text-green-500 font-mono text-3xl font-bold">
                         {chapterIIIData.text.final.title}
@@ -177,7 +178,10 @@ export default function ChapterIIIPage() {
                         {chapterIIIData.text.final.message}
                     </p>
                 </div>
-            ) : !failed ? (
+            )}
+
+            {/* Not solved & not failed */}
+            {!isCurrentlySolved && !failed && (
                 <>
                     <h1 className="text-white font-mono text-4xl font-bold text-center">
                         {chapterIIIData.text.header}
@@ -186,8 +190,9 @@ export default function ChapterIIIPage() {
                         {chapterIIIData.text.instructions}
                     </p>
                 </>
-            ) : null}
+            )}
 
+            {/* Clocks container */}
             <div className="flex flex-wrap justify-center gap-8 mt-8">
                 {/* Main clock */}
                 <div className="flex flex-col items-center space-y-4">
@@ -205,55 +210,54 @@ export default function ChapterIIIPage() {
                 </div>
 
                 {/* Other clocks */}
-                {clockStates.map((clock, index) => {
-                    if (failed) {
-                        return (
-                            <>
-                                <h1 className="text-white font-mono text-4xl font-bold text-center">
-                                    {chapterIIIData.text.failHeader}
-                                </h1>
-                                <div key={clock.id} className="flex flex-col items-center space-y-4">
-                                    {renderCorruptedClock()}
-                                    <div className="h-6"/>
+                {failed ? (
+                    <>
+                        <h1 className="w-full text-white font-mono text-4xl font-bold text-center mb-4">
+                            {chapterIIIData.text.failHeader}
+                        </h1>
+                        {clockStates.map(clock => (
+                            <div key={clock.id} className="flex flex-col items-center space-y-4">
+                                {renderCorruptedClock()}
+                                <div className="h-6"/>
+                            </div>
+                        ))}
+                    </>
+                ) : (
+                    clockStates.map((clock, index) => {
+                        const shouldShow = isCurrentlySolved || index === 0 || clockStates[index - 1].isRevealed;
+
+                        if (!shouldShow) {
+                            return (
+                                <div key={clock.id} className="flex flex-col items-center">
+                                    <div
+                                        className="w-48 h-48 bg-gray-900 rounded-full border-2 border-gray-800 opacity-30"/>
                                 </div>
-                            </>
-                        );
-                    }
+                            );
+                        }
 
-                    const shouldShow = isCurrentlySolved || index === 0 || clockStates[index - 1].isRevealed;
+                        const isRevealed = isCurrentlySolved ? true : clock.isRevealed;
 
-                    if (!shouldShow) {
                         return (
-                            <div key={clock.id} className="flex flex-col items-center">
+                            <div key={clock.id} className="flex flex-col items-center space-y-4">
                                 <div
-                                    className="w-48 h-48 bg-gray-900 rounded-full border-2 border-gray-800 opacity-30"/>
+                                    className="relative w-48 h-48 bg-gray-800 rounded-full border-2 border-gray-700 flex items-center justify-center">
+                                    {isRevealed ? (
+                                        <div className="text-6xl text-red-500 font-bold">{clock.symbol}</div>
+                                    ) : (
+                                        renderClockFace(mainClockTime)
+                                    )}
+                                </div>
+                                <div className="text-center">
+                                    {isRevealed ? (
+                                        <p className="text-green-500 font-mono text-xl font-bold">{clock.keyword}</p>
+                                    ) : (
+                                        <p className="text-gray-500 font-mono text-lg">{formatTime(clock.timeRemaining)}</p>
+                                    )}
+                                </div>
                             </div>
                         );
-                    }
-
-                    const isRevealed = isCurrentlySolved ? true : clock.isRevealed;
-
-                    return (
-                        <div key={clock.id} className="flex flex-col items-center space-y-4">
-                            <div
-                                className="relative w-48 h-48 bg-gray-800 rounded-full border-2 border-gray-700 flex items-center justify-center">
-                                {isRevealed ? (
-                                    <div className="text-6xl text-red-500 font-bold">{clock.symbol}</div>
-                                ) : (
-                                    renderClockFace(mainClockTime)
-                                )}
-                            </div>
-
-                            <div className="text-center">
-                                {isRevealed ? (
-                                    <p className="text-green-500 font-mono text-xl font-bold">{clock.keyword}</p>
-                                ) : (
-                                    <p className="text-gray-500 font-mono text-lg">{formatTime(clock.timeRemaining)}</p>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                    })
+                )}
             </div>
         </div>
     );

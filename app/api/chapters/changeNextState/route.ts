@@ -78,3 +78,5 @@ function getNextState(current: ActionState): ActionState {
             return ActionState.NotReleased;
     }
 }
+
+// todo, make this require admin authentication via the cookie of smileking-auth
