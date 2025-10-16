@@ -6,7 +6,8 @@ import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/li
 import React, {useEffect, useRef} from 'react';
 import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
-import {usePreloadActStates} from "@/hooks/usePreloadActStates";
+
+import {usePreloadActStates} from "@/hooks/BonusActHooks/usePreloadActStates";
 
 
 // --- Main component ---

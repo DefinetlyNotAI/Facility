@@ -1,34 +1,17 @@
 'use client';
 
 import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import Cookies from 'js-cookie';
-import {cookies, routes} from '@/lib/saveData';
-import {useIsSucceeded} from "@/hooks/usePreloadActStates";
 import {formatTime} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters";
 import {Button} from "@/components/ui/button";
 
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+
 
 // ---------- Component ----------
 export default function ChapterIIPage() {
-    const router = useRouter();
-    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
     const [timeRemaining, setTimeRemaining] = useState<number>(0);
-
-    const succeeded = useIsSucceeded();
-
-    useEffect(() => {
-        if (!Cookies.get(cookies.end)) {
-            router.replace(routes.bonus.locked);
-        }
-    }, [router]);
-
-    useEffect(() => {
-        if (succeeded !== null && succeeded !== undefined) {
-            setIsCurrentlySolved(succeeded);
-        }
-    }, [succeeded]);
+    const {isCurrentlySolved} = useChapterAccess();
 
     useEffect(() => {
         const targetDate = new Date(chIIData.root.startDate);

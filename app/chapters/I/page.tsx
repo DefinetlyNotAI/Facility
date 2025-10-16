@@ -1,39 +1,23 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import Cookies from 'js-cookie';
-import {cookies, ItemKey, routes} from '@/lib/saveData';
+import {useState} from 'react';
+import {ItemKey} from '@/lib/saveData';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {AlertCircle, HelpCircle} from 'lucide-react';
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
-import {useIsSucceeded} from "@/hooks/usePreloadActStates";
 import {chIData, fileLinks} from "@/lib/data/chapters";
 import {checkPass} from "@/lib/utils";
 
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+
 
 export default function ChapterIPage() {
-    const router = useRouter();
-    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
+    const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess();
     const [port, setPort] = useState('');
     const [ip, setIp] = useState('');
     const [error, setError] = useState('');
     const [isConnecting, setIsConnecting] = useState(false);
-
-    const succeeded = useIsSucceeded();
-
-    useEffect(() => {
-        if (!Cookies.get(cookies.end)) {
-            router.replace(routes.bonus.locked);
-        }
-    }, [router]);
-
-    useEffect(() => {
-        if (succeeded !== null && succeeded !== undefined) {
-            setIsCurrentlySolved(succeeded);
-        }
-    }, [succeeded]);
 
     const handleConnect = async () => {
         setError("");

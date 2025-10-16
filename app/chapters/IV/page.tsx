@@ -1,38 +1,20 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import Cookies from 'js-cookie';
+import {useState} from 'react';
 import Image from 'next/image';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {useIsSucceeded} from "@/hooks/usePreloadActStates";
-import {cookies, routes} from "@/lib/saveData";
 import {chapterIVData} from "@/lib/data/chapters";
 import {PlaqueStatus} from "@/lib/types/chapters";
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+
 
 // ---------- Component ----------
 export default function ChapterIVPage() {
-    const router = useRouter();
-    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
+    const {isCurrentlySolved} = useChapterAccess();
     const [plaqueStatuses] = useState<PlaqueStatus[]>(chapterIVData.plaqueStatus);
     const [questStatus] = useState<AllowedPlaqueStatus>('active');
-
-    const succeeded = useIsSucceeded();
-
-    useEffect(() => {
-        if (!Cookies.get(cookies.end)) {
-            router.replace(routes.bonus.locked);
-        }
-    }, [router]);
-
-    useEffect(() => {
-        if (succeeded !== null && succeeded !== undefined) {
-            setIsCurrentlySolved(succeeded);
-        }
-    }, [succeeded]);
-
 
     if (isCurrentlySolved === null) {
         return (

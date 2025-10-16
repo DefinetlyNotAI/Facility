@@ -1,14 +1,11 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import Cookies from 'js-cookie';
-import {useIsSucceeded} from "@/hooks/usePreloadActStates";
-import {useFailed} from "@/hooks/useBonusActStatus";
-import {cookies, routes} from "@/lib/saveData";
 import {chapterIIIData} from "@/lib/data/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/lib/types/chapters";
+import {useFailed} from "@/hooks/BonusActHooks/useFailed";
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 
 const renderCorruptedClock = () => {
     const randomRotation = Math.random() * 360;
@@ -74,27 +71,10 @@ const renderCorruptedClock = () => {
 
 // ---------- Component ----------
 export default function ChapterIIIPage() {
-    const router = useRouter();
-    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
+    const {isCurrentlySolved} = useChapterAccess();
     const [clockStates, setClockStates] = useState<ClockState[]>([]);
     const [mainClockTime, setMainClockTime] = useState(new Date());
-
-    const succeeded = useIsSucceeded();
     const failed = useFailed("III");
-
-    // Redirect if end cookie missing
-    useEffect(() => {
-        if (!Cookies.get(cookies.end)) {
-            router.replace(routes.bonus.locked);
-        }
-    }, [router]);
-
-    // Update solved state
-    useEffect(() => {
-        if (succeeded !== null && succeeded !== undefined) {
-            setIsCurrentlySolved(succeeded);
-        }
-    }, [succeeded]);
 
     // Initialize clocks
     useEffect(() => {
