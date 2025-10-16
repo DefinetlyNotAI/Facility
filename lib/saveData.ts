@@ -19,6 +19,11 @@ export const routes = {
             // Hashes the keyword (case-insensitive) using a salt and compares it to a known hash list.
             // Returns a JSON response indicating which number was checked and whether the keyword matched.
             checkKeyword: "/api/utils/checkKeyword",
+            // API: POST /api/utils/hashChecker - verifies if a provided string matches the hash of a secret item.
+            // Accepts a JSON body with "stringToCheck" and "itemToCheck" (enum key).
+            // Hashes the input string and compares it to the stored hash for the specified item.
+            // Returns a JSON response indicating if the input matches the secret item's hash.
+            hashChecker: "/api/utils/hashChecker",
         },
         security: {
             // API: GET /api/security/csrf-token - provides a CSRF token for form submissions.
@@ -179,4 +184,13 @@ export const localStorageKeys = {
     vesselBoot: "SeenVesselBoot",
     // Session ID - LocalStorage key
     sessionId: "sessionId"
+}
+
+// Keys for items to be checked via hash
+// These are reference keys to the actual secret values stored server-side
+// Check /app/api/utils/hashChecker/route.ts to modify the server-side secrets
+export enum ItemKey {
+    portNum,
+    ipAddress,
+    InternalCode
 }

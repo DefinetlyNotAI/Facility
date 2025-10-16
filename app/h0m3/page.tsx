@@ -301,7 +301,7 @@ export default function H0m3() {
         );
     }
 
-    // Glitch mode — render corrupted Home
+    // Glitch mode - render corrupted Home
     return (
         <>
             <audio

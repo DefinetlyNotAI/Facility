@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import React from "react";
-import {localStorageKeys, routes} from "@/lib/saveData";
+import {ItemKey, localStorageKeys, routes} from "@/lib/saveData";
 import {BonusAct, BonusResponse} from "@/lib/types/api";
 import {errorText} from "@/lib/data/utils";
 import {type ClassValue, clsx} from 'clsx';
@@ -82,7 +82,7 @@ export async function signCookie(data: string): Promise<{ success: boolean; erro
     }
 }
 
-// Get user OS
+// Get user OS / browser from user-agent string
 export function detectOsBrowser(ua: string) {
     let os = "Unknown OS";
     if (/windows/i.test(ua)) os = "Windows";
@@ -178,3 +178,27 @@ export const formatTime = (milliseconds: number) => {
 
     return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 };
+
+// Helper to verify a string against a hashed reference (server-side only hash storage).
+export async function checkPass(
+    itemToCheck: ItemKey,
+    stringToCheck: string
+): Promise<{ success: boolean; error?: string; }> {
+    try {
+        const res = await fetch("/api/checkPass", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ itemToCheck, stringToCheck })
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            return { success: false, error: errData.error ?? "Server error" };
+        }
+
+        return await res.json();
+    } catch (err) {
+        console.error("checkPass error:", err);
+        return { success: false, error: "Network error" };
+    }
+}

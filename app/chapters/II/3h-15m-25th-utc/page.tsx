@@ -6,9 +6,9 @@ import Cookies from 'js-cookie';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { signCookie } from "@/lib/utils";
+import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters";
-import {cookies, routes} from '@/lib/saveData';
+import {cookies, ItemKey, routes} from '@/lib/saveData';
 
 export default function ChapterIITimedPage() {
     const router = useRouter();
@@ -49,22 +49,20 @@ export default function ChapterIITimedPage() {
         return () => clearInterval(interval);
     }, []);
 
-    async function hashPassword(password: string) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
     const handlePasswordSubmit = async () => {
-        const hashed = await hashPassword(password);
-        if (hashed === chIIData.utcPage.passwordHash) {
-            signCookie(`${cookies.chII_passDone}=true`).catch(console.error);
-            setIsPasswordVerified(true);
-            setError('');
-        } else {
-            setError(chIIData.utcPage.accessText.error);
+        try {
+            const res = await checkPass(ItemKey.portNum, password);
+
+            if (res.success) {
+                await signCookie(`${cookies.chII_passDone}=true`);
+                setIsPasswordVerified(true);
+                setError("");
+            } else {
+                setError(chIIData.utcPage.accessText.error);
+            }
+        } catch (err) {
+            console.error(err);
+            setError("Something went wrong");
         }
     };
 

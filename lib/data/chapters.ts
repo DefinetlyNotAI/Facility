@@ -173,7 +173,6 @@ export const chIData = {
 // Chapter II data
 export const chIIData = {
     utcPage: {
-        passwordHash: '72e0d0826d26f416e92314ecba12efa97a58af358e97f99d7112297b910dec84',
         timeWindow: {
             hour: 3,
             minuteStart: 15,

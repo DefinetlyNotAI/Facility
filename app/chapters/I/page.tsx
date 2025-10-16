@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { cookies, routes } from '@/lib/saveData';
+import {cookies, ItemKey, routes} from '@/lib/saveData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, HelpCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {useIsSucceeded} from "@/hooks/usePreloadActStates";
 import {chIData, fileLinks} from "@/lib/data/chapters";
+import {checkPass} from "@/lib/utils";
 
 
 export default function ChapterIPage() {
@@ -35,25 +36,28 @@ export default function ChapterIPage() {
     }, [succeeded]);
 
     const handleConnect = async () => {
-        setError('');
+        setError("");
         setIsConnecting(true);
 
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // todo make this api called
-        if (port !== chIData.portNum) {
+        // Check port number via API
+        const portCheck = await checkPass(ItemKey.portNum, port);
+        if (!portCheck.success) {
             setError(chIData.portNumErr);
             setIsConnecting(false);
             return;
         }
 
-        // todo make this api called
-        if (ip !== chIData.ipAddress) {
+        // Check IP address via API
+        const ipCheck = await checkPass(ItemKey.ipAddress, ip);
+        if (!ipCheck.success) {
             setError(chIData.ipAddressErr);
             setIsConnecting(false);
             return;
         }
 
+        // If both checks pass
         setIsCurrentlySolved(true);
         setIsConnecting(false);
     };
