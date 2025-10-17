@@ -25,7 +25,7 @@ export default function SmilekingAuth() {
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
-                console.warn('Failed to play error audio:', error);
+                console.warn(errorMsg.audioErr, error);
             }
 
             setError(errorMsg.emptyPassword);
@@ -48,7 +48,7 @@ export default function SmilekingAuth() {
                     errorAudio.volume = 0.6;
                     errorAudio.play().catch(console.warn);
                 } catch (error) {
-                    console.warn('Failed to play error audio:', error);
+                    console.warn(errorMsg.audioErr, error);
                 }
 
                 const data = await res.json();
@@ -62,7 +62,7 @@ export default function SmilekingAuth() {
                 successAudio.volume = 0.6;
                 successAudio.play().catch(console.warn);
             } catch (error) {
-                console.warn('Failed to play success audio:', error);
+                console.warn(errorMsg.audioErr, error);
             }
 
             const data = await res.json();
@@ -77,7 +77,7 @@ export default function SmilekingAuth() {
                 errorAudio.volume = 0.6;
                 errorAudio.play().catch(console.warn);
             } catch (error) {
-                console.warn('Failed to play error audio:', error);
+                console.warn(errorMsg.audioErr, error);
             }
 
             setError(`${errorMsg.authAPIFailed} ${err}`);
