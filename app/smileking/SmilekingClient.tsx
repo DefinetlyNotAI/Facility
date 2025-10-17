@@ -10,6 +10,7 @@ import {cookies, routes} from '@/lib/saveData';
 import {ActionState, BonusAct, BonusResponse} from '@/lib/types/api';
 
 function getCookiesMap(): Record<string, string> {
+    // Builds a map from document.cookie, but we will treat the admin cookie as server-only.
     return document.cookie.split(';').reduce((acc, cookie) => {
         const [rawKey, ...rest] = cookie.trim().split('=');
         const key = decodeURIComponent(rawKey);
@@ -33,8 +34,14 @@ export default function SmilekingClient() {
     useEffect(() => {
         const allCookies = getCookiesMap();
         const cs: Record<string, boolean> = {};
+        // Exclude admin cookie from client-visible cookie list (server-only, httpOnly)
         Object.values(cookies).forEach(name => {
-            cs[name] = allCookies.hasOwnProperty(name);
+            if (name === cookies.adminPass) {
+                // Always mark server-only admin cookie as not client-visible
+                cs[name] = false;
+            } else {
+                cs[name] = allCookies.hasOwnProperty(name);
+            }
         });
         setCookieState(cs);
 
@@ -63,6 +70,12 @@ export default function SmilekingClient() {
     }, []);
 
     const toggleCookie = async (name: string) => {
+        // Deny any client attempt to toggle the admin/server-only cookie
+        if (name === cookies.adminPass) {
+            alert('This cookie is server-only and cannot be toggled from the client.');
+            return;
+        }
+
         const allCookies = getCookiesMap();
         const isSet = allCookies.hasOwnProperty(name);
 
@@ -95,7 +108,8 @@ export default function SmilekingClient() {
         setCookieState(prev => {
             const newState = {...prev};
             Object.values(cookies).forEach(cookie => {
-                newState[cookie] = updatedCookies.hasOwnProperty(cookie);
+                // Keep admin cookie false on client-side (server-only)
+                newState[cookie] = cookie === cookies.adminPass ? false : updatedCookies.hasOwnProperty(cookie);
             });
             return newState;
         });
@@ -157,16 +171,18 @@ export default function SmilekingClient() {
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>{text.sectionCookieHeader}</h2>
                 <ul className={styles.gridList}>
-                    {Object.values(cookies).map(name => (
-                        <li key={name}>
-                            <button
-                                className={styles.cookieButton}
-                                onClick={() => toggleCookie(name)}
-                            >
-                                {cookieState[name] ? buttonState.cookies.unset : buttonState.cookies.set} [{name}]
-                            </button>
-                        </li>
-                    ))}
+                    {Object.values(cookies)
+                        .filter(name => name !== cookies.adminPass) // exclude server-only cookie
+                        .map(name => (
+                            <li key={name}>
+                                <button
+                                    className={styles.cookieButton}
+                                    onClick={() => toggleCookie(name)}
+                                >
+                                    {cookieState[name] ? buttonState.cookies.unset : buttonState.cookies.set} [{name}]
+                                </button>
+                            </li>
+                        ))}
                 </ul>
             </div>
 

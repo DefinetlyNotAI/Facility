@@ -2,6 +2,7 @@ export const auth = {
     passReqErr: "Password required",
     incorrectPass: "Incorrect password",
     invalidMethod: "Method not allowed",
+    serverConfigErr: "Server configuration error"
 }
 export const keywords = {
     // All keywords were set as lowercase when hashed - sha256

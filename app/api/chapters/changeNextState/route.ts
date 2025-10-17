@@ -11,10 +11,7 @@ export async function POST(req: NextRequest) {
         const csrfTokenFromCookie = req.cookies.get("csrf-token")?.value;
         const csrfTokenFromHeader = req.headers.get("x-csrf-token");
 
-        if (!csrfTokenFromCookie) {
-            return createSecureResponse({error: bonusMsg.invalidCsrf}, 403);
-        }
-        if (csrfTokenFromHeader && csrfTokenFromHeader !== csrfTokenFromCookie) {
+        if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromHeader !== csrfTokenFromCookie) {
             return createSecureResponse({error: bonusMsg.invalidCsrf}, 403);
         }
 
@@ -78,5 +75,3 @@ function getNextState(current: ActionState): ActionState {
             return ActionState.NotReleased;
     }
 }
-
-// todo, make this require admin authentication via the cookie of smileking-auth

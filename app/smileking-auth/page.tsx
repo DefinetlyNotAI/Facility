@@ -1,10 +1,9 @@
 'use client';
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import Cookies from 'js-cookie';
 import {SFX_AUDIO} from "@/lib/data/audio";
 import {authText, errorMsg, warningMsg} from "@/lib/data/smileking";
-import {cookies, routes} from "@/lib/saveData";
+import {routes} from "@/lib/saveData";
 
 export default function SmilekingAuth() {
     const [password, setPassword] = useState('');
@@ -38,6 +37,8 @@ export default function SmilekingAuth() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                // Ensure same-origin credentials so server Set-Cookie is accepted
+                credentials: 'same-origin',
                 body: JSON.stringify({password}),
             });
 
@@ -51,7 +52,8 @@ export default function SmilekingAuth() {
                     console.warn(errorMsg.audioErr, error);
                 }
 
-                const data = await res.json();
+                // Treat returned text as plain JSON -> safe rendering
+                const data = await res.json().catch(() => ({error: errorMsg.authFailed}));
                 setError(data.error || errorMsg.authFailed);
                 return;
             }
@@ -65,9 +67,9 @@ export default function SmilekingAuth() {
                 console.warn(errorMsg.audioErr, error);
             }
 
-            const data = await res.json();
-            // Save hashed password in cookie, secure flags as appropriate
-            Cookies.set(cookies.adminPass, data.hashed, {path: '/', sameSite: 'strict', secure: true});
+            // Server set the JWT as an httpOnly cookie; don't try to read or store any secret on client
+            // minimal response handling
+            // const data = await res.json();
 
             router.push(routes.smileking);
         } catch (err) {
@@ -80,7 +82,7 @@ export default function SmilekingAuth() {
                 console.warn(errorMsg.audioErr, error);
             }
 
-            setError(`${errorMsg.authAPIFailed} ${err}`);
+            setError(`${errorMsg.authAPIFailed} ${String(err)}`);
         }
     };
 
