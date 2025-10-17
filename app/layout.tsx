@@ -93,7 +93,9 @@ export default function RootLayout({children,}: { children: React.ReactNode; }) 
         )}
         <div className="scanlines crt-effect">
             {children}
-            <Analytics/>
+            {process.env.NODE_ENV === "production" && (
+                <Analytics/>
+            )}
             <TAS/>
         </div>
         </body>
