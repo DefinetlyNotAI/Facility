@@ -5,11 +5,14 @@ import {useParams, useRouter} from 'next/navigation';
 import {chIIData} from '@/lib/data/chapters';
 import Image from 'next/image';
 import {routes} from "@/lib/saveData";
+import {useChapter2Access} from "@/hooks/BonusActHooks/useChapter2Access";
 
 export default function ChapterIIPathPage() {
     const router = useRouter();
     const params = useParams();
     const path = params.path as string;
+
+    useChapter2Access()
 
     useEffect(() => {
         if (!path) return;
@@ -53,5 +56,3 @@ export default function ChapterIIPathPage() {
         </div>
     );
 }
-
-// todo check if this requires the state hooks to return/redirect for quest state

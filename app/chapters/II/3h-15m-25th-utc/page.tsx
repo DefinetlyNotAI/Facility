@@ -9,6 +9,7 @@ import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
+import {useChapter2Access} from "@/hooks/BonusActHooks/useChapter2Access";
 
 export default function ChapterIITimedPage() {
     const router = useRouter();
@@ -16,6 +17,8 @@ export default function ChapterIITimedPage() {
     const [isPasswordVerified, setIsPasswordVerified] = useState(false);
     const [isInTimeWindow, setIsInTimeWindow] = useState(false);
     const [error, setError] = useState('');
+
+    useChapter2Access()
 
     useEffect(() => {
         if (!Cookies.get(cookies.end)) {
@@ -145,5 +148,3 @@ export default function ChapterIITimedPage() {
         </div>
     );
 }
-
-// todo check if this requires the state hooks to return/redirect for quest state
