@@ -31,7 +31,5 @@ next-env.d.ts
 /app/wifi-login/info.ignore
 /ARG_Performance_Results.json
 /TEST CHECK.md
-/.idea/workspace.xml
 /Bonus Content Release Plan.md
-/.idea/dictionaries/project.xml
-/.idea/copilotDiffState.xml
+.idea/
