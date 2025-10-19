@@ -83,23 +83,51 @@ export default function ChapterVIPage() {
 
     const currentMessage = CHAPTER_VI.MESSAGES[0]; // You could optionally rotate through messages by time
 
+    const [petals, setPetals] = useState<{ left: string; duration: string; delay: string }[]>([]);
+
+    useEffect(() => {
+        const generated = Array.from({ length: 20 }).map(() => ({
+            left: `${Math.random() * 100}%`,
+            duration: `${8 + Math.random() * 5}s`,
+            delay: `${Math.random() * 5}s`,
+        }));
+        setPetals(generated);
+    }, []);
+
     return (
         <div className={`${styles.chapterVI} ${isCurrentlySolved ? 'solved' : ''}`}>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VI} loop preload="auto" style={{ display: 'none' }} />
-            <div className="clock" aria-hidden />
+            <div className={styles.flowerBlackHole} aria-hidden></div>
 
-            <div className="messageBox" role="status" aria-live="polite">
+            {/* Petals */}
+            {petals.map((petal, i) => (
+                <div
+                    key={i}
+                    className={styles.petal}
+                    style={{
+                        left: petal.left,
+                        animationDuration: petal.duration,
+                        animationDelay: petal.delay,
+                    }}
+                />
+            ))}
+
+            <div className={styles.messageBox} role="status" aria-live="polite">
                 {isCurrentlySolved ? (
                     <>
                         <div style={{ fontStyle: 'normal', marginBottom: 8, fontWeight: 600 }}>
                             {CHAPTER_VI.SOLVED_TEXT.TITLE}
                         </div>
-                        <div style={{ fontSize: '.9rem', opacity: 0.85 }}>{CHAPTER_VI.SOLVED_TEXT.SUBTITLE}</div>
+                        <div style={{ fontSize: '.9rem', opacity: 0.85 }}>
+                            {CHAPTER_VI.SOLVED_TEXT.SUBTITLE}
+                        </div>
                     </>
                 ) : (
                     <>
                         <div>{currentMessage}</div>
-                        <div style={{ marginTop: 8, fontSize: '.9rem', opacity: 0.8 }}>{formatTime(seconds)} endured.</div>
+                        <div style={{ marginTop: 8, fontSize: '.9rem', opacity: 0.8 }}>
+                            {formatTime(seconds)} endured.
+                        </div>
                     </>
                 )}
             </div>
