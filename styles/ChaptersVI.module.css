@@ -1,4 +1,6 @@
-/* Chapter VI - He who lives in clocks */
+/* ChaptersVI.module.css */
+
+/* Chapter VI container */
 .chapterVI {
     position: relative;
     min-height: 100vh;
@@ -10,154 +12,34 @@
     justify-content: center;
 }
 
-/* big clock on the wall */
-.chapterVI .clock {
+/* Solved state for container */
+.chapterVI.solved {
+    /* Add any visual changes if solved */
+}
+
+/* Clock placeholder */
+.clock {
     position: absolute;
-    right: 6%;
-    top: 8%;
-    width: 350px;
-    height: 350px;
+    top: 50%;
+    left: 50%;
+    width: 10rem;
+    height: 10rem;
+    transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #222 0%, #080808 35%, #000 100%);
-    box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 8px 24px rgba(255,255,255,0.02);
-    border: 6px solid rgba(255,255,255,0.03);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.92;
+    border: 4px solid #f6f0ee;
+    box-shadow: 0 0 10px #f6f0ee;
 }
 
-/* subtle clock face ticks */
-.chapterVI .clock::after {
-    content: '';
+/* Message box */
+.messageBox {
     position: absolute;
-    inset: 18px;
-    border-radius: 50%;
-    background-image:
-            radial-gradient(circle at center, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 12% 12%;
-    mix-blend-mode: overlay;
-    opacity: 0.6;
-}
-
-/* lily container */
-.chapterVI .lily {
-    position: relative;
-    width: 360px;
-    height: 360px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-}
-
-/* center of the flower */
-.chapterVI .lily .center {
-    width: 54px;
-    height: 54px;
-    background: radial-gradient(circle at 30% 30%, #2b0000 0%, #5a0000 40%, #330000 100%);
-    border-radius: 50%;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.8), 0 0 10px rgba(255,0,0,0.06);
-    z-index: 10;
-}
-
-/* petals */
-.chapterVI .petal {
-    --r: 0deg;
-    position: absolute;
-    width: 160px;
-    height: 70px;
-    background: linear-gradient(180deg, #ff4b6b 0%, #b3001b 70%);
-    border-radius: 80% 80% 40% 40% / 70% 70% 30% 30%;
-    transform-origin: 50% 85%;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.7), 0 0 8px rgba(255,0,0,0.05);
-}
-
-/* position each petal by rotation */
-.chapterVI .petal.p0 { transform: rotate(-90deg) translateY(-44px) rotate(0deg); }
-.chapterVI .petal.p1 { transform: rotate(-30deg) translateY(-44px) rotate(0deg); }
-.chapterVI .petal.p2 { transform: rotate(30deg) translateY(-44px) rotate(0deg); }
-.chapterVI .petal.p3 { transform: rotate(90deg) translateY(-44px) rotate(0deg); }
-.chapterVI .petal.p4 { transform: rotate(150deg) translateY(-44px) rotate(0deg); }
-.chapterVI .petal.p5 { transform: rotate(210deg) translateY(-44px) rotate(0deg); }
-
-/* sway animation */
-.chapterVI .petal.sway {
-    animation: sway 6s ease-in-out infinite;
-    transform: rotate(var(--r)) translateY(-44px);
-}
-
-/* fallen state: shrink and fall, overrides sway */
-.chapterVI .petal.fallen {
-    animation: petalFall 2.2s forwards cubic-bezier(.2,.6,.2,1);
-    opacity: 0;
-}
-
-/* sway keyframes */
-@keyframes sway {
-    0% { transform: rotate(var(--r)) translateY(-44px); }
-    50% { transform: rotate(calc(var(--r) + 4deg)) translateY(-46px); }
-    100% { transform: rotate(var(--r)) translateY(-44px); }
-}
-
-/* falling petals animation */
-@keyframes petalFall {
-    0% {
-        transform: rotate(var(--r)) translateY(0) scale(1);
-        opacity: 1;
-    }
-    40% {
-        transform: rotate(calc(var(--r) + 40deg)) translateY(40vh) scale(0.95);
-        opacity: 0.9;
-    }
-    100% {
-        transform: rotate(calc(var(--r) + 180deg)) translateY(120vh) scale(0.6);
-        opacity: 0;
-    }
-}
-
-/* messages area */
-.chapterVI .messageBox {
-    position: absolute;
-    bottom: 8%;
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
-    max-width: 720px;
-    padding: 18px 22px;
-    background: rgba(0,0,0,0.55);
-    border: 1px solid rgba(255,255,255,0.03);
-    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
     text-align: center;
-    backdrop-filter: blur(4px);
-    z-index: 12;
-    font-style: italic;
-    font-size: 1.05rem;
-    color: #ffeef0;
-}
-
-/* final solved, falling petals background */
-.chapterVI.solved .bgPetals {
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-}
-
-/* falling petals animation for solved state */
-.chapterVI.solved .fallingPetal {
-    --dur: 8s;
-    position: absolute;
-    width: 28px;
-    height: 18px;
-    background: linear-gradient(180deg, #ff4b6b 0%, #b3001b 100%);
-    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.6);
-    animation: fallLinear var(--dur, 8s) linear infinite;
-    opacity: 0.95;
-}
-
-@keyframes fallLinear {
-    0% { transform: translateY(-20vh) translateX(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(120vh) translateX(120px) rotate(360deg); opacity: 0; }
+    font-family: monospace;
+    max-width: 90%;
 }

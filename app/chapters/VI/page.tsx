@@ -1,83 +1,51 @@
 'use client';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from '@/styles/ChaptersVI.module.css';
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
-import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
-import {chapter} from "@/lib/data/chapters";
+import { useBackgroundAudio } from '@/lib/data/audio';
+// import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import { BACKGROUND_AUDIO } from '@/lib/data/audio';
+
+const CHAPTER_VI = {
+    ID: 'VI',
+    STORAGE_KEY: 'chapterVISeconds',
+    DURATION_SECONDS: 50,
+    MESSAGES: [
+        'To escape time, you must endure it.',
+        'Time is fleeting, but so am I.',
+        'Each tick brings me closer to you.',
+        'Patience is a virtue, they say.',
+        'The hands of time wait for no one.',
+        'Almost there, just a little longer.',
+        'HE lived here, before HE wrote a story.',
+    ],
+    SOLVED_TEXT: {
+        TITLE:
+            'All for nothing, No prize today, too early too early, just wait, but to escape the clock, share this to HIM, for he can fix it for all, and not need more death to fall',
+        SUBTITLE: 'You endured the clock.',
+    },
+} as const;
 
 export default function ChapterVIPage() {
-    const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
-
-    // Persistent seconds in localStorage
+    // const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
+    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(false);
     const [seconds, setSeconds] = useState(0);
+    const intervalRef = useRef<number | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
-    if (isCurrentlySolved === null) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">{chapter.loading}</div>
-            </div>
-        );
-    }
-
+    // Load saved time
     useEffect(() => {
-        const stored = localStorage.getItem('chapterVISeconds');
+        const stored = localStorage.getItem(CHAPTER_VI.STORAGE_KEY);
         if (stored) setSeconds(Number(stored));
     }, []);
 
-    const intervalRef = useRef<number | null>(null);
-    const [localSolved, setLocalSolved] = useState<boolean>(false);
-    const audioRef = useRef<HTMLAudioElement>(null);
-
-    const messages = [
-        "To escape time, you must endure it.",
-        "Time is fleeting, but so am I.",
-        "Each tick brings me closer to you.",
-        "Patience is a virtue, they say.",
-        "The hands of time wait for no one.",
-        "Almost there, just a little longer.",
-        "HE lived here, before HE wrote a story."
-    ];
-
-    // Generate falling petals once
-    const [fallingPetals] = useState(() => {
-        return Array.from({length: 24}).map((_, i) => {
-            const left = Math.random() * 100;
-            const dur = 6 + Math.random() * 6;
-            const delay = Math.random() * -12;
-            return (
-                <div
-                    key={i}
-                    className="fallingPetal"
-                    style={{
-                        position: 'absolute',
-                        left: `${left}%`,
-                        top: `${-10 - Math.random() * 30}vh`,
-                        width: `${16 + Math.random() * 28}px`,
-                        height: `${10 + Math.random() * 18}px`,
-                        background: 'linear-gradient(180deg,#ff4b6b,#b3001b)',
-                        borderRadius: '50% 50% 40% 40% / 60% 60% 40% 40%',
-                        opacity: 0.95,
-                        transform: `rotate(${Math.random() * 360}deg)`,
-                        animation: `fallLinear ${dur}s linear ${delay}s infinite`,
-                    } as React.CSSProperties}
-                />
-            );
-        });
-    });
-
+    // Timer
     useEffect(() => {
-        // Already solved
-        if (isCurrentlySolved) {
-            setLocalSolved(true);
-            return;
-        }
+        if (isCurrentlySolved) return;
 
-        // Start timer
         intervalRef.current = window.setInterval(() => {
-            setSeconds(prev => prev + 1);
+            setSeconds((prev) => prev + 1);
         }, 1000);
 
-        // Warn on leaving
         const beforeunload = (e: BeforeUnloadEvent) => {
             e.preventDefault();
             // noinspection JSDeprecatedSymbols
@@ -91,81 +59,50 @@ export default function ChapterVIPage() {
         };
     }, [isCurrentlySolved]);
 
-    // Persist timer
+    // Save time
     useEffect(() => {
-        localStorage.setItem('chapterVISeconds', seconds.toString());
+        localStorage.setItem(CHAPTER_VI.STORAGE_KEY, seconds.toString());
     }, [seconds]);
 
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VI);
 
+    // Solve check
     useEffect(() => {
-        const hours = Math.floor(seconds / 3600);
-        if (hours >= 6 && !localSolved) {
-            setLocalSolved(true);
-            try {
-                if (typeof setIsCurrentlySolved === 'function') {
-                    setIsCurrentlySolved(true);
-                } else {
-                    fetch('/api/chapters/VI/solve', {method: 'POST'}).catch((e) => {
-                        console.error('Failed to mark Chapter VI solved:', e);
-                    });
-                }
-            } catch (e) {
-                console.error(e);
-            }
+        if (seconds >= CHAPTER_VI.DURATION_SECONDS && !isCurrentlySolved) {
+            setIsCurrentlySolved(true);
         }
-    }, [seconds, localSolved, setIsCurrentlySolved]);
+    }, [seconds, isCurrentlySolved]);
 
-    const hoursElapsed = Math.min(6, Math.floor(seconds / 3600));
-    const currentMessage = messages[Math.min(hoursElapsed, messages.length - 1)];
+    const formatTime = (totalSeconds: number) => {
+        const hrs = Math.floor(totalSeconds / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+    };
 
-    const renderFallingPetals = () => <div className={`${styles.chapterVI} bgPetals`}>{fallingPetals}</div>;
+    const currentMessage = CHAPTER_VI.MESSAGES[0]; // You could optionally rotate through messages by time
 
     return (
-        <div className={`${styles.chapterVI} ${localSolved || isCurrentlySolved ? 'solved' : ''}`}>
-            <audio
-                ref={audioRef}
-                src={BACKGROUND_AUDIO.BONUS.VI}
-                loop
-                preload="auto"
-                style={{display: 'none'}}
-            />
-            <div className="clock" aria-hidden/>
-            <div className="lily" role="img" aria-label="Red spider lily">
-                <div className="center" />
-                {Array.from({ length: 6 }).map((_, idx) => {
-                    const fallenNow = idx < hoursElapsed;
-                    const rotation = -90 + idx * 60; // evenly spaced petals
-                    return (
-                        <div
-                            key={idx}
-                            className={`petal sway ${fallenNow ? 'fallen' : ''}`}
-                            style={{ '--r': `${rotation}deg` } as React.CSSProperties}
-                        />
-                    );
-                })}
-            </div>
+        <div className={`${styles.chapterVI} ${isCurrentlySolved ? 'solved' : ''}`}>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VI} loop preload="auto" style={{ display: 'none' }} />
+            <div className="clock" aria-hidden />
 
             <div className="messageBox" role="status" aria-live="polite">
-                {localSolved || isCurrentlySolved ? (
+                {isCurrentlySolved ? (
                     <>
-                        <div style={{fontStyle: 'normal', marginBottom: 8, fontWeight: 600}}>
-                            All for nothing, No prize today, too early too early, just wait for {`{X}`}, but to escape
-                            the clock, share this to HIM, for he can fix it for all, and not need more death to fall
+                        <div style={{ fontStyle: 'normal', marginBottom: 8, fontWeight: 600 }}>
+                            {CHAPTER_VI.SOLVED_TEXT.TITLE}
                         </div>
-                        <div style={{fontSize: '.9rem', opacity: 0.85}}>You endured the clock.</div>
+                        <div style={{ fontSize: '.9rem', opacity: 0.85 }}>{CHAPTER_VI.SOLVED_TEXT.SUBTITLE}</div>
                     </>
                 ) : (
                     <>
                         <div>{currentMessage}</div>
-                        <div style={{marginTop: 8, fontSize: '.9rem', opacity: 0.8}}>
-                            {String(hoursElapsed)} hour{hoursElapsed !== 1 ? 's' : ''} endured.
-                        </div>
+                        <div style={{ marginTop: 8, fontSize: '.9rem', opacity: 0.8 }}>{formatTime(seconds)} endured.</div>
                     </>
                 )}
             </div>
-
-            {(localSolved || isCurrentlySolved) && renderFallingPetals()}
         </div>
     );
 }
