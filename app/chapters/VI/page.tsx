@@ -3,12 +3,21 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from '@/styles/ChaptersVI.module.css';
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {chapter} from "@/lib/data/chapters";
 
 export default function ChapterVIPage() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
 
     // Persistent seconds in localStorage
     const [seconds, setSeconds] = useState(0);
+
+    if (isCurrentlySolved === null) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono">{chapter.loading}</div>
+            </div>
+        );
+    }
 
     useEffect(() => {
         const stored = localStorage.getItem('chapterVISeconds');
