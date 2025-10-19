@@ -29,6 +29,7 @@ export const BACKGROUND_AUDIO = {
         NOT_YET: "/music/3OClock.mp3",
         LOCKED: "/music/3OClock.mp3",
         MAIN: "/music/contemplation.mp3",
+        VI: "/music/3OClock.mp3",
     },
 } as const;
 
