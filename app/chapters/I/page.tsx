@@ -6,7 +6,7 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {AlertCircle, HelpCircle} from 'lucide-react';
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
-import {chIData, fileLinks} from "@/lib/data/chapters";
+import {chapter, chIData, fileLinks} from "@/lib/data/chapters";
 import {checkPass} from "@/lib/utils";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
@@ -48,8 +48,8 @@ export default function ChapterIPage() {
 
     if (isCurrentlySolved === null) {
         return (
-            <div className="min-h-screen bg-[#c0c0c0] flex items-center justify-center">
-                <div className="text-black font-mono">{chIData.text.load}</div>
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono">{chapter.loading}</div>
             </div>
         );
     }

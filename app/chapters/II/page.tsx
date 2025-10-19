@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {formatTime} from "@/lib/utils";
-import {chIIData, fileLinks} from "@/lib/data/chapters";
+import {chapter, chIIData, fileLinks} from "@/lib/data/chapters";
 import {Button} from "@/components/ui/button";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
@@ -35,7 +35,7 @@ export default function ChapterIIPage() {
     if (isCurrentlySolved === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">{chIIData.root.text.loading}</div>
+                <div className="text-white font-mono">{chapter.loading}</div>
             </div>
         );
     }

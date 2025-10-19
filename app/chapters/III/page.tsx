@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {chapterIIIData} from "@/lib/data/chapters";
+import {chapter, chapterIIIData} from "@/lib/data/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/lib/types/chapters";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
@@ -160,7 +160,7 @@ export default function ChapterIIIPage() {
     if (isCurrentlySolved === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">{chapterIIIData.text.loading}</div>
+                <div className="text-white font-mono">{chapter.loading}</div>
             </div>
         );
     }

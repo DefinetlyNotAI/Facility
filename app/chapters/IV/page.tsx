@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import Image from 'next/image';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {chapterIVData} from "@/lib/data/chapters";
+import {chapterIVData, chapter} from "@/lib/data/chapters";
 import {PlaqueStatus} from "@/lib/types/chapters";
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
@@ -19,7 +19,7 @@ export default function ChapterIVPage() {
     if (isCurrentlySolved === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">{chapterIVData.text.loading}</div>
+                <div className="text-white font-mono">{chapter.loading}</div>
             </div>
         );
     }

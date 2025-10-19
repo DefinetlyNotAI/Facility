@@ -16,7 +16,6 @@ export interface ChapterIVDatatype {
     gifCrossPath: string;
     plaqueStatus: PlaqueStatus[];
     text: {
-        loading: string;
         header: string;
         subHeader: string;
         questReminder: string;

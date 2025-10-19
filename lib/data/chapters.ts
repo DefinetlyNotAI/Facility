@@ -139,7 +139,6 @@ export const chIData = {
     portNum: "7337",
     ipAddress: "192.168.13.37",
     text: {
-        load: "Loading...",
         connect: "Connect to Server",
         connectHelp: "Connection Help",
         hints: [
@@ -227,7 +226,6 @@ export const chIIData = {
         startDate: new Date('2025-10-15T00:00:00Z'),
         linksCount: 8,
         text: {
-            loading: 'Loading...',
             countdown: {
                 descriptionLines: [
                     'There are 8 links.',
@@ -247,7 +245,6 @@ export const chIIData = {
 export const chapterIIIData = {
     startDate: new Date('2025-10-15T00:00:00Z'),
     text: {
-        loading: 'Loading...',
         header: '3: Clocks and Hands',
         failHeader: 'TIME HAS RUN OUT',
         instructions: 'Send keywords to Discord bot: /clock_the_hand {keyword}',
@@ -272,7 +269,6 @@ export const chapterIVData: ChapterIVDatatype = {
         {id: 'Entity', status: 'pending'},
     ],
     text: {
-        loading: 'Loading...',
         header: '3: Registration',
         subHeader: 'Solve the riddles before time runs out',
         questReminder: "Remember the riddles before it's too late...",
@@ -316,4 +312,8 @@ export const chapterIVData: ChapterIVDatatype = {
         },
     ]
 };
+
+export const chapter = {
+    loading: 'Loading...',
+}
 // todo, add audios/sfx, then testing
