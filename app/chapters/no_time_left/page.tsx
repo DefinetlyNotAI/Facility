@@ -1,47 +1,34 @@
 'use client';
+import React, { Suspense } from 'react';
 import styles from '@/styles/NoTimeLeft.module.css';
-import {useRouter, useSearchParams} from 'next/navigation';
-import {chapterMessages, chapterStyles} from '@/lib/data/chapters';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
-import React, {useEffect, useRef} from 'react';
-import {cookies, routes} from '@/lib/saveData';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { chapterMessages, chapterStyles } from '@/lib/data/chapters';
+import { BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio } from '@/lib/data/audio';
+import { cookies, routes } from '@/lib/saveData';
 import Cookies from 'js-cookie';
+import { useRef, useEffect } from 'react';
+import { usePreloadActStates } from "@/hooks/BonusActHooks/usePreloadActStates";
 
-import {usePreloadActStates} from "@/hooks/BonusActHooks/usePreloadActStates";
-
-
-// --- Main component ---
-export default function NoTimeLeft() {
+function NoTimeLeftInner() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const roman = searchParams.get('chapter')?.toLowerCase() ?? null;
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    // Redirect if global end cookie not set
     useEffect(() => {
-        if (!Cookies.get(cookies.end)) {
-            router.replace(routes.bonus.locked);
-        }
+        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
     }, [router]);
 
-    // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NO_TIME);
+    if (!roman) return null;
 
-    // Run all act checks before showing anything
-    if (!roman) {
-        return null
-    }
-    const ready: boolean = usePreloadActStates(roman);
+    const ready = usePreloadActStates(roman);
 
-    // Play error SFX on mount
     useEffect(() => {
         playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
     }, []);
 
-    // Wait for readiness or invalid roman
-    if (!ready || !chapterMessages[roman.toUpperCase()]) {
-        return null
-    }
+    if (!ready || !chapterMessages[roman.toUpperCase()]) return null;
 
     return (
         <>
@@ -50,7 +37,7 @@ export default function NoTimeLeft() {
                 src={BACKGROUND_AUDIO.BONUS.NO_TIME}
                 loop
                 preload="auto"
-                style={{display: 'none'}}
+                style={{ display: 'none' }}
             />
             <div className={styles.container}>
                 <p className={chapterStyles[roman.toUpperCase()]}>
@@ -58,5 +45,13 @@ export default function NoTimeLeft() {
                 </p>
             </div>
         </>
+    );
+}
+
+export default function NoTimeLeft() {
+    return (
+        <Suspense fallback={<div />}>
+            <NoTimeLeftInner />
+        </Suspense>
     );
 }
