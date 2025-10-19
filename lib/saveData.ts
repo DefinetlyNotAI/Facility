@@ -183,7 +183,9 @@ export const localStorageKeys = {
     // Check if the user has seen the vessel boot sequence in tree98
     vesselBoot: "SeenVesselBoot",
     // Session ID - LocalStorage key
-    sessionId: "sessionId"
+    sessionId: "sessionId",
+    // How many seconds survived in chapter VI
+    chapterVISeconds: 'chapterVISeconds'
 }
 
 // Keys for items to be checked via hash

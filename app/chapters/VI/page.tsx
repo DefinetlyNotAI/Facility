@@ -2,39 +2,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from '@/styles/ChaptersVI.module.css';
 import { useBackgroundAudio } from '@/lib/data/audio';
-// import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import { BACKGROUND_AUDIO } from '@/lib/data/audio';
-
-const CHAPTER_VI = {
-    ID: 'VI',
-    STORAGE_KEY: 'chapterVISeconds',
-    DURATION_SECONDS: 50,
-    MESSAGES: [
-        'To escape time, you must endure it.',
-        'Time is fleeting, but so am I.',
-        'Each tick brings me closer to you.',
-        'Patience is a virtue, they say.',
-        'The hands of time wait for no one.',
-        'Almost there, just a little longer.',
-        'HE lived here, before HE wrote a story.',
-    ],
-    SOLVED_TEXT: {
-        TITLE:
-            'All for nothing, No prize today, too early too early, just wait, but to escape the clock, share this to HIM, for he can fix it for all, and not need more death to fall',
-        SUBTITLE: 'You endured the clock.',
-    },
-} as const;
+import {localStorageKeys} from "@/lib/saveData";
+import {chapterVIData} from "@/lib/data/chapters";
 
 export default function ChapterVIPage() {
-    // const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
-    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(false);
+    const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
     const [seconds, setSeconds] = useState(0);
     const intervalRef = useRef<number | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Load saved time
     useEffect(() => {
-        const stored = localStorage.getItem(CHAPTER_VI.STORAGE_KEY);
+        const stored = localStorage.getItem(localStorageKeys.chapterVISeconds);
         if (stored) setSeconds(Number(stored));
     }, []);
 
@@ -61,14 +42,14 @@ export default function ChapterVIPage() {
 
     // Save time
     useEffect(() => {
-        localStorage.setItem(CHAPTER_VI.STORAGE_KEY, seconds.toString());
+        localStorage.setItem(localStorageKeys.chapterVISeconds, seconds.toString());
     }, [seconds]);
 
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VI);
 
     // Solve check
     useEffect(() => {
-        if (seconds >= CHAPTER_VI.DURATION_SECONDS && !isCurrentlySolved) {
+        if (seconds >= chapterVIData.duration && !isCurrentlySolved) {
             setIsCurrentlySolved(true);
         }
     }, [seconds, isCurrentlySolved]);
@@ -81,7 +62,15 @@ export default function ChapterVIPage() {
         return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
     };
 
-    const currentMessage = CHAPTER_VI.MESSAGES[0]; // You could optionally rotate through messages by time
+    // seconds = how long the user has stayed
+    // chapterVIData.duration = total duration of chapter in seconds
+    const progress = seconds / chapterVIData.duration; // ratio 0 → 1
+
+    // Use progress to pick a message index
+    const messageIndex = Math.floor(progress * chapterVIData.msgs.length);
+
+    // Clamp index to avoid overflow
+    const currentMessage = chapterVIData.msgs[Math.min(messageIndex, chapterVIData.msgs.length - 1)];
 
     const [petals, setPetals] = useState<{ left: string; duration: string; delay: string }[]>([]);
 
@@ -116,10 +105,10 @@ export default function ChapterVIPage() {
                 {isCurrentlySolved ? (
                     <>
                         <div style={{ fontStyle: 'normal', marginBottom: 8, fontWeight: 600 }}>
-                            {CHAPTER_VI.SOLVED_TEXT.TITLE}
+                            {chapterVIData.solveText.title}
                         </div>
                         <div style={{ fontSize: '.9rem', opacity: 0.85 }}>
-                            {CHAPTER_VI.SOLVED_TEXT.SUBTITLE}
+                            {chapterVIData.solveText.subtitle}
                         </div>
                     </>
                 ) : (
