@@ -5,13 +5,21 @@ import { useBackgroundAudio } from '@/lib/data/audio';
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import { BACKGROUND_AUDIO } from '@/lib/data/audio';
 import {localStorageKeys} from "@/lib/saveData";
-import {chapterVIData} from "@/lib/data/chapters";
+import {chapter, chapterVIData} from "@/lib/data/chapters";
 
 export default function ChapterVIPage() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
     const [seconds, setSeconds] = useState(0);
     const intervalRef = useRef<number | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    if (isCurrentlySolved === null) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono">{chapter.loading}</div>
+            </div>
+        );
+    }
 
     // Load saved time
     useEffect(() => {
