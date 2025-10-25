@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
 
     // Create JWT (no sensitive data in payload). Short expiry.
     const token = jwt.sign(
-        { role: 'admin' },
+        {role: 'admin'},
         jwtSecret,
-        { expiresIn: '1h' }
+        {expiresIn: '1h'}
     );
 
     // Create response and set httpOnly cookie so client JS can't read the token

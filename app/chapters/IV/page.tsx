@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import Image from 'next/image';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {chapterIVData, chapter} from "@/lib/data/chapters";
+import {chapter, chapterIVData} from "@/lib/data/chapters";
 import {PlaqueStatus} from "@/lib/types/chapters";
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 

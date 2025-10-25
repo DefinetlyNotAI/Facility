@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react";
+import {useEffect, useState} from "react";
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 
 const timelineData: Record<number, number[]> = {
@@ -13,7 +13,7 @@ const timelineData: Record<number, number[]> = {
 const BAN_KEY = "timeline_ban_until";
 
 export default function TimelinePage() {
-    const { isCurrentlySolved, setIsCurrentlySolved } = useChapterAccess() as any;
+    const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
     const [currentYearIndex, setCurrentYearIndex] = useState(0);
     const [inputValue, setInputValue] = useState("");
     const [yearProgress, setYearProgress] = useState<Record<number, number[]>>({});
@@ -101,7 +101,7 @@ export default function TimelinePage() {
         }
 
         const updated = [...alreadyFound, ...newCorrect];
-        const newProgress = { ...yearProgress, [year]: updated };
+        const newProgress = {...yearProgress, [year]: updated};
         setYearProgress(newProgress);
         localStorage.setItem(`year_${year}_found`, JSON.stringify(updated));
         setInputValue("");
@@ -145,7 +145,7 @@ export default function TimelinePage() {
                     <div className="w-full max-w-lg h-4 bg-gray-700 mb-1">
                         <div
                             className="h-4 bg-green-500 transition-all"
-                            style={{ width: `${(currentYearFound / currentYearTotal) * 100}%` }}
+                            style={{width: `${(currentYearFound / currentYearTotal) * 100}%`}}
                         />
                     </div>
                     <div className="mb-4">{currentYearFound} / {currentYearTotal} logs found for {year}</div>
@@ -162,7 +162,8 @@ export default function TimelinePage() {
                         />
                     </div>
                     <div className="mt-2 text-sm">
-                        Total progress: {Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0)} / {Object.values(timelineData).reduce((sum, arr) => sum + arr.length, 0)}
+                        Total
+                        progress: {Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0)} / {Object.values(timelineData).reduce((sum, arr) => sum + arr.length, 0)}
                     </div>
                 </>
             )}

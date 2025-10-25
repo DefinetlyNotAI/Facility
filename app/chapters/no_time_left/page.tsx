@@ -1,13 +1,12 @@
 'use client';
-import React, { Suspense } from 'react';
+import React, {Suspense, useEffect, useRef} from 'react';
 import styles from '@/styles/NoTimeLeft.module.css';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { chapterMessages, chapterStyles } from '@/lib/data/chapters';
-import { BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio } from '@/lib/data/audio';
-import { cookies, routes } from '@/lib/saveData';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {chapterMessages, chapterStyles} from '@/lib/data/chapters';
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
+import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
-import { useRef, useEffect } from 'react';
-import { usePreloadActStates } from "@/hooks/BonusActHooks/usePreloadActStates";
+import {usePreloadActStates} from "@/hooks/BonusActHooks/usePreloadActStates";
 
 function NoTimeLeftInner() {
     const searchParams = useSearchParams();
@@ -37,7 +36,7 @@ function NoTimeLeftInner() {
                 src={BACKGROUND_AUDIO.BONUS.NO_TIME}
                 loop
                 preload="auto"
-                style={{ display: 'none' }}
+                style={{display: 'none'}}
             />
             <div className={styles.container}>
                 <p className={chapterStyles[roman.toUpperCase()]}>
@@ -50,8 +49,8 @@ function NoTimeLeftInner() {
 
 export default function NoTimeLeft() {
     return (
-        <Suspense fallback={<div />}>
-            <NoTimeLeftInner />
+        <Suspense fallback={<div/>}>
+            <NoTimeLeftInner/>
         </Suspense>
     );
 }

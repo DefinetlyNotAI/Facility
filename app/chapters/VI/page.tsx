@@ -1,9 +1,8 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from '@/styles/ChaptersVI.module.css';
-import { useBackgroundAudio } from '@/lib/data/audio';
+import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
-import { BACKGROUND_AUDIO } from '@/lib/data/audio';
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIData} from "@/lib/data/chapters";
 
@@ -83,7 +82,7 @@ export default function ChapterVIPage() {
     const [petals, setPetals] = useState<{ left: string; duration: string; delay: string }[]>([]);
 
     useEffect(() => {
-        const generated = Array.from({ length: 20 }).map(() => ({
+        const generated = Array.from({length: 20}).map(() => ({
             left: `${Math.random() * 100}%`,
             duration: `${8 + Math.random() * 5}s`,
             delay: `${Math.random() * 5}s`,
@@ -93,7 +92,7 @@ export default function ChapterVIPage() {
 
     return (
         <div className={`${styles.chapterVI} ${isCurrentlySolved ? 'solved' : ''}`}>
-            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VI} loop preload="auto" style={{ display: 'none' }} />
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VI} loop preload="auto" style={{display: 'none'}}/>
             <div className={styles.flowerBlackHole} aria-hidden></div>
 
             {/* Petals */}
@@ -112,17 +111,17 @@ export default function ChapterVIPage() {
             <div className={styles.messageBox} role="status" aria-live="polite">
                 {isCurrentlySolved ? (
                     <>
-                        <div style={{ fontStyle: 'normal', marginBottom: 8, fontWeight: 600 }}>
+                        <div style={{fontStyle: 'normal', marginBottom: 8, fontWeight: 600}}>
                             {chapterVIData.solveText.title}
                         </div>
-                        <div style={{ fontSize: '.9rem', opacity: 0.85 }}>
+                        <div style={{fontSize: '.9rem', opacity: 0.85}}>
                             {chapterVIData.solveText.subtitle}
                         </div>
                     </>
                 ) : (
                     <>
                         <div>{currentMessage}</div>
-                        <div style={{ marginTop: 8, fontSize: '.9rem', opacity: 0.8 }}>
+                        <div style={{marginTop: 8, fontSize: '.9rem', opacity: 0.8}}>
                             {formatTime(seconds)} endured.
                         </div>
                     </>
