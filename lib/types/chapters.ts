@@ -39,3 +39,16 @@ export interface ChapterIVDatatype {
         image: string;
     }[];
 }
+
+export type ChapterVIIData = {
+    solved: string;
+    enterLogs: (year: number) => string;
+    inputPlaceholder: string;
+    submit: string;
+    yearProgress: (found: number, total: number, year: number) => string;
+    totalProgress: (found: number, total: number) => string;
+    banActive: (time: Date) => string;
+    banTrigger: (time: Date) => string;
+    banMinutes: number;
+    timelineData: Record<number, number[]>;
+};

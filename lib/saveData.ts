@@ -201,6 +201,10 @@ export const localStorageKeys = {
     sessionId: "sessionId",
     // How many seconds survived in chapter VI
     chapterVISeconds: "chapterVISeconds",
+    // Ban until timestamp for chapter VII timeline input
+    chapterVIIUnbanDate: "timeline_ban_until",
+    // Yearly progress for chapter VII timeline input (This will be a prefix, where there will be 5, one per year)
+    logCreationDateStore: (year: number) => `year_${year}_found`
 }
 
 // Keys for items to be checked via hash
