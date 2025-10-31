@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import React from "react";
 import {ItemKey, localStorageKeys, routes} from "@/lib/saveData";
-import {BonusAct, BonusResponse} from "@/lib/types/api";
+import {AddMeResponse, BannedAllResponse, BonusAct, BonusResponse, CheckMeResponse} from "@/lib/types/api";
 import {errorText} from "@/lib/data/utils";
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
@@ -168,6 +168,76 @@ export const bonusApi = {
             } catch {
             }
             throw new Error(`${errorText.HTTPFail("bonus.getOne")} ${res.status}: ${text}`);
+        }
+        return res.json();
+    },
+};
+
+// Lightweight IP validator (simple IPv4 and IPv6 heuristic)
+function isValidIP(ip: unknown): ip is string {
+    if (typeof ip !== 'string') return false;
+    const ipv4 = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+    const maybeIpv6 = ip.includes(':'); // simple IPv6 presence test
+    return ipv4.test(ip) || maybeIpv6;
+}
+
+// API helpers dedicated to /api/banned endpoints
+export const bannedApi = {
+    // GET /api/banned/all
+    async getAll(): Promise<BannedAllResponse> {
+        const res = await fetch(routes.api.banned.all, { credentials: "include" });
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || `Failed to fetch banned list (${res.status})`);
+        }
+        return res.json();
+    },
+
+    // POST /api/banned/checkMe - ip optional (will attempt to fetch client IP)
+    async checkMe(ip?: string): Promise<CheckMeResponse> {
+        const targetIp = ip ?? await fetchUserIP();
+        if (!isValidIP(targetIp)) throw new Error("Invalid IP provided to checkMe");
+        const res = await fetch(routes.api.banned.checkMe, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ip: targetIp }),
+            credentials: "include",
+        });
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || `Failed to check ip (${res.status})`);
+        }
+        return res.json();
+    },
+
+    // POST /api/banned/addMe - requires valid ip and CSRF token (cookie)
+    async addMe(ip: string, reason?: string | null): Promise<AddMeResponse> {
+        if (!isValidIP(ip)) throw new Error("Invalid IP provided to addMe");
+
+        // Try to read csrf-token via js-cookie on client. If not available, still send request hoping credentials include will carry cookie.
+        let csrfToken = "";
+        try {
+            // dynamic import so SSR doesn't break
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const Cookies = (await import("js-cookie")).default;
+            csrfToken = Cookies.get("csrf-token") ?? "";
+        } catch {
+            csrfToken = "";
+        }
+
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
+
+        const res = await fetch(routes.api.banned.addMe, {
+            method: "POST",
+            credentials: "include",
+            headers,
+            body: JSON.stringify({ ip, reason }),
+        });
+
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || `Failed to add banned ip (${res.status})`);
         }
         return res.json();
     },

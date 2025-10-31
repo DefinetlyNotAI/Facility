@@ -63,6 +63,18 @@ export const routes = {
             // Return: JSON object like { "Act_I": "New State" } or an error object with appropriate status.
             getOne: "/api/chapters/checkOne",
         },
+        banned: {
+            // API: POST /api/banned/checkMe
+            // Check if user IP is banned
+            // Accepts { ip?: string }
+            checkMe: "/api/banned/checkMe",
+            // API: POST /api/banned/addMe
+            // Adds an IP to the banned table
+            addMe: "/api/banned/addMe",
+            // API: GET /api/banned/all
+            // Returns all rows from banned in a neat structure
+            all: "/api/banned/all",
+        }
     },
     fileConsole: "/file-console",
     home: "/home",

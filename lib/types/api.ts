@@ -26,3 +26,28 @@ export type BonusResponse = Record<BonusAct, ActionState>;
 
 // Allowed plaque statuses
 export type AllowedPlaqueStatus = 'active' | 'succeeded' | 'failed'
+
+// Types for banned endpoints
+export type BannedEntry = {
+    id: number;
+    ip: string;
+    reason: string | null;
+    created_at: string;
+};
+
+export type BannedAllResponse = {
+    banned: BannedEntry[];
+    error?: string;
+};
+
+export type CheckMeResponse = {
+    banned: boolean;
+    entry?: BannedEntry;
+    error?: string;
+};
+
+export type AddMeResponse = {
+    banned: true;
+    entry: BannedEntry;
+    error?: string;
+};
