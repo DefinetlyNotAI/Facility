@@ -185,7 +185,7 @@ export const localStorageKeys = {
     // Session ID - LocalStorage key
     sessionId: "sessionId",
     // How many seconds survived in chapter VI
-    chapterVISeconds: 'chapterVISeconds'
+    chapterVISeconds: "chapterVISeconds",
 }
 
 // Keys for items to be checked via hash

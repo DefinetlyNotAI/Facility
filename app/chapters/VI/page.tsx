@@ -11,14 +11,7 @@ export default function ChapterVIPage() {
     const [seconds, setSeconds] = useState(0);
     const intervalRef = useRef<number | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
-
-    if (isCurrentlySolved === null) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">{chapter.loading}</div>
-            </div>
-        );
-    }
+    const [petals, setPetals] = useState<{ left: string; duration: string; delay: string }[]>([]);
 
     // Load saved time
     useEffect(() => {
@@ -36,7 +29,6 @@ export default function ChapterVIPage() {
 
         const beforeunload = (e: BeforeUnloadEvent) => {
             e.preventDefault();
-            // noinspection JSDeprecatedSymbols
             e.returnValue = '';
         };
         window.addEventListener('beforeunload', beforeunload);
@@ -61,26 +53,6 @@ export default function ChapterVIPage() {
         }
     }, [seconds, isCurrentlySolved]);
 
-    const formatTime = (totalSeconds: number) => {
-        const hrs = Math.floor(totalSeconds / 3600);
-        const mins = Math.floor((totalSeconds % 3600) / 60);
-        const secs = totalSeconds % 60;
-        const pad = (n: number) => String(n).padStart(2, '0');
-        return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-    };
-
-    // seconds = how long the user has stayed
-    // chapterVIData.duration = total duration of chapter in seconds
-    const progress = seconds / chapterVIData.duration; // ratio 0 → 1
-
-    // Use progress to pick a message index
-    const messageIndex = Math.floor(progress * chapterVIData.msgs.length);
-
-    // Clamp index to avoid overflow
-    const currentMessage = chapterVIData.msgs[Math.min(messageIndex, chapterVIData.msgs.length - 1)];
-
-    const [petals, setPetals] = useState<{ left: string; duration: string; delay: string }[]>([]);
-
     useEffect(() => {
         const generated = Array.from({length: 20}).map(() => ({
             left: `${Math.random() * 100}%`,
@@ -90,12 +62,23 @@ export default function ChapterVIPage() {
         setPetals(generated);
     }, []);
 
+    const formatTime = (totalSeconds: number) => {
+        const hrs = Math.floor(totalSeconds / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+    };
+
+    const progress = seconds / chapterVIData.duration;
+    const messageIndex = Math.floor(progress * chapterVIData.msgs.length);
+    const currentMessage = chapterVIData.msgs[Math.min(messageIndex, chapterVIData.msgs.length - 1)];
+
     return (
         <div className={`${styles.chapterVI} ${isCurrentlySolved ? 'solved' : ''}`}>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VI} loop preload="auto" style={{display: 'none'}}/>
             <div className={styles.flowerBlackHole} aria-hidden></div>
 
-            {/* Petals */}
             {petals.map((petal, i) => (
                 <div
                     key={i}
@@ -109,7 +92,9 @@ export default function ChapterVIPage() {
             ))}
 
             <div className={styles.messageBox} role="status" aria-live="polite">
-                {isCurrentlySolved ? (
+                {isCurrentlySolved === null ? (
+                    <div className="text-white font-mono">{chapter.loading}</div>
+                ) : isCurrentlySolved ? (
                     <>
                         <div style={{fontStyle: 'normal', marginBottom: 8, fontWeight: 600}}>
                             {chapterVIData.solveText.title}
