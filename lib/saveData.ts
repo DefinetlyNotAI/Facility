@@ -74,6 +74,9 @@ export const routes = {
             // API: GET /api/banned/all
             // Returns all rows from banned in a neat structure
             all: "/api/banned/all",
+            // API: POST /api/banned/remove
+            // Removes an IP from the banned table
+            remove: "/api/banned/remove"
         }
     },
     fileConsole: "/file-console",

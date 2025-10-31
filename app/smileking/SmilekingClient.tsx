@@ -3,26 +3,20 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import {bonusApi, signCookie} from '@/lib/utils';
+import {bonusApi, signCookie, bannedApi, getCookiesMap} from '@/lib/utils';
 import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
 import {cookies, routes} from '@/lib/saveData';
 import {ActionState, BonusAct, BonusResponse} from '@/lib/types/api';
 
-function getCookiesMap(): Record<string, string> {
-    // Builds a map from document.cookie, but we will treat the admin cookie as server-only.
-    return document.cookie.split(';').reduce((acc, cookie) => {
-        const [rawKey, ...rest] = cookie.trim().split('=');
-        const key = decodeURIComponent(rawKey);
-        acc[key] = rest.join('=');
-        return acc;
-    }, {} as Record<string, string>);
-}
-
 export default function SmilekingClient() {
     const [cookieState, setCookieState] = useState<Record<string, boolean>>({});
     const [buttonStates, setButtonStates] = useState<any[]>([]);
     const [bonusState, setBonusState] = useState<BonusResponse | null>(null);
+    const [bannedList, setBannedList] = useState<string[]>([]);
+    const [ipToAdd, setIpToAdd] = useState('');
+    const [reasonToAdd, setReasonToAdd] = useState('');
+    const [bannedLoading, setBannedLoading] = useState(false);
 
     // Pre-fetch CSRF token
     useEffect(() => {
@@ -65,8 +59,32 @@ export default function SmilekingClient() {
             }
         };
 
+        const fetchBanned = async () => {
+            setBannedLoading(true);
+            try {
+                const data = await bannedApi.getAll();
+                // defensively handle multiple shapes: direct array, or { ips: [...] }, or {list: [...]}
+                let list: string[];
+                if (Array.isArray(data)) list = data as any;
+                else if (Array.isArray((data as any).ips)) list = (data as any).ips;
+                else if (Array.isArray((data as any).list)) list = (data as any).list;
+                else if ((data as any).items && Array.isArray((data as any).items)) list = (data as any).items;
+                else {
+                    // fallback: try to coerce object keys as IPs
+                    list = Object.keys(data);
+                }
+                setBannedList(list);
+            } catch (e) {
+                console.error('Failed to fetch banned list', e);
+                setBannedList([]);
+            } finally {
+                setBannedLoading(false);
+            }
+        };
+
         fetchState().catch(console.error);
         fetchBonus().catch(console.error);
+        fetchBanned().catch(console.error);
     }, []);
 
     const toggleCookie = async (name: string) => {
@@ -148,6 +166,65 @@ export default function SmilekingClient() {
         }
     };
 
+    const refreshBanned = async () => {
+        try {
+            setBannedLoading(true);
+            const data = await bannedApi.getAll();
+            let list: string[] = [];
+            if (Array.isArray(data)) list = data as any;
+            else if (Array.isArray((data as any).ips)) list = (data as any).ips;
+            else if (Array.isArray((data as any).list)) list = (data as any).list;
+            setBannedList(list);
+        } catch (e) {
+            alert('Failed to refresh banned list');
+        } finally {
+            setBannedLoading(false);
+        }
+    };
+
+    const handleCheck = async (ip?: string) => {
+        try {
+            const target = ip ?? ipToAdd ?? '';
+            if (!target) {
+                alert('Provide an IP to check');
+                return;
+            }
+            const result = await bannedApi.checkMe(target);
+            // show result - shape may vary; display JSON for clarity
+            alert(`Check result:\n${JSON.stringify(result, null, 2)}`);
+        } catch (e) {
+            alert(`Failed to check IP: ${e}`);
+        }
+    };
+
+    const handleAdd = async () => {
+        try {
+            if (!ipToAdd) {
+                alert('Enter an IP to add');
+                return;
+            }
+            await bannedApi.addMe(ipToAdd, reasonToAdd || null);
+            alert('IP added (or request sent). Refreshing list.');
+            setIpToAdd('');
+            setReasonToAdd('');
+            await refreshBanned();
+        } catch (e) {
+            alert(`Failed to add IP: ${e}`);
+        }
+    };
+
+    const handleRemove = async (ip: string) => {
+        if (!confirm(`Remove banned IP ${ip}?`)) return;
+        try {
+            // call remove; if server doesn't implement, this will throw
+            await bannedApi.remove(ip);
+            alert('Removed. Refreshing list.');
+            await refreshBanned();
+        } catch (e) {
+            alert(`Failed to remove IP: ${e}`);
+        }
+    };
+
     const getActColor = (state: ActionState) => {
         switch (state) {
             case ActionState.NotReleased:
@@ -202,6 +279,47 @@ export default function SmilekingClient() {
                 </ul>
             </div>
 
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Banned IPs (Admin)</h2>
+
+                <div style={{marginBottom: 8}}>
+                    <input
+                        type="text"
+                        placeholder="IP to add or check"
+                        value={ipToAdd}
+                        onChange={(e) => setIpToAdd(e.target.value)}
+                        className={styles.cookieButton}
+                        style={{marginRight: 8}}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Reason (optional)"
+                        value={reasonToAdd}
+                        onChange={(e) => setReasonToAdd(e.target.value)}
+                        className={styles.cookieButton}
+                        style={{marginRight: 8}}
+                    />
+                    <button className={styles.button} onClick={handleAdd}>Add IP</button>
+                    <button className={styles.button} onClick={() => handleCheck(ipToAdd)} style={{marginLeft: 8}}>Check IP</button>
+                    <button className={styles.button} onClick={refreshBanned} style={{marginLeft: 8}}>Refresh</button>
+                </div>
+
+                <div>
+                    {bannedLoading ? <div>Loading...</div> : (
+                        <ul className={styles.gridList}>
+                            {bannedList.length === 0 ? <li>No banned IPs found</li> :
+                                bannedList.map(ip => (
+                                    <li key={ip} style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                                        <span style={{fontFamily: 'monospace'}}>{ip}</span>
+                                        <button className={styles.button} onClick={() => handleCheck(ip)}>Check</button>
+                                        <button className={styles.button} onClick={() => handleRemove(ip)} style={{background: '#e74c3c'}}>Remove</button>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    )}
+                </div>
+            </div>
 
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Bonus Acts</h2>

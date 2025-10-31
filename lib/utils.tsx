@@ -1,10 +1,11 @@
-import {NextResponse} from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import React from "react";
-import {ItemKey, localStorageKeys, routes} from "@/lib/saveData";
-import {AddMeResponse, BannedAllResponse, BonusAct, BonusResponse, CheckMeResponse} from "@/lib/types/api";
+import {cookies as savedCookies, ItemKey, localStorageKeys, routes} from "@/lib/saveData";
+import {AddMeResponse, BonusAct, BonusResponse, CheckMeResponse} from "@/lib/types/api";
 import {errorText} from "@/lib/data/utils";
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
+import jwt from "jsonwebtoken";
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -174,29 +175,52 @@ export const bonusApi = {
 };
 
 // Lightweight IP validator (simple IPv4 and IPv6 heuristic)
-function isValidIP(ip: unknown): ip is string {
+export function isValidIP(ip: unknown): ip is string {
     if (typeof ip !== 'string') return false;
     const ipv4 = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
     const maybeIpv6 = ip.includes(':'); // simple IPv6 presence test
     return ipv4.test(ip) || maybeIpv6;
 }
 
+// Helper to safely get CSRF token from cookies (client-side)
+// Used locally for bannedApi functions
+async function getCsrfToken(): Promise<string> {
+    try {
+        const Cookies = (await import("js-cookie")).default;
+        return Cookies.get("csrf-token") ?? "";
+    } catch {
+        return "";
+    }
+}
+
 // API helpers dedicated to /api/banned endpoints
 export const bannedApi = {
     // GET /api/banned/all
-    async getAll(): Promise<BannedAllResponse> {
+    async getAll(): Promise<string[]> {
         const res = await fetch(routes.api.banned.all, { credentials: "include" });
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
             throw new Error(body.error || `Failed to fetch banned list (${res.status})`);
         }
-        return res.json();
+
+        // Normalize various shapes into a string[] to make client handling consistent
+        const json = await res.json().catch(() => ([]));
+        if (Array.isArray(json)) return json as string[];
+        if (json && typeof json === 'object') {
+            if (Array.isArray((json as any).ips)) return (json as any).ips;
+            if (Array.isArray((json as any).list)) return (json as any).list;
+            if (Array.isArray((json as any).items)) return (json as any).items;
+            // fallback: treat object keys as IPs when appropriate
+            return Object.keys(json).filter(() => true);
+        }
+        return [];
     },
 
     // POST /api/banned/checkMe - ip optional (will attempt to fetch client IP)
     async checkMe(ip?: string): Promise<CheckMeResponse> {
         const targetIp = ip ?? await fetchUserIP();
         if (!isValidIP(targetIp)) throw new Error("Invalid IP provided to checkMe");
+
         const res = await fetch(routes.api.banned.checkMe, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -214,17 +238,7 @@ export const bannedApi = {
     async addMe(ip: string, reason?: string | null): Promise<AddMeResponse> {
         if (!isValidIP(ip)) throw new Error("Invalid IP provided to addMe");
 
-        // Try to read csrf-token via js-cookie on client. If not available, still send request hoping credentials include will carry cookie.
-        let csrfToken = "";
-        try {
-            // dynamic import so SSR doesn't break
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const Cookies = (await import("js-cookie")).default;
-            csrfToken = Cookies.get("csrf-token") ?? "";
-        } catch {
-            csrfToken = "";
-        }
-
+        const csrfToken = await getCsrfToken();
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
 
@@ -238,6 +252,28 @@ export const bannedApi = {
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
             throw new Error(body.error || `Failed to add banned ip (${res.status})`);
+        }
+        return res.json();
+    },
+
+    // POST /api/banned/remove - requires valid ip and CSRF token (cookie)
+    async remove(ip: string): Promise<{ success: boolean; removed?: boolean; error?: string }> {
+        if (!isValidIP(ip)) throw new Error("Invalid IP provided to remove");
+
+        const csrfToken = await getCsrfToken();
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
+
+        const res = await fetch(routes.api.banned.remove, {
+            method: "POST",
+            credentials: "include",
+            headers,
+            body: JSON.stringify({ ip }),
+        });
+
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || `Failed to remove banned ip (${res.status})`);
         }
         return res.json();
     },
@@ -280,4 +316,35 @@ export async function checkPass(
         console.error("checkPass error:", err);
         return {success: false, error: "Network error"};
     }
+}
+
+// Verify Admin Cookie - Used in admin-protected API routes (Server-side only)
+export function verifyAdmin(req: NextRequest): Response | null {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        return createSecureResponse({ error: "Server misconfiguration" }, 500);
+    }
+
+    const adminToken = req.cookies.get(savedCookies.adminPass)?.value ?? "";
+    if (!adminToken) {
+        return createSecureResponse({ error: "Unauthorized" }, 401);
+    }
+
+    try {
+        jwt.verify(adminToken, jwtSecret);
+        return null; // Valid
+    } catch {
+        return createSecureResponse({ error: "Forbidden - invalid admin token" }, 403);
+    }
+}
+
+// Get Cookies Map - Client-side utility to get all cookies as a key-value map
+export function getCookiesMap(): Record<string, string> {
+    // Builds a map from document.cookie, but we will treat the admin cookie as server-only.
+    return document.cookie.split(';').reduce((acc, cookie) => {
+        const [rawKey, ...rest] = cookie.trim().split('=');
+        const key = decodeURIComponent(rawKey);
+        acc[key] = rest.join('=');
+        return acc;
+    }, {} as Record<string, string>);
 }
