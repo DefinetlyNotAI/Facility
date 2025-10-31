@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import {bannedApi, bonusApi, getCookiesMap, signCookie} from '@/lib/utils';
@@ -17,6 +17,13 @@ export default function SmilekingClient() {
     const [ipToAdd, setIpToAdd] = useState('');
     const [reasonToAdd, setReasonToAdd] = useState('');
     const [bannedLoading, setBannedLoading] = useState(false);
+
+    // modal state and resolver ref for alert/confirm popups
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState<string | undefined>(undefined);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalIsConfirm, setModalIsConfirm] = useState(false);
+    const modalResolveRef = useRef<((val: boolean) => void) | null>(null);
 
     // Pre-fetch CSRF token
     useEffect(() => {
@@ -87,10 +94,54 @@ export default function SmilekingClient() {
         fetchBanned().catch(console.error);
     }, []);
 
+    // helper to show an alert (awaitable)
+    const showAlert = (message: string, title?: string) => {
+        return new Promise<void>(resolve => {
+            modalResolveRef.current = () => {
+                resolve();
+            };
+            setModalTitle(title);
+            setModalMessage(String(message));
+            setModalIsConfirm(false);
+            setModalOpen(true);
+        });
+    };
+
+    // helper to show a confirmation (awaitable, resolved true for OK, false for cancel)
+    const showConfirm = (message: string, title?: string) => {
+        return new Promise<boolean>(resolve => {
+            modalResolveRef.current = (val: boolean) => {
+                resolve(val);
+            };
+            setModalTitle(title);
+            setModalMessage(String(message));
+            setModalIsConfirm(true);
+            setModalOpen(true);
+        });
+    };
+
+    // internal handlers for modal buttons
+    const handleModalOk = () => {
+        try {
+            if (modalResolveRef.current) modalResolveRef.current(true);
+        } finally {
+            modalResolveRef.current = null;
+            setModalOpen(false);
+        }
+    };
+    const handleModalCancel = () => {
+        try {
+            if (modalResolveRef.current) modalResolveRef.current(false);
+        } finally {
+            modalResolveRef.current = null;
+            setModalOpen(false);
+        }
+    };
+
     const toggleCookie = async (name: string) => {
         // Deny any client attempt to toggle the admin/server-only cookie
         if (name === cookies.adminPass) {
-            alert('This cookie is server-only and cannot be toggled from the client.');
+            await showAlert('This cookie is server-only and cannot be toggled from the client.');
             return;
         }
 
@@ -117,7 +168,7 @@ export default function SmilekingClient() {
 
             const result = await signCookie(`${name}=true`);
             if (!result.success) {
-                alert(`Failed to set cookie "${name}": ${result.error}`);
+                await showAlert(`Failed to set cookie "${name}": ${result.error}`, 'Error');
                 return;
             }
         }
@@ -153,7 +204,7 @@ export default function SmilekingClient() {
                 )
             );
         } else {
-            alert(result.error || 'Failed to press');
+            await showAlert(result.error || 'Failed to press', 'Error');
         }
     };
 
@@ -162,7 +213,7 @@ export default function SmilekingClient() {
             const data = await bonusApi.changeToOpp(act);
             setBonusState(prev => ({...prev, ...data}));
         } catch (e) {
-            alert(`Failed to toggle act ${act}: ${e}`);
+            await showAlert(`Failed to toggle act ${act}: ${String(e)}`, 'Error');
         }
     };
 
@@ -176,7 +227,7 @@ export default function SmilekingClient() {
             else if (Array.isArray((data as any).list)) list = (data as any).list;
             setBannedList(list);
         } catch (e) {
-            alert('Failed to refresh banned list');
+            await showAlert('Failed to refresh banned list', 'Error');
         } finally {
             setBannedLoading(false);
         }
@@ -186,42 +237,43 @@ export default function SmilekingClient() {
         try {
             const target = ip ?? ipToAdd ?? '';
             if (!target) {
-                alert('Provide an IP to check');
+                await showAlert('Provide an IP to check');
                 return;
             }
             const result = await bannedApi.checkMe(target);
             // show result - shape may vary; display JSON for clarity
-            alert(`Check result:\n${JSON.stringify(result, null, 2)}`);
+            await showAlert(`Check result:\n${JSON.stringify(result, null, 2)}`, 'Check result');
         } catch (e) {
-            alert(`Failed to check IP: ${e}`);
+            await showAlert(`Failed to check IP: ${String(e)}`, 'Error');
         }
     };
 
     const handleAdd = async () => {
         try {
             if (!ipToAdd) {
-                alert('Enter an IP to add');
+                await showAlert('Enter an IP to add');
                 return;
             }
             await bannedApi.addMe(ipToAdd, reasonToAdd || null);
-            alert('IP added (or request sent). Refreshing list.');
+            await showAlert('IP added (or request sent). Refreshing list.');
             setIpToAdd('');
             setReasonToAdd('');
             await refreshBanned();
         } catch (e) {
-            alert(`Failed to add IP: ${e}`);
+            await showAlert(`Failed to add IP: ${String(e)}`, 'Error');
         }
     };
 
     const handleRemove = async (ip: string) => {
-        if (!confirm(`Remove banned IP ${ip}?`)) return;
+        const confirmed = await showConfirm(`Remove banned IP ${ip}?`);
+        if (!confirmed) return;
         try {
             // call remove; if server doesn't implement, this will throw
             await bannedApi.remove(ip);
-            alert('Removed. Refreshing list.');
+            await showAlert('Removed. Refreshing list.');
             await refreshBanned();
         } catch (e) {
-            alert(`Failed to remove IP: ${e}`);
+            await showAlert(`Failed to remove IP: ${String(e)}`, 'Error');
         }
     };
 
@@ -280,6 +332,25 @@ export default function SmilekingClient() {
             </div>
 
             <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Bonus Acts</h2>
+                <ul className={styles.gridList}>
+                    {bonusState &&
+                        Object.entries(bonusState).map(([act, state]) => (
+                            <li key={act}>
+                                <button
+                                    className={styles.button}
+                                    style={{backgroundColor: getActColor(state as ActionState)}}
+                                    onClick={() => toggleBonusAct(act as BonusAct)}
+                                >
+                                    {act}: {state}
+                                </button>
+                            </li>
+                        ))}
+                </ul>
+            </div>
+
+
+            <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Banned IPs (Admin)</h2>
 
                 <div style={{marginBottom: 8}}>
@@ -325,23 +396,30 @@ export default function SmilekingClient() {
                 </div>
             </div>
 
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Bonus Acts</h2>
-                <ul className={styles.gridList}>
-                    {bonusState &&
-                        Object.entries(bonusState).map(([act, state]) => (
-                            <li key={act}>
-                                <button
-                                    className={styles.button}
-                                    style={{backgroundColor: getActColor(state as ActionState)}}
-                                    onClick={() => toggleBonusAct(act as BonusAct)}
-                                >
-                                    {act}: {state}
+            {/* modal popup */}
+            {modalOpen && (
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={modalTitle ?? 'Dialog'}
+                    className={styles.skModalOverlay}
+                >
+                    <div className={styles.skModal} role="document">
+                        {modalTitle && <h3 className={styles.skModalTitle}>{modalTitle}</h3>}
+                        <pre className={styles.skModalMessage}>{modalMessage}</pre>
+                        <div className={styles.skModalActions}>
+                            {modalIsConfirm && (
+                                <button className={`${styles.skBtn} ${styles.skBtnCancel}`} onClick={handleModalCancel}>
+                                    Cancel
                                 </button>
-                            </li>
-                        ))}
-                </ul>
-            </div>
+                            )}
+                            <button className="skBtn skBtnOk" onClick={handleModalOk}>
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

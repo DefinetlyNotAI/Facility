@@ -79,3 +79,70 @@
     background-color: #330000;
     border-color: #aa0000;
 }
+
+.skModalOverlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    padding: 16px;
+}
+.skModal {
+    max-width: 640px;
+    width: 100%;
+    background: #111218; /* very dark */
+    color: #e6eef8; /* light text */
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+.skModalTitle {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+.skModalMessage {
+    white-space: pre-wrap;
+    margin: 0;
+    font-family: inherit;
+    color: #d8e6ff;
+    background: rgba(255,255,255,0.01);
+    padding: 8px;
+    border-radius: 6px;
+    max-height: 40vh;
+    overflow: auto;
+}
+.skModalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+.skBtn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+.skBtn:focus {
+    outline: 2px solid rgba(52,152,219,0.35);
+    outline-offset: 2px;
+}
+.skBtnCancel {
+    background: rgba(255,255,255,0.06);
+    color: #cdd7e8;
+}
+.skBtnOk {
+    background: linear-gradient(180deg,#2d8cf0,#1f6fd8);
+    color: white;
+}
+@media (max-width: 480px) {
+    .sk-modal { padding: 14px; }
+    .sk-modal-title { font-size: 1rem; }
+    .sk-btn { padding: 8px 10px; font-size: 0.95rem; }
+}
