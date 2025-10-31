@@ -1,9 +1,9 @@
 // Implement GET /api/banned/all - returns all rows from banned in a neat structure
-import { NextRequest } from 'next/server';
+import {NextRequest} from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import {createSecureResponse, verifyAdmin} from '@/lib/utils';
-import { dbPool } from '@/lib/db';
+import {dbPool} from '@/lib/db';
 
 export async function GET(req: NextRequest) {
     const authError = verifyAdmin(req);
@@ -14,7 +14,9 @@ export async function GET(req: NextRequest) {
         if (dbPool) {
             const client = await dbPool.connect();
             try {
-                const q = `SELECT ip FROM banned ORDER BY created_at DESC;`;
+                const q = `SELECT ip
+                           FROM banned
+                           ORDER BY created_at DESC;`;
                 const res = await client.query(q);
                 const ips = Array.isArray(res.rows) ? res.rows.map((r: any) => String(r.ip).trim()).filter(Boolean) : [];
                 return createSecureResponse(ips);
@@ -46,6 +48,6 @@ export async function GET(req: NextRequest) {
         return createSecureResponse(current);
     } catch (err) {
         console.error('Error reading banned fallback file:', err);
-        return createSecureResponse({ error: 'Server error reading banned list' }, 500);
+        return createSecureResponse({error: 'Server error reading banned list'}, 500);
     }
 }

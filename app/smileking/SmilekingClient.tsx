@@ -3,7 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import {bonusApi, signCookie, bannedApi, getCookiesMap} from '@/lib/utils';
+import {bannedApi, bonusApi, getCookiesMap, signCookie} from '@/lib/utils';
 import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
 import {cookies, routes} from '@/lib/saveData';
@@ -300,7 +300,9 @@ export default function SmilekingClient() {
                         style={{marginRight: 8}}
                     />
                     <button className={styles.button} onClick={handleAdd}>Add IP</button>
-                    <button className={styles.button} onClick={() => handleCheck(ipToAdd)} style={{marginLeft: 8}}>Check IP</button>
+                    <button className={styles.button} onClick={() => handleCheck(ipToAdd)} style={{marginLeft: 8}}>Check
+                        IP
+                    </button>
                     <button className={styles.button} onClick={refreshBanned} style={{marginLeft: 8}}>Refresh</button>
                 </div>
 
@@ -312,7 +314,9 @@ export default function SmilekingClient() {
                                     <li key={ip} style={{display: 'flex', gap: 8, alignItems: 'center'}}>
                                         <span style={{fontFamily: 'monospace'}}>{ip}</span>
                                         <button className={styles.button} onClick={() => handleCheck(ip)}>Check</button>
-                                        <button className={styles.button} onClick={() => handleRemove(ip)} style={{background: '#e74c3c'}}>Remove</button>
+                                        <button className={styles.button} onClick={() => handleRemove(ip)}
+                                                style={{background: '#e74c3c'}}>Remove
+                                        </button>
                                     </li>
                                 ))
                             }

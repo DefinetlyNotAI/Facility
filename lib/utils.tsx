@@ -197,7 +197,7 @@ async function getCsrfToken(): Promise<string> {
 export const bannedApi = {
     // GET /api/banned/all
     async getAll(): Promise<string[]> {
-        const res = await fetch(routes.api.banned.all, { credentials: "include" });
+        const res = await fetch(routes.api.banned.all, {credentials: "include"});
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
             throw new Error(body.error || `Failed to fetch banned list (${res.status})`);
@@ -223,8 +223,8 @@ export const bannedApi = {
 
         const res = await fetch(routes.api.banned.checkMe, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ip: targetIp }),
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ip: targetIp}),
             credentials: "include",
         });
         if (!res.ok) {
@@ -239,14 +239,14 @@ export const bannedApi = {
         if (!isValidIP(ip)) throw new Error("Invalid IP provided to addMe");
 
         const csrfToken = await getCsrfToken();
-        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        const headers: Record<string, string> = {"Content-Type": "application/json"};
         if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
 
         const res = await fetch(routes.api.banned.addMe, {
             method: "POST",
             credentials: "include",
             headers,
-            body: JSON.stringify({ ip, reason }),
+            body: JSON.stringify({ip, reason}),
         });
 
         if (!res.ok) {
@@ -261,14 +261,14 @@ export const bannedApi = {
         if (!isValidIP(ip)) throw new Error("Invalid IP provided to remove");
 
         const csrfToken = await getCsrfToken();
-        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        const headers: Record<string, string> = {"Content-Type": "application/json"};
         if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
 
         const res = await fetch(routes.api.banned.remove, {
             method: "POST",
             credentials: "include",
             headers,
-            body: JSON.stringify({ ip }),
+            body: JSON.stringify({ip}),
         });
 
         if (!res.ok) {
@@ -322,19 +322,19 @@ export async function checkPass(
 export function verifyAdmin(req: NextRequest): Response | null {
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-        return createSecureResponse({ error: "Server misconfiguration" }, 500);
+        return createSecureResponse({error: "Server misconfiguration"}, 500);
     }
 
     const adminToken = req.cookies.get(savedCookies.adminPass)?.value ?? "";
     if (!adminToken) {
-        return createSecureResponse({ error: "Unauthorized" }, 401);
+        return createSecureResponse({error: "Unauthorized"}, 401);
     }
 
     try {
         jwt.verify(adminToken, jwtSecret);
         return null; // Valid
     } catch {
-        return createSecureResponse({ error: "Forbidden - invalid admin token" }, 403);
+        return createSecureResponse({error: "Forbidden - invalid admin token"}, 403);
     }
 }
 

@@ -10,7 +10,10 @@ export async function POST(req: Request) {
         if (!ip) return createSecureResponse({error: 'Missing ip in body'}, 400);
 
         const client = await dbPool.connect();
-        const q = `SELECT id, ip, reason, created_at FROM banned WHERE ip = $1 LIMIT 1;`;
+        const q = `SELECT id, ip, reason, created_at
+                   FROM banned
+                   WHERE ip = $1
+                   LIMIT 1;`;
         const res = await client.query(q, [ip]);
         client.release();
 

@@ -1,8 +1,8 @@
-import { NextRequest } from 'next/server';
+import {NextRequest} from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import {createSecureResponse, isValidIP, verifyAdmin} from '@/lib/utils';
-import { dbPool } from '@/lib/db';
+import {dbPool} from '@/lib/db';
 
 
 export async function POST(req: NextRequest) {
@@ -14,12 +14,12 @@ export async function POST(req: NextRequest) {
     try {
         body = await req.json();
     } catch {
-        return createSecureResponse({ error: 'Invalid JSON body' }, 400);
+        return createSecureResponse({error: 'Invalid JSON body'}, 400);
     }
 
     const ip = body?.ip;
     if (!isValidIP(ip)) {
-        return createSecureResponse({ error: 'Invalid IP provided' }, 400);
+        return createSecureResponse({error: 'Invalid IP provided'}, 400);
     }
 
     const normalized = String(ip).trim();
@@ -31,13 +31,16 @@ export async function POST(req: NextRequest) {
             dbClient = await dbPool.connect();
             try {
                 const delRes = await dbClient.query(
-                    `DELETE FROM banned WHERE ip = $1 RETURNING id;`,
+                    `DELETE
+                     FROM banned
+                     WHERE ip = $1
+                     RETURNING id;`,
                     [normalized]
                 );
 
                 const dbRemovedCount = delRes?.rowCount ?? (Array.isArray(delRes?.rows) ? delRes.rows.length : 0);
                 if (dbRemovedCount > 0) {
-                    return createSecureResponse({ success: true, removed: true, removedCount: dbRemovedCount });
+                    return createSecureResponse({success: true, removed: true, removedCount: dbRemovedCount});
                 }
                 // if not removed in DB, fall through to file fallback
             } finally {
@@ -47,7 +50,10 @@ export async function POST(req: NextRequest) {
         }
     } catch (dbErr) {
         console.error('DB delete failed, falling back to file-store:', dbErr);
-        try { dbClient?.release?.(); } catch {}
+        try {
+            dbClient?.release?.();
+        } catch {
+        }
     }
 
     // 2) Fallback: file-based storage (simple). Path: <repo-root>/data/banned.json
@@ -56,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     try {
         // ensure data directory exists
-        await fs.mkdir(dataDir, { recursive: true });
+        await fs.mkdir(dataDir, {recursive: true});
 
         let raw = '';
         let parsed: any;
@@ -98,7 +104,7 @@ export async function POST(req: NextRequest) {
             const before = ipsArr.length;
             const newIps = ipsArr.filter((p: any) => String(p).trim() !== normalized);
             removedCount = before - newIps.length;
-            out = { ...parsed, ips: newIps };
+            out = {...parsed, ips: newIps};
         } else {
             // Nothing meaningful in file -> treat as empty list (no removal)
             out = [];
@@ -110,7 +116,7 @@ export async function POST(req: NextRequest) {
         if (Array.isArray(parsed)) {
             toWrite = JSON.stringify(Array.isArray(out) ? out : [], null, 2);
         } else if (parsed && typeof parsed === 'object' && Array.isArray((parsed as any).ips)) {
-            toWrite = JSON.stringify(out ?? { ips: [] }, null, 2);
+            toWrite = JSON.stringify(out ?? {ips: []}, null, 2);
         } else {
             const arr = Array.isArray(out) ? out.map((x: any) => (typeof x === 'string' ? x : String(x))) : [];
             toWrite = JSON.stringify(arr, null, 2);
@@ -118,9 +124,9 @@ export async function POST(req: NextRequest) {
 
         await fs.writeFile(filePath, toWrite, 'utf8');
 
-        return createSecureResponse({ success: true, removed: removedCount > 0, removedCount });
+        return createSecureResponse({success: true, removed: removedCount > 0, removedCount});
     } catch (err) {
         console.error('Error in banned remove route (file fallback):', err);
-        return createSecureResponse({ error: 'Server error during removal' }, 500);
+        return createSecureResponse({error: 'Server error during removal'}, 500);
     }
 }

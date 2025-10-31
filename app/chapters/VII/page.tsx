@@ -172,7 +172,8 @@ export default function TimelinePage() {
                         />
                     </div>
                     <div className="mt-2 text-sm">
-                        Total progress: {Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0)} / {Object.values(timelineData).reduce((sum, arr) => sum + arr.length, 0)}
+                        Total
+                        progress: {Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0)} / {Object.values(timelineData).reduce((sum, arr) => sum + arr.length, 0)}
                     </div>
                 </>
             )}
