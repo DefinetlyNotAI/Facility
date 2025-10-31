@@ -22,13 +22,19 @@ export default function TimelinePage() {
 
     const years = Object.keys(timelineData).map(Number);
 
+    // Load progress and check completion immediately on mount
     useEffect(() => {
-        // Load stored progress from localStorage
         const storedProgress: Record<number, number[]> = {};
         years.forEach(year => {
             storedProgress[year] = JSON.parse(localStorage.getItem(`year_${year}_found`) || "[]");
         });
         setYearProgress(storedProgress);
+
+        // If all years are complete, mark solved immediately
+        const allDone = years.every(year => storedProgress[year].length >= timelineData[year].length);
+        if (allDone) {
+            setIsCurrentlySolved(true);
+        }
 
         const banUntil = localStorage.getItem(BAN_KEY);
         if (banUntil && parseInt(banUntil) > Date.now()) {
@@ -39,7 +45,11 @@ export default function TimelinePage() {
             );
         }
     }, []);
+
+    // Update year index based on progress
     useEffect(() => {
+        if (!yearProgress || isCurrentlySolved) return; // <--- critical guard
+
         let newIndex = currentYearIndex;
         while (
             newIndex < years.length &&
@@ -55,27 +65,11 @@ export default function TimelinePage() {
                 setCurrentYearIndex(newIndex);
             }
         }
-    }, [yearProgress, currentYearIndex]);
-
-    if (isCurrentlySolved === null) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">Loading timeline...</div>
-            </div>
-        );
-    }
-
-    if (isCurrentlySolved) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono text-center">
-                    Dates are now considered canon. Timeline check succeeded. Please tell HIM you have seen time itself.
-                </div>
-            </div>
-        );
-    }
+    }, [yearProgress, currentYearIndex, isCurrentlySolved]);
 
     const handleSubmit = () => {
+        if (isCurrentlySolved) return; // <--- prevent submission after solved
+
         const banUntil = localStorage.getItem(BAN_KEY);
         if (banUntil && parseInt(banUntil) > Date.now()) return;
 
@@ -112,10 +106,28 @@ export default function TimelinePage() {
             if (currentYearIndex + 1 < years.length) {
                 setCurrentYearIndex(currentYearIndex + 1);
             } else {
-                setIsCurrentlySolved(true);
+                setIsCurrentlySolved(true); // <--- final solved
             }
         }
     };
+
+    if (isCurrentlySolved === null) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono">Loading timeline...</div>
+            </div>
+        );
+    }
+
+    if (isCurrentlySolved) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono text-center">
+                    Dates are now considered canon. Timeline check succeeded. Please tell HIM you have seen time itself.
+                </div>
+            </div>
+        );
+    }
 
     const year = years[currentYearIndex];
     const currentYearTotal = timelineData[year].length;
@@ -141,7 +153,6 @@ export default function TimelinePage() {
 
                     {error && <div className="text-red-500 mb-4">{error}</div>}
 
-                    {/* Progress per year */}
                     <div className="w-full max-w-lg h-4 bg-gray-700 mb-1">
                         <div
                             className="h-4 bg-green-500 transition-all"
@@ -150,7 +161,6 @@ export default function TimelinePage() {
                     </div>
                     <div className="mb-4">{currentYearFound} / {currentYearTotal} logs found for {year}</div>
 
-                    {/* Overall progress bar */}
                     <div className="w-full max-w-lg h-4 bg-gray-700">
                         <div
                             className="h-4 bg-blue-500 transition-all"
@@ -162,8 +172,7 @@ export default function TimelinePage() {
                         />
                     </div>
                     <div className="mt-2 text-sm">
-                        Total
-                        progress: {Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0)} / {Object.values(timelineData).reduce((sum, arr) => sum + arr.length, 0)}
+                        Total progress: {Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0)} / {Object.values(timelineData).reduce((sum, arr) => sum + arr.length, 0)}
                     </div>
                 </>
             )}
