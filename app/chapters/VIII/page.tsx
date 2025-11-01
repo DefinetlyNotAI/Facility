@@ -5,7 +5,7 @@ import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
 import {CheckMeResponse} from "@/lib/types/api";
 
 export default function BloomLiveDiePage() {
-    const { isCurrentlySolved, setIsCurrentlySolved } = useChapterAccess() as any;
+    const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
 
     const [clientIp, setClientIp] = useState<string | null>(null);
     const [globalList, setGlobalList] = useState<any[]>([]);
@@ -49,7 +49,7 @@ export default function BloomLiveDiePage() {
                 // Get total banned count
                 const totalBanned = await bannedApi.count();
                 setGlobalList(new Array(totalBanned).fill(null));
-                setCountsByReason({ total: totalBanned });
+                setCountsByReason({total: totalBanned});
 
                 // Check if client IP is banned
                 const check: CheckMeResponse = await bannedApi.checkMe(ip);
@@ -68,7 +68,7 @@ export default function BloomLiveDiePage() {
         try {
             const count = await bannedApi.count();
             setGlobalList(new Array(count).fill(null));
-            setCountsByReason({ total: count });
+            setCountsByReason({total: count});
         } catch (err) {
             console.error("Failed to refresh banned count:", err);
         }
@@ -144,7 +144,8 @@ export default function BloomLiveDiePage() {
                     for (const ip of ips) {
                         try {
                             await bannedApi.remove(ip);
-                        } catch {}
+                        } catch {
+                        }
                     }
                     localStorage.setItem("VIII_solved", "1");
                     setSolvedLocal(true);
@@ -190,7 +191,7 @@ export default function BloomLiveDiePage() {
     return (
         <div className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-start p-6">
             <h1 className="text-2xl mb-4">(VIII) Bloom, Live and Die</h1>
-            {error ? <div className="text-red-400 mb-4">{error}</div> : null}
+            {error && <div className="text-red-400 mb-4">{error}</div>}
 
             <div className="w-full max-w-2xl bg-gray-900 p-4 rounded mb-6">
                 <div className="mb-2">Souls offered: <strong>{totalBanned}</strong> / 40</div>
@@ -207,94 +208,93 @@ export default function BloomLiveDiePage() {
                         <span>{getStepProgress(1, totalBanned)}/25</span>
                     </div>
                     <div className="w-full bg-gray-700 h-2 mb-2">
-                        <div className="h-2 bg-green-600" style={{ width: `${(getStepProgress(1, totalBanned) / 25) * 100}%` }} />
+                        <div
+                            className="h-2 bg-green-600"
+                            style={{width: `${(getStepProgress(1, totalBanned) / 25) * 100}%`}}
+                        />
                     </div>
-                    <button
-                        className="bg-white text-black px-3 py-1"
-                        onClick={() => participate("connect")}
-                        disabled={
-                            actionPending ||
-                            !!localStorage.getItem(localKeys.connect)
-                        }
-                    >
-                        {!!localStorage.getItem(localKeys.connect)
-                            ? "Your signal already sent."
-                            : "Connect to the dying server"}
-                    </button>
+                    {totalBanned < 25 && (
+                        <button
+                            className="bg-white text-black px-3 py-1"
+                            onClick={() => participate("connect")}
+                            disabled={actionPending || !!localStorage.getItem(localKeys.connect)}
+                        >
+                            {!!localStorage.getItem(localKeys.connect)
+                                ? "Your signal already sent."
+                                : "Connect to the dying server"}
+                        </button>
+                    )}
                 </div>
 
                 {/* Step 2: Upload */}
-                {totalBanned >= 25 && (
-                    <div className="mb-6">
-                        <div className="flex justify-between mb-1">
-                            <span>BLOOM</span>
-                            <span>{getStepProgress(2, totalBanned)}/15</span>
-                        </div>
-                        <div className="w-full bg-gray-700 h-2 mb-2">
-                            <div className="h-2 bg-pink-600" style={{ width: `${(getStepProgress(2, totalBanned) / 15) * 100}%` }} />
-                        </div>
+                <div className="mb-6">
+                    <div className="flex justify-between mb-1">
+                        <span>BLOOM</span>
+                        <span>{getStepProgress(2, totalBanned)}/15</span>
+                    </div>
+                    <div className="w-full bg-gray-700 h-2 mb-2">
+                        <div
+                            className="h-2 bg-pink-600"
+                            style={{width: `${(getStepProgress(2, totalBanned) / 15) * 100}%`}}
+                        />
+                    </div>
+                    {totalBanned < 40 && (
                         <input
                             type="file"
                             accept=".txt"
                             onChange={(e) => handleUpload(e.target.files?.[0] ?? null)}
-                            disabled={
-                                actionPending ||
-                                !!localStorage.getItem(localKeys.upload)
-                            }
+                            disabled={actionPending || !!localStorage.getItem(localKeys.upload)}
                             className="text-black"
                         />
-                        <div className="text-xs text-gray-400 mt-1">
-                            Must contain bloom, petal, flourish, etc.
-                        </div>
+                    )}
+                    <div className="text-xs text-gray-400 mt-1">
+                        Can you include today's keyword?
                     </div>
-                )}
+                </div>
 
                 {/* Step 3: Switch */}
-                {totalBanned >= 40 && (
-                    <div className="mb-6">
-                        <div className="flex justify-between mb-1">
-                            <span>DIE</span>
-                            <span>{getStepProgress(3, totalBanned)}/3</span>
-                        </div>
-                        <div className="w-full bg-gray-700 h-2 mb-2">
-                            <div className="h-2 bg-yellow-500" style={{ width: `${(getStepProgress(3, totalBanned) / 3) * 100}%` }} />
-                        </div>
+                <div className="mb-6">
+                    <div className="flex justify-between mb-1">
+                        <span>DIE</span>
+                        <span>{getStepProgress(3, totalBanned)}/3</span>
+                    </div>
+                    <div className="w-full bg-gray-700 h-2 mb-2">
+                        <div
+                            className="h-2 bg-yellow-500"
+                            style={{width: `${(getStepProgress(3, totalBanned) / 3) * 100}%`}}
+                        />
+                    </div>
+                    {totalBanned >= 40 && totalBanned < 40 + 3 && ( // optional: hide if all switched
                         <button
                             className="bg-white text-black px-3 py-1"
                             onClick={() => participate("switch")}
-                            disabled={
-                                actionPending ||
-                                !!localStorage.getItem(localKeys.switch)
-                            }
+                            disabled={actionPending || !!localStorage.getItem(localKeys.switch)}
                         >
                             {!!localStorage.getItem(localKeys.switch)
                                 ? "Switch pulled."
                                 : "Press to see the truth"}
                         </button>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 {/* Step 4: Whisper */}
-                {totalBanned >= 40 && (
-                    <div className="mt-6">
-                        <div className="mb-1">Whisper count: {countsByReason["whisper"] || 0}/3</div>
+                <div className="mt-6">
+                    <div className="mb-1">Whisper count: {countsByReason["whisper"] || 0}/3</div>
+                    {totalBanned >= 40 && (
                         <button
                             className="bg-white text-black px-3 py-1"
                             onClick={() => participate("whisper")}
-                            disabled={
-                                actionPending ||
-                                !!localStorage.getItem(localKeys.whisper)
-                            }
+                            disabled={actionPending || !!localStorage.getItem(localKeys.whisper)}
                         >
                             {!!localStorage.getItem(localKeys.whisper)
                                 ? "You whispered to the soil."
                                 : 'Whisper: "ticktock solve it quick {#/3}"'}
                         </button>
-                        <p className="text-xs text-gray-400 mt-2 italic">
-                            When all 3 whispers are heard, everything changes.
-                        </p>
-                    </div>
-                )}
+                    )}
+                    <p className="text-xs text-gray-400 mt-2 italic">
+                        When all 3 whispers are heard, everything changes.
+                    </p>
+                </div>
             </div>
         </div>
     );
