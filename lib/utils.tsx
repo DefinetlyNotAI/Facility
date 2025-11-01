@@ -102,6 +102,7 @@ export function detectOsBrowser(ua: string) {
 // Bonus API Helpers - Contains functions to interact with the bonus API (get, get all, toggle)
 export const bonusApi = {
     // Toggle an act to the next state
+    // Admin only
     async changeToOpp(act: BonusAct): Promise<BonusResponse> {
         // dynamically import js-cookie only on client
         let csrfToken = "";

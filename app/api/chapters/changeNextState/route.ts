@@ -1,10 +1,13 @@
 import {NextRequest} from "next/server";
-import {createSecureResponse} from "@/lib/utils";
+import {createSecureResponse, verifyAdmin} from "@/lib/utils";
 import {dbPool} from "@/lib/db";
 import {allowedActs, bonusMsg} from "@/lib/data/api";
 import {ActionState} from "@/lib/types/api";
 
 export async function POST(req: NextRequest) {
+    const authError = verifyAdmin(req);
+    if (authError) return authError;
+
     let client;
     try {
         // --- CSRF Validation ---

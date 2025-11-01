@@ -53,6 +53,7 @@ export const routes = {
             // API: POST /api/changeNextState - toggles the requested bonus act (Act_I..Act_X).
             // Need: JSON body { act: "Act_I" } and matching CSRF token in cookie 'csrf-token' and header 'x-csrf-token'.
             // Return: JSON object like { Act_I: "New State" } showing the new value, or an error object with status.
+            // REQUIRES ADMIN AUTH
             changeToNextState: "/api/chapters/changeNextState",
             // API: GET /api/checkAll - returns boolean progress for all bonus acts (Act_I..Act_X).
             // Need: none (reads from actions table).
@@ -171,6 +172,7 @@ const rawCookies = {
     // Cookie to check if the user can access the media page
     media: "Media_Unlocked",
     // Cookie storing the hash of the admin password inputted by user
+    // This is a special cookie, httpOnly and signed server-side, DO NOT ATTEMPT TO MODIFY NOR ASSUME IT USES SIGN COOKIE API
     adminPass: "admin-pass",
     // Cookie to check if the user has accepted the disclaimers
     disclaimersAccepted: "accepted",
