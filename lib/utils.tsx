@@ -196,6 +196,7 @@ async function getCsrfToken(): Promise<string> {
 // API helpers dedicated to /api/banned endpoints
 export const bannedApi = {
     // GET /api/banned/all
+    // Requires admin authentication
     async getAll(): Promise<string[]> {
         const res = await fetch(routes.api.banned.all, {credentials: "include"});
         if (!res.ok) {
@@ -257,6 +258,7 @@ export const bannedApi = {
     },
 
     // POST /api/banned/remove - requires valid ip and CSRF token (cookie)
+    // Requires admin authentication
     async remove(ip: string): Promise<{ success: boolean; removed?: boolean; error?: string }> {
         if (!isValidIP(ip)) throw new Error("Invalid IP provided to remove");
 
@@ -276,6 +278,23 @@ export const bannedApi = {
             throw new Error(body.error || `Failed to remove banned ip (${res.status})`);
         }
         return res.json();
+    },
+
+    // GET /api/banned/count
+    // Returns the total number of banned IPs without any details
+    async count(): Promise<number> {
+        const res = await fetch(routes.api.banned.count, { credentials: "include" });
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || `Failed to fetch banned count (${res.status})`);
+        }
+
+        const json = await res.json().catch(() => ({}));
+        if (json && typeof json.count === "number") return json.count;
+
+        // fallback if shape is unexpected
+        if (Array.isArray(json)) return json.length;
+        return 0;
     },
 };
 

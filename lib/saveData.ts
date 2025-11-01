@@ -73,10 +73,15 @@ export const routes = {
             addMe: "/api/banned/addMe",
             // API: GET /api/banned/all
             // Returns all rows from banned in a neat structure
+            // REQUIRES ADMIN AUTH
             all: "/api/banned/all",
             // API: POST /api/banned/remove
             // Removes an IP from the banned table
-            remove: "/api/banned/remove"
+            // REQUIRES ADMIN AUTH
+            remove: "/api/banned/remove",
+            // API: POST /api/banned/count
+            // Returns the number of banned IPs
+            count: "/api/banned/count"
         }
     },
     fileConsole: "/file-console",
