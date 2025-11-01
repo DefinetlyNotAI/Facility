@@ -356,3 +356,5 @@ export const chapter = {
 }
 
 // todo, add audios/sfx, then testing
+// todo, all api text to be seperated
+// todo, make utils seperated into seperated modules/files, which are globally exported via utils again

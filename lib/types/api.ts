@@ -35,10 +35,6 @@ export type BannedEntry = {
     created_at: string;
 };
 
-export type BannedAllResponse = {
-    banned: BannedEntry[];
-    error?: string;
-};
 
 export type CheckMeResponse = {
     banned: boolean;

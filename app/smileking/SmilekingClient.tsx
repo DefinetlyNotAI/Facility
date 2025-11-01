@@ -1,9 +1,8 @@
 'use client';
 
 import React, {useEffect, useState, useRef} from 'react';
-import axios from 'axios';
 import Cookies from 'js-cookie';
-import {bannedApi, bonusApi, getCookiesMap, signCookie} from '@/lib/utils';
+import {bannedApi, bonusApi, ensureCsrfToken, getCookiesMap, signCookie} from '@/lib/utils';
 import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
 import {cookies, routes} from '@/lib/saveData';
@@ -27,8 +26,10 @@ export default function SmilekingClient() {
 
     // Pre-fetch CSRF token
     useEffect(() => {
-        axios.get(routes.api.security.csrfToken).catch(() => {
-        });
+        const initCsrf = async () => {
+            await ensureCsrfToken();
+        };
+        initCsrf().catch(console.error);
     }, []);
 
     // Load cookies, button states, and bonus acts

@@ -6,6 +6,7 @@ import {errorText} from "@/lib/data/utils";
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
 import jwt from "jsonwebtoken";
+import Cookies from "js-cookie";
 
 // Message Render Helper - Used for /choices
 export function renderMsg(msg: string) {
@@ -99,6 +100,20 @@ export function detectOsBrowser(ua: string) {
     return {os, browser};
 }
 
+// Ensure CSRF Token - Client-side helper to ensure CSRF token is present in cookies
+export async function ensureCsrfToken(): Promise<string> {
+    let token = Cookies.get("csrf-token");
+    if (!token) {
+        // call your CSRF endpoint
+        const res = await fetch(routes.api.security.csrfToken);
+        if (!res.ok) throw new Error("Failed to fetch CSRF token");
+        await res.json(); // token is set as cookie
+        token = Cookies.get("csrf-token");
+        if (!token) throw new Error("CSRF token not set");
+    }
+    return token;
+}
+
 // Bonus API Helpers - Contains functions to interact with the bonus API (get, get all, toggle)
 export const bonusApi = {
     // Toggle an act to the next state
@@ -185,13 +200,10 @@ export function isValidIP(ip: unknown): ip is string {
 
 // Helper to safely get CSRF token from cookies (client-side)
 // Used locally for bannedApi functions
-async function getCsrfToken(): Promise<string> {
-    try {
-        const Cookies = (await import("js-cookie")).default;
-        return Cookies.get("csrf-token") ?? "";
-    } catch {
-        return "";
-    }
+function getCsrfToken(): string {
+    const token = Cookies.get("csrfToken") || Cookies.get("csrf-token"); // fallback
+    if (!token) throw new Error("No CSRF token found in cookies");
+    return token;
 }
 
 // API helpers dedicated to /api/banned endpoints
@@ -240,7 +252,7 @@ export const bannedApi = {
     async addMe(ip: string, reason?: string | null): Promise<AddMeResponse> {
         if (!isValidIP(ip)) throw new Error("Invalid IP provided to addMe");
 
-        const csrfToken = await getCsrfToken();
+        const csrfToken = getCsrfToken();
         const headers: Record<string, string> = {"Content-Type": "application/json"};
         if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
 
@@ -263,7 +275,7 @@ export const bannedApi = {
     async remove(ip: string): Promise<{ success: boolean; removed?: boolean; error?: string }> {
         if (!isValidIP(ip)) throw new Error("Invalid IP provided to remove");
 
-        const csrfToken = await getCsrfToken();
+        const csrfToken = getCsrfToken();
         const headers: Record<string, string> = {"Content-Type": "application/json"};
         if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
 
