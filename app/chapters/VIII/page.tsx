@@ -16,6 +16,18 @@ export default function BloomLiveDiePage() {
     const [solvedLocal, setSolvedLocal] = useState(false);
     const [isBanned, setIsBanned] = useState(false);
 
+    const totalBanned = Array.isArray(globalList) ? globalList.length : 0;
+    const remaining = 43 - totalBanned;
+
+    // Auto-mark as solved if banned count is 46 or more
+    useEffect(() => {
+        if (totalBanned >= 46 && !solvedLocal) {
+            localStorage.setItem("VIII_solved", "1");
+            setSolvedLocal(true);
+            setIsCurrentlySolved(true);
+        }
+    }, [totalBanned, solvedLocal, setIsCurrentlySolved]);
+
     useEffect(() => {
         const initCsrf = async () => {
             await ensureCsrfToken();
@@ -165,7 +177,7 @@ export default function BloomLiveDiePage() {
             </div>
         );
 
-    if (isBanned)
+    if (isBanned && !solvedLocal)
         return (
             <div className="min-h-screen bg-black text-red-600 flex flex-col items-center justify-center font-mono">
                 <h1 className="text-3xl mb-4">ACCESS DENIED</h1>
@@ -178,15 +190,16 @@ export default function BloomLiveDiePage() {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center p-6 text-white font-mono">
                 <div className="max-w-2xl text-center">
-                    <h1 className="text-2xl mb-4">Reward</h1>
-                    <p className="mb-4">Lore drop</p>
+                    <h1 className="text-2xl mb-4">
+                        🕈︎♏︎●︎●︎ ♎︎□︎■︎♏︎ ♍︎♒︎♓︎●︎♎︎📪︎ 🕈︎♏︎●︎●︎ ♎︎□︎■︎♏︎ ♋︎●︎●︎<br/><br/>
+                        ✌︎◻︎□︎⬧︎⧫︎●︎♏︎⬧︎ 🗏︎📪︎ 👍︎♒︎♓︎●︎♎︎❒︎♏︎■︎ 📂︎🗄︎📪︎ 💣︎♋︎❒︎⧫︎⍓︎❒︎⬧︎ 📄︎🗄︎<br/><br/>
+                        ✋︎ ●︎□︎❖︎♏︎ ⍓︎□︎◆︎ ♋︎●︎●︎📪︎ ♌︎◆︎⧫︎ 📂︎ □︎♐︎ ⍓︎□︎◆︎ ♓︎⬧︎ ♋︎ ⬧︎♓︎■︎■︎♏︎❒︎<br/><br/>
+                        🕈︎♒︎♏︎■︎✍︎
+                    </h1>
                     <p className="italic">"1 more obstacle left before you return to me"</p>
                 </div>
             </div>
         );
-
-    const totalBanned = Array.isArray(globalList) ? globalList.length : 0;
-    const remaining = 43 - totalBanned;
 
     return (
         <div className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-start p-6">
