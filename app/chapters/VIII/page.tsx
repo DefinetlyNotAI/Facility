@@ -186,7 +186,7 @@ export default function BloomLiveDiePage() {
         );
 
     const totalBanned = Array.isArray(globalList) ? globalList.length : 0;
-    const remaining = 40 - totalBanned;
+    const remaining = 43 - totalBanned;
 
     return (
         <div className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-start p-6">
@@ -194,7 +194,7 @@ export default function BloomLiveDiePage() {
             {error && <div className="text-red-400 mb-4">{error}</div>}
 
             <div className="w-full max-w-2xl bg-gray-900 p-4 rounded mb-6">
-                <div className="mb-2">Souls offered: <strong>{totalBanned}</strong> / 40</div>
+                <div className="mb-2">Souls offered: <strong>{totalBanned}</strong> / 46</div>
                 <div className="text-sm text-gray-400 mb-4">
                     {remaining > 0
                         ? `${remaining} more must fall before the whisper is heard.`
@@ -264,7 +264,7 @@ export default function BloomLiveDiePage() {
                             style={{width: `${(getStepProgress(3, totalBanned) / 3) * 100}%`}}
                         />
                     </div>
-                    {totalBanned >= 40 && totalBanned < 40 + 3 && ( // optional: hide if all switched
+                    {totalBanned >= 40 && totalBanned < 43 && ( // optional: hide if all switched
                         <button
                             className="bg-white text-black px-3 py-1"
                             onClick={() => participate("switch")}
@@ -279,8 +279,8 @@ export default function BloomLiveDiePage() {
 
                 {/* Step 4: Whisper */}
                 <div className="mt-6">
-                    <div className="mb-1">Whisper count: {countsByReason["whisper"] || 0}/3</div>
-                    {totalBanned >= 40 && (
+                    <div className="mb-1">Whisper count: {totalBanned - 43 || 0}/3</div>
+                    {totalBanned >= 43 && (
                         <button
                             className="bg-white text-black px-3 py-1"
                             onClick={() => participate("whisper")}
@@ -288,7 +288,7 @@ export default function BloomLiveDiePage() {
                         >
                             {!!localStorage.getItem(localKeys.whisper)
                                 ? "You whispered to the soil."
-                                : 'Whisper: "ticktock solve it quick {#/3}"'}
+                                : 'Whisper "ticktock solve it quick"'}
                         </button>
                     )}
                     <p className="text-xs text-gray-400 mt-2 italic">
