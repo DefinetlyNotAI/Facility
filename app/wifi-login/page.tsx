@@ -95,18 +95,6 @@ const WifiLoginPage: React.FC = () => {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
 
     useEffect(() => {
-        if (!Cookies.get(cookies.wifiLogin)) {
-            router.replace(routes.notFound);
-        }
-    }, [router]);
-
-    useEffect(() => {
-        const wifiUnlocked = Cookies.get(cookies.wifiPanel);
-        if (!wifiUnlocked) {
-            router.replace(routes.notFound);
-            return;
-        }
-
         const wifiPassed = Cookies.get(cookies.wifiPassed);
         if (wifiPassed) {
             setShowCurlHint(true);
