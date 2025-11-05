@@ -24,25 +24,25 @@ export default function WifiPanel() {
     // Initialize background audio
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_PANEL);
 
-    // 404 and redirect logic
+    // Check cookies on mount
     useEffect(() => {
-        if (!Cookies.get(cookies.wifiPanel)) {
-            router.replace(routes.notFound);
-            return;
-        }
+        (async () => {
+            try {
+                if (!Cookies.get(cookies.wifiPanel)) {
+                    await signCookie(`${cookies.wifiPanel}=true`);
+                    return router.replace(routes.wifiLogin);
+                }
 
-        const checkWifiPassed = async () => {
-            if (!Cookies.get(cookies.wifiPassed)) {
-                await signCookie(`${cookies.wifiLogin}=true`);
-                router.replace(routes.wifiLogin);
-                return;
+                if (!Cookies.get(cookies.wifiPassed)) {
+                    await signCookie(`${cookies.wifiLogin}=true`);
+                    return router.replace(routes.wifiLogin);
+                }
+
+                setMode('locked');
+            } catch (err) {
+                console.error('Error:', err);
             }
-            setMode('locked');
-        };
-
-        checkWifiPassed().catch(error => {
-            console.error('Error caught:', error);
-        });
+        })();
     }, [router]);
 
     // Generate the encoded question
