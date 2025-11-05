@@ -4,6 +4,7 @@ import { useChapterAccess } from "@/hooks/BonusActHooks/useChapterAccess";
 import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
 import {CheckMeResponse} from "@/lib/types/api";
 
+// todo seperate all text to const record
 export default function BloomLiveDiePage() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;
 

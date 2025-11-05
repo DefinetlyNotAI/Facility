@@ -98,6 +98,7 @@ export const fileLinks = {
         },
     },
     IV: {
+        // todo check these if used
         E_TXT: "/static/chapters/IV/E.txt",
         TAS_TXT: "/static/chapters/IV/TAS.txt",
         TREE_TXT: "/static/chapters/IV/TREE.txt",
@@ -132,7 +133,6 @@ export const fileLinks = {
         deletionLogMD: "/static/chapters/finale/deletion.log.md",
     }
 }
-
 
 // Chapter I data
 export const chIData = {
