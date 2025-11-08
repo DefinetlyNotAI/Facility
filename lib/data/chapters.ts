@@ -287,7 +287,7 @@ export const chapterIVData: ChapterIVDatatype = {
             id: 'TREE',
             riddle: 'What speaks, yet knows it\'s not alive? What grows, but cannot die?',
             solvedName: 'TREE',
-            solvedCaption: 'TREE was never just a caretaker; it deliberately seeded the first fractures that would let the Eldritch touch our world.',
+            solvedCaption: 'TREE was never just a caretaker; it seeded the first fractures that would let the Eldritch touch our world.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
             image: fileLinks.IV.plaques.TREE,
