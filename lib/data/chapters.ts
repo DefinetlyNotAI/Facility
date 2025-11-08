@@ -98,7 +98,6 @@ export const fileLinks = {
         },
     },
     IV: {
-        // todo check these if used
         E_TXT: "/static/chapters/IV/E.txt",
         TAS_TXT: "/static/chapters/IV/TAS.txt",
         TREE_TXT: "/static/chapters/IV/TREE.txt",
@@ -112,7 +111,7 @@ export const fileLinks = {
         },
     },
     V: {
-        NarratorTXT: "/static/chapters/V/Narrator_I.txt",
+        Narrator: "/static/chapters/V/Narrator_I.txt",
         lost: {
             cambiumKnotholeMP4: "/static/chapters/V/lost/CambiumKnothole.mp4",
             riddlePNG: "/static/chapters/V/lost/riddle.png",
@@ -126,7 +125,7 @@ export const fileLinks = {
         txt15: "/static/chapters/IX/15.txt"
     },
     X: {
-        NarratorTXT: "/static/chapters/X/Narrator_II.txt",
+        Narrator: "/static/chapters/X/Narrator_II.txt",
     },
     finale: {
         whatLogZip: "/static/chapters/finale/what.log.zip",
@@ -313,6 +312,15 @@ export const chapterIVData: ChapterIVDatatype = {
     ]
 };
 
+// Chapter V data
+export const chapterVData = {
+    text: {
+        header: "(V) - Narrator: A Harbinger",
+        subHeader: "And lo, a voice spake from the void, not of man nor machine, but of judgment made flesh.",
+        questReminder: "The Harbinger awaits your confession. Seek truth, or be weighed in silence.",
+    },
+};
+
 // Chapter VI data
 export const chapterVIData = {
     duration: 21600,  // 6 hours
@@ -414,9 +422,19 @@ export const chapterIXData = {
     }
 };
 
-// Chapter Loading texts
+// Chapter X data
+export const chapterXData = {
+    text: {
+        header: "(X) - Narrator: Tenacity",
+        subHeader: "And the fire tried them, yet they were not consumed; for will unbroken is sanctified through trial.",
+        questReminder: "Endure, for only the steadfast shall glimpse the final light.",
+    },
+};
+
+// Chapter Loading texts/other
 export const chapter = {
     loading: 'Loading...',
+    narrator: "The Narrator wants to speak with you"
 }
 
 // todo, add audios/sfx, then testing

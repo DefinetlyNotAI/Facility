@@ -52,3 +52,15 @@ export type ChapterVIIData = {
     banMinutes: number;
     timelineData: Record<number, number[]>;
 };
+
+export interface ChapterTemplateProps {
+    chapterId: string;
+    chapterData: {
+        text: {
+            header: string;
+            subHeader: string;
+            questReminder: string;
+        };
+    };
+    fileLink: string;
+}
