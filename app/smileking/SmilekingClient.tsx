@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Cookies from 'js-cookie';
 import {bannedApi, bonusApi, ensureCsrfToken, getCookiesMap, signCookie} from '@/lib/utils';
 import {buttonState, text} from '@/lib/data/smileking';

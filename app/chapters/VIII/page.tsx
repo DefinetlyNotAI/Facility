@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useChapterAccess } from "@/hooks/BonusActHooks/useChapterAccess";
+import React, {useEffect, useState} from "react";
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
 import {CheckMeResponse} from "@/lib/types/api";
 

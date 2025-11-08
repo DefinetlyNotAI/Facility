@@ -1,4 +1,4 @@
-import { localStorageKeys } from '@/lib/saveData';
+import {localStorageKeys} from '@/lib/saveData';
 
 /**
  * Returns an existing session ID from localStorage or creates a new one.

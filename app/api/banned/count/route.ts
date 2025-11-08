@@ -1,8 +1,8 @@
 // Implement GET /api/banned/all - returns count of banned IPs
 import fs from 'fs/promises';
 import path from 'path';
-import { createSecureResponse } from '@/lib/utils';
-import { dbPool } from '@/lib/db';
+import {createSecureResponse} from '@/lib/utils';
+import {dbPool} from '@/lib/db';
 
 export async function GET() {
     // Try DB first (if available)
@@ -10,10 +10,11 @@ export async function GET() {
         if (dbPool) {
             const client = await dbPool.connect();
             try {
-                const q = `SELECT COUNT(*) AS count FROM banned;`;
+                const q = `SELECT COUNT(*) AS count
+                           FROM banned;`;
                 const res = await client.query(q);
                 const count = res.rows?.[0]?.count ? Number(res.rows[0].count) : 0;
-                return createSecureResponse({ count });
+                return createSecureResponse({count});
             } finally {
                 client.release();
             }
@@ -37,9 +38,9 @@ export async function GET() {
             count = 0;
         }
 
-        return createSecureResponse({ count });
+        return createSecureResponse({count});
     } catch (err) {
         console.error('Error reading banned fallback file:', err);
-        return createSecureResponse({ error: 'Server error reading banned list' }, 500);
+        return createSecureResponse({error: 'Server error reading banned list'}, 500);
     }
 }

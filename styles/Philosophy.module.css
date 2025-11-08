@@ -103,37 +103,71 @@
 
 /* Animations */
 @keyframes flicker {
-    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-    20%, 24%, 55% { opacity: 0.4; }
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+    }
+    20%, 24%, 55% {
+        opacity: 0.4;
+    }
 }
 
 @keyframes pulseSlow {
-    0%, 100% { opacity: 0.7; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.02); }
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes grain {
-    0%, 100% { background-position: 0 0; }
-    50% { background-position: 100px 100px; }
+    0%, 100% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 100px 100px;
+    }
 }
 
 @keyframes glitchTop {
-    0% { clip: rect(0, 9999px, 0, 0); }
-    5%, 15%, 55% { clip: rect(5px, 9999px, 40px, 0); }
-    10%, 25%, 75% { clip: rect(60px, 9999px, 80px, 0); }
-    100% { clip: rect(0, 9999px, 0, 0); }
+    0% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    5%, 15%, 55% {
+        clip: rect(5px, 9999px, 40px, 0);
+    }
+    10%, 25%, 75% {
+        clip: rect(60px, 9999px, 80px, 0);
+    }
+    100% {
+        clip: rect(0, 9999px, 0, 0);
+    }
 }
 
 @keyframes glitchBottom {
-    0% { clip: rect(0, 9999px, 0, 0); }
-    5%, 35%, 65% { clip: rect(60px, 9999px, 100px, 0); }
-    10%, 45%, 95% { clip: rect(10px, 9999px, 60px, 0); }
-    100% { clip: rect(0, 9999px, 0, 0); }
+    0% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    5%, 35%, 65% {
+        clip: rect(60px, 9999px, 100px, 0);
+    }
+    10%, 45%, 95% {
+        clip: rect(10px, 9999px, 60px, 0);
+    }
+    100% {
+        clip: rect(0, 9999px, 0, 0);
+    }
 }
 
 .statusPending {
@@ -194,15 +228,33 @@
 }
 
 @keyframes textGlitch {
-    0% { transform: skew(0.5deg); }
-    20% { transform: translate(2px, -1px); }
-    40% { transform: translate(-2px, 1px); }
-    60% { transform: translate(1px, 0); }
-    80% { transform: translate(-1px, 1px); }
-    100% { transform: translate(0, 0); }
+    0% {
+        transform: skew(0.5deg);
+    }
+    20% {
+        transform: translate(2px, -1px);
+    }
+    40% {
+        transform: translate(-2px, 1px);
+    }
+    60% {
+        transform: translate(1px, 0);
+    }
+    80% {
+        transform: translate(-1px, 1px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
 }
 
 @keyframes solvedPulse {
-    0% { opacity: 0.7; text-shadow: 0 0 5px #33ff66; }
-    100% { opacity: 1; text-shadow: 0 0 25px #33ff66; }
+    0% {
+        opacity: 0.7;
+        text-shadow: 0 0 5px #33ff66;
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 25px #33ff66;
+    }
 }

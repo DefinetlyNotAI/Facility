@@ -24,14 +24,14 @@ export async function checkPass(itemToCheck: string, stringToCheck: string) {
         const res = await fetch('/api/utils/hashChecker', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ itemToCheck, stringToCheck })
+            body: JSON.stringify({itemToCheck, stringToCheck})
         });
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
-            return { success: false, error: errData.error ?? "Server error" };
+            return {success: false, error: errData.error ?? "Server error"};
         }
         return await res.json();
     } catch {
-        return { success: false, error: "Network error" };
+        return {success: false, error: "Network error"};
     }
 }

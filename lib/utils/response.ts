@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 
 /**
  * Creates a secure Next.js JSON response with strict headers.

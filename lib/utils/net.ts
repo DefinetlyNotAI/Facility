@@ -48,5 +48,5 @@ export function detectOsBrowser(ua: string) {
     else if (/safari/i.test(ua) && !/chrome/i.test(ua)) browser = "Safari";
     else if (/edg/i.test(ua)) browser = "Edge";
 
-    return { os, browser };
+    return {os, browser};
 }
