@@ -1,16 +1,16 @@
 'use client';
 
 import {useEffect} from 'react';
-import {fileLinks} from "@/lib/data/chapters";
+import {chapterIXData, fileLinks} from "@/lib/data/chapters";
 import styles from '@/styles/Philosophy.module.css';
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 
 export default function Philosophy() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess();
+    useFailed('IX');
 
     useEffect(() => {
-        useFailed('IX');
         setIsCurrentlySolved(true)
     }, []);
 
@@ -26,52 +26,52 @@ export default function Philosophy() {
     }, [isCurrentlySolved]);
 
     return (
-        <main className={`${styles.main}`}>
+        <main className={styles.main}>
             <div className={styles.overlay}></div>
             <div className={styles.noise}></div>
 
-            <h1 className={styles.glitch} data-text="(IX) - Philosophy">(IX) - Philosophy</h1>
+            <h1 className={styles.glitch} data-text={chapterIXData.title}>
+                {chapterIXData.title}
+            </h1>
 
             <p className={styles.text}>
                 Email{' '}
                 <a
                     className={styles.email}
-                    href="mailto:TREEFacility@outlook.com"
-                    data-text="TREEFacility@outlook.com"
+                    href={`mailto:${chapterIXData.email}`}
+                    data-text={chapterIXData.email}
                 >
-                    TREEFacility@outlook.com
+                    {chapterIXData.email}
                 </a>{' '}
-                the answers to the following 15 questions.
-                <br/>You may skip 3. 25 participants required. No right or wrong, only PERSPECTIVE.
+                {chapterIXData.instructions}
                 <br/><br/>
                 <span className={styles.smalltext}>
-        Fear not the questions, for I watch over thee.<br/>
-        Thou shalt move only when I allow thee, and ponder each answer with care.
-    </span>
+                    {chapterIXData.smallText.split('\n').map((line, idx) => (
+                        <span key={idx}>{line}<br/></span>
+                    ))}
+                </span>
             </p>
-
 
             <div className={`${styles.status} ${isCurrentlySolved ? styles.statusSolved : styles.statusPending}`}>
                 {isCurrentlySolved === null && (
-                    <p className={styles.awaiting}>Initializing... Please remain still.</p>
+                    <p className={styles.awaiting}>{chapterIXData.status.initializing}</p>
                 )}
                 {isCurrentlySolved === false && (
                     <div className={styles.pendingBlock}>
-                        <p className={styles.awaiting}>
-                            “It watches how long you think before answering.”
-                        </p>
-                        <p className={styles.awaitingSub}>
-                            Awaiting completion... memory patterns syncing.
-                        </p>
+                        {chapterIXData.status.pending.map((line, idx) => (
+                            <p key={idx} className={idx === 0 ? styles.awaiting : styles.awaitingSub}>
+                                {line}
+                            </p>
+                        ))}
                     </div>
                 )}
                 {isCurrentlySolved === true && (
                     <div className={styles.solvedBlock}>
-                        <p className={styles.solvedGlitch} data-text="Record finalized.">
-                            Record finalized.
+                        <p className={styles.solvedGlitch} data-text={chapterIXData.status.solved.main}>
+                            {chapterIXData.status.solved.main}
                         </p>
                         <p className={styles.aftertext}>
-                            “The moment you understood, it stopped being a question.”
+                            {chapterIXData.status.solved.afterText}
                         </p>
                     </div>
                 )}
