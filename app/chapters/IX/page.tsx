@@ -1,16 +1,16 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {fileLinks} from "@/lib/data/chapters";
 import styles from '@/styles/Philosophy.module.css';
+import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 
 export default function Philosophy() {
-    // const {isCurrentlySolved} = useChapterAccess();
-    const [isCurrentlySolved, setIsCurrentlySolved] = useState<boolean | null>(null);
+    const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess();
 
     useEffect(() => {
-        // useFailed('IX');
-        // Simulated state change. Replace with actual logic later.
+        useFailed('IX');
         setIsCurrentlySolved(true)
     }, []);
 
