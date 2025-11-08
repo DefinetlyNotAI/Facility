@@ -54,8 +54,7 @@ export default function ChapterIITimedPage() {
 
     const handlePasswordSubmit = async () => {
         try {
-            const res = await checkPass(ItemKey.portNum, password);
-
+            const res = await checkPass(String(ItemKey.portNum), password);
             if (res.success) {
                 await signCookie(`${cookies.chII_passDone}=true`);
                 setIsPasswordVerified(true);

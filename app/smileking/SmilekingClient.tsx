@@ -255,7 +255,7 @@ export default function SmilekingClient() {
                 await showAlert('Enter an IP to add');
                 return;
             }
-            await bannedApi.addMe(ipToAdd, reasonToAdd || null);
+            await bannedApi.addMe(ipToAdd, reasonToAdd || undefined);
             await showAlert('IP added (or request sent). Refreshing list.');
             setIpToAdd('');
             setReasonToAdd('');

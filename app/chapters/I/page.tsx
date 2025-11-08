@@ -26,7 +26,7 @@ export default function ChapterIPage() {
         await new Promise(resolve => setTimeout(resolve, 1500));
 
         // Check port number via API
-        const portCheck = await checkPass(ItemKey.portNum, port);
+        const portCheck = await checkPass(String(ItemKey.portNum), port);
         if (!portCheck.success) {
             setError(chIData.portNumErr);
             setIsConnecting(false);
@@ -34,7 +34,7 @@ export default function ChapterIPage() {
         }
 
         // Check IP address via API
-        const ipCheck = await checkPass(ItemKey.ipAddress, ip);
+        const ipCheck = await checkPass(String(ItemKey.ipAddress), ip);
         if (!ipCheck.success) {
             setError(chIData.ipAddressErr);
             setIsConnecting(false);
