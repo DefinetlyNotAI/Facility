@@ -6,6 +6,9 @@ import {chapter} from "@/lib/data/chapters";
 import {ChapterTemplateProps} from "@/lib/types/chapters";
 import {useEffect, useRef} from "react";
 
+
+// todo split css and text into separate files
+//   make it mobile friendly
 export default function ChapterTemplate({chapterId, chapterData, fileLink}: ChapterTemplateProps) {
     const {isCurrentlySolved} = useChapterAccess();
     const isAllFailed = useFailed(chapterId);
@@ -23,16 +26,14 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
 
         const VioletLeafCount = 350;
         const VioletEmberCount = 200;
-        const VioletLeafs: VioletLeaf[] = [];
-        const VioletEmbers: VioletEmber[] = [];
 
         class VioletLeaf {
-            x: number;
-            height: number;
-            amplitude: number;
-            frequency: number;
-            phase: number;
-            swayOffset: number;
+            x = 0;
+            height = 0;
+            amplitude = 0;
+            frequency = 0;
+            phase = 0;
+            swayOffset = 0;
 
             constructor() {
                 this.reset();
@@ -61,11 +62,12 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
                     ctx.lineTo(this.x + sway + curve, y);
                 }
 
+                // Gradient only depends on position and height; precompute for performance
                 const grad = ctx.createLinearGradient(this.x, yBase - this.height, this.x, yBase);
-                grad.addColorStop(0, `rgba(138,43,226,0.9)`); // top: bright violet
-                grad.addColorStop(0.3, `rgba(75,0,130,0.6)`);
-                grad.addColorStop(0.7, `rgba(25,0,50,0.3)`);
-                grad.addColorStop(1, `rgba(0,0,0,0)`);
+                grad.addColorStop(0, `rgba(138, 43, 226, 0.9)`);
+                grad.addColorStop(0.3, `rgba(75, 0, 130, 0.6)`);
+                grad.addColorStop(0.7, `rgba(25, 0, 50, 0.3)`);
+                grad.addColorStop(1, `rgba(0, 0, 0, 0)`);
 
                 ctx.fillStyle = grad;
                 ctx.fill();
@@ -73,11 +75,11 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
         }
 
         class VioletEmber {
-            x: number;
-            y: number;
-            size: number;
-            speedY: number;
-            alpha: number;
+            x = 0;
+            y = 0;
+            size = 1;
+            speedY = 0;
+            alpha = 0;
 
             constructor() {
                 this.reset();
@@ -102,26 +104,22 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
             }
         }
 
-        for (let i = 0; i < VioletLeafCount; i++) VioletLeafs.push(new VioletLeaf());
-        for (let i = 0; i < VioletEmberCount; i++) VioletEmbers.push(new VioletEmber());
+        const VioletLeafs: VioletLeaf[] = Array.from({length: VioletLeafCount}, () => new VioletLeaf());
+        const VioletEmbers: VioletEmber[] = Array.from({length: VioletEmberCount}, () => new VioletEmber());
 
         let lastTime = performance.now();
 
         function animate(now: number) {
-            const dt = now - lastTime;
             lastTime = now;
+            ctx!.clearRect(0, 0, width, height);
 
-            ctx.clearRect(0, 0, width, height);
+            ctx!.fillStyle = "rgba(0,0,0,0.25)";
+            ctx!.fillRect(0, 0, width, height);
 
-            // Dark shadowed overlay
-            ctx.fillStyle = "rgba(0,0,0,0.25)";
-            ctx.fillRect(0, 0, width, height);
+            const timeFactor = now * 0.002;
 
-            // Draw VioletLeafs
-            for (const f of VioletLeafs) f.draw(ctx, now * 0.002);
-
-            // Draw VioletEmbers
-            for (const e of VioletEmbers) e.draw(ctx);
+            for (const leaf of VioletLeafs) leaf.draw(ctx!, timeFactor);
+            for (const ember of VioletEmbers) ember.draw(ctx!);
 
             requestAnimationFrame(animate);
         }
@@ -136,7 +134,7 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const VioletCanvas = <canvas ref={canvasRef} className="absolute inset-0 z-0" />;
+    const VioletCanvas = <canvas ref={canvasRef} className="absolute inset-0 z-0"/>;
 
     if (isCurrentlySolved === null) {
         return (
@@ -162,12 +160,10 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
                 <h1 className="text-white font-mono text-5xl font-bold mb-3 drop-shadow-[0_0_10px_#b91c1c]">
                     {chapterData.text.header}
                 </h1>
-                <p className="text-gray-400 font-mono text-sm italic">
-                    {chapterData.text.subHeader}
-                </p>
+                <p className="text-gray-400 font-mono text-sm italic">{chapterData.text.subHeader}</p>
                 <p className="text-gray-600 font-mono text-xs mt-2 tracking-widest">
-                    “And lo, the voice spoke again from within the code -
-                    ‘The script remembers what the scribe forgets.’”
+                    “And lo, the voice spoke again from within the code - ‘The script remembers what the scribe
+                    forgets.’”
                 </p>
 
                 <div className="flex justify-center mt-12">
@@ -178,11 +174,9 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
                         className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-800 via-black to-red-900 text-white font-mono rounded-md border border-red-900 shadow-lg hover:scale-105 hover:shadow-[0_0_15px_#991b1b] transform transition-all duration-300"
                     >
                         <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5"/>
                         </svg>
-                        <span className="uppercase tracking-wide">
-                            {chapter.narrator}
-                        </span>
+                        <span className="uppercase tracking-wide">{chapter.narrator}</span>
                     </a>
                 </div>
 
@@ -192,17 +186,15 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
                             {chapterData.text.questReminder}
                         </p>
                         <p className="text-red-800 font-mono text-xs mt-4 italic">
-                            “He who seeks meaning among corrupted files
-                            shall find only mirrors reflecting his own doubt.”
+                            “He who seeks meaning among corrupted files shall find only mirrors reflecting his own
+                            doubt.”
                         </p>
                     </div>
                 )}
 
                 {isAllFailed && (
                     <div className="mt-20 text-center animate-fadeIn">
-                        <p className="text-red-700 font-mono text-2xl font-bold">
-                            YOU HAVE FAILED ME.
-                        </p>
+                        <p className="text-red-700 font-mono text-2xl font-bold">YOU HAVE FAILED ME.</p>
                         <p className="text-gray-600 font-mono text-sm mt-2">
                             The narrator grows quiet. The story continues without you.
                         </p>
