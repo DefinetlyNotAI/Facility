@@ -36,7 +36,6 @@ export async function GET() {
 
         return createSecureResponse(result);
     } catch (error) {
-        console.error(bonusMsg.fetchError, error);
         return createSecureResponse({error: bonusMsg.fetchError}, 500);
     }
 }

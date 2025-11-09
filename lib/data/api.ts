@@ -1,3 +1,20 @@
+export const genericErrors = {
+    ip: {
+        addError: "Failed to add IP information",
+        missingError: "Missing ip in body",
+        dbError: "DB fetch for banned list failed",
+        checkError: "Failed checking banned list",
+        delError: "Failed deleting IP from banned list",
+    },
+    invalidCsrf: "Invalid/Non-existent CSRF token",
+    invalidFormat(dataType: string) {
+        return `Invalid data format for ${dataType}`;
+    },
+    internalServerError: "Internal server error has occurred. Please try again later and report this issue!",
+    invalidItem: "Data provided does not match any known items that are allowed to be checked.",
+    missingData: "Missing data in request body",
+}
+
 export const auth = {
     passReqErr: "Password required",
     incorrectPass: "Incorrect password",
@@ -33,7 +50,7 @@ export const state = {
     errorFetchingStates: "Error fetching button states:",
 }
 export const wifiPanel = {
-    useTools: "USE WHAT TOOLS WERE IMPOSED ON YOU"
+    useTools: "USE WHAT TOOLS WERE IMPOSED ON YOU - [curl in the userAgent header]",
 }
 export const allowedActs: string[] = [
     'Act_I', 'Act_II', 'Act_III', 'Act_IV', 'Act_V',

@@ -2,6 +2,7 @@ import {NextResponse} from "next/server";
 import {createHash} from "crypto";
 import {ItemKey} from "@/lib/saveData";
 import {chIData, chIIData} from "@/lib/data/chapters";
+import {genericErrors} from "@/lib/data/api";
 
 const secrets: Record<ItemKey, string> = {
     [ItemKey.portNum]: chIData.portNum,
@@ -21,11 +22,11 @@ export async function POST(req: Request) {
         const {stringToCheck, itemToCheck} = await req.json();
 
         if (stringToCheck === undefined || itemToCheck === undefined) {
-            return NextResponse.json({success: false, error: "Missing data"}, {status: 400});
+            return NextResponse.json({success: false, error: genericErrors.missingData}, {status: 400});
         }
 
         if (!(itemToCheck in itemHashes)) {
-            return NextResponse.json({success: false, error: "Invalid item"}, {status: 404});
+            return NextResponse.json({success: false, error: genericErrors.invalidItem}, {status: 404});
         }
 
         const inputHash = createHash("sha256").update(stringToCheck).digest("hex");
@@ -34,6 +35,6 @@ export async function POST(req: Request) {
         return NextResponse.json({success: valid});
     } catch (err) {
         console.error(err);
-        return NextResponse.json({success: false, error: "Internal error"}, {status: 500});
+        return NextResponse.json({success: false, error: genericErrors.internalServerError}, {status: 500});
     }
 }

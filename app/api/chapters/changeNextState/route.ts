@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {createSecureResponse, verifyAdmin} from "@/lib/utils";
 import {dbPool} from "@/lib/db";
-import {allowedActs, bonusMsg} from "@/lib/data/api";
+import {allowedActs, bonusMsg, genericErrors} from "@/lib/data/api";
 import {ActionState} from "@/lib/types/api";
 
 export async function POST(req: NextRequest) {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
         // --- Parse Body ---
         const body = await req.json().catch(() => {
-            throw new Error("Invalid JSON body");
+            throw new Error(genericErrors.invalidFormat("JSON body"));
         });
 
         const act = body?.act;
