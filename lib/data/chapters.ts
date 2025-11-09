@@ -431,10 +431,18 @@ export const chapterXData = {
     },
 };
 
-// Chapter Loading texts/other
+// Other text that is shared between chapters
 export const chapter = {
-    loading: 'Loading...',
-    narrator: "The Narrator wants to speak with you"
+    // Used for all chapters while loading
+    loading: "Loading...",
+    // Only used in chapter V and X
+    VX: {
+        narrator: "The Narrator wants to speak with you",
+        quote: "“And lo, the voice spoke again from within the code - ‘The script remembers what the scribe forgets.’”",
+        reminderSub: "“He who seeks meaning among corrupted files shall find only mirrors reflecting his own doubt.”",
+        failedTitle: "YOU HAVE FAILED ME.",
+        failedText: "The narrator grows quiet. The story continues without you."
+    }
 }
 
 // todo, add audios/sfx, then testing
