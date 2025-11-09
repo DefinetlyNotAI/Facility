@@ -1,5 +1,3 @@
-// noinspection CssUnusedSymbol
-
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
@@ -803,33 +801,6 @@ export default function HomeClient() {
                     🌳 {Math.min(refreshCount, 25)}/25 🌳
                 </div>
             )}
-
-            {/* Inversion Effect Styles */}
-            <style jsx>{`
-                .inverted-colors {
-                    filter: invert(1) hue-rotate(180deg);
-                    transition: filter 0.5s ease-in-out;
-                }
-
-                .log-entry.locked {
-                    opacity: 0.6;
-                    pointer-events: auto;
-                    cursor: not-allowed;
-                    position: relative;
-                    border: 2px dashed #f87171;
-                    background: #1a1a1a;
-                }
-
-                .padlock-icon {
-                    color: #f87171;
-                    z-index: 2;
-                    position: absolute;
-                    top: 50%;
-                    right: 50%;
-                    transform: translate(50%, -50%);
-                }
-
-            `}</style>
         </div>
     );
 }
