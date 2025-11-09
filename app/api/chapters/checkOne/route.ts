@@ -1,7 +1,7 @@
 import {NextRequest} from 'next/server';
 import {createSecureResponse} from '@/lib/utils';
 import {dbPool} from '@/lib/db';
-import {allowedActs, bonusMsg} from "@/lib/data/api";
+import {allowedActs, genericErrors} from "@/lib/data/api";
 import {ActionState} from "@/lib/types/api";
 
 export async function GET(req: NextRequest) {
@@ -9,8 +9,11 @@ export async function GET(req: NextRequest) {
         const url = new URL(req.url);
         const act = url.searchParams.get('act');
 
-        if (!act || !allowedActs.includes(act)) {
-            return createSecureResponse({error: bonusMsg.missingParam}, 400);
+        if (!act) {
+            return createSecureResponse({error: genericErrors.missingData}, 400);
+        }
+        if (!allowedActs.includes(act)) {
+            return createSecureResponse({error: genericErrors.invalidItem}, 400);
         }
 
         const client = await dbPool.connect();
@@ -30,7 +33,6 @@ export async function GET(req: NextRequest) {
 
         return createSecureResponse({[act]: state});
     } catch (error) {
-        console.error(bonusMsg.checkError, error);
-        return createSecureResponse({error: bonusMsg.checkError}, 500);
+        return createSecureResponse({error: genericErrors.failedToFetch}, 500);
     }
 }

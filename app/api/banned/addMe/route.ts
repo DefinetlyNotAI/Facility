@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         const reason = body?.reason ?? null;
 
         if (!ip) {
-            return createSecureResponse({error: genericErrors.ip.missingError}, 400);
+            return createSecureResponse({error: genericErrors.missingData}, 400);
         }
 
         client = await dbPool.connect();

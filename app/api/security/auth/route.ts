@@ -1,7 +1,7 @@
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import jwt from 'jsonwebtoken';
-import {auth} from "@/lib/data/api";
+import {genericErrors} from "@/lib/data/api";
 import {cookies} from "@/lib/saveData";
 
 
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
     const password = body.password;
     if (!password) {
-        return NextResponse.json({error: auth.passReqErr}, {status: 400});
+        return NextResponse.json({error: genericErrors.auth.passReqErr}, {status: 400});
     }
 
     const envPass = process.env.SMILEKING_PASS || '';
@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
 
     if (!jwtSecret) {
         // Server misconfiguration: don't leak secrets to client
-        return NextResponse.json({error: auth.serverConfigErr}, {status: 500});
+        return NextResponse.json({error: genericErrors.serverConfigErr}, {status: 500});
     }
 
     if (password !== envPass) {
-        return NextResponse.json({error: auth.incorrectPass}, {status: 401});
+        return NextResponse.json({error: genericErrors.auth.incorrectPass}, {status: 401});
     }
 
     // Create JWT (no sensitive data in payload). Short expiry.
@@ -50,5 +50,5 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
     // Optionally block GET or return something else
-    return NextResponse.json({error: auth.invalidMethod}, {status: 405});
+    return NextResponse.json({error: genericErrors.invalidMethod}, {status: 405});
 }

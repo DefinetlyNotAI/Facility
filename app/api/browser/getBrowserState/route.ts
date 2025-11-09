@@ -1,5 +1,5 @@
 import {createSecureResponse} from '@/lib/utils';
-import {state} from "@/lib/data/api";
+import {genericErrors} from "@/lib/data/api";
 import {dbPool} from "@/lib/db";
 
 
@@ -10,7 +10,6 @@ export async function GET() {
         client.release();
         return createSecureResponse(res.rows);
     } catch (error) {
-        console.error(state.errorFetchingStates, error);
-        return createSecureResponse({error: state.failedToFetch}, 500);
+        return createSecureResponse({error: genericErrors.failedToFetch}, 500);
     }
 }

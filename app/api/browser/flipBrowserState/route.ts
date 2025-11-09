@@ -1,6 +1,6 @@
 import {NextRequest} from 'next/server';
 import {createSecureResponse} from '@/lib/utils';
-import {press} from "@/lib/data/api";
+import {genericErrors} from "@/lib/data/api";
 import {dbPool} from "@/lib/db";
 
 
@@ -11,13 +11,13 @@ export async function POST(req: NextRequest) {
         const ignoreAlreadyPressed = req.headers.get('ignore-already-pressed') === 'true';
 
         if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromCookie !== csrfTokenFromHeader) {
-            return createSecureResponse({error: press.invalidToken}, 403);
+            return createSecureResponse({error: genericErrors.invalidCsrf}, 403);
         }
 
         const {browser} = await req.json();
 
         if (!browser) {
-            return createSecureResponse({error: press.browserNotSpecified}, 400);
+            return createSecureResponse({error: genericErrors.missingData}, 400);
         }
 
         const client = await dbPool.connect();
@@ -30,14 +30,14 @@ export async function POST(req: NextRequest) {
 
         if (result.rowCount === 0) {
             client.release();
-            return createSecureResponse({error: press.browserNotFound}, 404);
+            return createSecureResponse({error: genericErrors.invalidItem}, 404);
         }
 
         const currentState = result.rows[0].clicked;
 
         if (!ignoreAlreadyPressed && currentState) {
             client.release();
-            return createSecureResponse({error: press.alreadyPressed}, 409);
+            return createSecureResponse({error: genericErrors.browser.alreadyPressed}, 409);
         }
 
         // If strict, set to true; if flexible, toggle
@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
         client.release();
         return createSecureResponse({success: true, clicked: newClickedState});
     } catch (error) {
-        console.error(press.errorPressingButton, error);
-        return createSecureResponse({error: press.internalError}, 500);
+        return createSecureResponse({error: genericErrors.internalServerError}, 500);
     }
 }

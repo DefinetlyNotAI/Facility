@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {createSecureResponse, verifyAdmin} from "@/lib/utils";
 import {dbPool} from "@/lib/db";
-import {allowedActs, bonusMsg, genericErrors} from "@/lib/data/api";
+import {allowedActs, genericErrors} from "@/lib/data/api";
 import {ActionState} from "@/lib/types/api";
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const csrfTokenFromHeader = req.headers.get("x-csrf-token");
 
         if (!csrfTokenFromCookie || !csrfTokenFromHeader || csrfTokenFromHeader !== csrfTokenFromCookie) {
-            return createSecureResponse({error: bonusMsg.invalidCsrf}, 403);
+            return createSecureResponse({error: genericErrors.invalidCsrf}, 403);
         }
 
         // --- Parse Body ---
@@ -24,8 +24,11 @@ export async function POST(req: NextRequest) {
         });
 
         const act = body?.act;
-        if (!act || !allowedActs.includes(act)) {
-            return createSecureResponse({error: bonusMsg.invalidAct}, 400);
+        if (!act) {
+            return createSecureResponse({error: genericErrors.missingData}, 400);
+        }
+        if (!allowedActs.includes(act)) {
+            return createSecureResponse({error: genericErrors.invalidItem}, 400);
         }
 
         // --- Map act to lowercase column name ---
@@ -58,7 +61,7 @@ export async function POST(req: NextRequest) {
 
         return createSecureResponse({[act]: nextState});
     } catch (error) {
-        return createSecureResponse({error: bonusMsg.toggleError}, 500);
+        return createSecureResponse({error: genericErrors.chapters.toggleError}, 500);
     } finally {
         client?.release();
     }

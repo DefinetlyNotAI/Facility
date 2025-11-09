@@ -17,6 +17,6 @@ export async function GET() {
             }
         }
     } catch (dbErr) {
-        return createSecureResponse({error: genericErrors.ip.dbError}, 500);
+        return createSecureResponse({error: genericErrors.failedToFetch}, 500);
     }
 }

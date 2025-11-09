@@ -1,6 +1,6 @@
 import {createSecureResponse} from '@/lib/utils';
 import {dbPool} from '@/lib/db';
-import {allowedActs, bonusMsg} from "@/lib/data/api";
+import {allowedActs, genericErrors} from "@/lib/data/api";
 import {ActionState} from "@/lib/types/api";
 
 export async function GET() {
@@ -36,6 +36,6 @@ export async function GET() {
 
         return createSecureResponse(result);
     } catch (error) {
-        return createSecureResponse({error: bonusMsg.fetchError}, 500);
+        return createSecureResponse({error: genericErrors.failedToFetch}, 500);
     }
 }

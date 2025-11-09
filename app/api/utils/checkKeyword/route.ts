@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 import crypto from 'crypto';
-import {keywords} from "@/lib/data/api";
+import {genericErrors, knownKeywordHashes} from "@/lib/data/api";
 
 
 function hashKeyword(keyword: string): string {
@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
         number < 1 ||
         number > 6
     ) {
-        return NextResponse.json({error: keywords.invalidInput}, {status: 400});
+        return NextResponse.json({error: genericErrors.invalidItem}, {status: 400});
     }
 
     const keywordHash = hashKeyword(keyword);
-    const knownHash = keywords.knownHashes[number - 1];
+    const knownHash = knownKeywordHashes[number - 1];
     const match = keywordHash === knownHash;
 
     return NextResponse.json({

@@ -1,5 +1,5 @@
 import {createSecureResponse} from '@/lib/utils';
-import {wifiPanel} from "@/lib/data/api";
+import {wifiPanelSpecialTipMessage} from "@/lib/data/api";
 
 export async function GET(req: Request) {
     const userAgent = req.headers.get('user-agent')?.toLowerCase() || '';
@@ -7,6 +7,6 @@ export async function GET(req: Request) {
     if (userAgent.includes('curl') || userAgent.includes('wget')) {
         return createSecureResponse({keyword2: "fletchling"});
     } else {
-        return createSecureResponse(wifiPanel.useTools, 403);
+        return createSecureResponse(wifiPanelSpecialTipMessage, 403);
     }
 }

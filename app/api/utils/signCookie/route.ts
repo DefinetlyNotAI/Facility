@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import crypto from 'crypto';
-import {signCookie} from "@/lib/data/api";
+import {genericErrors} from "@/lib/data/api";
 
 const SECRET = process.env.COOKIE_SECRET || 'Unsecure';
 
@@ -13,14 +13,14 @@ export async function POST(request: Request) {
     const {data} = await request.json();
 
     if (!data || typeof data !== 'string' || !data.includes('=')) {
-        return NextResponse.json({error: signCookie.invalidDataFormat}, {status: 400});
+        return NextResponse.json({error: genericErrors.invalidFormat("Expected key=value format for cookies")}, {status: 400});
     }
 
     const [key, ...rest] = data.split('=');
     const value = rest.join('=');
 
     if (!key || !value) {
-        return NextResponse.json({error: signCookie.missingKeyOrValue}, {status: 400});
+        return NextResponse.json({error: genericErrors.missingData}, {status: 400});
     }
 
     const signature = sign(`${key}=${value}`);

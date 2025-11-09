@@ -1,14 +1,7 @@
 import {NextResponse} from "next/server";
 import {createHash} from "crypto";
 import {ItemKey} from "@/lib/saveData";
-import {chIData, chIIData} from "@/lib/data/chapters";
-import {genericErrors} from "@/lib/data/api";
-
-const secrets: Record<ItemKey, string> = {
-    [ItemKey.portNum]: chIData.portNum,
-    [ItemKey.ipAddress]: chIData.ipAddress,
-    [ItemKey.InternalCode]: chIIData.chapterIIPaths[6].path
-};
+import {genericErrors, secrets} from "@/lib/data/api";
 
 const itemHashes: Record<ItemKey, string> = Object.fromEntries(
     Object.entries(secrets).map(([k, v]) => [

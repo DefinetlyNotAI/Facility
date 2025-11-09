@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         const body = await req.json().catch(() => null);
         const ip = body?.ip;
 
-        if (!ip) return createSecureResponse({error: genericErrors.ip.missingError}, 400);
+        if (!ip) return createSecureResponse({error: genericErrors.missingData}, 400);
 
         const client = await dbPool.connect();
         const q = `SELECT id, ip, reason, created_at
@@ -21,6 +21,6 @@ export async function POST(req: Request) {
         if (res.rowCount === 0) return createSecureResponse({banned: false});
         return createSecureResponse({banned: true, entry: res.rows[0]});
     } catch (error) {
-        return createSecureResponse({error: genericErrors.ip.checkError}, 500);
+        return createSecureResponse({error: genericErrors.failedToFetch}, 500);
     }
 }
