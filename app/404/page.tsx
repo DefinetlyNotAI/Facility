@@ -22,7 +22,11 @@ export default function Glitchy404() {
 
     useEffect(() => {
         // Only run on client, safe for random logic here
-        if (typeof window !== "undefined" && Math.random() < 1 / 66) setShowMoonlight(true);
+        if (typeof window !== "undefined") {
+            const roll = Math.random();
+            console.log("404 moonlight roll:", roll);
+            if (roll < 1 / 66) setShowMoonlight(true);
+        }
     }, []);
 
     useEffect(() => {
