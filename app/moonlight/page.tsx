@@ -66,10 +66,11 @@ export default function Moonlight() {
         }
     }, [router]);
 
-    // Decide moon color once
     useEffect(() => {
-        if (typeof window !== "undefined" && Math.random() < 1 / 43) {
-            setMoonRed(true);
+        if (typeof window !== "undefined") {
+            const roll = Math.floor(Math.random() * 43); // 0 to 42
+            console.log("moon color roll:", roll);
+            if (roll === 0) setMoonRed(true);            // 1 out of 43
         }
     }, []);
 

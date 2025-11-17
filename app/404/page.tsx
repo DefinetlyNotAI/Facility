@@ -21,13 +21,13 @@ export default function Glitchy404() {
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.N404)
 
     useEffect(() => {
-        // Only run on client, safe for random logic here
         if (typeof window !== "undefined") {
-            const roll = Math.random();
+            const roll = Math.floor(Math.random() * 66); // 0 to 65
             console.log("404 moonlight roll:", roll);
-            if (roll < 1 / 66) setShowMoonlight(true);
+            if (roll === 0) setShowMoonlight(true);       // 1 out of 66
         }
     }, []);
+
 
     useEffect(() => {
         if (showMoonlight) {
