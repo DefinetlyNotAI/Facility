@@ -1,10 +1,12 @@
 "use client";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
 import {CheckMeResponse} from "@/lib/types/api";
 import {chapterVIIIData} from "@/lib/data/chapters";
 import {localStorageKeys} from "@/lib/saveData";
+import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 
 export default function BloomLiveDiePage() {
@@ -18,10 +20,13 @@ export default function BloomLiveDiePage() {
     const [actionPending, setActionPending] = useState(false);
     const [solvedLocal, setSolvedLocal] = useState(false);
     const [isBanned, setIsBanned] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     const {meta, text, bloomWords} = chapterVIIIData;
     const totalBanned = Array.isArray(globalList) ? globalList.length : 0;
     const remaining = 43 - totalBanned;
+
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VIII);
 
     useEffect(() => {
         if (totalBanned >= meta.totalNeeded && !solvedLocal) {
@@ -166,111 +171,110 @@ export default function BloomLiveDiePage() {
         );
 
     return (
-        <div className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-start p-6">
-            <h1 className="text-2xl mb-4">{text.title}</h1>
-            {error && <div className="text-red-400 mb-4">{error}</div>}
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VIII} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-start p-6">
+                <h1 className="text-2xl mb-4">{text.title}</h1>
+                {error && <div className="text-red-400 mb-4">{error}</div>}
 
-            <div className="w-full max-w-2xl bg-gray-900 p-4 rounded mb-6">
-                <div className="mb-2">Souls offered: <strong>{totalBanned}</strong> / {meta.totalNeeded}</div>
-                <div className="text-sm text-gray-400 mb-4">
-                    {remaining > 0
-                        ? `${remaining} more must fall before the whisper is heard.`
-                        : "The whisper is waiting."}
-                </div>
-
-                {/* Step 1: Connect */}
-                <div className="mb-6">
-                    <div className="flex justify-between mb-1">
-                        <span>LIVE</span>
-                        <span>{getStepProgress(1, totalBanned)}/{meta.step1Max}</span>
+                <div className="w-full max-w-2xl bg-gray-900 p-4 rounded mb-6">
+                    <div className="mb-2">Souls offered: <strong>{totalBanned}</strong> / {meta.totalNeeded}</div>
+                    <div className="text-sm text-gray-400 mb-4">
+                        {remaining > 0
+                            ? `${remaining} more must fall before the whisper is heard.`
+                            : "The whisper is waiting."}
                     </div>
-                    <div className="w-full bg-gray-700 h-2 mb-2">
-                        <div
-                            className="h-2 bg-green-600"
-                            style={{ width: `${(getStepProgress(1, totalBanned) / meta.step1Max) * 100}%` }}
-                        />
-                    </div>
-                    {totalBanned < meta.step1Max && (
-                        <button
-                            className="bg-white text-black px-3 py-1"
-                            onClick={() => participate("connect")}
-                            disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.connect)}
-                        >
-                            {!!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.connect) ? text.connectAgain : text.connectBtn}
-                        </button>
-                    )}
-                </div>
 
-                {/* Step 2: Upload */}
-                {totalBanned >= meta.step1Max && (
+                    {/* Step 1: Connect */}
                     <div className="mb-6">
                         <div className="flex justify-between mb-1">
-                            <span>BLOOM</span>
-                            <span>{getStepProgress(2, totalBanned)}/{meta.step2Max}</span>
+                            <span>LIVE</span>
+                            <span>{getStepProgress(1, totalBanned)}/{meta.step1Max}</span>
                         </div>
                         <div className="w-full bg-gray-700 h-2 mb-2">
                             <div
-                                className="h-2 bg-pink-600"
-                                style={{ width: `${(getStepProgress(2, totalBanned) / meta.step2Max) * 100}%` }}
-                            />
+                                className="h-2 bg-green-600"
+                                style={{width: `${(getStepProgress(1, totalBanned) / meta.step1Max) * 100}%`}}/>
                         </div>
-                        {totalBanned < meta.step3Trigger && (
-                            <input
-                                type="file"
-                                accept=".txt"
-                                onChange={(e) => handleUpload(e.target.files?.[0] ?? null)}
-                                disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.upload)}
-                                className="text-black"
-                            />
-                        )}
-                        <div className="text-xs text-gray-400 mt-1">{text.uploadHint}</div>
-                    </div>
-                )}
-
-                {/* Step 3: Switch */}
-                {totalBanned >= meta.step3Trigger && (
-                    <div className="mb-6">
-                        <div className="flex justify-between mb-1">
-                            <span>DIE</span>
-                            <span>{getStepProgress(3, totalBanned)}/{meta.step3Max}</span>
-                        </div>
-                        <div className="w-full bg-gray-700 h-2 mb-2">
-                            <div
-                                className="h-2 bg-yellow-500"
-                                style={{ width: `${(getStepProgress(3, totalBanned) / meta.step3Max) * 100}%` }}
-                            />
-                        </div>
-                        {totalBanned >= meta.step3Trigger && totalBanned < meta.step4Trigger && (
+                        {totalBanned < meta.step1Max && (
                             <button
                                 className="bg-white text-black px-3 py-1"
-                                onClick={() => participate("switch")}
-                                disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.switch)}
+                                onClick={() => participate("connect")}
+                                disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.connect)}
                             >
-                                {!!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.switch) ? text.switchAgain : text.switchBtn}
+                                {!!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.connect) ? text.connectAgain : text.connectBtn}
                             </button>
                         )}
                     </div>
-                )}
 
-                {/* Step 4: Whisper */}
-                {totalBanned >= meta.step4Trigger && (
-                    <div className="mt-6">
-                        <div className="mb-1">
-                            Whisper count: {Math.max(0, totalBanned - meta.step4Trigger)}/3
+                    {/* Step 2: Upload */}
+                    {totalBanned >= meta.step1Max && (
+                        <div className="mb-6">
+                            <div className="flex justify-between mb-1">
+                                <span>BLOOM</span>
+                                <span>{getStepProgress(2, totalBanned)}/{meta.step2Max}</span>
+                            </div>
+                            <div className="w-full bg-gray-700 h-2 mb-2">
+                                <div
+                                    className="h-2 bg-pink-600"
+                                    style={{width: `${(getStepProgress(2, totalBanned) / meta.step2Max) * 100}%`}}/>
+                            </div>
+                            {totalBanned < meta.step3Trigger && (
+                                <input
+                                    type="file"
+                                    accept=".txt"
+                                    onChange={(e) => handleUpload(e.target.files?.[0] ?? null)}
+                                    disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.upload)}
+                                    className="text-black"/>
+                            )}
+                            <div className="text-xs text-gray-400 mt-1">{text.uploadHint}</div>
                         </div>
-                        <button
-                            className="bg-white text-black px-3 py-1"
-                            onClick={() => participate("whisper")}
-                            disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.whisper)}
-                        >
-                            {!!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.whisper)
-                                ? text.whisperAgain
-                                : text.whisperBtn}
-                        </button>
-                        <p className="text-xs text-gray-400 mt-2 italic">{text.whisperHint}</p>
-                    </div>
-                )}
+                    )}
+
+                    {/* Step 3: Switch */}
+                    {totalBanned >= meta.step3Trigger && (
+                        <div className="mb-6">
+                            <div className="flex justify-between mb-1">
+                                <span>DIE</span>
+                                <span>{getStepProgress(3, totalBanned)}/{meta.step3Max}</span>
+                            </div>
+                            <div className="w-full bg-gray-700 h-2 mb-2">
+                                <div
+                                    className="h-2 bg-yellow-500"
+                                    style={{width: `${(getStepProgress(3, totalBanned) / meta.step3Max) * 100}%`}}/>
+                            </div>
+                            {totalBanned >= meta.step3Trigger && totalBanned < meta.step4Trigger && (
+                                <button
+                                    className="bg-white text-black px-3 py-1"
+                                    onClick={() => participate("switch")}
+                                    disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.switch)}
+                                >
+                                    {!!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.switch) ? text.switchAgain : text.switchBtn}
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Step 4: Whisper */}
+                    {totalBanned >= meta.step4Trigger && (
+                        <div className="mt-6">
+                            <div className="mb-1">
+                                Whisper count: {Math.max(0, totalBanned - meta.step4Trigger)}/3
+                            </div>
+                            <button
+                                className="bg-white text-black px-3 py-1"
+                                onClick={() => participate("whisper")}
+                                disabled={actionPending || !!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.whisper)}
+                            >
+                                {!!localStorage.getItem(localStorageKeys.chapterVIIIProgressionTokens.whisper)
+                                    ? text.whisperAgain
+                                    : text.whisperBtn}
+                            </button>
+                            <p className="text-xs text-gray-400 mt-2 italic">{text.whisperHint}</p>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }

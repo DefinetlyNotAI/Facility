@@ -1,8 +1,10 @@
 "use client";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIIData} from "@/lib/data/chapters";
+import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 
 export default function TimelinePage() {
@@ -12,7 +14,9 @@ export default function TimelinePage() {
     const [yearProgress, setYearProgress] = useState<Record<number, number[]>>({});
     const [error, setError] = useState<string | null>(null);
     const [banMessage, setBanMessage] = useState<string | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VII);
     const years = Object.keys(chapterVIIData.timelineData).map(Number);
 
     // Load progress and check completion immediately on mount
@@ -111,42 +115,43 @@ export default function TimelinePage() {
     const totalAll = Object.values(chapterVIIData.timelineData).reduce((sum, arr) => sum + arr.length, 0);
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-white font-mono">
-            {banMessage ? (
-                <div className="text-yellow-400 mb-4 text-center">{banMessage}</div>
-            ) : (
-                <>
-                    <div className="mb-2 text-center">{chapterVIIData.enterLogs(year)}</div>
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onChange={e => setInputValue(e.target.value)}
-                        className="p-2 text-black w-full max-w-lg mb-2"
-                        placeholder={chapterVIIData.inputPlaceholder}
-                    />
-                    <button onClick={handleSubmit} className="bg-white text-black px-4 py-2 mb-4">
-                        {chapterVIIData.submit}
-                    </button>
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VII} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-white font-mono">
+                {banMessage ? (
+                    <div className="text-yellow-400 mb-4 text-center">{banMessage}</div>
+                ) : (
+                    <>
+                        <div className="mb-2 text-center">{chapterVIIData.enterLogs(year)}</div>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={e => setInputValue(e.target.value)}
+                            className="p-2 text-black w-full max-w-lg mb-2"
+                            placeholder={chapterVIIData.inputPlaceholder}/>
+                        <button onClick={handleSubmit} className="bg-white text-black px-4 py-2 mb-4">
+                            {chapterVIIData.submit}
+                        </button>
 
-                    {error && <div className="text-red-500 mb-4">{error}</div>}
+                        {error && <div className="text-red-500 mb-4">{error}</div>}
 
-                    <div className="w-full max-w-lg h-4 bg-gray-700 mb-1">
+                        <div className="w-full max-w-lg h-4 bg-gray-700 mb-1">
+                            <div
+                                className="h-4 bg-green-500 transition-all"
+                                style={{width: `${(currentYearFound / currentYearTotal) * 100}%`}}/>
+                        </div>
                         <div
-                            className="h-4 bg-green-500 transition-all"
-                            style={{width: `${(currentYearFound / currentYearTotal) * 100}%`}}
-                        />
-                    </div>
-                    <div className="mb-4">{chapterVIIData.yearProgress(currentYearFound, currentYearTotal, year)}</div>
+                            className="mb-4">{chapterVIIData.yearProgress(currentYearFound, currentYearTotal, year)}</div>
 
-                    <div className="w-full max-w-lg h-4 bg-gray-700">
-                        <div
-                            className="h-4 bg-blue-500 transition-all"
-                            style={{width: `${(totalFound / totalAll) * 100}%`}}
-                        />
-                    </div>
-                    <div className="mt-2 text-sm">{chapterVIIData.totalProgress(totalFound, totalAll)}</div>
-                </>
-            )}
-        </div>
+                        <div className="w-full max-w-lg h-4 bg-gray-700">
+                            <div
+                                className="h-4 bg-blue-500 transition-all"
+                                style={{width: `${(totalFound / totalAll) * 100}%`}}/>
+                        </div>
+                        <div className="mt-2 text-sm">{chapterVIIData.totalProgress(totalFound, totalAll)}</div>
+                    </>
+                )}
+            </div>
+        </>
     );
 }

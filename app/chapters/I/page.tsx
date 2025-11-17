@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {ItemKey} from '@/lib/saveData';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {chapter, chIData, fileLinks} from "@/lib/data/chapters";
 import {checkPass} from "@/lib/utils";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 
 export default function ChapterIPage() {
@@ -18,6 +19,9 @@ export default function ChapterIPage() {
     const [ip, setIp] = useState('');
     const [error, setError] = useState('');
     const [isConnecting, setIsConnecting] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.I);
 
     const handleConnect = async () => {
         setError("");
@@ -139,21 +143,26 @@ export default function ChapterIPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#c0c0c0] flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-8">
-                <div className="text-center space-y-4">
-                    <div className="text-green-600 font-mono text-2xl font-bold">{chIData.text.completed.title}</div>
-                    <p className="text-black font-mono">{chIData.text.completed.subtitle}</p>
-                    <Button
-                        onClick={() => {
-                            window.location.href = fileLinks.I.donecAnteDolorEXE;
-                        }}
-                        className="w-full bg-green-600 text-white border-2 border-green-800 hover:bg-green-700 font-mono font-bold shadow-[2px_2px_0px_0px_rgba(0,100,0,1)]"
-                    >
-                        {chIData.text.completed.downloadButton}
-                    </Button>
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.I} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen bg-[#c0c0c0] flex items-center justify-center p-4">
+                <div
+                    className="w-full max-w-md bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-8">
+                    <div className="text-center space-y-4">
+                        <div
+                            className="text-green-600 font-mono text-2xl font-bold">{chIData.text.completed.title}</div>
+                        <p className="text-black font-mono">{chIData.text.completed.subtitle}</p>
+                        <Button
+                            onClick={() => {
+                                window.location.href = fileLinks.I.donecAnteDolorEXE;
+                            }}
+                            className="w-full bg-green-600 text-white border-2 border-green-800 hover:bg-green-700 font-mono font-bold shadow-[2px_2px_0px_0px_rgba(0,100,0,1)]"
+                        >
+                            {chIData.text.completed.downloadButton}
+                        </Button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

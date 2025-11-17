@@ -1,17 +1,21 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {formatTime} from "@/lib/utils";
 import {chapter, chIIData, fileLinks} from "@/lib/data/chapters";
 import {Button} from "@/components/ui/button";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 
 // ---------- Component ----------
 export default function ChapterIIPage() {
     const [timeRemaining, setTimeRemaining] = useState<number>(0);
     const {isCurrentlySolved} = useChapterAccess();
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
 
     useEffect(() => {
         const targetDate = new Date(chIIData.root.startDate);
@@ -60,21 +64,24 @@ export default function ChapterIIPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-4">
-            <div className="text-center space-y-4">
-                <div className="text-green-500 font-mono text-3xl font-bold">
-                    {chIIData.root.text.complete.title}
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.II} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen bg-black flex items-center justify-center p-4">
+                <div className="text-center space-y-4">
+                    <div className="text-green-500 font-mono text-3xl font-bold">
+                        {chIIData.root.text.complete.title}
+                    </div>
+                    <p className="text-gray-400 font-mono">{chIIData.root.text.complete.message}</p>
+                    <Button
+                        onClick={() => {
+                            window.location.href = fileLinks.II.timeShallStrikeEXE;
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
+                    >
+                        {chIIData.utcPage.successText.downloadButton}
+                    </Button>
                 </div>
-                <p className="text-gray-400 font-mono">{chIIData.root.text.complete.message}</p>
-                <Button
-                    onClick={() => {
-                        window.location.href = fileLinks.II.timeShallStrikeEXE;
-                    }}
-                    className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
-                >
-                    {chIIData.utcPage.successText.downloadButton}
-                </Button>
             </div>
-        </div>
+        </>
     );
 }

@@ -1,13 +1,18 @@
 'use client';
 
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import {chapterIXData, fileLinks} from "@/lib/data/chapters";
 import styles from '@/styles/Philosophy.module.css';
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
+import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 export default function Philosophy() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess();
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IX);
     useFailed('IX');
 
     useEffect(() => {
@@ -26,58 +31,61 @@ export default function Philosophy() {
     }, [isCurrentlySolved]);
 
     return (
-        <main className={styles.main}>
-            <div className={styles.overlay}></div>
-            <div className={styles.noise}></div>
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IX} loop preload="auto" style={{display: 'none'}}/>
+            <main className={styles.main}>
+                <div className={styles.overlay}></div>
+                <div className={styles.noise}></div>
 
-            <h1 className={styles.glitch} data-text={chapterIXData.title}>
-                {chapterIXData.title}
-            </h1>
+                <h1 className={styles.glitch} data-text={chapterIXData.title}>
+                    {chapterIXData.title}
+                </h1>
 
-            <p className={styles.text}>
-                Email{' '}
-                <a
-                    className={styles.email}
-                    href={`mailto:${chapterIXData.email}`}
-                    data-text={chapterIXData.email}
-                >
-                    {chapterIXData.email}
-                </a>{' '}
-                {chapterIXData.instructions}
-                <br/><br/>
-                <span className={styles.smalltext}>
+                <p className={styles.text}>
+                    Email{' '}
+                    <a
+                        className={styles.email}
+                        href={`mailto:${chapterIXData.email}`}
+                        data-text={chapterIXData.email}
+                    >
+                        {chapterIXData.email}
+                    </a>{' '}
+                    {chapterIXData.instructions}
+                    <br/><br/>
+                    <span className={styles.smalltext}>
                     {chapterIXData.smallText.split('\n').map((line, idx) => (
                         <span key={idx}>{line}<br/></span>
                     ))}
                 </span>
-            </p>
+                </p>
 
-            <div className={`${styles.status} ${isCurrentlySolved ? styles.statusSolved : styles.statusPending}`}>
-                {isCurrentlySolved === null && (
-                    <p className={styles.awaiting}>{chapterIXData.status.initializing}</p>
-                )}
-                {isCurrentlySolved === false && (
-                    <div className={styles.pendingBlock}>
-                        {chapterIXData.status.pending.map((line, idx) => (
-                            <p key={idx} className={idx === 0 ? styles.awaiting : styles.awaitingSub}>
-                                {line}
+                <div className={`${styles.status} ${isCurrentlySolved ? styles.statusSolved : styles.statusPending}`}>
+                    {isCurrentlySolved === null && (
+                        <p className={styles.awaiting}>{chapterIXData.status.initializing}</p>
+                    )}
+                    {isCurrentlySolved === false && (
+                        <div className={styles.pendingBlock}>
+                            {chapterIXData.status.pending.map((line, idx) => (
+                                <p key={idx} className={idx === 0 ? styles.awaiting : styles.awaitingSub}>
+                                    {line}
+                                </p>
+                            ))}
+                        </div>
+                    )}
+                    {isCurrentlySolved === true && (
+                        <div className={styles.solvedBlock}>
+                            <p className={styles.solvedGlitch} data-text={chapterIXData.status.solved.main}>
+                                {chapterIXData.status.solved.main}
                             </p>
-                        ))}
-                    </div>
-                )}
-                {isCurrentlySolved === true && (
-                    <div className={styles.solvedBlock}>
-                        <p className={styles.solvedGlitch} data-text={chapterIXData.status.solved.main}>
-                            {chapterIXData.status.solved.main}
-                        </p>
-                        <p className={styles.aftertext}>
-                            {chapterIXData.status.solved.afterText}
-                        </p>
-                    </div>
-                )}
-            </div>
+                            <p className={styles.aftertext}>
+                                {chapterIXData.status.solved.afterText}
+                            </p>
+                        </div>
+                    )}
+                </div>
 
-            <div className={styles.glow}></div>
-        </main>
+                <div className={styles.glow}></div>
+            </main>
+        </>
     );
 }

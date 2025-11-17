@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {Input} from '@/components/ui/input';
@@ -10,6 +10,8 @@ import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
 import {useChapter2Access} from "@/hooks/BonusActHooks/useChapter2Access";
+import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 export default function ChapterIITimedPage() {
     const router = useRouter();
@@ -17,7 +19,9 @@ export default function ChapterIITimedPage() {
     const [isPasswordVerified, setIsPasswordVerified] = useState(false);
     const [isInTimeWindow, setIsInTimeWindow] = useState(false);
     const [error, setError] = useState('');
+    const audioRef = useRef<HTMLAudioElement>(null);
 
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
     useChapter2Access()
 
     useEffect(() => {
@@ -127,23 +131,26 @@ export default function ChapterIITimedPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-4">
-            <div className="text-center space-y-8">
-                <div className="text-green-500 font-mono text-6xl space-x-4">
-                    {chIIData.utcPage.successText.emojis.map((e, i) => (
-                        <span key={i}>{e}</span>
-                    ))}
-                </div>
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.II} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen bg-black flex items-center justify-center p-4">
+                <div className="text-center space-y-8">
+                    <div className="text-green-500 font-mono text-6xl space-x-4">
+                        {chIIData.utcPage.successText.emojis.map((e, i) => (
+                            <span key={i}>{e}</span>
+                        ))}
+                    </div>
 
-                <Button
-                    onClick={() => {
-                        window.location.href = fileLinks.II.timeShallStrikeEXE;
-                    }}
-                    className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
-                >
-                    {chIIData.utcPage.successText.downloadButton}
-                </Button>
+                    <Button
+                        onClick={() => {
+                            window.location.href = fileLinks.II.timeShallStrikeEXE;
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
+                    >
+                        {chIIData.utcPage.successText.downloadButton}
+                    </Button>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

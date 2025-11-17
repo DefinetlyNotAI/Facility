@@ -1,71 +1,77 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {chapter, chapterIIIData} from "@/lib/data/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/lib/types/chapters";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 const renderCorruptedClock = () => {
     const randomRotation = Math.random() * 360;
     const randomScale = 0.7 + Math.random() * 0.6;
     const randomSkew = -20 + Math.random() * 40;
+    const audioRef = useRef<HTMLAudioElement>(null);
 
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.III);
     return (
-        <div
-            className="relative w-48 h-48 rounded-full flex items-center justify-center overflow-visible"
-            style={{
-                transform: `rotate(${randomRotation}deg) scale(${randomScale}) skew(${randomSkew}deg)`,
-                animation: 'glitch 0.3s infinite, melt 2s ease-in-out infinite alternate',
-            }}
-        >
-            {/* Melting border layers */}
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.III} loop preload="auto" style={{display: 'none'}}/>
             <div
-                className="absolute inset-0 bg-gray-800 rounded-full border-4 border-red-500 opacity-80 blur-sm animate-pulse"
-                style={{transform: 'translateY(10px) scaleY(1.2)'}}/>
-            <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-purple-500 opacity-60"
-                 style={{transform: 'translateY(-5px) scaleX(1.1)'}}/>
-            <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-blue-500 opacity-40 blur-md"/>
-
-            {/* Glitching gradient overlay */}
-            <div
-                className="absolute inset-0 bg-gradient-to-br from-red-500 via-purple-500 to-blue-500 opacity-40 rounded-full mix-blend-screen"
-                style={{animation: 'glitchColor 0.2s infinite'}}/>
-
-            {/* Corrupted clock hands - multiple overlapping at wrong angles */}
-            {[...Array(8)].map((_, i) => (
+                className="relative w-48 h-48 rounded-full flex items-center justify-center overflow-visible"
+                style={{
+                    transform: `rotate(${randomRotation}deg) scale(${randomScale}) skew(${randomSkew}deg)`,
+                    animation: 'glitch 0.3s infinite, melt 2s ease-in-out infinite alternate',
+                }}
+            >
+                {/* Melting border layers */}
                 <div
-                    key={i}
-                    className="absolute bg-white opacity-70"
-                    style={{
-                        width: `${Math.random() * 3}px`,
-                        height: `${40 + Math.random() * 40}px`,
-                        top: '50%',
-                        left: '50%',
-                        transformOrigin: 'bottom center',
-                        transform: `translate(-50%, -100%) rotate(${i * 45 + Math.random() * 30}deg) scaleY(${0.5 + Math.random()})`,
-                        animation: `spin ${0.5 + Math.random() * 2}s linear infinite ${Math.random() > 0.5 ? 'reverse' : ''}`,
-                        filter: 'blur(1px)',
-                    }}
-                />
-            ))}
+                    className="absolute inset-0 bg-gray-800 rounded-full border-4 border-red-500 opacity-80 blur-sm animate-pulse"
+                    style={{transform: 'translateY(10px) scaleY(1.2)'}}/>
+                <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-purple-500 opacity-60"
+                     style={{transform: 'translateY(-5px) scaleX(1.1)'}}/>
+                <div className="absolute inset-0 bg-gray-800 rounded-full border-4 border-blue-500 opacity-40 blur-md"/>
 
-            {/* Glitch artifacts */}
-            <div className="absolute w-full h-1 bg-red-500 opacity-80"
-                 style={{top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.1s infinite'}}/>
-            <div className="absolute w-full h-1 bg-cyan-500 opacity-80"
-                 style={{top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.15s infinite reverse'}}/>
+                {/* Glitching gradient overlay */}
+                <div
+                    className="absolute inset-0 bg-gradient-to-br from-red-500 via-purple-500 to-blue-500 opacity-40 rounded-full mix-blend-screen"
+                    style={{animation: 'glitchColor 0.2s infinite'}}/>
 
-            {/* Distorted center */}
-            <div className="absolute w-4 h-4 bg-red-500 rounded-full z-10 animate-ping"/>
-            <div className="absolute w-2 h-2 bg-white rounded-full z-20"
-                 style={{animation: 'glitch 0.2s infinite'}}/>
+                {/* Corrupted clock hands - multiple overlapping at wrong angles */}
+                {[...Array(8)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute bg-white opacity-70"
+                        style={{
+                            width: `${Math.random() * 3}px`,
+                            height: `${40 + Math.random() * 40}px`,
+                            top: '50%',
+                            left: '50%',
+                            transformOrigin: 'bottom center',
+                            transform: `translate(-50%, -100%) rotate(${i * 45 + Math.random() * 30}deg) scaleY(${0.5 + Math.random()})`,
+                            animation: `spin ${0.5 + Math.random() * 2}s linear infinite ${Math.random() > 0.5 ? 'reverse' : ''}`,
+                            filter: 'blur(1px)',
+                        }}/>
+                ))}
 
-            {/* Dripping effect */}
-            <div className="absolute bottom-0 left-1/2 w-2 h-8 bg-gradient-to-b from-gray-800 to-transparent opacity-60"
-                 style={{transform: 'translateX(-50%)', animation: 'drip 1.5s ease-in-out infinite'}}/>
-        </div>
+                {/* Glitch artifacts */}
+                <div className="absolute w-full h-1 bg-red-500 opacity-80"
+                     style={{top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.1s infinite'}}/>
+                <div className="absolute w-full h-1 bg-cyan-500 opacity-80"
+                     style={{top: `${Math.random() * 100}%`, animation: 'glitchSlide 0.15s infinite reverse'}}/>
+
+                {/* Distorted center */}
+                <div className="absolute w-4 h-4 bg-red-500 rounded-full z-10 animate-ping"/>
+                <div className="absolute w-2 h-2 bg-white rounded-full z-20"
+                     style={{animation: 'glitch 0.2s infinite'}}/>
+
+                {/* Dripping effect */}
+                <div
+                    className="absolute bottom-0 left-1/2 w-2 h-8 bg-gradient-to-b from-gray-800 to-transparent opacity-60"
+                    style={{transform: 'translateX(-50%)', animation: 'drip 1.5s ease-in-out infinite'}}/>
+            </div>
+        </>
     );
 };
 
