@@ -68,7 +68,7 @@ export default function Moonlight() {
 
     // Decide moon color once
     useEffect(() => {
-        if (typeof window !== "undefined" && Math.random() < 1 / 666) {
+        if (typeof window !== "undefined" && Math.random() < 1 / 43) {
             setMoonRed(true);
         }
     }, []);
