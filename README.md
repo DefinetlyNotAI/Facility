@@ -6,7 +6,6 @@ unique, immersive environment.
 
 > This is an indie psychological horror ARG experience. It is not affiliated with any existing IPs.
 
-
 ## Features
 
 - **Boot Sequence & Disclaimer**: Simulates a system boot and requires user disclaimer acceptance before entering the
