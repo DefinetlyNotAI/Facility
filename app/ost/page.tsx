@@ -52,6 +52,9 @@ export default function OSTPlayer() {
     const [showMenu, setShowMenu] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
+    // token to serialize/cancel in-flight play() attempts to avoid AbortError
+    const playTokenRef = useRef(0);
+
     // avoid SSR/client hydration mismatch: only render randomized particles on the client
     const [showParticles, setShowParticles] = useState(false);
     // particle data is generated once on client mount to keep positions stable across re-renders
@@ -95,7 +98,12 @@ export default function OSTPlayer() {
         const handleEnded = () => {
             if (loopMode === 'one') {
                 audio.currentTime = 0;
-                audio.play().catch(console.error);
+                // use tokened play to avoid races
+                const token = ++playTokenRef.current;
+                audio.play().catch((err) => {
+                    if (playTokenRef.current !== token) return;
+                    console.error(err);
+                });
             } else if (loopMode === 'all' || currentTrackIndex < tracks.length - 1) {
                 handleNext();
             } else {
@@ -122,27 +130,34 @@ export default function OSTPlayer() {
     }, [volume, isMuted]);
 
     // When the current track changes: load the new source and reset progress.
-    // We attempt to play here only if `isPlaying` is already true; otherwise we leave it paused.
+    // Use a token/safe play attempt instead of unconditionally pausing to avoid play() AbortError.
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        // pause briefly while switching src to avoid glitches
-        audio.pause();
+        // cancel any pending play attempts for the previous audio
+        playTokenRef.current++;
+
+        // set source explicitly and load
         try {
+            audio.src = currentTrack.path;
             audio.load();
         } catch (e) {
-            // ignore
+            // ignore load errors
         }
         audio.currentTime = 0;
         setCurrentTime(0);
 
         if (isPlaying) {
+            // attempt to play, but guard with a token so we can ignore races
+            const token = ++playTokenRef.current;
             audio.play().catch((err) => {
+                if (playTokenRef.current !== token) return; // was canceled by subsequent action
                 console.warn('Autoplay prevented or play failed on track change:', err);
                 setIsPlaying(false);
             });
         }
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrackIndex]);
 
@@ -152,11 +167,17 @@ export default function OSTPlayer() {
         if (!audio) return;
 
         if (isPlaying) {
+            // tokened play: increment token and attempt to play; if a later action increments the token,
+            // the catch handler will ignore the error from this attempt.
+            const token = ++playTokenRef.current;
             audio.play().catch((err) => {
+                if (playTokenRef.current !== token) return;
                 console.warn('Play failed:', err);
                 setIsPlaying(false);
             });
         } else {
+            // cancel any pending play attempts and pause immediately
+            playTokenRef.current++;
             audio.pause();
         }
     }, [isPlaying]);
@@ -173,6 +194,7 @@ export default function OSTPlayer() {
             setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
         }
         setCurrentTime(0);
+        // request play for the next track
         setIsPlaying(true);
     };
 
@@ -235,6 +257,7 @@ export default function OSTPlayer() {
     const selectTrack = (index: number) => {
         setCurrentTrackIndex(index);
         setCurrentTime(0);
+        // start playback of the selected track
         setIsPlaying(true);
         setShowMenu(false);
     };
@@ -399,7 +422,7 @@ export default function OSTPlayer() {
                 )}
 
                 {/* make sure audio element is last so it's always in the DOM */}
-                <audio ref={audioRef} src={currentTrack.path} />
+                <audio ref={audioRef} />
             </div>
         </div>
     );
