@@ -136,7 +136,7 @@ export const fileLinks = {
 // Chapter I data
 export const chIData = {
     portNum: "15325",
-    ipAddress: "192.168.13.37",
+    ipAddress: "192.168.42.177",
     text: {
         connect: "Connect to Server",
         connectHelp: "Connection Help",
