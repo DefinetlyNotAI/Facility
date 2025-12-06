@@ -94,7 +94,7 @@ export const fileLinks = {
             // Clock
             '1033333013': '/static/chapters/images/clock.png',
             // Melted Clock
-            '3h-15m-25th-utc': '/static/chapters/images/melted.jpeg',
+            '3h-15m-10th-utc': '/static/chapters/images/melted.jpeg',
         },
     },
     IV: {
@@ -201,12 +201,12 @@ export const chIIData = {
         {
             path: '15',
             image: fileLinks.II.images['15'],
-            caption: 'They sprout, and bloom from their insides, imagine we could do that?'
+            caption: 'They sprout, and bloom from their insides, imagine if we could do that?'
         },
         {
             path: '25',
             image: fileLinks.II.images['25'],
-            caption: 'Your life is pathetic... ask for a refund - AND BECOME 26'
+            caption: 'If your days feel wasted, reclaim them and return to the world as twenty six anew.'
         },
         {path: 'TREE', image: fileLinks.II.images['TREE'], caption: 'Ignore the past, find the me with three\'s'},
         {path: 'VESSEL', image: fileLinks.II.images['VESSEL'], caption: 'Curious or plain suicidal'},
