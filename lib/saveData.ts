@@ -119,7 +119,7 @@ export const routes = {
             pathVessel: '/chapters/II/VESSEL',
             pathTr33: '/chapters/II/TR33',
             path1033333013: '/chapters/II/1033333013',
-            pathTimedUrl: '/chapters/II/3h-15m-25th-utc',
+            pathTimedUrl: '/chapters/II/3h-15m-10th-utc',
         },
     }
 }

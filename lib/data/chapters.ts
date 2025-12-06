@@ -174,11 +174,11 @@ export const chIIData = {
         timeWindow: {
             hour: 3,
             minuteStart: 15,
-            minuteEnd: 30,
-            day: 25,
+            minuteEnd: 40,
+            day: 10,
         },
         images: {
-            meltedClock: '3h-15m-25th-utc',
+            meltedClock: '3h-15m-10th-utc',
         },
         accessText: {
             title: 'Access Required',
@@ -218,11 +218,11 @@ export const chIIData = {
         {
             path: '1033333013',
             image: fileLinks.II.images['1033333013'],
-            caption: 'When the clock strikes the link, go to 3h-15m-25th-utc, you have one shot at this, a 15 min gap'
+            caption: 'When the clock strikes the link, go to /3h-15m-10th-utc in this chapter, you have one shot at this, a 25 min gap'
         },
     ],
     root: {
-        startDate: new Date('2025-10-15T00:00:00Z'),
+        startDate: new Date('2025-12-06T00:00:00Z'),
         linksCount: 8,
         text: {
             countdown: {
