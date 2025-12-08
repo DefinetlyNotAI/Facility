@@ -242,7 +242,7 @@ export const chIIData = {
 
 // Chapter III data
 export const chapterIIIData = {
-    startDate: new Date('2025-10-15T00:00:00Z'),
+    startDate: new Date('2025-10-08T00:00:00Z'),
     text: {
         header: '3: Clocks and Hands',
         failHeader: 'TIME HAS RUN OUT',
