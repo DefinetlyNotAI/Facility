@@ -7,6 +7,7 @@ import {ClockState} from "@/lib/types/chapters";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {routes} from "@/lib/saveData";
 
 const renderCorruptedClock = () => {
     const randomRotation = Math.random() * 360;
@@ -82,40 +83,48 @@ export default function ChapterIIIPage() {
     const [mainClockTime, setMainClockTime] = useState(new Date());
     const failed = useFailed("III");
 
-    // Initialize clocks
+    // Fetch server-computed clock states once on mount and then keep a local tick for display only
     useEffect(() => {
-        const initialStates: ClockState[] = chapterIIIData.clocks.map(clock => {
-            const revealDate = new Date(chapterIIIData.startDate);
-            revealDate.setDate(revealDate.getDate() + clock.revealDay);
+        let mounted = true;
 
-            const now = new Date();
-            const timeRemaining = revealDate.getTime() - now.getTime();
+        const fetchStates = async () => {
+            try {
+                const res = await fetch(routes.api.chapters.IIIClockStates);
+                if (!res.ok) throw new Error('Failed to fetch clock states');
+                const data = await res.json();
 
-            return {
-                ...clock,
-                isRevealed: timeRemaining <= 0,
-                timeRemaining: Math.max(0, timeRemaining),
-            };
-        });
+                if (!mounted) return;
 
-        setClockStates(initialStates);
+                // Map server clocks into our ClockState shape (timeRemaining is in ms from server)
+                const serverClocks: ClockState[] = data.clocks.map((c: any) => ({
+                    id: c.id,
+                    symbol: c.symbol,
+                    keyword: c.keyword,
+                    revealDay: c.revealDay,
+                    isRevealed: c.isRevealed,
+                    timeRemaining: c.timeRemaining,
+                }));
 
-        const interval = setInterval(() => {
-            setMainClockTime(prev => new Date(prev.getTime() + 1000));
+                setClockStates(serverClocks);
 
-            setClockStates(prev =>
-                prev.map(clock => {
-                    const newTimeRemaining = Math.max(0, clock.timeRemaining - 1000);
-                    return {
-                        ...clock,
-                        timeRemaining: newTimeRemaining,
-                        isRevealed: newTimeRemaining === 0 || clock.isRevealed,
-                    };
-                })
-            );
-        }, 1000);
+                // Initialize main clock time from serverTime so display can't be spoofed
+                setMainClockTime(new Date(data.serverTime));
 
-        return () => clearInterval(interval);
+                // Start a local tick that only advances the display time; reveal decisions remain server-driven
+                const localInterval = setInterval(() => {
+                    setMainClockTime(prev => new Date(prev.getTime() + 1000));
+                    setClockStates(prev => prev.map(clock => ({ ...clock, timeRemaining: Math.max(0, clock.timeRemaining - 1000) })));
+                }, 1000);
+
+                return () => clearInterval(localInterval);
+            } catch (err) {
+                console.error('Error fetching clock states:', err);
+            }
+        };
+
+        fetchStates().catch(console.error);
+
+        return () => { mounted = false; };
     }, []);
 
     // Render normal clock face

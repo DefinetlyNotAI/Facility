@@ -63,6 +63,9 @@ export const routes = {
             // Need: query parameter "act" (one of Act_I, Act_II, ..., Act_X).
             // Return: JSON object like { "Act_I": "New State" } or an error object with appropriate status.
             getOne: "/api/chapters/checkOne",
+            // API: GET /api/chapters/III/clockStates - returns the current clock states for chapter III.
+            // Return: JSON object with server time, or an error object with appropriate status.
+            IIIClockStates: "/api/chapters/III/clockStates",
         },
         banned: {
             // API: POST /api/banned/checkMe
