@@ -49,6 +49,9 @@ export default function H0m3() {
     const [brokenElements, setBrokenElements] = useState<string[]>([]);
     const [glitchText, setGlitchText] = useState<string>('');
 
+    // Refs for each scroll section so we can scroll programmatically
+    const sectionRefs = useRef<Array<HTMLElement | null>>([]);
+
     useEffect(() => {
         setSessionID(getOrCreateSessionId())
     }, []);
@@ -240,6 +243,30 @@ export default function H0m3() {
         }
     };
 
+    // Helper to handle Next button clicks that advance to the next scroll section
+    const handleNext = (index: number) => {
+        const nextIndex = index + 1;
+        // Increase the scrollCount/corruption level safely
+        setScrollCount(prev => {
+            const newCount = Math.min(prev + 1, 9);
+            setCorruptionLevel(newCount);
+            addCorruption(newCount);
+            return newCount;
+        });
+
+        if (nextIndex < sectionRefs.current.length) {
+            sectionRefs.current[nextIndex]?.scrollIntoView({behavior: 'smooth'});
+        } else {
+            // Last section: scroll to top and set final corruption if not already
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            setTimeout(() => {
+                setScrollCount(9);
+                setCorruptionLevel(9);
+                addCorruption(9);
+            }, 600);
+        }
+    };
+
     if (!mounted) {
         return (
             <div style={{backgroundColor: 'black', height: '100vh', width: '100vw'}}>
@@ -316,11 +343,14 @@ export default function H0m3() {
                     filter: `${brokenElements.includes('colors-inverted') || isInverted ? 'invert(1) hue-rotate(180deg)' : ''}`,
                     transition: 'filter 0.3s ease',
                     backgroundColor: 'black',
-                    minHeight: '500vh', // Make it very long for seamless scrolling
+                    minHeight: 'auto', // switched to auto and rely on sections for height
                     color: brokenElements.includes('colors-inverted') || isInverted ? '#ff0000' : '#00ff00',
                     fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact, Arial Black, serif' : 'monospace',
                     transform: brokenElements.includes('layout-broken') ? 'skew(-2deg, 1deg)' : 'none',
-                    animation: brokenElements.includes('complete-chaos') ? 'chaos 0.1s infinite' : 'none'
+                    animation: brokenElements.includes('complete-chaos') ? 'chaos 0.1s infinite' : 'none',
+                    overflowX: 'hidden', // prevent horizontal offscreen content
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word'
                 }}
                 className={`
                 ${brokenElements.includes('header-broken') ? 'header-broken' : ''}
@@ -439,7 +469,11 @@ export default function H0m3() {
 
                 {/* Main Content - Duplicated multiple times for seamless scrolling */}
                 {[...Array(5)].map((_, index) => (
-                    <main key={index} style={{padding: '2rem 0'}}>
+                    <main
+                        key={index}
+                        ref={el => { sectionRefs.current[index] = el as HTMLElement | null; }}
+                        style={{padding: '2rem 0', minHeight: '100vh'}} // make each section viewport tall so Next scroll is predictable
+                    >
                         <div style={{maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem'}}>
                             {/* Primary Terminal */}
                             <div style={{
@@ -671,6 +705,26 @@ export default function H0m3() {
                                     {letterReplace(brokenElements.includes('text-scrambled') ? "Th3 $y$t3m kn0w$ w3 @r3 h3r3. Th3 r00t$ @r3 w@tch1ng." : "The system knows we are here. The roots are watching.")}
                                 </div>
                             </div>
+
+                            {/* Next button for manual progression */}
+                            <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                                <button
+                                    onClick={() => handleNext(index)}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #06b6d4 0%, #0ea5a4 100%)',
+                                        border: 'none',
+                                        color: '#000',
+                                        padding: '0.75rem 1.5rem',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: '700',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {index < 4 ? 'Next' : buttons.WHY}
+                                </button>
+                            </div>
+
                         </div>
                     </main>
                 ))}
