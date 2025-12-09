@@ -253,9 +253,9 @@ export const chapterIIIData = {
         },
     },
     clocks: [
-        {id: 1, keyword: 'Broken', symbol: '∞', revealDay: 1},
-        {id: 2, keyword: 'Intelligent', symbol: 'Ω', revealDay: 3},
-        {id: 3, keyword: 'NoName', symbol: '0', revealDay: 5},
+        {id: 1, keyword: 'BrokenMe', symbol: '∞', revealDay: 1},
+        {id: 2, keyword: 'IntelligentYou', symbol: 'Ω', revealDay: 3},
+        {id: 3, keyword: 'NoNameForHim', symbol: '0', revealDay: 5},
     ]
 };
 
