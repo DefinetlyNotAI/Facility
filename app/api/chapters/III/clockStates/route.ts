@@ -12,20 +12,28 @@ export async function GET() {
             revealDate.setDate(startDate.getDate() + clock.revealDay);
 
             const timeRemaining = revealDate.getTime() - now.getTime();
+            const isRevealed = timeRemaining <= 0;
 
-            return {
+            // Base response for a clock (do not include secret fields unless revealed)
+            const clockResponse: any = {
                 id: clock.id,
-                symbol: clock.symbol,
-                keyword: clock.keyword,
                 revealDay: clock.revealDay,
                 revealDate: revealDate.toISOString(),
-                isRevealed: timeRemaining <= 0,
+                isRevealed,
                 timeRemaining: Math.max(0, timeRemaining),
             };
+
+            if (isRevealed) {
+                clockResponse.symbol = clock.symbol;
+                clockResponse.keyword = clock.keyword;
+            }
+
+            return clockResponse;
         });
 
         return NextResponse.json({
             serverTime: now.toISOString(),
+            easterEgg: "Shadysallows - U made me do extra work smh :P",
             clocks,
         });
     } catch (err) {
