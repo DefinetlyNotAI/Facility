@@ -1,10 +1,12 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
 import {seededShuffle, seedFromString} from '@/lib/puzzles';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
+import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
     idx: number,
@@ -46,8 +48,13 @@ const Riddle = ({idx, prompt, expectedChunk, onResult}: {
     );
 }
 
+
 export default function TreePuzzlePage() {
     const isCurrentlySolved = useChapter4Access();
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
+
     if (!isCurrentlySolved) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -365,147 +372,150 @@ export default function TreePuzzlePage() {
 
     // Basic UI rendering for stages
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
-            <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-6">
-                    <h1 className="text-white font-mono text-3xl font-bold">{chapterIVData.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}</h1>
-                    <p className="text-gray-400 font-mono text-sm mt-2">{chapterIVData.text.subHeader}</p>
-                </div>
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
+                <div className="max-w-3xl mx-auto">
+                    <div className="text-center mb-6">
+                        <h1 className="text-white font-mono text-3xl font-bold">{chapterIVData.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}</h1>
+                        <p className="text-gray-400 font-mono text-sm mt-2">{chapterIVData.text.subHeader}</p>
+                    </div>
 
-                <div className="mb-4 flex gap-2 justify-center">
-                    {stages.map((s: any, i: number) => {
-                        const locked = i > unlockedStage;
-                        return (
-                            <button
-                                key={i}
-                                onClick={() => {
-                                    if (!locked) setStageIndex(i);
-                                }}
-                                disabled={locked}
-                                className={`px-3 py-1 font-mono text-sm rounded ${i === stageIndex ? 'bg-gray-700 text-white' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
-                                {locked ? `🔒 Stage ${s.stage}` : `Stage ${s.stage}`}
-                            </button>
-                        )
-                    })}
-                </div>
+                    <div className="mb-4 flex gap-2 justify-center">
+                        {stages.map((s: any, i: number) => {
+                            const locked = i > unlockedStage;
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => {
+                                        if (!locked) setStageIndex(i);
+                                    }}
+                                    disabled={locked}
+                                    className={`px-3 py-1 font-mono text-sm rounded ${i === stageIndex ? 'bg-gray-700 text-white' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
+                                    {locked ? `🔒 Stage ${s.stage}` : `Stage ${s.stage}`}
+                                </button>
+                            );
+                        })}
+                    </div>
 
-                <div className="bg-gray-900 border border-gray-800 p-6 rounded">
-                    <h2 className="font-mono text-lg text-white mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
-                    <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
+                    <div className="bg-gray-900 border border-gray-800 p-6 rounded">
+                        <h2 className="font-mono text-lg text-white mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
+                        <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
 
-                    {stageIndex === 0 && (
-                        <div className="space-y-3">
-                            <div className="text-xs text-gray-400">Stage 1 payload (dossier):</div>
+                        {stageIndex === 0 && (
+                            <div className="space-y-3">
+                                <div className="text-xs text-gray-400">Stage 1 payload (dossier):</div>
 
-                            <div
-                                className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700 rounded p-2">
+                                <div
+                                    className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700 rounded p-2">
                                 <pre
                                     className="m-0 font-mono text-sm text-white whitespace-pre-wrap break-words max-h-28 overflow-auto px-2 py-1 bg-black/20 rounded">{stages[0]?.payload || ''}</pre>
 
-                                <div className="absolute top-2 right-2 flex items-center gap-2">
-                                    <button
-                                        onClick={() => {
-                                            try {
-                                                navigator.clipboard?.writeText(stages[0]?.payload || '');
-                                                setFeedback('Payload copied to clipboard.');
-                                                setTimeout(() => setFeedback(''), 1500);
-                                            } catch (e) {
-                                                setFeedback('Copy failed.');
-                                            }
-                                        }}
-                                        className="bg-emerald-600 hover:bg-emerald-500 text-black font-mono px-2 py-1 rounded text-xs">
-                                        Copy
-                                    </button>
+                                    <div className="absolute top-2 right-2 flex items-center gap-2">
+                                        <button
+                                            onClick={() => {
+                                                try {
+                                                    navigator.clipboard?.writeText(stages[0]?.payload || '');
+                                                    setFeedback('Payload copied to clipboard.');
+                                                    setTimeout(() => setFeedback(''), 1500);
+                                                } catch (e) {
+                                                    setFeedback('Copy failed.');
+                                                }
+                                            }}
+                                            className="bg-emerald-600 hover:bg-emerald-500 text-black font-mono px-2 py-1 rounded text-xs">
+                                            Copy
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <form onSubmit={handleSubmit} className="flex gap-2">
-                                <input
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Enter answer"
-                                    className="bg-gray-800 text-white font-mono text-sm px-3 py-2 rounded flex-1"
-                                />
-                                <button type="submit"
-                                        className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {stageIndex === 1 && (
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="text-sm text-gray-400">Time remaining: <span
-                                    className="font-mono text-white">{remainingTime}s</span></div>
-                                <div className="text-sm text-gray-400">Base timer: <span
-                                    className="font-mono text-white">{stage2BaseTime}s</span></div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3 mb-3">
-                                {nodes.map(n => (
-                                    <button key={n.id}
-                                            onClick={() => handleNodeClick(n)}
-                                            className={`p-4 rounded font-mono text-xl ${n.withered ? 'bg-red-900 text-red-100 opacity-90' : 'bg-green-900 text-white'}`}>
-                                        {n.label}
-                                        {n.withered && <div className="text-xs text-red-300 mt-1">withered</div>}
+                                <form onSubmit={handleSubmit} className="flex gap-2">
+                                    <input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder="Enter answer"
+                                        className="bg-gray-800 text-white font-mono text-sm px-3 py-2 rounded flex-1"/>
+                                    <button type="submit"
+                                            className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
                                     </button>
-                                ))}
+                                </form>
                             </div>
+                        )}
 
-                            <div className="text-sm text-gray-300 mb-2">Sequence: <span
-                                className="font-mono">{nodeSeq}</span></div>
-                            <div className="text-sm text-yellow-400">{feedback}</div>
-                        </div>
-                    )}
+                        {stageIndex === 1 && (
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="text-sm text-gray-400">Time remaining: <span
+                                        className="font-mono text-white">{remainingTime}s</span></div>
+                                    <div className="text-sm text-gray-400">Base timer: <span
+                                        className="font-mono text-white">{stage2BaseTime}s</span></div>
+                                </div>
 
-                    {stageIndex === 2 && (
-                        <div className="space-y-4">
-                            <div className="text-sm text-gray-400">Stage 3 is a riddle chain; solve each riddle to
-                                reveal a word. When all three are correct you may submit to complete.
-                            </div>
+                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                    {nodes.map(n => (
+                                        <button key={n.id}
+                                                onClick={() => handleNodeClick(n)}
+                                                className={`p-4 rounded font-mono text-xl ${n.withered ? 'bg-red-900 text-red-100 opacity-90' : 'bg-green-900 text-white'}`}>
+                                            {n.label}
+                                            {n.withered && <div className="text-xs text-red-300 mt-1">withered</div>}
+                                        </button>
+                                    ))}
+                                </div>
 
-                            <Riddle idx={0}
-                                    prompt={'I speak without a mouth and hear without ears. I have nobody, but I come alive with wind.'}
-                                    expectedChunk={'echo'} onResult={onRiddleResult}/>
-                            <Riddle idx={1}
-                                    prompt={'I have cities, but no houses. I have mountains, but no trees. I have water, but no fish.'}
-                                    expectedChunk={'map'} onResult={onRiddleResult}/>
-                            <Riddle idx={2}
-                                    prompt={'I am not alive, but I grow; I do not have lungs, but I need air; I do not have a mouth, but water kills me.'}
-                                    expectedChunk={'fire'} onResult={onRiddleResult}/>
-
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={handleStage3FinalSubmit}
-                                    disabled={!riddleCorrects.every(Boolean)}
-                                    className={`px-3 py-1 font-mono text-sm rounded ${riddleCorrects.every(Boolean) ? 'bg-emerald-600 text-black' : 'bg-gray-800 text-gray-500'}`}>
-                                    Submit Completion
-                                </button>
+                                <div className="text-sm text-gray-300 mb-2">Sequence: <span
+                                    className="font-mono">{nodeSeq}</span></div>
                                 <div className="text-sm text-yellow-400">{feedback}</div>
                             </div>
-                            {riddleCorrects.every(Boolean) && (
-                                <div className="text-xs text-gray-400 italic">All riddles correct — please take a
-                                    screenshot of this screen to document completion.</div>
-                            )}
-                        </div>
-                    )}
+                        )}
 
-                    {stageIndex >= stages.length && (
-                        <div className="text-center py-12">
-                            <div className="text-green-400 font-mono text-lg">Puzzle complete.</div>
-                            <div className="mt-3">
-                                <Link href="/chapters/IV" className="text-sm font-mono underline text-gray-300">Back to
-                                    Chapter IV</Link>
+                        {stageIndex === 2 && (
+                            <div className="space-y-4">
+                                <div className="text-sm text-gray-400">Stage 3 is a riddle chain; solve each riddle to
+                                    reveal a word. When all three are correct you may submit to complete.
+                                </div>
+
+                                <Riddle idx={0}
+                                        prompt={'I speak without a mouth and hear without ears. I have nobody, but I come alive with wind.'}
+                                        expectedChunk={'echo'} onResult={onRiddleResult}/>
+                                <Riddle idx={1}
+                                        prompt={'I have cities, but no houses. I have mountains, but no trees. I have water, but no fish.'}
+                                        expectedChunk={'map'} onResult={onRiddleResult}/>
+                                <Riddle idx={2}
+                                        prompt={'I am not alive, but I grow; I do not have lungs, but I need air; I do not have a mouth, but water kills me.'}
+                                        expectedChunk={'fire'} onResult={onRiddleResult}/>
+
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={handleStage3FinalSubmit}
+                                        disabled={!riddleCorrects.every(Boolean)}
+                                        className={`px-3 py-1 font-mono text-sm rounded ${riddleCorrects.every(Boolean) ? 'bg-emerald-600 text-black' : 'bg-gray-800 text-gray-500'}`}>
+                                        Submit Completion
+                                    </button>
+                                    <div className="text-sm text-yellow-400">{feedback}</div>
+                                </div>
+                                {riddleCorrects.every(Boolean) && (
+                                    <div className="text-xs text-gray-400 italic">All riddles correct — please take a
+                                        screenshot of this screen to document completion.</div>
+                                )}
                             </div>
-                        </div>
-                    )}
+                        )}
+
+                        {stageIndex >= stages.length && (
+                            <div className="text-center py-12">
+                                <div className="text-green-400 font-mono text-lg">Puzzle complete.</div>
+                                <div className="mt-3">
+                                    <Link href="/chapters/IV" className="text-sm font-mono underline text-gray-300">Back
+                                        to
+                                        Chapter IV</Link>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+
+                    <div className="mt-4 text-sm text-gray-400">{completed ? 'Completed and saved.' : ''}</div>
 
                 </div>
-
-                <div className="mt-4 text-sm text-gray-400">{completed ? 'Completed and saved.' : ''}</div>
-
             </div>
-        </div>
+        </>
     );
 }

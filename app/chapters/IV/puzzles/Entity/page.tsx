@@ -1,14 +1,19 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
 import {seededTokens} from '@/lib/puzzles';
 import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
+import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 export default function EntityPuzzlePage() {
     const isCurrentlySolved = useChapter4Access();
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
     if (!isCurrentlySolved) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -170,98 +175,103 @@ export default function EntityPuzzlePage() {
     }
 
     return (
-        <div className="min-h-screen p-8 bg-gray-900 text-white font-mono">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-2xl font-bold mb-4">Entity Puzzle</h1>
-                <p className="text-sm text-gray-400 mb-6">Follow the staged hints to solve the multipart proof.</p>
+        <>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
+            <div className="min-h-screen p-8 bg-gray-900 text-white font-mono">
+                <div className="max-w-4xl mx-auto">
+                    <h1 className="text-2xl font-bold mb-4">Entity Puzzle</h1>
+                    <p className="text-sm text-gray-400 mb-6">Follow the staged hints to solve the multipart proof.</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <h3 className="font-semibold">Stages</h3>
-                        <ol className="mt-2 list-decimal list-inside">
-                            {stages.map((s: any, i: number) => (
-                                <li key={i}>
-                                    <button
-                                        onClick={() => setStageIndex(i)}
-                                        className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
-                                    >
-                                        {s.title}
-                                    </button>
-                                </li>
-                            ))}
-                        </ol>
-                        <div className="mt-4">
-                            <button onClick={reset} className="text-xs text-red-400 underline">
-                                Reset
-                            </button>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <h3 className="font-semibold">Stages</h3>
+                            <ol className="mt-2 list-decimal list-inside">
+                                {stages.map((s: any, i: number) => (
+                                    <li key={i}>
+                                        <button
+                                            onClick={() => setStageIndex(i)}
+                                            className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
+                                        >
+                                            {s.title}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ol>
+                            <div className="mt-4">
+                                <button onClick={reset} className="text-xs text-red-400 underline">
+                                    Reset
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
 
-                    <div className="md:col-span-2">
-                        <div className="p-4 bg-gray-800 rounded">
-                            <h3 className="font-semibold">{stages[stageIndex]?.title}</h3>
-                            <p className="text-sm text-gray-300 mt-2">{stages[stageIndex]?.instruction}</p>
+                        <div className="md:col-span-2">
+                            <div className="p-4 bg-gray-800 rounded">
+                                <h3 className="font-semibold">{stages[stageIndex]?.title}</h3>
+                                <p className="text-sm text-gray-300 mt-2">{stages[stageIndex]?.instruction}</p>
 
-                            {stageIndex === 1 && (
-                                <div className="mt-4">
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {grid.map((g, idx) => (<button key={idx} onClick={() => clickGrid(idx)}
-                                                                       className="p-3 bg-black rounded text-green-300">{g}</button>))}
-                                    </div>
-                                    <div className="mt-3 flex items-center gap-3">
-                                        <div className="text-sm text-gray-400">Selection: <span
-                                            className="font-mono text-green-300">{selection}</span></div>
-                                        <button onClick={() => setSelection('')} className="text-xs underline">Clear
-                                        </button>
-                                        <button onClick={submitGrid}
-                                                className="ml-2 px-3 py-1 bg-blue-600 rounded">Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {stageIndex === 2 && (
-                                <div className="mt-4">
-                                    <div className="flex gap-2 flex-wrap">{anomalies.map((a, idx) => (
-                                        <button key={idx} disabled={picked[idx]} onClick={() => clickAnomaly(idx)}
-                                                className={picked[idx] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 rounded'}>{a}</button>))}</div>
-                                    <div className="mt-3 flex items-center gap-3">
-                                        <div>Current: <span className="font-mono text-green-300">{anSelection}</span>
+                                {stageIndex === 1 && (
+                                    <div className="mt-4">
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {grid.map((g, idx) => (<button key={idx} onClick={() => clickGrid(idx)}
+                                                                           className="p-3 bg-black rounded text-green-300">{g}</button>))}
                                         </div>
-                                        <button onClick={() => {
-                                            setPicked(new Array(anomalies.length).fill(false));
-                                            setAnSelection('');
-                                        }} className="text-xs underline">Clear
-                                        </button>
-                                        <button onClick={submitAnomalies}
-                                                className="ml-2 px-3 py-1 bg-blue-600 rounded">Submit
-                                        </button>
+                                        <div className="mt-3 flex items-center gap-3">
+                                            <div className="text-sm text-gray-400">Selection: <span
+                                                className="font-mono text-green-300">{selection}</span></div>
+                                            <button onClick={() => setSelection('')} className="text-xs underline">Clear
+                                            </button>
+                                            <button onClick={submitGrid}
+                                                    className="ml-2 px-3 py-1 bg-blue-600 rounded">Submit
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            {stageIndex !== 1 && stageIndex !== 2 && (
-                                <form onSubmit={handleSubmit} className="mt-4">{stages[stageIndex]?.payload && <div
-                                    className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
-                                    <div className="mt-2 flex gap-2"><input value={input}
-                                                                            onChange={(e) => setInput(e.target.value)}
-                                                                            placeholder="Enter answer"
-                                                                            className="flex-1 bg-gray-900 px-3 py-2 rounded"/>
-                                        <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit</button>
+                                {stageIndex === 2 && (
+                                    <div className="mt-4">
+                                        <div className="flex gap-2 flex-wrap">{anomalies.map((a, idx) => (
+                                            <button key={idx} disabled={picked[idx]} onClick={() => clickAnomaly(idx)}
+                                                    className={picked[idx] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 rounded'}>{a}</button>))}</div>
+                                        <div className="mt-3 flex items-center gap-3">
+                                            <div>Current: <span
+                                                className="font-mono text-green-300">{anSelection}</span>
+                                            </div>
+                                            <button onClick={() => {
+                                                setPicked(new Array(anomalies.length).fill(false));
+                                                setAnSelection('');
+                                            }} className="text-xs underline">Clear
+                                            </button>
+                                            <button onClick={submitAnomalies}
+                                                    className="ml-2 px-3 py-1 bg-blue-600 rounded">Submit
+                                            </button>
+                                        </div>
                                     </div>
-                                </form>
-                            )}
+                                )}
 
-                            {feedback && <div className="mt-3 text-sm text-yellow-300">{feedback}</div>}
+                                {stageIndex !== 1 && stageIndex !== 2 && (
+                                    <form onSubmit={handleSubmit} className="mt-4">{stages[stageIndex]?.payload && <div
+                                        className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
+                                        <div className="mt-2 flex gap-2"><input value={input}
+                                                                                onChange={(e) => setInput(e.target.value)}
+                                                                                placeholder="Enter answer"
+                                                                                className="flex-1 bg-gray-900 px-3 py-2 rounded"/>
+                                            <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {feedback && <div className="mt-3 text-sm text-yellow-300">{feedback}</div>}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="mt-6"><Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to
-                    Chapter IV</Link></div>
-                <div className="mt-3 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
+                    <div className="mt-6"><Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to
+                        Chapter IV</Link></div>
+                    <div className="mt-3 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
