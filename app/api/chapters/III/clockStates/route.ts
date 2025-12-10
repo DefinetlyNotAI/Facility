@@ -10,7 +10,7 @@ export async function GET() {
             // Compute reveal date
             const revealDate = new Date(startDate);
             revealDate.setDate(startDate.getDate() + clock.revealDay);
-
+            revealDate.setUTCHours(12, 0, 0, 0);
             const timeRemaining = revealDate.getTime() - now.getTime();
             const isRevealed = timeRemaining <= 0;
 
