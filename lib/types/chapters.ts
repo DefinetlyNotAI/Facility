@@ -38,6 +38,12 @@ export interface ChapterIVDatatype {
         failedCaption: string;
         image: string;
     }[];
+    // optional puzzles metadata keyed by plaque id
+    puzzles?: Record<string, {
+        keyword: string;
+        stages: string[];
+        hints: string[][];
+    }>;
 }
 
 export type ChapterVIIData = {

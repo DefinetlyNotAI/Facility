@@ -2,6 +2,8 @@
 
 import {useRef, useState} from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
 import {chapter, chapterIVData, fileLinks} from "@/lib/data/chapters";
 import {PlaqueStatus} from "@/lib/types/chapters";
@@ -14,12 +16,17 @@ import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 export default function ChapterIVPage() {
     const {isCurrentlySolved} = useChapterAccess();
-    const [plaqueStatuses] = useState<PlaqueStatus[]>(chapterIVData.plaqueStatus);
+    const [plaqueStatuses] = useState<any[]>(chapterIVData.plaqueStatus);
     const [questStatus] = useState<AllowedPlaqueStatus>('active');
     const audioRef = useRef<HTMLAudioElement>(null);
 
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
     const isAllFailed = useFailed("IV");
+
+    const router = useRouter();
+    const [inputs, setInputs] = useState<Record<string, string>>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [loadingIds, setLoadingIds] = useState<Record<string, boolean>>({});
 
     if (isCurrentlySolved === null) {
         return (
@@ -27,6 +34,39 @@ export default function ChapterIVPage() {
                 <div className="text-white font-mono">{chapter.loading}</div>
             </div>
         );
+    }
+
+    const fileLinkMap: Record<string, string> = {
+        Entity: fileLinks.IV.E_TXT,
+        TAS: fileLinks.IV.TAS_TXT,
+        TREE: fileLinks.IV.TREE_TXT,
+    };
+
+    const handleChange = (id: string, value: string) => {
+        setInputs(prev => ({...prev, [id]: value}));
+        setErrors(prev => ({...prev, [id]: ''}));
+    }
+
+    const handleSubmit = async (id: string) => {
+        setErrors(prev => ({...prev, [id]: ''}));
+        setLoadingIds(prev => ({...prev, [id]: true}));
+        try {
+            const provided = (inputs[id] || '').trim().toLowerCase();
+            const expected = (chapterIVData as any).puzzles?.[id]?.keyword;
+            if (!expected) {
+                setErrors(prev => ({...prev, [id]: 'No puzzle configured.'}));
+                return;
+            }
+
+            if (provided === expected.toLowerCase()) {
+                // Navigate to the puzzle route
+                router.push(`/chapters/IV/puzzles/${id}`);
+            } else {
+                setErrors(prev => ({...prev, [id]: 'Incorrect keyword.'}));
+            }
+        } finally {
+            setLoadingIds(prev => ({...prev, [id]: false}));
+        }
     }
 
     return (
@@ -58,19 +98,11 @@ export default function ChapterIVPage() {
                             const isSolved = status?.status === 'solved' || isCurrentlySolved;
                             const isFailed = isAllFailed || status?.status === 'failed';
 
-                            const fileLinkMap: Record<string, string> = {
-                                Entity: fileLinks.IV.E_TXT,
-                                TAS: fileLinks.IV.TAS_TXT,
-                                TREE: fileLinks.IV.TREE_TXT,
-                            };
-
                             const downloadLink = fileLinkMap[plaque.id as keyof typeof fileLinkMap];
 
                             return (
-                                <a
+                                <div
                                     key={plaque.id}
-                                    href={downloadLink}
-                                    download
                                     className="block"
                                 >
                                     <Card
@@ -117,11 +149,53 @@ export default function ChapterIVPage() {
                                             {isPending && (
                                                 <div className="pt-4 border-t border-gray-800">
                                                     <p className="text-gray-500 font-mono text-xs italic text-center">{plaque.riddle}</p>
+
+                                                    <div className="mt-4 flex flex-col items-center">
+                                                        <input
+                                                            aria-label={`keyword-input-${plaque.id}`}
+                                                            value={inputs[plaque.id] || ''}
+                                                            onChange={(e) => handleChange(plaque.id, e.target.value)}
+                                                            placeholder="Enter keyword"
+                                                            className="bg-gray-800 text-white font-mono text-sm px-3 py-2 rounded w-3/4 md:w-2/3"
+                                                        />
+
+                                                        <div className="mt-3 flex items-center gap-3">
+                                                            <button
+                                                                onClick={() => handleSubmit(plaque.id)}
+                                                                disabled={!!loadingIds[plaque.id]}
+                                                                className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">
+                                                                {loadingIds[plaque.id] ? 'Checking...' : 'Submit'}
+                                                            </button>
+
+                                                            <a href={downloadLink} download className="text-xs text-gray-400 font-mono underline">Download clue</a>
+                                                        </div>
+
+                                                        {errors[plaque.id] && (
+                                                            <div className="mt-2 text-xs text-red-400 font-mono">{errors[plaque.id]}</div>
+                                                        )}
+
+                                                        <div className="mt-4 text-xs text-gray-500 font-mono">
+                                                            <span>Need a hint? </span>
+                                                            {(chapterIVData as any).puzzles?.[plaque.id]?.hints?.[0]?.[0] ? (
+                                                                <Link href={`/chapters/IV/puzzles/${plaque.id}`} className="underline">Open puzzle page for staged hints</Link>
+                                                            ) : (
+                                                                <span className="italic">No hints available.</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
+
+                                            {!isPending && (
+                                                <div className="pt-4 border-t border-gray-800 flex items-center justify-between">
+                                                    <a href={downloadLink} download className="text-xs text-gray-400 font-mono underline">Download artifact</a>
+                                                    <Link href={`/chapters/IV/puzzles/${plaque.id}`} className="text-xs text-gray-300 font-mono underline">Open</Link>
+                                                </div>
+                                            )}
+
                                         </CardContent>
                                     </Card>
-                                </a>
+                                </div>
                             );
                         })}
                     </div>

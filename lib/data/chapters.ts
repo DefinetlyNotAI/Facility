@@ -1,5 +1,5 @@
 import ntl_styles from "@/styles/NoTimeLeft.module.css";
-import {ChapterIVDatatype, ChapterVIIData} from "@/lib/types/chapters";
+import {ChapterVIIData} from "@/lib/types/chapters";
 
 
 // All texts used in bonus chapters for errors or messages
@@ -260,7 +260,7 @@ export const chapterIIIData = {
 };
 
 // Chapter IV data
-export const chapterIVData: ChapterIVDatatype = {
+export const chapterIVData = {
     gifCrossPath: "/static/chapters/images/failCross.gif",
     plaqueStatus: [
         {id: 'TREE', status: 'pending'},
@@ -309,7 +309,147 @@ export const chapterIVData: ChapterIVDatatype = {
             failedCaption: '54 4F 4F 20 4C 41 54 45',
             image: fileLinks.IV.plaques.Entity,
         },
-    ]
+    ],
+    // Puzzle metadata for Chapter IV plaques
+    puzzles: {
+        TREE: {
+            // keyword that unlocks the TREE multipart puzzle
+            keyword: 'sapling',
+            stages: [
+                'Seed Decode - a long nested-encoding dossier to decode',
+                'Root Graph - interactively activate roots in the right order',
+                'Canopy Riddle Chain - a sequence of chained riddles and micro-puzzles'
+            ],
+            hints: [
+                [
+                    'Stage 1: Look for hex and base64 layers.',
+                    'Stage 1: Common small substitution ciphers are used (A↔Z style).'
+                ],
+                [
+                    'Stage 2: Node indices in the dossier map to activation order.',
+                    'Stage 2: Avoid withered nodes (they reset progress).'
+                ],
+                [
+                    'Stage 3: Each riddle reveals a single word; combine them in order.',
+                    'Stage 3: One of the riddles is solved by an image anagram.'
+                ]
+            ],
+            // Stage-specific payloads and expected answers (Stage 1 implemented)
+            stageData: [
+                {
+                    stage: 1,
+                    title: 'Seed Decode',
+                    instruction: 'Decode the dossier: decode base64, then interpret the result as hex to ASCII. Data: NjQ2NTY1NzA3MjZmNmY3NA==',
+                    payload: 'NjQ2NTY1NzA3MjZmNmY3NA==',
+                    answer: 'deeproot'
+                },
+                {
+                    stage: 2,
+                    title: 'Root Graph',
+                    instruction: '(Stage 2 placeholder) Use the node activation order derived from the dossier to form the key.',
+                    payload: '',
+                    answer: '5281'
+                },
+                {
+                    stage: 3,
+                    title: 'Canopy Riddle Chain',
+                    instruction: '(Stage 3 placeholder) Solve the chained riddles to reveal the final word.',
+                    payload: '',
+                    answer: 'canopy'
+                }
+            ]
+        },
+        TAS: {
+            keyword: 'mnemonic',
+            stages: [
+                'Fragmented Logs - reorder and decode log fragments',
+                'Circuit Emulation - route signals through constrained panels',
+                'Consensus Assembly - answer a long sequence to assemble final keys'
+            ],
+            hints: [
+                [
+                    'Stage 1: Timestamps were stripped; sort by logical progression.',
+                    'Stage 1: Look for small fixed XOR patterns and base64.'
+                ],
+                [
+                    'Stage 2: Words map to binary patterns used as wiring targets.',
+                    'Stage 2: You can reset sub-panels independently.'
+                ],
+                [
+                    'Stage 3: Collect 5 short keys from earlier stages and order them.',
+                    'Stage 3: The final phrase uses a separator character from Stage 2.'
+                ]
+            ],
+            stageData: [
+                {
+                    stage: 1,
+                    title: 'Fragmented Logs',
+                    instruction: 'Reconstruct and decode the fragments. Data: dG9rZW46ZW50cm9weQ== (base64)',
+                    payload: 'dG9rZW46ZW50cm9weQ==',
+                    answer: 'entropy'
+                },
+                {
+                    stage: 2,
+                    title: 'Circuit Emulation',
+                    instruction: '(Stage 2 placeholder) Route the signals to match known patterns.',
+                    payload: '',
+                    answer: '11001'
+                },
+                {
+                    stage: 3,
+                    title: 'Consensus Assembly',
+                    instruction: '(Stage 3 placeholder) Assemble keys from stages to form the final consensus string.',
+                    payload: '',
+                    answer: 'consensus'
+                }
+            ]
+        },
+        Entity: {
+            keyword: 'observer',
+            stages: [
+                'Blindwatch Audio - layered audio clips to transcribe',
+                'Reflection Maze - visual mirrored maze pathing',
+                'Temporal Loop Proof - find anomalies in a long timeline narrative'
+            ],
+            hints: [
+                [
+                    'Stage 1: Some clips are reversed or slowed.',
+                    'Stage 1: Hidden tones map to character separators.'
+                ],
+                [
+                    'Stage 2: Marked path tiles correspond to tokens used later.',
+                    'Stage 2: The maze uses mirrored tiles; treat symmetric tiles as identical.'
+                ],
+                [
+                    'Stage 3: Look for repeated contradictions and timestamp jumps.',
+                    'Stage 3: The final answer is assembled from anomaly indices.'
+                ]
+            ],
+            stageData: [
+                {
+                    stage: 1,
+                    title: 'Blindwatch Audio',
+                    instruction: 'Transcribe the layered clip. (Simulated) Data: bm90ZSB0byB3YXRjaA== (base64)',
+                    payload: 'bm90ZSB0byB3YXRjaA==',
+                    answer: 'watch'
+                },
+                {
+                    stage: 2,
+                    title: 'Reflection Maze',
+                    instruction: '(Stage 2 placeholder) Traverse the mirrored maze and note token indices.',
+                    payload: '',
+                    answer: 'mirror'
+                },
+                {
+                    stage: 3,
+                    title: 'Temporal Loop Proof',
+                    instruction: '(Stage 3 placeholder) Identify timeline anomalies and assemble the proof string.',
+                    payload: '',
+                    answer: 'anomaly'
+                }
+            ]
+        }
+    }
 };
 
 // Chapter V data
