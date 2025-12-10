@@ -1,11 +1,7 @@
 // Server-only cookie signing utilities for chapter IV gating
 import crypto from 'crypto';
 
-const DEFAULT_SECRET = process.env.CHAPTER_IV_COOKIE_SECRET || '';
-if (!DEFAULT_SECRET) {
-    // Note: In production you MUST set CHAPTER_IV_COOKIE_SECRET env var.
-    // We don't throw here to avoid breaking local dev, but signing will be weaker.
-}
+const DEFAULT_SECRET = process.env.COOKIE_SECRET || 'please_set_a_real_secret_in_production';
 
 const ALGO = 'sha256';
 
