@@ -96,7 +96,8 @@ export default function EntityPuzzlePage() {
         try {
             const current = getJsonCookie(cookieKey) || {};
             const prev = Number(current['Entity'] || 0);
-            current['Entity'] = Math.max(prev, 3);
+            // 0 = not started, 1 = started, 2 = completed
+            current['Entity'] = Math.max(prev, 2);
             setJsonCookie(cookieKey, current, 365);
         } catch (e) {
         }
@@ -139,6 +140,10 @@ export default function EntityPuzzlePage() {
     const [input, setInput] = useState<string>('');
     const [feedback, setFeedback] = useState<string>('');
 
+    // riddle chain correctness (support up to 12 riddles for longer chains)
+    const MAX_RIDDLES = 12;
+    const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>(new Array(MAX_RIDDLES).fill(false));
+
     // Persist progress to localStorage (still useful for per-device quick load)
     useEffect(() => {
         try {
@@ -155,6 +160,13 @@ export default function EntityPuzzlePage() {
     const [anomalies, setAnomalies] = useState<string[]>([]);
     const [picked, setPicked] = useState<boolean[]>([]);
     const [anSelection, setAnSelection] = useState<string>('');
+
+    // general per-stage results for later weave/validate
+    const [stageResults, setStageResults] = useState<Record<number, string>>({});
+    const setStageResult = (idx: number, val: string) => setStageResults(prev => ({...prev, [idx]: val}));
+
+    // show stage hints (if any)
+    const stageHints = (chapterIVData as any).puzzles?.Entity?.hints?.[stageIndex] || [];
 
     // unlocked stage tracking (TREE-style)
     const [unlockedStage, setUnlockedStage] = useState<number>(0);
@@ -186,13 +198,10 @@ export default function EntityPuzzlePage() {
     }, []);
 
     // stage2 timer & penalties inspired by TREE
-    const [stage2Started, setStage2Started] = useState<boolean>(false);
+    const [anomaliesStarted, setAnomaliesStarted] = useState<boolean>(false);
     const [stage2BaseTime, setStage2BaseTime] = useState<number>(12);
     const [remainingTime, setRemainingTime] = useState<number>(stage2BaseTime);
     const [, setConsecutiveTimeFails] = useState<number>(0);
-
-    // riddle chain correctness for final stage
-    const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>([false, false, false]);
 
     useEffect(() => {
         if (stageIndex === 2 && anomalies.length === 0) {
@@ -217,7 +226,7 @@ export default function EntityPuzzlePage() {
     // Timer effect for stage 2
     useEffect(() => {
         if (stageIndex !== 2) return;
-        if (!stage2Started) return;
+        if (!anomaliesStarted) return;
         let cancelled = false;
         const tick = () => {
             setRemainingTime(prev => {
@@ -246,7 +255,7 @@ export default function EntityPuzzlePage() {
             cancelled = true;
             clearInterval(id);
         };
-    }, [stageIndex, stage2Started, anomalies.length, stage2BaseTime]);
+    }, [stageIndex, anomaliesStarted, anomalies.length, stage2BaseTime]);
 
     // mutate anomalies occasionally to increase challenge
     const mutateAnomalies = () => {
@@ -279,6 +288,7 @@ export default function EntityPuzzlePage() {
             const json = await res.json();
             if (json?.ok) {
                 setFeedback('Correct — advancing');
+                setStageResult(1, selection);
                 setTimeout(() => unlockAndGo(2), 400);
             } else setFeedback('Incorrect path');
         } catch (e) {
@@ -287,6 +297,7 @@ export default function EntityPuzzlePage() {
     }
 
     const clickAnomaly = (i: number) => {
+        if (!anomaliesStarted) setAnomaliesStarted(true);
         if (picked[i]) return;
         setPicked(prev => {
             const c = prev.slice();
@@ -306,6 +317,7 @@ export default function EntityPuzzlePage() {
             const json = await res.json();
             if (json?.ok) {
                 setFeedback('Correct proof — complete');
+                setStageResult(2, anSelection);
                 setTimeout(() => {
                     setStageIndex(3);
                     setCompleted(true);
@@ -316,6 +328,67 @@ export default function EntityPuzzlePage() {
                     markCompleted();
                 }, 400);
             } else setFeedback('Incorrect proof');
+        } catch (e) {
+            setFeedback('Server error');
+        }
+    }
+
+    // WEAVE stage: place tokens into numbered slots (simple click-to-place)
+    const [weaveSlots, setWeaveSlots] = useState<string[]>([]);
+    useEffect(() => {
+        if (stageIndex === 4 && weaveSlots.length === 0) {
+            const slots = new Array(5).fill('');
+            setWeaveSlots(slots);
+            setFeedback('Arrange tokens into the weave slots. Click a token then click an empty slot.');
+        }
+    }, [stageIndex]);
+
+    const [selectedTokenIndex, setSelectedTokenIndex] = useState<number | null>(null);
+    const clickWeaveToken = (i: number) => {
+        setSelectedTokenIndex(i);
+    }
+    const placeWeaveSlot = (slot: number) => {
+        if (selectedTokenIndex === null) return;
+        const token = anomalies[selectedTokenIndex] || '';
+        setWeaveSlots(prev => {
+            const c = prev.slice();
+            c[slot] = token;
+            return c;
+        });
+        setSelectedTokenIndex(null);
+    }
+    const submitWeave = async () => {
+        const payload = weaveSlots.join('');
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: 'Entity', stageIndex: 4, provided: payload})
+            });
+            const json = await res.json();
+            if (json?.ok) {
+                setFeedback('Weave accepted.');
+                setStageResult(4, payload);
+                setTimeout(() => unlockAndGo(5), 400);
+            } else setFeedback('Weave incorrect');
+        } catch (e) {
+            setFeedback('Server error');
+        }
+    }
+
+    // VALIDATE stage: submit assembled indices (uses stageResults from prior stages)
+    const handleValidateSubmit = async () => {
+        const payload = stageResults[4] || '';
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: 'Entity', stageIndex: 5, provided: payload})
+            });
+            const json = await res.json();
+            if (json?.ok) {
+                setFeedback('Timeline proof validated.');
+                setStageResult(5, payload);
+                setTimeout(() => unlockAndGo(6), 400);
+            } else setFeedback('Validation failed');
         } catch (e) {
             setFeedback('Server error');
         }
@@ -365,7 +438,7 @@ export default function EntityPuzzlePage() {
         setAnomalies([]);
         setPicked([]);
         setFeedback('Reset');
-        setRiddleCorrects([false, false, false]);
+        setRiddleCorrects(new Array(MAX_RIDDLES).fill(false));
     }
 
     const onRiddleResult = (i: number, ok: boolean) => {
@@ -374,6 +447,67 @@ export default function EntityPuzzlePage() {
             next[i] = ok;
             return next;
         });
+    }
+
+    // Reusable riddle-chain renderer: chooses a riddle set based on stageIndex
+    const riddleSets: Record<string, { p: string, a: string }[]> = {
+        default: [
+            {p: 'I watch without eyes and count without hands.', a: 'time'},
+            {p: 'I can be cracked, told, made, and played; what am I?', a: 'joke'},
+            {p: 'I twist and bind yet never touch; letters gather where I sleep.', a: 'book'},
+            {p: 'I have a face but no head, two hands but no arms.', a: 'clock'},
+            {p: 'I can fall without hurting, I can run without legs.', a: 'water'},
+            {p: 'Taken from a mine and shut in a wooden case.', a: 'lead'},
+            {p: 'I am not alive but I grow; I don\'t have lungs but I need air.', a: 'fire'},
+            {p: 'I speak without a mouth and hear without ears.', a: 'echo'},
+            {p: 'I have keys but no locks.', a: 'piano'},
+            {p: 'The more you take, the more you leave behind.', a: 'footsteps'},
+            {p: 'I am always hungry and will die if not fed, what am I?', a: 'fire'},
+            {p: 'I turn once, what is out will not get in. What am I?', a: 'key'}
+        ]
+    };
+
+    const getRiddleSetForStage = (idx: number) => {
+        // pick longer sets for riddle-heavy stages (e.g., 6,13,21)
+        const heavy = [6, 13, 21];
+        if (heavy.includes(idx)) {
+            return riddleSets.default.slice(0, 12);
+        }
+        // final stage (24) also returns a long set
+        if (idx === stages.length - 1) return riddleSets.default.slice(0, 12);
+        return riddleSets.default.slice(0, 6);
+    };
+
+    const renderRiddleChainForStage = (idx: number) => {
+        const set = getRiddleSetForStage(idx);
+        return (
+            <div className="mt-4 space-y-3">
+                <div className="text-sm text-gray-400">Riddle chain — solve all to proceed.</div>
+                {set.map((r, i) => (
+                    <Riddle key={i} idx={i} prompt={r.p} expectedChunk={r.a} onResult={(ii, ok) => {
+                        setRiddleCorrects(prev => {
+                            const next = prev.slice();
+                            next[i] = ok;
+                            return next;
+                        });
+                        onRiddleResult(ii, ok);
+                    }}/>
+                ))}
+                <div
+                    className="text-sm text-yellow-400">Progress: {riddleCorrects.filter(Boolean).length}/{set.length}</div>
+                <div className="mt-2">
+                    <button onClick={() => {
+                        const setLen = set.length;
+                        if (riddleCorrects.filter(Boolean).length < setLen) {
+                            setFeedback('Solve all riddles before submitting.');
+                            return;
+                        }
+                        setFeedback('Riddle chain solved locally.');
+                    }} className="px-3 py-1 bg-emerald-600 rounded text-black">Lock Riddles
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -388,24 +522,24 @@ export default function EntityPuzzlePage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <h3 className="font-semibold">Stages</h3>
-                            <ol className="mt-2 list-decimal list-inside">
-                                {stages.map((s: any, i: number) => (
-                                    <li key={i}>
-                                        <button
-                                            onClick={() => {
-                                                if (i <= unlockedStage) setStageIndex(i);
-                                            }}
-                                            className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
-                                        >
-                                            {i > unlockedStage ? `🔒 ${s.title}` : s.title}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ol>
+                            <div className="mt-2 max-h-80 overflow-auto pr-2">
+                                <ol className="list-decimal list-inside">
+                                    {stages.map((s: any, i: number) => (
+                                        <li key={i}>
+                                            <button
+                                                onClick={() => {
+                                                    if (i <= unlockedStage) setStageIndex(i);
+                                                }}
+                                                className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
+                                            >
+                                                {i > unlockedStage ? `🔒 ${s.title}` : s.title}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
                             <div className="mt-4">
-                                <button onClick={reset} className="text-xs text-red-400 underline">
-                                    Reset
-                                </button>
+                                <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>
                             </div>
                         </div>
 
@@ -415,7 +549,7 @@ export default function EntityPuzzlePage() {
                                 <h3 className="font-semibold">{stages[stageIndex]?.title}</h3>
                                 <p className="text-sm text-gray-300 mt-2">{stages[stageIndex]?.instruction}</p>
 
-                                {stageIndex === 1 && (
+                                {stages[stageIndex]?.type === 'path' && (
                                     <div className="mt-4">
                                         <div className="grid grid-cols-3 gap-2">
                                             {grid.map((g, idx) => (<button key={idx} onClick={() => clickGrid(idx)}
@@ -433,7 +567,7 @@ export default function EntityPuzzlePage() {
                                     </div>
                                 )}
 
-                                {stageIndex === 2 && (
+                                {stages[stageIndex]?.type === 'timed' && (
                                     <div className="mt-4">
                                         <div className="flex gap-2 flex-wrap">{anomalies.map((a, idx) => (
                                             <button key={idx} disabled={picked[idx]} onClick={() => clickAnomaly(idx)}
@@ -456,9 +590,48 @@ export default function EntityPuzzlePage() {
                                     </div>
                                 )}
 
-                                {stageIndex !== 1 && stageIndex !== 2 && (
-                                    <form onSubmit={handleSubmit} className="mt-4">{stages[stageIndex]?.payload && <div
-                                        className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
+                                {stages[stageIndex]?.type === 'weave' && (
+                                    <div className="mt-4">
+                                        <div className="text-sm text-gray-400 mb-2">Tokens (click to select):</div>
+                                        <div className="flex gap-2 flex-wrap mb-2">{anomalies.map((t, idx) => (
+                                            <button key={idx} onClick={() => clickWeaveToken(idx)}
+                                                    className={`px-3 py-1 rounded ${selectedTokenIndex === idx ? 'bg-emerald-600' : 'bg-gray-700'}`}>{t}</button>
+                                        ))}</div>
+                                        <div className="text-sm text-gray-400 mb-2">Slots (click an empty slot to
+                                            place):
+                                        </div>
+                                        <div className="flex gap-2 mb-2">{weaveSlots.map((s, idx) => (
+                                            <button key={idx} onClick={() => placeWeaveSlot(idx)}
+                                                    className={`px-4 py-2 rounded ${s ? 'bg-green-800' : 'bg-gray-800'}`}>{s || `[${idx + 1}]`}</button>
+                                        ))}</div>
+                                        <div className="flex gap-2">
+                                            <button onClick={submitWeave}
+                                                    className="px-3 py-2 bg-blue-600 rounded">Submit Weave
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {stages[stageIndex]?.type === 'validate' && (
+                                    <div className="mt-4">
+                                        <div className="text-sm text-gray-400 mb-2">Validate the assembled timeline
+                                            indices.
+                                        </div>
+                                        <div className="mb-2">Assembled: <span
+                                            className="font-mono">{stageResults[4] || '(none)'}</span></div>
+                                        <div className="flex gap-2">
+                                            <button onClick={handleValidateSubmit}
+                                                    className="px-3 py-2 bg-blue-600 rounded">Submit Proof
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Generic form for payload/final/riddle/other simple input types */}
+                                {(['payload', 'final', 'riddle'] as string[]).includes(stages[stageIndex]?.type) && (
+                                    <form onSubmit={handleSubmit} className="mt-4">
+                                        {stages[stageIndex]?.payload && <div
+                                            className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
                                         <div className="mt-2 flex gap-2"><input value={input}
                                                                                 onChange={(e) => setInput(e.target.value)}
                                                                                 placeholder="Enter answer"
@@ -469,28 +642,16 @@ export default function EntityPuzzlePage() {
                                     </form>
                                 )}
 
-                                {/* Final riddle chain requirement */}
-                                {stageIndex === stages.length - 1 && (
-                                    <div className="mt-4 space-y-3">
-                                        <div className="text-sm text-gray-400">Final: the Eldritch demands proof — solve
-                                            the riddle chain.
-                                        </div>
-
-                                        <Riddle idx={0}
-                                                prompt={'I twist without hands, I turn without eyes. I allow passage yet carry no weight.'}
-                                                expectedChunk={'door'} onResult={onRiddleResult}/>
-                                        <Riddle idx={1}
-                                                prompt={'I am the start of forever and the end of time; I am small as a dot and vast as a sea.'}
-                                                expectedChunk={'point'} onResult={onRiddleResult}/>
-                                        <Riddle idx={2}
-                                                prompt={'I am the soundless echo inside your head when memory forgets to speak.'}
-                                                expectedChunk={'silence'} onResult={onRiddleResult}/>
-
-                                        <div className="text-sm text-yellow-400">Riddle
-                                            progress: {riddleCorrects.filter(Boolean).length}/3
-                                        </div>
+                                {/* show hints if available */}
+                                {stageHints.length > 0 && (
+                                    <div className="mt-3 text-xs text-gray-500">
+                                        <strong>Hints:</strong>
+                                        <ul className="list-disc ml-5">{stageHints.map((h: string, idx: number) => (
+                                            <li key={idx}>{h}</li>))}</ul>
                                     </div>
                                 )}
+
+                                {stages[stageIndex]?.type === 'riddle-chain' && renderRiddleChainForStage(stageIndex)}
 
                                 {feedback && <div className="mt-3 text-sm text-yellow-300">{feedback}</div>}
                             </div>

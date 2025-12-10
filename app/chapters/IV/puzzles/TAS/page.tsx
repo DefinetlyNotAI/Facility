@@ -96,7 +96,8 @@ export default function TasPuzzlePage() {
         try {
             const current = getJsonCookie(cookieKey) || {};
             const prev = Number(current['TAS'] || 0);
-            current['TAS'] = Math.max(prev, 3);
+            // 0 = not started, 1 = started, 2 = completed
+            current['TAS'] = Math.max(prev, 2);
             setJsonCookie(cookieKey, current, 365);
         } catch (e) {
         }
@@ -107,8 +108,8 @@ export default function TasPuzzlePage() {
         try {
             const current = getJsonCookie(cookieKey) || {};
             const prev = Number(current['TAS'] || 0);
-            if (prev < 2) {
-                current['TAS'] = 2;
+            if (prev < 1) {
+                current['TAS'] = 1;
                 setJsonCookie(cookieKey, current, 365);
             }
         } catch (e) {
@@ -126,13 +127,20 @@ export default function TasPuzzlePage() {
     // stage1 switches
     const [switches, setSwitches] = useState<number[]>([0, 0, 0, 0, 0]);
 
-    // stage3 parts
+    // assembly parts
     const [parts, setParts] = useState<string[]>([]);
     const [used, setUsed] = useState<boolean[]>([]);
     const [assembly, setAssembly] = useState<string>('');
 
-    // Riddle chain correctness for final stage
-    const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>([false, false, false]);
+    // general stage results for merge/collect
+    const [stageResults, setStageResults] = useState<Record<number, string>>({});
+    const setStageResult = (idx: number, val: string) => {
+        setStageResults(prev => ({...prev, [idx]: val}));
+    }
+
+    // Riddle chain correctness for final stage (local extra requirement)
+    const RIDDLE_COUNT = 8;
+    const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>(new Array(RIDDLE_COUNT).fill(false));
 
     useEffect(() => {
         if (stageIndex === 2 && parts.length === 0) {
@@ -222,6 +230,8 @@ export default function TasPuzzlePage() {
                 const json = await res.json();
                 if (json?.ok) {
                     setFeedback('Correct — advancing to Stage 3');
+                    // save result
+                    setStageResult(1, bits);
                     // unlock/persist like TREE
                     setTimeout(() => unlockAndGo(2), 400);
                 } else setFeedback('Incorrect switch configuration.');
@@ -250,16 +260,12 @@ export default function TasPuzzlePage() {
                         });
                         const json = await res.json();
                         if (json?.ok) {
-                            setFeedback('Correct final assembly — puzzle finished.');
+                            setFeedback('Correct final assembly — saved.');
+                            // save assembly result
+                            setStageResult(2, next);
                             setTimeout(() => {
-                                // unlock next stage (final riddle stage) and mark as completed state
+                                // unlock next stage (Signal Spike)
                                 unlockAndGo(3);
-                                setCompleted(true);
-                                try {
-                                    localStorage.setItem(storageKey, String(stages.length));
-                                } catch (e) {
-                                }
-                                markCompleted();
                             }, 500);
                         } else {
                             setFeedback('Wrong assembly — reset and try again.');
@@ -273,6 +279,199 @@ export default function TasPuzzlePage() {
             }
             return next;
         });
+    }
+
+    // TIMED stage (Signal Spike) implementation
+    const [nodes, setNodes] = useState<{ id: string, label: string, withered?: boolean }[]>([]);
+    const [nodeSeq, setNodeSeq] = useState<string>('');
+    const [stageTimedStarted, setStageTimedStarted] = useState<boolean>(false);
+    const [stageTimedBase, setStageTimedBase] = useState<number>(15);
+    const [remainingTime, setRemainingTime] = useState<number>(15);
+    const [consecutiveTimeouts, setConsecutiveTimeouts] = useState<number>(0);
+
+    useEffect(() => {
+        if (stageIndex === 3 && nodes.length === 0) {
+            // build nodes from seed
+            const base = [
+                {id: 'n1', label: '5'},
+                {id: 'n2', label: '2'},
+                {id: 'n3', label: '8'},
+                {id: 'n4', label: '1'},
+            ];
+            const seedStr = stages[0]?.payload || 'TAS';
+            const shuffled = seededShuffle(base, seedStr).map((n, idx) => ({
+                ...n,
+                withered: (Math.floor(Math.random() * 4) === 0) && idx !== 0
+            }));
+            setNodes(shuffled);
+            setNodeSeq('');
+            setStageTimedStarted(false);
+            setRemainingTime(stageTimedBase);
+            setFeedback('Signal Spike: activate nodes in order while avoiding withered nodes.');
+        }
+    }, [stageIndex]);
+
+    useEffect(() => {
+        if (stageIndex !== 3) {
+            setRemainingTime(stageTimedBase);
+            return;
+        }
+        if (!stageTimedStarted) return;
+        let cancelled = false;
+        const tick = () => {
+            setRemainingTime(prev => {
+                if (cancelled) return prev;
+                if (prev <= 1) {
+                    setNodeSeq('');
+                    setFeedback('Time expired - sequence reset.');
+                    const next = consecutiveTimeouts + 1;
+                    setConsecutiveTimeouts(next);
+                    if (next >= 3) {
+                        setStageTimedBase(b => b + 5);
+                        setFeedback('Three consecutive timeouts — base timer increased by 5s.');
+                        setConsecutiveTimeouts(0);
+                    }
+                    return stageTimedBase;
+                }
+                return prev - 1;
+            });
+        }
+        const id = setInterval(tick, 1000);
+        return () => {
+            cancelled = true;
+            clearInterval(id);
+        }
+    }, [stageIndex, stageTimedStarted, stageTimedBase, consecutiveTimeouts]);
+
+    const mutateWithered = () => {
+        setNodes(prev => {
+            const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            let changed = false;
+            const next = [...prev];
+            for (let i = 0; i < next.length; i++) {
+                const n = next[i];
+                if (!n.withered) continue;
+                const r = Math.random();
+                if (r < 0.25) {
+                    const choices = digits.filter(d => d !== n.label);
+                    const newLabel = choices[Math.floor(Math.random() * choices.length)];
+                    next[i] = {...n, label: newLabel};
+                    changed = true;
+                } else if (r < 0.5) {
+                    const other = Math.floor(Math.random() * next.length);
+                    if (other !== i) {
+                        const tmp = next[other];
+                        next[other] = {...n};
+                        next[i] = {...tmp};
+                        changed = true;
+                    }
+                }
+            }
+            return changed ? next : prev;
+        });
+    }
+
+    const handleNodeClick = (n: { id: string, label: string, withered?: boolean }) => {
+        if (!stageTimedStarted) setStageTimedStarted(true);
+        mutateWithered();
+        if (n.withered) {
+            setNodeSeq('');
+            setFeedback('You touched a withered node - sequence reset.');
+            setRemainingTime(stageTimedBase);
+            setConsecutiveTimeouts(0);
+            return;
+        }
+        setConsecutiveTimeouts(0);
+        setNodeSeq(prev => {
+            const next = prev + n.label;
+            const expected = (stages[3]?.payload || '');
+            // we'll validate once length reaches server answer length (if known), else defer to manual submit
+            const serverExpectedLen = (stages[3]?.payload || '').length || 5;
+            if (next.length >= serverExpectedLen) {
+                // validate with server
+                (async () => {
+                    try {
+                        const res = await fetch(routes.api.chapters.iv.validateStage, {
+                            method: 'POST', body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: next})
+                        });
+                        const json = await res.json();
+                        if (json?.ok) {
+                            setFeedback('Signal sequence correct — saved.');
+                            setStageResult(3, next);
+                            // unlock next stage
+                            setTimeout(() => unlockAndGo(4), 400);
+                        } else {
+                            setFeedback('Wrong sequence - reset and try again.');
+                            setNodeSeq('');
+                            setRemainingTime(stageTimedBase);
+                        }
+                    } catch (e) {
+                        setFeedback('Server error');
+                    }
+                })();
+            }
+            return next;
+        });
+    }
+
+    // GRID parity toggles (simple 5-bit toggles mapping to server answer)
+    const [gridBits, setGridBits] = useState<number[]>([0, 0, 0, 0, 0]);
+    const toggleGridBit = (i: number) => {
+        setGridBits(prev => {
+            const c = prev.slice();
+            c[i] = c[i] ? 0 : 1;
+            return c;
+        });
+    }
+    const submitGridBits = async () => {
+        const bits = gridBits.join('');
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: 'TAS', stageIndex: 4, provided: bits})
+            });
+            const json = await res.json();
+            if (json?.ok) {
+                setFeedback('Grid pattern correct — saved.');
+                setStageResult(4, bits);
+                setTimeout(() => unlockAndGo(5), 400);
+            } else setFeedback('Incorrect grid pattern');
+        } catch (e) {
+            setFeedback('Server error');
+        }
+    }
+
+    // MERGE stage: allow ordering of previously collected keys (from stageResults)
+    const [mergeOrder, setMergeOrder] = useState<number[]>([]);
+    useEffect(() => {
+        // initialize mergeOrder with available keys when entering merge stage
+        if (stageIndex === 6) {
+            const keys = Object.keys(stageResults).map(k => Number(k)).filter(k => k > 0 && k < 6).sort();
+            setMergeOrder(keys);
+        }
+    }, [stageIndex]);
+    const clickMergeItem = (idx: number) => {
+        // append key to a builder
+        const key = stageResults[idx];
+        if (!key) return;
+        setAssembly(prev => prev + (prev ? '-' : '') + key);
+    }
+    const submitMerge = async () => {
+        const payload = assembly;
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: 'TAS', stageIndex: 6, provided: payload})
+            });
+            const json = await res.json();
+            if (json?.ok) {
+                setFeedback('Merge accepted — saved.');
+                setStageResult(6, payload);
+                setTimeout(() => unlockAndGo(7), 400);
+            } else setFeedback('Merge incorrect');
+        } catch (e) {
+            setFeedback('Server error');
+        }
     }
 
     const handleSubmit = async (e?: React.FormEvent) => {
@@ -298,25 +497,98 @@ export default function TasPuzzlePage() {
                 return;
             }
             // proceed
+            // save result
+            setStageResult(stageIndex, provided);
+            // if this is the final stage (last configured), mark completed state
             if (stageIndex >= stages.length - 1) {
-                setStageIndex(stages.length);
-                setCompleted(true);
                 try {
-                    localStorage.setItem(storageKey, String(stages.length));
+                    const current = getJsonCookie(cookieKey) || {};
+                    const prev = Number(current['TAS'] || 0);
+                    current['TAS'] = Math.max(prev, 2);
+                    setJsonCookie(cookieKey, current, 365);
                 } catch (e) {
                 }
-                setFeedback('Puzzle completed.');
-                markCompleted();
-            } else {
-                // unlock next stage
-                const nextIndex = stageIndex + 1;
-                setFeedback('Correct — advanced.');
-                unlockAndGo(nextIndex);
-                setInput('');
+            }
+            setInput('');
+            setFeedback('Correct!');
+            // auto-advance if not final stage
+            if (stageIndex < stages.length - 1) {
+                setTimeout(() => {
+                    setStageIndex(idx => Math.min(idx + 1, stages.length));
+                }, 500);
             }
         } catch (e) {
             setFeedback('Server error');
         }
+    }
+
+    // Riddles for the final riddle-chain (expanded for longer play)
+    const riddlePrompts = [
+        'I am small as a seed but carry whole maps; I am pressed between covers yet free as thought.',
+        'I turn without hands and mark without time; I hold things together though I do not bind.',
+        'I hum without voice and answer to wind; I am born from repetition in a hollowed hall.',
+        'I carry numbers in order, yet never speak; align my faces to show the path you seek.',
+        'I have teeth but do not eat; I fit into grooves and make the world complete.',
+        'I am the reflection of a signal on a line; flip me and the pattern will align.',
+        'I sleep in shadow but wake at spark; my pulse moves current through the dark.',
+        'I am given to you at journey\'s start; I open the gate and let you part.'
+    ];
+
+    const riddleAnswers = [
+        'page',      // 1
+        'gear',      // 2
+        'echo',      // 3
+        'clock',     // 4
+        'comb',      // 5
+        'bit',       // 6
+        'wire',      // 7
+        'key'        // 8
+    ];
+
+    // Render final riddle chain when on last stage
+    const renderFinalRiddleChain = () => {
+        return (
+            <div className="mt-4 space-y-3">
+                <div className="text-sm text-gray-400">Final: solve the riddle chain to prove understanding of the
+                    circuit.
+                </div>
+                {riddlePrompts.map((p, idx) => (
+                    <Riddle key={idx} idx={idx} prompt={p} expectedChunk={riddleAnswers[idx]} onResult={(i, ok) => {
+                        setRiddleCorrects(prev => {
+                            const next = prev.slice();
+                            next[i] = ok;
+                            return next;
+                        });
+                    }}/>
+                ))}
+
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => {
+                            if (!riddleCorrects.every(Boolean)) {
+                                setFeedback('All riddles must be correct before completion.');
+                                return;
+                            }
+                            setFeedback('Stage complete — take a screenshot of this page as proof and then it will be saved.');
+                            setTimeout(() => {
+                                setCompleted(true);
+                                try {
+                                    localStorage.setItem(storageKey, String(stages.length));
+                                } catch (e) {
+                                }
+                                markCompleted();
+                            }, 800);
+                        }}
+                        className={`px-3 py-1 font-mono text-sm rounded ${riddleCorrects.every(Boolean) ? 'bg-emerald-600 text-black' : 'bg-gray-800 text-gray-500'}`}>
+                        Submit Completion
+                    </button>
+                    <div className="text-sm text-yellow-400">{feedback}</div>
+                </div>
+                <div className="text-xs text-gray-400 italic">When all riddles are correct, click Submit and screenshot
+                    the result.
+                </div>
+            </div>
+        );
     }
 
     const reset = () => {
@@ -327,15 +599,8 @@ export default function TasPuzzlePage() {
         setParts([]);
         setUsed([]);
         setAssembly('');
-        setRiddleCorrects([false, false, false]);
-    }
-
-    const onRiddleResult = (i: number, ok: boolean) => {
-        setRiddleCorrects(prev => {
-            const next = [...prev];
-            next[i] = ok;
-            return next;
-        });
+        setRiddleCorrects(new Array(RIDDLE_COUNT).fill(false));
+        setStageResults({});
     }
 
     return (
@@ -343,123 +608,166 @@ export default function TasPuzzlePage() {
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
             <div className="min-h-screen p-8 bg-gray-900 text-white font-mono">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-2xl font-bold mb-4">TAS Puzzle</h1>
-                    <p className="text-sm text-gray-400 mb-6">Follow the staged hints to solve the multipart
-                        circuit. This version has extra chained mechanics and a riddle finale.</p>
+                    <div className="text-center mb-6">
+                        <h1 className="text-3xl font-bold">TAS Puzzle Challenge</h1>
+                        <p className="text-sm text-gray-400 mt-2">Progress is saved locally and to a plaque cookie
+                            (3-state save).</p>
+                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <h3 className="font-semibold">Stages</h3>
-                            <ol className="mt-2 list-decimal list-inside">
-                                {stages.map((s: any, i: number) => (
-                                    <li key={i} className="mt-2">
-                                        <button
-                                            onClick={() => {
-                                                if (i <= unlockedStage) setStageIndex(i);
-                                            }}
-                                            className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
-                                        >
-                                            {i > unlockedStage ? `🔒 ${s.title}` : s.title}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ol>
-                            <div className="mt-4">
-                                <button onClick={reset} className="text-xs text-red-400 underline">
-                                    Reset
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <div className="md:col-span-2">
-                            <div className="p-4 bg-gray-800 rounded">
-                                <h3 className="font-semibold">{stages[stageIndex]?.title}</h3>
-                                <p className="text-sm text-gray-300 mt-2">{stages[stageIndex]?.instruction}</p>
-
-                                {stageIndex === 1 && (
-                                    <div className="mt-4">
-                                        <div className="flex gap-2">
-                                            {switches.map((b, i) => (
-                                                <button key={i} onClick={() => toggleSwitch(i)}
-                                                        className={b === 1 ? 'px-3 py-2 bg-green-600 text-black rounded' : 'px-3 py-2 bg-gray-700 text-gray-200 rounded'}>{b}</button>
-                                            ))}
-                                            <button onClick={submitSwitches}
-                                                    className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
-                                            </button>
-                                        </div>
-                                        <div className="mt-2 text-xs text-gray-400">Toggle switches to match the
-                                            expected
-                                            bitstring.
-                                        </div>
-                                    </div>
-                                )}
-
-                                {stageIndex === 2 && (
-                                    <div className="mt-4">
-                                        <div className="flex gap-2 flex-wrap">
-                                            {parts.map((p, i) => (
-                                                <button key={i} disabled={used[i]} onClick={() => clickPart(i)}
-                                                        className={used[i] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 border rounded'}>{p}</button>
-                                            ))}
-                                            <button onClick={() => {
-                                                setUsed(new Array(parts.length).fill(false));
-                                                setAssembly('');
-                                            }} className="ml-2 text-xs underline">Reset
-                                            </button>
-                                        </div>
-                                        <div className="mt-2">Current: <span
-                                            className="font-mono text-green-300">{assembly}</span></div>
-                                    </div>
-                                )}
-
-                                {stageIndex !== 1 && stageIndex !== 2 && (
-                                    <form onSubmit={handleSubmit} className="mt-4">
-                                        {stages[stageIndex]?.payload && <div
-                                            className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
-                                        <div className="mt-2 flex gap-2">
-                                            <input value={input} onChange={(e) => setInput(e.target.value)}
-                                                   placeholder="Enter answer"
-                                                   className="flex-1 bg-gray-900 px-3 py-2 rounded"/>
-                                            <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit
-                                            </button>
-                                        </div>
-                                    </form>
-                                )}
-
-                                {/* Riddle chain shown on final configured stage as an added local requirement */}
-                                {stageIndex === stages.length - 1 && (
-                                    <div className="mt-4 space-y-3">
-                                        <div className="text-sm text-gray-400">Final: solve the riddle chain to prove
-                                            understanding of the circuit.
-                                        </div>
-
-                                        <Riddle idx={0}
-                                                prompt={'I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by almost every artisan.'}
-                                                expectedChunk={'lead'} onResult={onRiddleResult}/>
-                                        <Riddle idx={1}
-                                                prompt={'I turn once, what is out will not get in. I turn again, what is in will not get out.'}
-                                                expectedChunk={'key'} onResult={onRiddleResult}/>
-                                        <Riddle idx={2}
-                                                prompt={'I have keys but no locks. I have space but no rooms. You can enter, but you can’t go outside.'}
-                                                expectedChunk={'keyboard'} onResult={onRiddleResult}/>
-
-                                        <div className="text-sm text-yellow-400">Riddle
-                                            progress: {riddleCorrects.filter(Boolean).length}/3
-                                        </div>
-                                    </div>
-                                )}
-
-                                {feedback && <div className="mt-3 text-sm text-yellow-300">{feedback}</div>}
-                            </div>
-
+                    <div className="mb-4">
+                        <div className="flex gap-2 overflow-x-auto px-2 py-1">
+                            {stages.map((s: any, i: number) => {
+                                const locked = i > unlockedStage;
+                                return (
+                                    <button key={i} disabled={locked} onClick={() => {
+                                        if (!locked) setStageIndex(i);
+                                    }}
+                                            className={`inline-flex flex-shrink-0 px-3 py-1 text-sm rounded whitespace-nowrap ${i === stageIndex ? 'bg-gray-700' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
+                                        {locked ? `🔒 ${s.title}` : `Stage ${s.stage || (i + 1)}: ${s.title}`}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
-                    <div className="mt-6">
+                    <div className="bg-gray-900 border border-gray-800 p-6 rounded">
+                        <h2 className="font-mono text-lg mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
+                        <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
+
+                        {/* Render by configured type */}
+                        {stages[stageIndex]?.type === 'switches' && (
+                            <div>
+                                <div className="flex gap-2 mb-3">
+                                    {switches.map((b, i) => (
+                                        <button key={i} onClick={() => toggleSwitch(i)}
+                                                className={b === 1 ? 'px-3 py-2 bg-green-600 text-black rounded' : 'px-3 py-2 bg-gray-700 text-gray-200 rounded'}>{b}</button>
+                                    ))}
+                                    <button onClick={submitSwitches}
+                                            className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
+                                    </button>
+                                </div>
+                                <div className="text-xs text-gray-500">Toggle switches to match the expected pattern.
+                                </div>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'assembly' && (
+                            <div>
+                                <div className="flex gap-2 flex-wrap mb-3">
+                                    {parts.map((p, i) => (
+                                        <button key={i} disabled={used[i]} onClick={() => clickPart(i)}
+                                                className={used[i] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 border rounded'}>{p}</button>
+                                    ))}
+                                    <button onClick={() => {
+                                        setUsed(new Array(parts.length).fill(false));
+                                        setAssembly('');
+                                    }} className="ml-2 text-xs underline">Reset
+                                    </button>
+                                </div>
+                                <div>Current: <span className="font-mono text-green-300">{assembly}</span></div>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'timed' && (
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="text-sm text-gray-400">Time remaining: <span
+                                        className="font-mono">{remainingTime}s</span></div>
+                                    <div className="text-sm text-gray-400">Base timer: <span
+                                        className="font-mono">{stageTimedBase}s</span></div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                    {nodes.map(n => (
+                                        <button key={n.id} onClick={() => handleNodeClick(n)}
+                                                className={`p-4 rounded font-mono text-xl ${n.withered ? 'bg-red-900 text-red-100 opacity-90' : 'bg-green-900 text-white'}`}>
+                                            {n.label}
+                                            {n.withered && <div className="text-xs text-red-300 mt-1">withered</div>}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="text-sm text-gray-300 mb-2">Sequence: <span
+                                    className="font-mono">{nodeSeq}</span></div>
+                                <div className="text-sm text-yellow-400">{feedback}</div>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'grid' && (
+                            <div>
+                                <div className="flex gap-2 mb-3">
+                                    {gridBits.map((b, i) => (
+                                        <button key={i} onClick={() => toggleGridBit(i)}
+                                                className={`px-3 py-2 rounded ${b ? 'bg-green-600 text-black' : 'bg-gray-700 text-gray-200'}`}>{b}</button>
+                                    ))}
+                                    <button onClick={submitGridBits}
+                                            className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
+                                    </button>
+                                </div>
+                                <div className="text-xs text-gray-500">Toggle tiles to match parity pattern.</div>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'merge' && (
+                            <div>
+                                <div className="text-sm text-gray-400 mb-2">Available keys (click to append):</div>
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {Object.keys(stageResults).length === 0 &&
+                                        <div className="text-xs text-gray-500">No keys collected yet.</div>}
+                                    {Object.entries(stageResults).map(([k, v]) => (
+                                        <button key={k} onClick={() => clickMergeItem(Number(k))}
+                                                className="px-3 py-1 bg-gray-700 rounded text-xs">Stage {k}: {String(v).slice(0, 10)}</button>
+                                    ))}
+                                </div>
+                                <div className="mt-2">Merged: <span className="font-mono">{assembly}</span></div>
+                                <div className="mt-2 flex gap-2">
+                                    <button onClick={submitMerge} className="px-3 py-2 bg-blue-600 rounded">Submit
+                                        Merge
+                                    </button>
+                                    <button onClick={() => setAssembly('')}
+                                            className="px-2 py-1 underline text-xs">Clear
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'riddle' && (
+                            <div>
+                                <form onSubmit={handleSubmit} className="mt-2">
+                                    <input value={input} onChange={(e) => setInput(e.target.value)}
+                                           placeholder="Enter answer" className="w-full bg-gray-900 px-3 py-2 rounded"/>
+                                    <div className="mt-2">
+                                        <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'payload' && (
+                            <div>
+                                {stages[stageIndex]?.payload && <div
+                                    className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
+                                <form onSubmit={handleSubmit} className="mt-2">
+                                    <input value={input} onChange={(e) => setInput(e.target.value)}
+                                           placeholder="Enter answer" className="w-full bg-gray-900 px-3 py-2 rounded"/>
+                                    <div className="mt-2">
+                                        <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        )}
+
+                        {stages[stageIndex]?.type === 'riddle-chain' && renderFinalRiddleChain()}
+
+                        <div className="mt-4">
+                            <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>
+                        </div>
+
+                        <div className="mt-4 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
+                        <div className="mt-2 text-sm text-yellow-300">{feedback}</div>
+                    </div>
+
+                    <div className="mt-6 text-center">
                         <Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to Chapter IV</Link>
                     </div>
-                    <div className="mt-3 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
                 </div>
             </div>
         </>
