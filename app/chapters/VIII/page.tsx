@@ -118,10 +118,14 @@ export default function BloomLiveDiePage() {
 
     const getStepProgress = (step: number, totalBan: number) => {
         switch (step) {
-            case 1: return Math.min(totalBan, meta.step1Max);
-            case 2: return Math.max(0, Math.min(totalBan - meta.step1Max, meta.step2Max));
-            case 3: return Math.max(0, Math.min(totalBan - meta.step3Trigger, meta.step3Max));
-            default: return 0;
+            case 1:
+                return Math.min(totalBan, meta.step1Max);
+            case 2:
+                return Math.max(0, Math.min(totalBan - meta.step1Max, meta.step2Max));
+            case 3:
+                return Math.max(0, Math.min(totalBan - meta.step3Trigger, meta.step3Max));
+            default:
+                return 0;
         }
     };
 
@@ -135,7 +139,10 @@ export default function BloomLiveDiePage() {
                         .map((it: any) => (typeof it === "string" ? it : it.ip))
                         .filter(Boolean);
                     for (const ip of ips) {
-                        try { await bannedApi.remove(ip); } catch {}
+                        try {
+                            await bannedApi.remove(ip);
+                        } catch {
+                        }
                     }
                     localStorage.setItem(localStorageKeys.chapterVIIIProgressionTokens.solvedKey, "1");
                     setSolvedLocal(true);
@@ -149,7 +156,8 @@ export default function BloomLiveDiePage() {
     }, [countsByReason, globalList, solvedLocal, setIsCurrentlySolved]);
 
     if (loading)
-        return <div className="min-h-screen bg-black flex items-center justify-center text-white font-mono">{text.loading}</div>;
+        return <div
+            className="min-h-screen bg-black flex items-center justify-center text-white font-mono">{text.loading}</div>;
 
     if (isBanned && !solvedLocal)
         return (

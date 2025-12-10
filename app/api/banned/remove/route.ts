@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
     } catch (dbErr) {
         try {
             dbClient?.release?.();
-        } catch {}
+        } catch {
+        }
         return createSecureResponse({error: genericErrors.ip.delError}, 500);
     }
 }

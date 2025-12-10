@@ -471,8 +471,13 @@ export default function H0m3() {
                 {[...Array(5)].map((_, index) => (
                     <main
                         key={index}
-                        ref={el => { sectionRefs.current[index] = el as HTMLElement | null; }}
-                        style={{padding: '2rem 0', minHeight: '100vh'}} // make each section viewport tall so Next scroll is predictable
+                        ref={el => {
+                            sectionRefs.current[index] = el as HTMLElement | null;
+                        }}
+                        style={{
+                            padding: '2rem 0',
+                            minHeight: '100vh'
+                        }} // make each section viewport tall so Next scroll is predictable
                     >
                         <div style={{maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem'}}>
                             {/* Primary Terminal */}

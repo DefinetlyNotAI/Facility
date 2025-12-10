@@ -6,6 +6,7 @@ export interface ClockState {
     isRevealed: boolean;
     timeRemaining: number;
 }
+
 export type ChapterVIIData = {
     solved: string;
     enterLogs: (year: number) => string;

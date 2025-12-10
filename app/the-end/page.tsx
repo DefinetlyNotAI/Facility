@@ -57,7 +57,8 @@ export default function TheEnd() {
         try {
             backgroundAudioRef.current.volume = 0.4;
             await backgroundAudioRef.current.play();
-        } catch {}
+        } catch {
+        }
     };
 
     useEffect(() => {
@@ -80,6 +81,7 @@ export default function TheEnd() {
 
     useEffect(() => {
         if (!hasEndCookie) return;
+
         function onKeyDown(e: KeyboardEvent) {
             let buffer = (window as any).inputBuffer || '';
             buffer += e.key.toUpperCase();
@@ -90,6 +92,7 @@ export default function TheEnd() {
                 (window as any).inputBuffer = '';
             }
         }
+
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [hasEndCookie]);
@@ -125,13 +128,15 @@ export default function TheEnd() {
     if (hasEndCookie) {
         return (
             <>
-                <span dangerouslySetInnerHTML={{__html: `<!--${messages.htmlComment.end}-->`}} style={{display:'none'}}/>
+                <span dangerouslySetInnerHTML={{__html: `<!--${messages.htmlComment.end}-->`}}
+                      style={{display: 'none'}}/>
                 <div
                     onClick={initializeAudio}
                     className={styles.finalContainer}
                     style={{cursor: audioEnabled ? 'default' : 'pointer'}}
                 >
-                    <audio ref={audioRef} src={BACKGROUND_AUDIO.THE_END_FINAL} loop preload="auto" style={{display:'none'}}/>
+                    <audio ref={audioRef} src={BACKGROUND_AUDIO.THE_END_FINAL} loop preload="auto"
+                           style={{display: 'none'}}/>
                     <div className={styles.particles}>
                         {[...Array(50)].map((_, i) => <div key={i} className={styles.particle}/>)}
                     </div>
@@ -185,14 +190,17 @@ export default function TheEnd() {
     if (hasEndQuestionCookie) {
         return (
             <>
-                <span dangerouslySetInnerHTML={{__html:`<!--${messages.htmlComment.question}-->`}} style={{display:'none'}}/>
+                <span dangerouslySetInnerHTML={{__html: `<!--${messages.htmlComment.question}-->`}}
+                      style={{display: 'none'}}/>
                 <div onClick={initializeBackgroundAudio} className={styles.questionContainer}>
-                    <audio ref={backgroundAudioRef} src={BACKGROUND_AUDIO.THE_END_QUESTION} loop preload="auto" style={{display:'none'}}/>
+                    <audio ref={backgroundAudioRef} src={BACKGROUND_AUDIO.THE_END_QUESTION} loop preload="auto"
+                           style={{display: 'none'}}/>
                     <div className={styles.ambientGlow}/>
                     <div className={styles.questionBox}>
                         <h1 className={styles.questionTitle}>{messages.questionInput.title}</h1>
                         <p className={styles.questionSubtitle}>
-                            {messages.questionInput.subtitle.map((line, i)=>(<React.Fragment key={i}>{line}<br/></React.Fragment>))}
+                            {messages.questionInput.subtitle.map((line, i) => (
+                                <React.Fragment key={i}>{line}<br/></React.Fragment>))}
                         </p>
                         <form onSubmit={handleSubmit}>
                             <input

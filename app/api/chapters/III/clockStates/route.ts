@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { chapterIIIData } from '@/lib/data/chapters';
+import {NextResponse} from 'next/server';
+import {chapterIIIData} from '@/lib/data/chapters';
 
 export async function GET() {
     try {
@@ -37,6 +37,6 @@ export async function GET() {
             clocks,
         });
     } catch (err) {
-        return NextResponse.json({ error: 'Failed to compute clock states' }, { status: 500 });
+        return NextResponse.json({error: 'Failed to compute clock states'}, {status: 500});
     }
 }

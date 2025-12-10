@@ -1,6 +1,6 @@
 'use client';
 
-import {useRef, useState, useEffect} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -70,7 +70,10 @@ export default function ChapterIVPage() {
         try {
             const provided = (inputs[id] || '').trim();
             // Call server API to validate keyword — server will set signed cookie on success
-            const res = await fetch(routes.api.chapters.iv.validateKeyword, {method: 'POST', body: JSON.stringify({plaqueId: id, provided})});
+            const res = await fetch(routes.api.chapters.iv.validateKeyword, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: id, provided})
+            });
             const data = await res.json();
             if (data?.ok) {
                 // refresh plaque statuses
@@ -182,20 +185,27 @@ export default function ChapterIVPage() {
                                                                 {loadingIds[plaque.id] ? 'Checking...' : 'Submit'}
                                                             </button>
 
-                                                            <a href={downloadLink} download className="text-xs text-gray-400 font-mono underline">A riddle for you</a>
+                                                            <a href={downloadLink} download
+                                                               className="text-xs text-gray-400 font-mono underline">A
+                                                                riddle for you</a>
                                                         </div>
 
                                                         {errors[plaque.id] && (
-                                                            <div className="mt-2 text-xs text-red-400 font-mono">{errors[plaque.id]}</div>
+                                                            <div
+                                                                className="mt-2 text-xs text-red-400 font-mono">{errors[plaque.id]}</div>
                                                         )}
                                                     </div>
                                                 </div>
                                             )}
 
                                             {!isPending && (
-                                                <div className="pt-4 border-t border-gray-800 flex items-center justify-between">
-                                                    <a href={downloadLink} download className="text-xs text-gray-400 font-mono underline">Download artifact</a>
-                                                    <Link href={`/chapters/IV/puzzles/${plaque.id}`} className="text-xs text-gray-300 font-mono underline">Open</Link>
+                                                <div
+                                                    className="pt-4 border-t border-gray-800 flex items-center justify-between">
+                                                    <a href={downloadLink} download
+                                                       className="text-xs text-gray-400 font-mono underline">Download
+                                                        artifact</a>
+                                                    <Link href={`/chapters/IV/puzzles/${plaque.id}`}
+                                                          className="text-xs text-gray-300 font-mono underline">Open</Link>
                                                 </div>
                                             )}
 

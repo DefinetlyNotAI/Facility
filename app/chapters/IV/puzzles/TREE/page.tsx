@@ -2,12 +2,12 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { chapterIVPublic as chapterIVData } from '@/lib/data/chapters.public';
-import { seededShuffle, seedFromString } from '@/lib/puzzles';
-import { routes } from '@/lib/saveData';
+import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
+import {seededShuffle, seedFromString} from '@/lib/puzzles';
+import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 
-const Riddle = ({idx, prompt, expectedChunk}: {idx: number, prompt: string, expectedChunk: string}) => {
+const Riddle = ({idx, prompt, expectedChunk}: { idx: number, prompt: string, expectedChunk: string }) => {
     const [answer, setAnswer] = useState('');
     const [correct, setCorrect] = useState<boolean | null>(null);
 
@@ -27,10 +27,12 @@ const Riddle = ({idx, prompt, expectedChunk}: {idx: number, prompt: string, expe
                 <input
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
-                    placeholder={`Riddle ${idx+1} answer`}
+                    placeholder={`Riddle ${idx + 1} answer`}
                     className="bg-gray-900 text-white font-mono text-sm px-3 py-2 rounded flex-1"
                 />
-                <button type="submit" className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit</button>
+                <button type="submit"
+                        className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
+                </button>
             </form>
             {correct === true && (
                 <div className="mt-2 text-sm text-green-400">Correct!</div>
@@ -68,7 +70,7 @@ export default function TreePuzzlePage() {
     const [completed, setCompleted] = useState<boolean>(false);
 
     // Stage 2 specific state
-    const [nodes, setNodes] = useState<{id:string,label:string,withered?:boolean}[]>([]);
+    const [nodes, setNodes] = useState<{ id: string, label: string, withered?: boolean }[]>([]);
     const [nodeSeq, setNodeSeq] = useState<string>('');
 
     useEffect(() => {
@@ -86,7 +88,10 @@ export default function TreePuzzlePage() {
     }, [stages.length]);
 
     useEffect(() => {
-        try { localStorage.setItem(storageKey, String(stageIndex)); } catch (e) {}
+        try {
+            localStorage.setItem(storageKey, String(stageIndex));
+        } catch (e) {
+        }
     }, [stageIndex]);
 
     useEffect(() => {
@@ -100,14 +105,17 @@ export default function TreePuzzlePage() {
             ];
             // use stage1 payload as seed; fallback to plaque id
             const seedStr = stages[0]?.payload || 'TREE';
-            const shuffled = seededShuffle(base, seedStr).map((n, idx) => ({...n, withered: (Math.floor(seedFromString(seedStr + n.id) % 4) === 0) && idx !== 0}));
+            const shuffled = seededShuffle(base, seedStr).map((n, idx) => ({
+                ...n,
+                withered: (Math.floor(seedFromString(seedStr + n.id) % 4) === 0) && idx !== 0
+            }));
             setNodes(shuffled);
             setNodeSeq('');
             setFeedback('Activate nodes in the correct order. Avoid withered nodes.');
         }
     }, [stageIndex]);
 
-    const handleNodeClick = (node: {id:string,label:string,withered?:boolean}) => {
+    const handleNodeClick = (node: { id: string, label: string, withered?: boolean }) => {
         if (node.withered) {
             setNodeSeq('');
             setFeedback('You touched a withered node — sequence reset.');
@@ -118,7 +126,10 @@ export default function TreePuzzlePage() {
             // when length matches expected, validate with server
             (async () => {
                 try {
-                    const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'TREE', stageIndex: 1, provided: next }) });
+                    const res = await fetch(routes.api.chapters.iv.validateStage, {
+                        method: 'POST',
+                        body: JSON.stringify({plaqueId: 'TREE', stageIndex: 1, provided: next})
+                    });
                     const json = await res.json();
                     if (json?.ok) {
                         setFeedback('Correct sequence! Advancing...');
@@ -129,7 +140,9 @@ export default function TreePuzzlePage() {
                         setFeedback('Wrong sequence — reset and try again.');
                         setNodeSeq('');
                     }
-                } catch (e) { setFeedback('Server error'); }
+                } catch (e) {
+                    setFeedback('Server error');
+                }
             })();
             return next;
         });
@@ -148,7 +161,10 @@ export default function TreePuzzlePage() {
             if (stageIndex >= stages.length - 1) {
                 setCompleted(true);
                 setStageIndex(stages.length);
-                try { localStorage.setItem(storageKey, String(stages.length)); } catch (e) {}
+                try {
+                    localStorage.setItem(storageKey, String(stages.length));
+                } catch (e) {
+                }
                 setFeedback('Stage complete. Puzzle finished.');
             } else {
                 setFeedback('Correct — advancing to next stage.');
@@ -167,7 +183,10 @@ export default function TreePuzzlePage() {
         setCompleted(false);
         setNodes([]);
         setNodeSeq('');
-        try { localStorage.removeItem(storageKey); } catch (e) {}
+        try {
+            localStorage.removeItem(storageKey);
+        } catch (e) {
+        }
     }
 
     return (
@@ -185,13 +204,14 @@ export default function TreePuzzlePage() {
                                         className={`text-left w-full ${i === stageIndex ? 'text-white font-bold' : 'text-gray-400'}`}
                                         onClick={() => setStageIndex(i)}
                                     >
-                                        {i+1}. {s.title}
+                                        {i + 1}. {s.title}
                                     </button>
                                 </li>
                             ))}
                         </ol>
                         <div className="mt-4">
-                            <button onClick={resetProgress} className="text-xs text-red-400 underline">Reset progress</button>
+                            <button onClick={resetProgress} className="text-xs text-red-400 underline">Reset progress
+                            </button>
                         </div>
                     </div>
 
@@ -199,9 +219,11 @@ export default function TreePuzzlePage() {
                         {completed ? (
                             <div className="p-4 bg-gray-800 rounded">
                                 <h3 className="text-xl font-bold text-green-400">Puzzle Completed</h3>
-                                <p className="text-gray-300 mt-2">You finished all stages for TREE. Return to the chapter to continue.</p>
+                                <p className="text-gray-300 mt-2">You finished all stages for TREE. Return to the
+                                    chapter to continue.</p>
                                 <div className="mt-4">
-                                    <Link href="/chapters/IV" className="underline text-gray-200">Back to Chapter IV</Link>
+                                    <Link href="/chapters/IV" className="underline text-gray-200">Back to Chapter
+                                        IV</Link>
                                 </div>
                             </div>
                         ) : (
@@ -212,27 +234,39 @@ export default function TreePuzzlePage() {
                                 {/* Stage 2 interactive UI: Node activation */}
                                 {stageIndex === 1 && (
                                     <div className="mt-4">
-                                        <div className="text-sm text-gray-400 mb-2">Activate nodes in order. Sequence: <span className="text-green-300 font-mono">{nodeSeq}</span></div>
+                                        <div className="text-sm text-gray-400 mb-2">Activate nodes in order.
+                                            Sequence: <span className="text-green-300 font-mono">{nodeSeq}</span></div>
                                         <div className="grid grid-cols-2 gap-3">
                                             {nodes.map(n => (
-                                                <button key={n.id} onClick={() => handleNodeClick(n)} className={`p-4 rounded font-mono ${n.withered ? 'bg-gray-700 text-red-400 line-through' : 'bg-black text-green-300 border border-gray-700'}`}>
+                                                <button key={n.id} onClick={() => handleNodeClick(n)}
+                                                        className={`p-4 rounded font-mono ${n.withered ? 'bg-gray-700 text-red-400 line-through' : 'bg-black text-green-300 border border-gray-700'}`}>
                                                     {n.label}
                                                 </button>
                                             ))}
                                         </div>
-                                        <div className="mt-3 text-xs text-gray-400">Tip: withered nodes will reset your sequence.</div>
+                                        <div className="mt-3 text-xs text-gray-400">Tip: withered nodes will reset your
+                                            sequence.
+                                        </div>
                                     </div>
                                 )}
 
                                 {/* Stage 3: Canopy Riddle Chain */}
                                 {stageIndex === 2 && (
                                     <div className="mt-4">
-                                        <div className="text-sm text-gray-400 mb-3">Solve the chain of riddles. Each answer is a chunk; combine in order to form the final word.</div>
+                                        <div className="text-sm text-gray-400 mb-3">Solve the chain of riddles. Each
+                                            answer is a chunk; combine in order to form the final word.
+                                        </div>
                                         <div className="space-y-3">
                                             {/** three micro-riddles **/}
-                                            <Riddle idx={0} prompt="I am a small container; I can hold a secret or a tool. What am I?" expectedChunk="can"/>
-                                            <Riddle idx={1} prompt="Opposite of close in operations; also a short form for opportunity. What chunk?" expectedChunk="op"/>
-                                            <Riddle idx={2} prompt="A common question, a homophone for the letter that sounds like 'why' — give me the final chunk." expectedChunk="y"/>
+                                            <Riddle idx={0}
+                                                    prompt="I am a small container; I can hold a secret or a tool. What am I?"
+                                                    expectedChunk="can"/>
+                                            <Riddle idx={1}
+                                                    prompt="Opposite of close in operations; also a short form for opportunity. What chunk?"
+                                                    expectedChunk="op"/>
+                                            <Riddle idx={2}
+                                                    prompt="A common question, a homophone for the letter that sounds like 'why' — give me the final chunk."
+                                                    expectedChunk="y"/>
                                         </div>
                                     </div>
                                 )}
@@ -240,7 +274,8 @@ export default function TreePuzzlePage() {
                                 {stageIndex !== 1 && stages[stageIndex]?.payload && (
                                     <div className="mt-3 bg-black p-3 rounded border border-gray-700">
                                         <div className="text-xs text-gray-400">Payload</div>
-                                        <div className="text-sm font-mono mt-1 text-green-300 break-all">{stages[stageIndex].payload}</div>
+                                        <div
+                                            className="text-sm font-mono mt-1 text-green-300 break-all">{stages[stageIndex].payload}</div>
                                     </div>
                                 )}
 
@@ -254,8 +289,13 @@ export default function TreePuzzlePage() {
                                             className="bg-gray-900 text-white font-mono text-sm px-3 py-2 rounded w-full"
                                         />
                                         <div className="mt-3 flex gap-3">
-                                            <button type="submit" className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit</button>
-                                            <button type="button" onClick={() => { navigator.clipboard && navigator.clipboard.writeText(stages[stageIndex]?.payload || ''); }} className="text-xs text-gray-300 underline">Copy payload</button>
+                                            <button type="submit"
+                                                    className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
+                                            </button>
+                                            <button type="button" onClick={() => {
+                                                navigator.clipboard && navigator.clipboard.writeText(stages[stageIndex]?.payload || '');
+                                            }} className="text-xs text-gray-300 underline">Copy payload
+                                            </button>
                                         </div>
                                     </form>
                                 )}

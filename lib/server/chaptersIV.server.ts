@@ -2,9 +2,9 @@
 export type PlaqueId = 'TREE' | 'TAS' | 'Entity';
 
 const PUZZLES: Record<PlaqueId, { keyword: string; stageAnswers: string[] }> = {
-    TREE: { keyword: 'looped time bearing false tree fruit', stageAnswers: ['deeproot', '5281', 'canopy'] },
-    TAS: { keyword: 'your own reflection in the clock\'s glass', stageAnswers: ['entropy', '11001', 'consensus'] },
-    Entity: { keyword: 'the void where names dissolve', stageAnswers: ['watch', 'mirror', 'anomaly'] },
+    TREE: {keyword: 'looped time bearing false tree fruit', stageAnswers: ['deeproot', '5281', 'canopy']},
+    TAS: {keyword: 'your own reflection in the clock\'s glass', stageAnswers: ['entropy', '11001', 'consensus']},
+    Entity: {keyword: 'the void where names dissolve', stageAnswers: ['watch', 'mirror', 'anomaly']},
 };
 
 export function normalize(input?: unknown) {

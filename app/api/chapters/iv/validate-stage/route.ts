@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { validateStageAnswer, PlaqueId } from '@/lib/server/chaptersIV.server';
-import { makeSignedValue, verifySignedValue } from '@/lib/server/cookies.server';
+import {NextResponse} from 'next/server';
+import {PlaqueId, validateStageAnswer} from '@/lib/server/chaptersIV.server';
+import {makeSignedValue, verifySignedValue} from '@/lib/server/cookies.server';
 
 export async function POST(req: Request) {
     try {
@@ -8,10 +8,13 @@ export async function POST(req: Request) {
         const plaqueId = String(body.plaqueId || '');
         const stageIndex = Number(body.stageIndex);
         const provided = String(body.provided || '');
-        if (!plaqueId || isNaN(stageIndex) || !provided) return NextResponse.json({ ok: false, message: 'Invalid input' }, { status: 400 });
+        if (!plaqueId || isNaN(stageIndex) || !provided) return NextResponse.json({
+            ok: false,
+            message: 'Invalid input'
+        }, {status: 400});
 
         const ok = validateStageAnswer(plaqueId as PlaqueId, stageIndex, provided);
-        if (!ok) return NextResponse.json({ ok: false, message: 'Incorrect answer' }, { status: 200 });
+        if (!ok) return NextResponse.json({ok: false, message: 'Incorrect answer'}, {status: 200});
 
         // Optionally extend unlocked plaques in cookie
         const raw = req.headers.get('cookie') || '';
@@ -22,18 +25,28 @@ export async function POST(req: Request) {
                 if (!m) return null;
                 const val = decodeURIComponent(m[1]);
                 return verifySignedValue(val);
-            } catch (e) { return null; }
+            } catch (e) {
+                return null;
+            }
         })();
 
         const prev = existing?.unlocked || [];
         const unlocked = Array.from(new Set([...prev, plaqueId]));
-        const payload = { unlocked, t: Date.now() };
+        const payload = {unlocked, t: Date.now()};
         const signed = makeSignedValue(payload);
 
-        const res = NextResponse.json({ ok: true });
-        res.cookies.set({ name: 'chapIV_auth', value: signed, httpOnly: true, path: '/', sameSite: 'strict', secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 });
+        const res = NextResponse.json({ok: true});
+        res.cookies.set({
+            name: 'chapIV_auth',
+            value: signed,
+            httpOnly: true,
+            path: '/',
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24
+        });
         return res;
     } catch (e) {
-        return NextResponse.json({ ok: false, message: 'Server error' }, { status: 500 });
+        return NextResponse.json({ok: false, message: 'Server error'}, {status: 500});
     }
 }

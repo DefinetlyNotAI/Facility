@@ -1,9 +1,22 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
-    Play, Pause, SkipBack, SkipForward, RotateCcw, RotateCw, Download, Shuffle, Repeat, Info, Menu, Volume2, VolumeX,
-    Repeat1, Repeat2
+    Download,
+    Info,
+    Menu,
+    Pause,
+    Play,
+    Repeat,
+    Repeat1,
+    Repeat2,
+    RotateCcw,
+    RotateCw,
+    Shuffle,
+    SkipBack,
+    SkipForward,
+    Volume2,
+    VolumeX
 } from 'lucide-react';
 import styles from '@/styles/OST.module.css';
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
@@ -34,7 +47,7 @@ function extractTracks(): Track[] {
     return Array.from(trackMap.entries()).map(([path, usedIn]) => {
         const filename = path.split('/').pop() || '';
         const title = TRACK_NAMES[filename] || filename.replace('.mp3', '');
-        return { path, title, usedIn };
+        return {path, title, usedIn};
     });
 }
 
@@ -64,7 +77,7 @@ export default function OSTPlayer() {
         // only run on client
         setShowParticles(true);
         const generate = (n: number) =>
-            Array.from({ length: n }).map(() => ({
+            Array.from({length: n}).map(() => ({
                 left: Math.random() * 100,
                 top: Math.random() * 100,
                 delay: Math.random() * 6,
@@ -80,11 +93,11 @@ export default function OSTPlayer() {
     // Visualizer: deterministic server render, randomized after hydration
     const BAR_COUNT = 32;
     const [barsHeights, setBarsHeights] = useState<number[]>(
-        Array.from({ length: BAR_COUNT }, () => 50) // stable value for SSR
+        Array.from({length: BAR_COUNT}, () => 50) // stable value for SSR
     );
     useEffect(() => {
         // generate randomized heights only on client after hydration
-        const heights = Array.from({ length: BAR_COUNT }, () => 20 + Math.random() * 80);
+        const heights = Array.from({length: BAR_COUNT}, () => 20 + Math.random() * 80);
         setBarsHeights(heights);
     }, []);
 
@@ -295,7 +308,7 @@ export default function OSTPlayer() {
                     </div>
 
                     <div className={styles.visualizer}>
-                        {Array.from({ length: BAR_COUNT }).map((_, i) => (
+                        {Array.from({length: BAR_COUNT}).map((_, i) => (
                             <div
                                 key={i}
                                 className={`${styles.bar} ${isPlaying ? styles.barActive : ''}`}
@@ -328,36 +341,38 @@ export default function OSTPlayer() {
                             className={`${styles.controlBtn} ${isShuffle ? styles.active : ''}`}
                             title="Shuffle"
                         >
-                            <Shuffle size={18} />
+                            <Shuffle size={18}/>
                         </button>
-                        <button onClick={toggleLoop} className={`${styles.controlBtn} ${loopMode !== 'none' ? styles.active : ''}`} title="Loop">
-                            {loopMode === 'none' && <Repeat size={18} />}
-                            {loopMode === 'all' && <Repeat2 size={18} />}
-                            {loopMode === 'one' && <Repeat1 size={18} />}
+                        <button onClick={toggleLoop}
+                                className={`${styles.controlBtn} ${loopMode !== 'none' ? styles.active : ''}`}
+                                title="Loop">
+                            {loopMode === 'none' && <Repeat size={18}/>}
+                            {loopMode === 'all' && <Repeat2 size={18}/>}
+                            {loopMode === 'one' && <Repeat1 size={18}/>}
                         </button>
                         <button onClick={() => setShowInfo(!showInfo)} className={styles.controlBtn} title="Info">
-                            <Info size={18} />
+                            <Info size={18}/>
                         </button>
                         <button onClick={() => setShowMenu(!showMenu)} className={styles.controlBtn} title="Menu">
-                            <Menu size={18} />
+                            <Menu size={18}/>
                         </button>
                     </div>
 
                     <div className={styles.mainControls}>
                         <button onClick={handlePrevious} className={styles.controlBtn} title="Previous">
-                            <SkipBack size={24} />
+                            <SkipBack size={24}/>
                         </button>
                         <button onClick={skipBackward} className={styles.controlBtn} title="Rewind 5s">
-                            <RotateCcw size={20} />
+                            <RotateCcw size={20}/>
                         </button>
                         <button onClick={togglePlay} className={styles.playBtn} title={isPlaying ? 'Pause' : 'Play'}>
-                            {isPlaying ? <Pause size={32} /> : <Play size={32} />}
+                            {isPlaying ? <Pause size={32}/> : <Play size={32}/>}
                         </button>
                         <button onClick={skipForward} className={styles.controlBtn} title="Forward 5s">
-                            <RotateCw size={20} />
+                            <RotateCw size={20}/>
                         </button>
                         <button onClick={handleNext} className={styles.controlBtn} title="Next">
-                            <SkipForward size={24} />
+                            <SkipForward size={24}/>
                         </button>
                     </div>
 
@@ -367,7 +382,7 @@ export default function OSTPlayer() {
                             className={styles.controlBtn}
                             title={isMuted ? 'Unmute' : 'Mute'}
                         >
-                            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                            {isMuted ? <VolumeX size={18}/> : <Volume2 size={18}/>}
                         </button>
                         <input
                             type="range"
@@ -379,7 +394,7 @@ export default function OSTPlayer() {
                             className={styles.volumeBar}
                         />
                         <button onClick={handleDownload} className={styles.controlBtn} title="Download">
-                            <Download size={18} />
+                            <Download size={18}/>
                         </button>
                     </div>
                 </div>
@@ -422,7 +437,7 @@ export default function OSTPlayer() {
                 )}
 
                 {/* make sure audio element is last so it's always in the DOM */}
-                <audio ref={audioRef} />
+                <audio ref={audioRef}/>
             </div>
         </div>
     );

@@ -113,7 +113,10 @@ export default function ChapterIIIPage() {
                 // Start a local tick that only advances the display time; reveal decisions remain server-driven
                 const localInterval = setInterval(() => {
                     setMainClockTime(prev => new Date(prev.getTime() + 1000));
-                    setClockStates(prev => prev.map(clock => ({ ...clock, timeRemaining: Math.max(0, clock.timeRemaining - 1000) })));
+                    setClockStates(prev => prev.map(clock => ({
+                        ...clock,
+                        timeRemaining: Math.max(0, clock.timeRemaining - 1000)
+                    })));
                 }, 1000);
 
                 return () => clearInterval(localInterval);
@@ -124,7 +127,9 @@ export default function ChapterIIIPage() {
 
         fetchStates().catch(console.error);
 
-        return () => { mounted = false; };
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     // Render normal clock face

@@ -32,7 +32,9 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
             phase = 0;
             swayOffset = 0;
 
-            constructor() { this.reset(); }
+            constructor() {
+                this.reset();
+            }
 
             reset() {
                 this.x = Math.random() * width;
@@ -74,7 +76,9 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
             speedY = 0;
             alpha = 0;
 
-            constructor() { this.reset(); }
+            constructor() {
+                this.reset();
+            }
 
             reset() {
                 this.x = Math.random() * width;
@@ -117,7 +121,7 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
         return () => window.removeEventListener("resize", resize);
     }, []);
 
-    const VioletCanvas = <canvas ref={canvasRef} className={styles.canvas} />;
+    const VioletCanvas = <canvas ref={canvasRef} className={styles.canvas}/>;
 
     if (isCurrentlySolved === null) {
         return (
@@ -143,7 +147,7 @@ export default function ChapterTemplate({chapterId, chapterData, fileLink}: Chap
                 <div style={{marginTop: "3rem"}}>
                     <a href={fileLink} download aria-label="Narrator download" className={styles.downloadButton}>
                         <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5"/>
                         </svg>
                         <span>{chapter.VX.narrator}</span>
                     </a>
