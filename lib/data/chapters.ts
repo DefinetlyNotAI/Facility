@@ -1,6 +1,4 @@
-import ntl_styles from "@/styles/NoTimeLeft.module.css";
 import {ChapterVIIData} from "@/lib/types/chapters";
-
 
 // All texts used in bonus chapters for errors or messages
 export const bonusErrorText = {
@@ -14,15 +12,6 @@ export const bonusErrorText = {
     }
 }
 
-export const chapterStyles: Record<string, string> = {
-    I: ntl_styles.textWhite,
-    II: ntl_styles.textWhite,
-    VI: ntl_styles.textWhite,
-    VIII: ntl_styles.textWhite,
-    VII: ntl_styles.textRed,
-    IX: ntl_styles.textBlood,
-};
-
 export const chapterMessages: Record<string, string> = {
     I: bonusErrorText.noTimeLeft.I_II,
     II: bonusErrorText.noTimeLeft.I_II,
@@ -32,22 +21,7 @@ export const chapterMessages: Record<string, string> = {
     IX: bonusErrorText.noTimeLeft.IX,
 };
 
-export const validRomans: string[] = ['i', 'ii', 'iii', "iv", 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
-
 export const validRomansNoTimeLeft: string[] = ['i', 'ii', 'vi', 'vii', 'viii', 'ix'];
-
-export const successQuestNames: string[] = [
-    "Connecting...",
-    "Empty?",
-    "3:Clocks and Hands",
-    "3:Registration",
-    "Narrator: A Harbinger",
-    "He who lives in clocks",
-    "The timeline",
-    "Bloom, Live and Die",
-    "Philosophy",
-    "Narrator: Tenacity"
-];
 
 export const failQuestNames: string[] = [
     "Timeout",

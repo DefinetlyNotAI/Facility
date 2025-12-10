@@ -2,11 +2,20 @@
 import React, {Suspense, useEffect, useRef} from 'react';
 import styles from '@/styles/NoTimeLeft.module.css';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {chapterMessages, chapterStyles} from '@/lib/data/chapters';
+import {chapterMessages} from '@/lib/data/chapters';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
 import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
 import {usePreloadActStates} from "@/hooks/BonusActHooks/usePreloadActStates";
+
+const chapterStyles: Record<string, string> = {
+    I: styles.textWhite,
+    II: styles.textWhite,
+    VI: styles.textWhite,
+    VIII: styles.textWhite,
+    VII: styles.textRed,
+    IX: styles.textBlood,
+};
 
 function NoTimeLeftInner() {
     const searchParams = useSearchParams();
