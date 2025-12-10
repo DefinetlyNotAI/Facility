@@ -65,20 +65,6 @@ export const chapterIVPublic = {
                 'Root Graph - interactively activate roots in the right order',
                 'Canopy Riddle Chain - a sequence of chained riddles and micro-puzzles'
             ],
-            hints: [
-                [
-                    'Stage 1: Look for hex and base64 layers.',
-                    'Stage 1: Common small substitution ciphers are used (A↔Z style).'
-                ],
-                [
-                    'Stage 2: Node indices in the dossier map to activation order.',
-                    'Stage 2: Avoid withered nodes.'
-                ],
-                [
-                    'Stage 3: Each riddle reveals a single word; combine them in order.',
-                    'Stage 3: One of the riddles is solved by an image anagram.'
-                ]
-            ],
             stageData: [
                 {
                     stage: 1,

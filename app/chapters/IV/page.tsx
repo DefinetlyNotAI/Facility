@@ -15,6 +15,29 @@ import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 import {routes} from '@/lib/saveData';
 
+// JSON cookie helpers to store merged plaque progress
+function getJsonCookie(name: string): any | null {
+    try {
+        const match = document.cookie.split(';').map(s => s.trim()).find(c => c.startsWith(name + '='));
+        if (!match) return null;
+        const value = decodeURIComponent(match.split('=')[1] || '');
+        return JSON.parse(value);
+    } catch (e) {
+        return null;
+    }
+}
+
+function setJsonCookie(name: string, obj: any, days = 365) {
+    try {
+        const value = encodeURIComponent(JSON.stringify(obj));
+        const d = new Date();
+        d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${value}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
+    } catch (e) {
+        // ignore cookie errors
+    }
+}
+
 export default function ChapterIVPage() {
     const {isCurrentlySolved} = useChapterAccess();
     const [plaqueStatuses, setPlaqueStatuses] = useState<any[]>([]);
@@ -76,6 +99,18 @@ export default function ChapterIVPage() {
             });
             const data = await res.json();
             if (data?.ok) {
+                // merge this plaque into the local JSON cookie so we don't overwrite previous progress
+                try {
+                    const cookieKey = 'chapterIV-plaque-progress';
+                    const current = getJsonCookie(cookieKey) || {};
+                    // progress states: 1 = keyword entered, 2 = started puzzle, 3 = completed
+                    const prevState = Number(current[id] || 0);
+                    current[id] = Math.max(prevState, 1);
+                    setJsonCookie(cookieKey, current, 365);
+                } catch (e) {
+                    // ignore cookie errors
+                }
+
                 // refresh plaque statuses
                 await fetchPlaqueStatuses();
                 router.push(`/chapters/IV/puzzles/${id}`);

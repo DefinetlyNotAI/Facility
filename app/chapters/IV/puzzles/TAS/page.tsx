@@ -9,6 +9,47 @@ import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
+// Riddle component (adapted from TREE puzzle for a riddle-chain mini-game)
+const Riddle = ({idx, prompt, expectedChunk, onResult}: {
+    idx: number,
+    prompt: string,
+    expectedChunk: string,
+    onResult: (i: number, ok: boolean) => void
+}) => {
+    const [answer, setAnswer] = useState('');
+    const [correct, setCorrect] = useState<boolean | null>(null);
+
+    const handleSubmit = (e?: React.FormEvent) => {
+        e?.preventDefault();
+        const ok = answer.trim().toLowerCase() === expectedChunk;
+        setCorrect(ok);
+        onResult(idx, ok);
+    }
+
+    return (
+        <div className="p-4 bg-gray-800 rounded border border-gray-700">
+            <div className="text-sm text-gray-400 mb-2">{prompt}</div>
+            <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder={`Riddle ${idx + 1} answer`}
+                    className="bg-gray-900 text-white font-mono text-sm px-3 py-2 rounded flex-1"
+                />
+                <button type="submit"
+                        className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
+                </button>
+            </form>
+            {correct === true && (
+                <div className="mt-2 text-sm text-green-400">Correct!</div>
+            )}
+            {correct === false && (
+                <div className="mt-2 text-sm text-red-400">Try again.</div>
+            )}
+        </div>
+    );
+}
+
 export default function TasPuzzlePage() {
     const isCurrentlySolved = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -26,6 +67,53 @@ export default function TasPuzzlePage() {
 
     const stages = puzzle.stageData || [];
     const storageKey = 'chapterIV-TAS-progress';
+    const cookieKey = 'chapterIV-plaque-progress';
+
+    // JSON cookie helpers (same as other files)
+    function getJsonCookie(name: string): any | null {
+        try {
+            const match = document.cookie.split(';').map(s => s.trim()).find(c => c.startsWith(name + '='));
+            if (!match) return null;
+            const value = decodeURIComponent(match.split('=')[1] || '');
+            return JSON.parse(value);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setJsonCookie(name: string, obj: any, days = 365) {
+        try {
+            const value = encodeURIComponent(JSON.stringify(obj));
+            const d = new Date();
+            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+            document.cookie = `${name}=${value}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
+        } catch (e) {
+            // ignore cookie errors
+        }
+    }
+
+    const markCompleted = () => {
+        try {
+            const current = getJsonCookie(cookieKey) || {};
+            const prev = Number(current['TAS'] || 0);
+            current['TAS'] = Math.max(prev, 3);
+            setJsonCookie(cookieKey, current, 365);
+        } catch (e) {
+        }
+    }
+
+    useEffect(() => {
+        // when user opens TAS puzzle, mark as started (2) if lower
+        try {
+            const current = getJsonCookie(cookieKey) || {};
+            const prev = Number(current['TAS'] || 0);
+            if (prev < 2) {
+                current['TAS'] = 2;
+                setJsonCookie(cookieKey, current, 365);
+            }
+        } catch (e) {
+        }
+    }, []);
 
     const [completed, setCompleted] = useState<boolean>(false);
 
@@ -42,6 +130,9 @@ export default function TasPuzzlePage() {
     const [parts, setParts] = useState<string[]>([]);
     const [used, setUsed] = useState<boolean[]>([]);
     const [assembly, setAssembly] = useState<string>('');
+
+    // Riddle chain correctness for final stage
+    const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>([false, false, false]);
 
     useEffect(() => {
         if (stageIndex === 2 && parts.length === 0) {
@@ -83,6 +174,35 @@ export default function TasPuzzlePage() {
         }
     }, [stageIndex]);
 
+    // NEW: unlocked stage tracking (TREE-style)
+    const [unlockedStage, setUnlockedStage] = useState<number>(0);
+    const unlockAndGo = (index: number) => {
+        setUnlockedStage(prev => Math.max(prev, index));
+        setStageIndex(index);
+        try {
+            localStorage.setItem(storageKey, String(index));
+        } catch (e) {
+        }
+    }
+
+    useEffect(() => {
+        if (stageIndex > unlockedStage) setStageIndex(unlockedStage);
+    }, [stageIndex, unlockedStage]);
+
+    useEffect(() => {
+        // if loading a saved index, also ensure unlockedStage is at least that index
+        try {
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                const i = parseInt(raw, 10);
+                if (!isNaN(i)) {
+                    setUnlockedStage(Math.max(0, i));
+                }
+            }
+        } catch (e) {
+        }
+    }, []);
+
     const toggleSwitch = (i: number) => {
         setSwitches(prev => {
             const c = prev.slice();
@@ -102,7 +222,8 @@ export default function TasPuzzlePage() {
                 const json = await res.json();
                 if (json?.ok) {
                     setFeedback('Correct — advancing to Stage 3');
-                    setTimeout(() => setStageIndex(2), 400);
+                    // unlock/persist like TREE
+                    setTimeout(() => unlockAndGo(2), 400);
                 } else setFeedback('Incorrect switch configuration.');
             } catch (e) {
                 setFeedback('Server error');
@@ -131,12 +252,14 @@ export default function TasPuzzlePage() {
                         if (json?.ok) {
                             setFeedback('Correct final assembly — puzzle finished.');
                             setTimeout(() => {
-                                setStageIndex(3);
+                                // unlock next stage (final riddle stage) and mark as completed state
+                                unlockAndGo(3);
                                 setCompleted(true);
                                 try {
                                     localStorage.setItem(storageKey, String(stages.length));
                                 } catch (e) {
                                 }
+                                markCompleted();
                             }, 500);
                         } else {
                             setFeedback('Wrong assembly — reset and try again.');
@@ -156,6 +279,13 @@ export default function TasPuzzlePage() {
         e?.preventDefault();
         setFeedback('');
         const provided = (input || '').trim().toLowerCase();
+        // If on final configured stage, require riddles to be solved client-side before allowing finalization
+        if (stageIndex === stages.length - 1) {
+            if (!riddleCorrects.every(Boolean)) {
+                setFeedback('Solve the riddle chain before finalizing the plaque.');
+                return;
+            }
+        }
         // validate with server
         try {
             const res = await fetch(routes.api.chapters.iv.validateStage, {
@@ -176,10 +306,13 @@ export default function TasPuzzlePage() {
                 } catch (e) {
                 }
                 setFeedback('Puzzle completed.');
+                markCompleted();
             } else {
-                setStageIndex(prev => prev + 1);
-                setInput('');
+                // unlock next stage
+                const nextIndex = stageIndex + 1;
                 setFeedback('Correct — advanced.');
+                unlockAndGo(nextIndex);
+                setInput('');
             }
         } catch (e) {
             setFeedback('Server error');
@@ -194,6 +327,15 @@ export default function TasPuzzlePage() {
         setParts([]);
         setUsed([]);
         setAssembly('');
+        setRiddleCorrects([false, false, false]);
+    }
+
+    const onRiddleResult = (i: number, ok: boolean) => {
+        setRiddleCorrects(prev => {
+            const next = [...prev];
+            next[i] = ok;
+            return next;
+        });
     }
 
     return (
@@ -203,7 +345,7 @@ export default function TasPuzzlePage() {
                 <div className="max-w-4xl mx-auto">
                     <h1 className="text-2xl font-bold mb-4">TAS Puzzle</h1>
                     <p className="text-sm text-gray-400 mb-6">Follow the staged hints to solve the multipart
-                        circuit.</p>
+                        circuit. This version has extra chained mechanics and a riddle finale.</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -212,10 +354,12 @@ export default function TasPuzzlePage() {
                                 {stages.map((s: any, i: number) => (
                                     <li key={i} className="mt-2">
                                         <button
-                                            onClick={() => setStageIndex(i)}
+                                            onClick={() => {
+                                                if (i <= unlockedStage) setStageIndex(i);
+                                            }}
                                             className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
                                         >
-                                            {s.title}
+                                            {i > unlockedStage ? `🔒 ${s.title}` : s.title}
                                         </button>
                                     </li>
                                 ))}
@@ -281,6 +425,29 @@ export default function TasPuzzlePage() {
                                             </button>
                                         </div>
                                     </form>
+                                )}
+
+                                {/* Riddle chain shown on final configured stage as an added local requirement */}
+                                {stageIndex === stages.length - 1 && (
+                                    <div className="mt-4 space-y-3">
+                                        <div className="text-sm text-gray-400">Final: solve the riddle chain to prove
+                                            understanding of the circuit.
+                                        </div>
+
+                                        <Riddle idx={0}
+                                                prompt={'I am taken from a mine and shut up in a wooden case, from which I am never released, and yet I am used by almost every artisan.'}
+                                                expectedChunk={'lead'} onResult={onRiddleResult}/>
+                                        <Riddle idx={1}
+                                                prompt={'I turn once, what is out will not get in. I turn again, what is in will not get out.'}
+                                                expectedChunk={'key'} onResult={onRiddleResult}/>
+                                        <Riddle idx={2}
+                                                prompt={'I have keys but no locks. I have space but no rooms. You can enter, but you can’t go outside.'}
+                                                expectedChunk={'keyboard'} onResult={onRiddleResult}/>
+
+                                        <div className="text-sm text-yellow-400">Riddle
+                                            progress: {riddleCorrects.filter(Boolean).length}/3
+                                        </div>
+                                    </div>
                                 )}
 
                                 {feedback && <div className="mt-3 text-sm text-yellow-300">{feedback}</div>}
