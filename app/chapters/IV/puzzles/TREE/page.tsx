@@ -4,20 +4,22 @@ import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
 import {seededShuffle, seedFromString} from '@/lib/puzzles';
-import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 
-const Riddle = ({idx, prompt, expectedChunk}: { idx: number, prompt: string, expectedChunk: string }) => {
+const Riddle = ({idx, prompt, expectedChunk, onResult}: {
+    idx: number,
+    prompt: string,
+    expectedChunk: string,
+    onResult: (i: number, ok: boolean) => void
+}) => {
     const [answer, setAnswer] = useState('');
     const [correct, setCorrect] = useState<boolean | null>(null);
 
     const handleSubmit = (e?: React.FormEvent) => {
         e?.preventDefault();
-        if (answer.trim().toLowerCase() === expectedChunk) {
-            setCorrect(true);
-        } else {
-            setCorrect(false);
-        }
+        const ok = answer.trim().toLowerCase() === expectedChunk;
+        setCorrect(ok);
+        onResult(idx, ok);
     }
 
     return (
@@ -69,9 +71,38 @@ export default function TreePuzzlePage() {
     const [feedback, setFeedback] = useState<string>('');
     const [completed, setCompleted] = useState<boolean>(false);
 
+    // Track the highest unlocked stage index (0-based). Initially only stage 0 is unlocked.
+    const [unlockedStage, setUnlockedStage] = useState<number>(0);
+
+    // Helper to safely unlock a stage and navigate to it (persists to localStorage)
+    const unlockAndGo = (index: number) => {
+        setUnlockedStage(prev => Math.max(prev, index));
+        setStageIndex(index);
+        try {
+            localStorage.setItem(storageKey, String(index));
+        } catch (e) {
+        }
+    }
+
+    // Ensure user cannot view a stage higher than their unlockedStage (clamp)
+    useEffect(() => {
+        if (stageIndex > unlockedStage) {
+            setStageIndex(unlockedStage);
+        }
+    }, [stageIndex, unlockedStage]);
+
     // Stage 2 specific state
     const [nodes, setNodes] = useState<{ id: string, label: string, withered?: boolean }[]>([]);
     const [nodeSeq, setNodeSeq] = useState<string>('');
+    const [stage2Started, setStage2Started] = useState<boolean>(false); // timer starts when true
+
+    // Timer / difficulty spike for stage 2
+    const [stage2BaseTime, setStage2BaseTime] = useState<number>(15); // seconds (can increase after penalties)
+    const [remainingTime, setRemainingTime] = useState<number>(stage2BaseTime);
+    const [, setConsecutiveTimeFails] = useState<number>(0);
+
+    // Stage 3 riddle correctness tracking
+    const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>([false, false, false]);
 
     useEffect(() => {
         // load progress
@@ -79,8 +110,16 @@ export default function TreePuzzlePage() {
             const raw = localStorage.getItem(storageKey);
             if (raw) {
                 const i = parseInt(raw, 10);
-                if (!isNaN(i) && i >= 0 && i < stages.length) setStageIndex(i);
-                if (!isNaN(i) && i >= stages.length) setCompleted(true);
+                if (!isNaN(i) && i >= 0 && i < stages.length) {
+                    setStageIndex(i);
+                    // if user has progressed past stage 0, unlock up to that index
+                    if (i > 0) setUnlockedStage(i);
+                }
+                if (!isNaN(i) && i >= stages.length) {
+                    setCompleted(true);
+                    setUnlockedStage(stages.length - 1);
+                    setStageIndex(stages.length);
+                }
             }
         } catch (e) {
             // ignore
@@ -95,7 +134,7 @@ export default function TreePuzzlePage() {
     }, [stageIndex]);
 
     useEffect(() => {
-        // initialize nodes for stage 2 when reached — deterministic from stage1 payload
+        // initialize nodes for stage 2 when reached - deterministic from stage1 payload
         if (stageIndex === 1 && nodes.length === 0) {
             const base = [
                 {id: 'n1', label: '5'},
@@ -112,38 +151,134 @@ export default function TreePuzzlePage() {
             setNodes(shuffled);
             setNodeSeq('');
             setFeedback('Activate nodes in the correct order. Avoid withered nodes.');
+
+            // initialize timer for stage 2 (use current base time)
+            setRemainingTime(stage2BaseTime);
         }
     }, [stageIndex]);
 
+    // When leaving stage 2, clear any running timer state
+    useEffect(() => {
+        if (stageIndex !== 1) {
+            setRemainingTime(stage2BaseTime);
+        }
+    }, [stageIndex, stage2BaseTime]);
+
+    // Timer effect for stage 2
+    useEffect(() => {
+        if (stageIndex !== 1) return;
+        if (!stage2Started) return; // don't start ticking until user begins
+        let cancelled = false;
+        const tick = () => {
+            setRemainingTime(prev => {
+                if (cancelled) return prev;
+                if (prev <= 1) {
+                    // Time expired: count as a time failure
+                    // Reset sequence and increment consecutive time-fails
+                    setNodeSeq('');
+                    setFeedback('Time expired - sequence reset.');
+                    setConsecutiveTimeFails(prevFails => {
+                        const next = prevFails + 1;
+                        if (next >= 3) {
+                            // add 5 seconds penalty to base time and reset the consecutive counter
+                            setStage2BaseTime(bt => bt + 5);
+                            setFeedback('Three consecutive time failures - timer increased by 5 seconds.');
+                            return 0;
+                        }
+                        return next;
+                    });
+                    // restart remaining time from (possibly updated) base time on next render
+                    return stage2BaseTime;
+                }
+                return prev - 1;
+            });
+        }
+
+        const id = setInterval(tick, 1000);
+        return () => {
+            cancelled = true;
+            clearInterval(id);
+        };
+    }, [stageIndex, stage2BaseTime, stage2Started]);
+
+    // Helper: mutate withered nodes with a 25% chance to change their label to a different number
+    const mutateWitheredNodes = () => {
+        setNodes(prev => {
+            const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            let changed = false;
+            // We'll allow withered nodes to either change label or move (swap) with small chance
+            let next = [...prev];
+            for (let idx = 0; idx < next.length; idx++) {
+                const n = next[idx];
+                if (!n.withered) continue;
+                const r = Math.random();
+                if (r < 0.25) {
+                    // change label
+                    const choices = digits.filter(d => d !== n.label);
+                    const newLabel = choices[Math.floor(Math.random() * choices.length)];
+                    next[idx] = {...n, label: newLabel};
+                    changed = true;
+                } else if (r < 0.5) {
+                    // move (swap) this withered node with another random node
+                    const otherIdx = Math.floor(Math.random() * next.length);
+                    if (otherIdx !== idx) {
+                        const tmp = next[otherIdx];
+                        next[otherIdx] = {...n};
+                        next[idx] = {...tmp};
+                        changed = true;
+                    }
+                }
+            }
+            return changed ? next : prev;
+        });
+    }
+
     const handleNodeClick = (node: { id: string, label: string, withered?: boolean }) => {
+        // mark that the player started stage 2 (timer begins)
+        if (!stage2Started) setStage2Started(true);
+
+        // mutate/move some withered nodes on each interaction to create a difficulty spike
+        mutateWitheredNodes();
+
         if (node.withered) {
+            // touching a withered node resets sequence and also resets consecutive time-fail counter
             setNodeSeq('');
-            setFeedback('You touched a withered node — sequence reset.');
+            setFeedback('You touched a withered node - sequence reset.');
+            setConsecutiveTimeFails(0);
+            // restart timer
+            setRemainingTime(stage2BaseTime);
             return;
         }
+
+        // clicking a normal node should also clear consecutive time failures (they only count timeouts)
+        setConsecutiveTimeFails(0);
+
         setNodeSeq(prev => {
             const next = prev + node.label;
-            // when length matches expected, validate with server
-            (async () => {
-                try {
-                    const res = await fetch(routes.api.chapters.iv.validateStage, {
-                        method: 'POST',
-                        body: JSON.stringify({plaqueId: 'TREE', stageIndex: 1, provided: next})
-                    });
-                    const json = await res.json();
-                    if (json?.ok) {
-                        setFeedback('Correct sequence! Advancing...');
-                        setTimeout(() => setStageIndex(2), 700);
+
+            // Only validate locally once we've reached the expected length from the stage payload
+            const expected = stages[1]?.payload || '';
+            if (expected && next.length >= expected.length) {
+                if (next === expected) {
+                    setFeedback('Correct sequence! Advancing...');
+                    // reset timer/consecutive fails on success
+                    setConsecutiveTimeFails(0);
+                    setRemainingTime(stage2BaseTime);
+                    // unlock next stage and advance
+                    setTimeout(() => {
+                        // stop the stage2 timer when advancing
+                        setStage2Started(false);
+                        unlockAndGo(2);
                         setNodeSeq('');
-                    } else if (next.length >= 1) {
-                        // incorrect when we've reached the length and server rejects
-                        setFeedback('Wrong sequence — reset and try again.');
-                        setNodeSeq('');
-                    }
-                } catch (e) {
-                    setFeedback('Server error');
+                    }, 700);
+                } else {
+                    setFeedback('Wrong sequence - reset and try again.');
+                    // reset sequence and timer
+                    setRemainingTime(stage2BaseTime);
+                    return '';
                 }
-            })();
+            }
+
             return next;
         });
     }
@@ -152,166 +287,224 @@ export default function TreePuzzlePage() {
         e?.preventDefault();
         setFeedback('');
         const provided = (input || '').trim().toLowerCase();
+
+        // Stage 1 special: accept either the full stage2 payload or its length (backwards compatible)
+        if (stageIndex === 0) {
+            const stage2PayloadRaw = (stages[1]?.payload || '');
+            const normalize = (s: string) => s.replace(/[^a-z0-9]/gi, '').toLowerCase();
+            const stage2Payload = normalize(stage2PayloadRaw);
+            const providedNorm = normalize(provided);
+            const stage2PayloadLengthStr = String(stage2PayloadRaw.length);
+            // accept if normalized direct match, or numeric length match
+            if (providedNorm === stage2Payload || providedNorm === normalize(stage2PayloadLengthStr)) {
+                setFeedback('Correct - unlocking Stage 2.');
+                unlockAndGo(1);
+                setInput('');
+            } else {
+                setFeedback('Incorrect answer. Try again.');
+            }
+            return;
+        }
+
+        // Generic fallback: compare to explicit 'answer' if provided in stageData
         const expected = (stages[stageIndex]?.answer || '').toLowerCase();
         if (!expected) {
             setFeedback('No expected answer configured for this stage.');
             return;
         }
         if (provided === expected) {
-            if (stageIndex >= stages.length - 1) {
+            // correct for this stage
+            setFeedback('Correct!');
+            if (stageIndex < stages.length - 1) {
+                const nextIndex = stageIndex + 1;
+                unlockAndGo(nextIndex);
+                setInput('');
+            } else {
+                // final stage complete
                 setCompleted(true);
-                setStageIndex(stages.length);
                 try {
                     localStorage.setItem(storageKey, String(stages.length));
                 } catch (e) {
                 }
-                setFeedback('Stage complete. Puzzle finished.');
-            } else {
-                setFeedback('Correct — advancing to next stage.');
-                setStageIndex(prev => prev + 1);
-                setInput('');
+                setUnlockedStage(stages.length - 1);
+                setStageIndex(stages.length);
             }
         } else {
-            setFeedback('Incorrect answer. Try again.');
+            setFeedback('Incorrect. Try again.');
         }
     }
 
-    const resetProgress = () => {
-        setStageIndex(0);
-        setInput('');
-        setFeedback('Progress reset.');
-        setCompleted(false);
-        setNodes([]);
-        setNodeSeq('');
-        try {
-            localStorage.removeItem(storageKey);
-        } catch (e) {
-        }
+    const onRiddleResult = (i: number, ok: boolean) => {
+        setRiddleCorrects(prev => {
+            const next = [...prev];
+            next[i] = ok;
+            // if all true, complete the puzzle
+            if (next.every(Boolean)) {
+                setFeedback('All riddles solved! You can submit to complete the plaque.');
+            }
+            return next;
+        });
     }
 
+    const handleStage3FinalSubmit = () => {
+        if (!riddleCorrects.every(Boolean)) {
+            setFeedback('All riddles must be correct before submission.');
+            return;
+        }
+        setFeedback('Stage complete — take a screenshot of this page as proof and then continue.');
+        setTimeout(() => {
+            setCompleted(true);
+            setUnlockedStage(stages.length - 1);
+            setStageIndex(stages.length);
+            try {
+                localStorage.setItem(storageKey, String(stages.length));
+            } catch (e) {
+            }
+        }, 800);
+    }
+
+    // Basic UI rendering for stages
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
-            <div className="max-w-4xl mx-auto text-white font-mono">
-                <h1 className="text-3xl font-bold mb-4">TREE Puzzle</h1>
+            <div className="max-w-3xl mx-auto">
+                <div className="text-center mb-6">
+                    <h1 className="text-white font-mono text-3xl font-bold">{chapterIVData.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}</h1>
+                    <p className="text-gray-400 font-mono text-sm mt-2">{chapterIVData.text.subHeader}</p>
+                </div>
 
-                <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="md:col-span-1">
-                        <h2 className="text-lg font-semibold mb-2">Stages</h2>
-                        <ol className="list-decimal list-inside text-gray-300 space-y-2">
-                            {stages.map((s: any, i: number) => (
-                                <li key={i}>
-                                    <button
-                                        className={`text-left w-full ${i === stageIndex ? 'text-white font-bold' : 'text-gray-400'}`}
-                                        onClick={() => setStageIndex(i)}
-                                    >
-                                        {i + 1}. {s.title}
-                                    </button>
-                                </li>
-                            ))}
-                        </ol>
-                        <div className="mt-4">
-                            <button onClick={resetProgress} className="text-xs text-red-400 underline">Reset progress
+                <div className="mb-4 flex gap-2 justify-center">
+                    {stages.map((s: any, i: number) => {
+                        const locked = i > unlockedStage;
+                        return (
+                            <button
+                                key={i}
+                                onClick={() => {
+                                    if (!locked) setStageIndex(i);
+                                }}
+                                disabled={locked}
+                                className={`px-3 py-1 font-mono text-sm rounded ${i === stageIndex ? 'bg-gray-700 text-white' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
+                                {locked ? `🔒 Stage ${s.stage}` : `Stage ${s.stage}`}
                             </button>
-                        </div>
-                    </div>
+                        )
+                    })}
+                </div>
 
-                    <div className="md:col-span-2">
-                        {completed ? (
-                            <div className="p-4 bg-gray-800 rounded">
-                                <h3 className="text-xl font-bold text-green-400">Puzzle Completed</h3>
-                                <p className="text-gray-300 mt-2">You finished all stages for TREE. Return to the
-                                    chapter to continue.</p>
-                                <div className="mt-4">
-                                    <Link href="/chapters/IV" className="underline text-gray-200">Back to Chapter
-                                        IV</Link>
+                <div className="bg-gray-900 border border-gray-800 p-6 rounded">
+                    <h2 className="font-mono text-lg text-white mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
+                    <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
+
+                    {stageIndex === 0 && (
+                        <div className="space-y-3">
+                            <div className="text-xs text-gray-400">Stage 1 payload (dossier):</div>
+
+                            <div
+                                className="relative bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700 rounded p-2">
+                                <pre
+                                    className="m-0 font-mono text-sm text-white whitespace-pre-wrap break-words max-h-28 overflow-auto px-2 py-1 bg-black/20 rounded">{stages[0]?.payload || ''}</pre>
+
+                                <div className="absolute top-2 right-2 flex items-center gap-2">
+                                    <button
+                                        onClick={() => {
+                                            try {
+                                                navigator.clipboard?.writeText(stages[0]?.payload || '');
+                                                setFeedback('Payload copied to clipboard.');
+                                                setTimeout(() => setFeedback(''), 1500);
+                                            } catch (e) {
+                                                setFeedback('Copy failed.');
+                                            }
+                                        }}
+                                        className="bg-emerald-600 hover:bg-emerald-500 text-black font-mono px-2 py-1 rounded text-xs">
+                                        Copy
+                                    </button>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="p-4 bg-gray-800 rounded">
-                                <h3 className="text-xl font-semibold">{stages[stageIndex]?.title}</h3>
-                                <p className="text-gray-300 mt-2 whitespace-pre-line">{stages[stageIndex]?.instruction}</p>
 
-                                {/* Stage 2 interactive UI: Node activation */}
-                                {stageIndex === 1 && (
-                                    <div className="mt-4">
-                                        <div className="text-sm text-gray-400 mb-2">Activate nodes in order.
-                                            Sequence: <span className="text-green-300 font-mono">{nodeSeq}</span></div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {nodes.map(n => (
-                                                <button key={n.id} onClick={() => handleNodeClick(n)}
-                                                        className={`p-4 rounded font-mono ${n.withered ? 'bg-gray-700 text-red-400 line-through' : 'bg-black text-green-300 border border-gray-700'}`}>
-                                                    {n.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <div className="mt-3 text-xs text-gray-400">Tip: withered nodes will reset your
-                                            sequence.
-                                        </div>
-                                    </div>
-                                )}
+                            <form onSubmit={handleSubmit} className="flex gap-2">
+                                <input
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Enter answer"
+                                    className="bg-gray-800 text-white font-mono text-sm px-3 py-2 rounded flex-1"
+                                />
+                                <button type="submit"
+                                        className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
+                                </button>
+                            </form>
+                        </div>
+                    )}
 
-                                {/* Stage 3: Canopy Riddle Chain */}
-                                {stageIndex === 2 && (
-                                    <div className="mt-4">
-                                        <div className="text-sm text-gray-400 mb-3">Solve the chain of riddles. Each
-                                            answer is a chunk; combine in order to form the final word.
-                                        </div>
-                                        <div className="space-y-3">
-                                            {/** three micro-riddles **/}
-                                            <Riddle idx={0}
-                                                    prompt="I am a small container; I can hold a secret or a tool. What am I?"
-                                                    expectedChunk="can"/>
-                                            <Riddle idx={1}
-                                                    prompt="Opposite of close in operations; also a short form for opportunity. What chunk?"
-                                                    expectedChunk="op"/>
-                                            <Riddle idx={2}
-                                                    prompt="A common question, a homophone for the letter that sounds like 'why' — give me the final chunk."
-                                                    expectedChunk="y"/>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {stageIndex !== 1 && stages[stageIndex]?.payload && (
-                                    <div className="mt-3 bg-black p-3 rounded border border-gray-700">
-                                        <div className="text-xs text-gray-400">Payload</div>
-                                        <div
-                                            className="text-sm font-mono mt-1 text-green-300 break-all">{stages[stageIndex].payload}</div>
-                                    </div>
-                                )}
-
-                                {/* default input for stages other than the specialized ones */}
-                                {stageIndex !== 1 && (
-                                    <form onSubmit={handleSubmit} className="mt-4">
-                                        <input
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            placeholder="Enter answer"
-                                            className="bg-gray-900 text-white font-mono text-sm px-3 py-2 rounded w-full"
-                                        />
-                                        <div className="mt-3 flex gap-3">
-                                            <button type="submit"
-                                                    className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
-                                            </button>
-                                            <button type="button" onClick={() => {
-                                                navigator.clipboard && navigator.clipboard.writeText(stages[stageIndex]?.payload || '');
-                                            }} className="text-xs text-gray-300 underline">Copy payload
-                                            </button>
-                                        </div>
-                                    </form>
-                                )}
-
-                                {feedback && (
-                                    <div className="mt-3 text-sm text-yellow-300">{feedback}</div>
-                                )}
+                    {stageIndex === 1 && (
+                        <div>
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="text-sm text-gray-400">Time remaining: <span
+                                    className="font-mono text-white">{remainingTime}s</span></div>
+                                <div className="text-sm text-gray-400">Base timer: <span
+                                    className="font-mono text-white">{stage2BaseTime}s</span></div>
                             </div>
-                        )}
 
-                    </div>
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                {nodes.map(n => (
+                                    <button key={n.id}
+                                            onClick={() => handleNodeClick(n)}
+                                            className={`p-4 rounded font-mono text-xl ${n.withered ? 'bg-red-900 text-red-100 opacity-90' : 'bg-green-900 text-white'}`}>
+                                        {n.label}
+                                        {n.withered && <div className="text-xs text-red-300 mt-1">withered</div>}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="text-sm text-gray-300 mb-2">Sequence: <span
+                                className="font-mono">{nodeSeq}</span></div>
+                            <div className="text-sm text-yellow-400">{feedback}</div>
+                        </div>
+                    )}
+
+                    {stageIndex === 2 && (
+                        <div className="space-y-4">
+                            <div className="text-sm text-gray-400">Stage 3 is a riddle chain; solve each riddle to
+                                reveal a word. When all three are correct you may submit to complete.
+                            </div>
+
+                            <Riddle idx={0}
+                                    prompt={'I speak without a mouth and hear without ears. I have nobody, but I come alive with wind.'}
+                                    expectedChunk={'echo'} onResult={onRiddleResult}/>
+                            <Riddle idx={1}
+                                    prompt={'I have cities, but no houses. I have mountains, but no trees. I have water, but no fish.'}
+                                    expectedChunk={'map'} onResult={onRiddleResult}/>
+                            <Riddle idx={2}
+                                    prompt={'I am not alive, but I grow; I do not have lungs, but I need air; I do not have a mouth, but water kills me.'}
+                                    expectedChunk={'fire'} onResult={onRiddleResult}/>
+
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={handleStage3FinalSubmit}
+                                    disabled={!riddleCorrects.every(Boolean)}
+                                    className={`px-3 py-1 font-mono text-sm rounded ${riddleCorrects.every(Boolean) ? 'bg-emerald-600 text-black' : 'bg-gray-800 text-gray-500'}`}>
+                                    Submit Completion
+                                </button>
+                                <div className="text-sm text-yellow-400">{feedback}</div>
+                            </div>
+                            {riddleCorrects.every(Boolean) && (
+                                <div className="text-xs text-gray-400 italic">All riddles correct — please take a
+                                    screenshot of this screen to document completion.</div>
+                            )}
+                        </div>
+                    )}
+
+                    {stageIndex >= stages.length && (
+                        <div className="text-center py-12">
+                            <div className="text-green-400 font-mono text-lg">Puzzle complete.</div>
+                            <div className="mt-3">
+                                <Link href="/chapters/IV" className="text-sm font-mono underline text-gray-300">Back to
+                                    Chapter IV</Link>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
 
-                <div className="mt-6">
-                    <Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to Chapter IV</Link>
-                </div>
+                <div className="mt-4 text-sm text-gray-400">{completed ? 'Completed and saved.' : ''}</div>
+
             </div>
         </div>
     );

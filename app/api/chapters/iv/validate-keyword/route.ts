@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         if (!plaqueId || !provided) return NextResponse.json({ok: false, message: 'Invalid input'}, {status: 400});
 
         const ok = validateKeyword(plaqueId as PlaqueId, provided);
-        if (!ok) return NextResponse.json({ok: false, message: 'Incorrect keyword'}, {status: 200});
+        if (!ok) return NextResponse.json({ok: false, message: 'Incorrect phrase'}, {status: 200});
 
         // Create signed cookie payload
         const payload = {unlocked: [plaqueId], t: Date.now()};

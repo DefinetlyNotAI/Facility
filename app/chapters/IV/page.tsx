@@ -184,10 +184,6 @@ export default function ChapterIVPage() {
                                                                 className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">
                                                                 {loadingIds[plaque.id] ? 'Checking...' : 'Submit'}
                                                             </button>
-
-                                                            <a href={downloadLink} download
-                                                               className="text-xs text-gray-400 font-mono underline">A
-                                                                riddle for you</a>
                                                         </div>
 
                                                         {errors[plaque.id] && (

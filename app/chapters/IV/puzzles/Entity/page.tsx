@@ -20,6 +20,8 @@ export default function EntityPuzzlePage() {
     if (!puzzle) return <div className="min-h-screen flex items-center justify-center">Puzzle not found.</div>;
 
     const stages = puzzle.stageData || [];
+    const storageKey = 'chapterIV-Entity-progress';
+    const [completed, setCompleted] = useState<boolean>(false);
     // Answers are validated server-side. We'll call the validate-stage API for checks.
 
     const [stageIndex, setStageIndex] = useState<number>(0);
@@ -44,6 +46,33 @@ export default function EntityPuzzlePage() {
             setPicked(new Array(tokens.length).fill(false));
             setAnSelection('');
             setFeedback('Select anomaly tokens to form the proof string.');
+        }
+    }, [stageIndex]);
+
+    // Load saved progress
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                const i = parseInt(raw, 10);
+                if (!isNaN(i)) {
+                    if (i >= stages.length) {
+                        setCompleted(true);
+                        setStageIndex(stages.length);
+                    } else if (i >= 0) {
+                        setStageIndex(i);
+                    }
+                }
+            }
+        } catch (e) {
+        }
+    }, [stages.length]);
+
+    // Persist progress
+    useEffect(() => {
+        try {
+            localStorage.setItem(storageKey, String(stageIndex));
+        } catch (e) {
         }
     }, [stageIndex]);
 
@@ -86,7 +115,14 @@ export default function EntityPuzzlePage() {
             const json = await res.json();
             if (json?.ok) {
                 setFeedback('Correct proof — complete');
-                setTimeout(() => setStageIndex(3), 400);
+                setTimeout(() => {
+                    setStageIndex(3);
+                    setCompleted(true);
+                    try {
+                        localStorage.setItem(storageKey, String(stages.length));
+                    } catch (e) {
+                    }
+                }, 400);
             } else setFeedback('Incorrect proof');
         } catch (e) {
             setFeedback('Server error');
@@ -106,6 +142,11 @@ export default function EntityPuzzlePage() {
             if (json?.ok) {
                 if (stageIndex >= stages.length - 1) {
                     setStageIndex(stages.length);
+                    setCompleted(true);
+                    try {
+                        localStorage.setItem(storageKey, String(stages.length));
+                    } catch (e) {
+                    }
                     setFeedback('Puzzle completed');
                 } else {
                     setStageIndex(prev => prev + 1);
@@ -137,16 +178,25 @@ export default function EntityPuzzlePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <h3 className="font-semibold">Stages</h3>
-                        <ol className="mt-2 list-decimal space-y-2">
-                            {stages.map((s: any, i: number) => (<li key={i}>
-                                <button onClick={() => setStageIndex(i)}
-                                        className={i === stageIndex ? 'font-bold' : ''}>{i + 1}. {s.title}</button>
-                            </li>))}
+                        <ol className="mt-2 list-decimal list-inside">
+                            {stages.map((s: any, i: number) => (
+                                <li key={i}>
+                                    <button
+                                        onClick={() => setStageIndex(i)}
+                                        className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
+                                    >
+                                        {s.title}
+                                    </button>
+                                </li>
+                            ))}
                         </ol>
                         <div className="mt-4">
-                            <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>
+                            <button onClick={reset} className="text-xs text-red-400 underline">
+                                Reset
+                            </button>
                         </div>
                     </div>
+
 
                     <div className="md:col-span-2">
                         <div className="p-4 bg-gray-800 rounded">
@@ -210,6 +260,7 @@ export default function EntityPuzzlePage() {
 
                 <div className="mt-6"><Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to
                     Chapter IV</Link></div>
+                <div className="mt-3 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
             </div>
         </div>
     );

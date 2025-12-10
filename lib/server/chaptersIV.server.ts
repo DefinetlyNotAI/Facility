@@ -17,6 +17,7 @@ export function validateKeyword(plaqueId: string, provided: string): boolean {
     const id = plaqueId as PlaqueId;
     const p = PUZZLES[id];
     if (!p) return false;
+    console.log('Validating keyword for', plaqueId, 'provided:', provided, 'expected:', p.keyword);
     return normalize(p.keyword) === normalize(provided);
 }
 

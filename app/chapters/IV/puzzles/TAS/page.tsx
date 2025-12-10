@@ -20,6 +20,10 @@ export default function TasPuzzlePage() {
     if (!puzzle) return <div className="min-h-screen flex items-center justify-center">Puzzle not found.</div>;
 
     const stages = puzzle.stageData || [];
+    const storageKey = 'chapterIV-TAS-progress';
+
+    const [completed, setCompleted] = useState<boolean>(false);
+
     // Stage answers validated on server via API
 
     const [stageIndex, setStageIndex] = useState<number>(0);
@@ -44,6 +48,33 @@ export default function TasPuzzlePage() {
             setUsed(new Array(shuffled.length).fill(false));
             setAssembly('');
             setFeedback('Assemble the parts in order to form the final key.');
+        }
+    }, [stageIndex]);
+
+    // Load saved progress
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                const i = parseInt(raw, 10);
+                if (!isNaN(i)) {
+                    if (i >= stages.length) {
+                        setCompleted(true);
+                        setStageIndex(stages.length);
+                    } else if (i >= 0) {
+                        setStageIndex(i);
+                    }
+                }
+            }
+        } catch (e) {
+        }
+    }, [stages.length]);
+
+    // Persist progress
+    useEffect(() => {
+        try {
+            localStorage.setItem(storageKey, String(stageIndex));
+        } catch (e) {
         }
     }, [stageIndex]);
 
@@ -94,7 +125,14 @@ export default function TasPuzzlePage() {
                         const json = await res.json();
                         if (json?.ok) {
                             setFeedback('Correct final assembly — puzzle finished.');
-                            setTimeout(() => setStageIndex(3), 500);
+                            setTimeout(() => {
+                                setStageIndex(3);
+                                setCompleted(true);
+                                try {
+                                    localStorage.setItem(storageKey, String(stages.length));
+                                } catch (e) {
+                                }
+                            }, 500);
                         } else {
                             setFeedback('Wrong assembly — reset and try again.');
                             setUsed(new Array(parts.length).fill(false));
@@ -127,6 +165,11 @@ export default function TasPuzzlePage() {
             // proceed
             if (stageIndex >= stages.length - 1) {
                 setStageIndex(stages.length);
+                setCompleted(true);
+                try {
+                    localStorage.setItem(storageKey, String(stages.length));
+                } catch (e) {
+                }
                 setFeedback('Puzzle completed.');
             } else {
                 setStageIndex(prev => prev + 1);
@@ -157,18 +200,25 @@ export default function TasPuzzlePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <h3 className="font-semibold">Stages</h3>
-                        <ol className="mt-2 list-decimal space-y-2">
+                        <ol className="mt-2 list-decimal list-inside">
                             {stages.map((s: any, i: number) => (
-                                <li key={i}>
-                                    <button onClick={() => setStageIndex(i)}
-                                            className={i === stageIndex ? 'font-bold' : ''}>{i + 1}. {s.title}</button>
+                                <li key={i} className="mt-2">
+                                    <button
+                                        onClick={() => setStageIndex(i)}
+                                        className={`inline ${i === stageIndex ? 'font-bold' : ''}`}
+                                    >
+                                        {s.title}
+                                    </button>
                                 </li>
                             ))}
                         </ol>
                         <div className="mt-4">
-                            <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>
+                            <button onClick={reset} className="text-xs text-red-400 underline">
+                                Reset
+                            </button>
                         </div>
                     </div>
+
 
                     <div className="md:col-span-2">
                         <div className="p-4 bg-gray-800 rounded">
@@ -232,6 +282,7 @@ export default function TasPuzzlePage() {
                 <div className="mt-6">
                     <Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to Chapter IV</Link>
                 </div>
+                <div className="mt-3 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
             </div>
         </div>
     );

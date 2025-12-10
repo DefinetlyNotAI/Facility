@@ -1,4 +1,4 @@
-// Public (client-safe) chapter data — contains only non-secret metadata for Chapter IV
+// Public (client-safe) chapter data - contains only non-secret metadata for Chapter IV
 export const fileLinksPublic = {
     IV: {
         E_TXT: "/static/chapters/IV/E.txt",
@@ -72,7 +72,7 @@ export const chapterIVPublic = {
                 ],
                 [
                     'Stage 2: Node indices in the dossier map to activation order.',
-                    'Stage 2: Avoid withered nodes (they reset progress).'
+                    'Stage 2: Avoid withered nodes.'
                 ],
                 [
                     'Stage 3: Each riddle reveals a single word; combine them in order.',
@@ -83,19 +83,19 @@ export const chapterIVPublic = {
                 {
                     stage: 1,
                     title: 'Seed Decode',
-                    instruction: 'Decode the dossier: decode base64, then interpret the result as hex to ASCII. Data: NjQ2NTY1NzA3MjZmNmY3NA==',
-                    payload: 'NjQ2NTY1NzA3MjZmNmY3NA==',
+                    instruction: 'Decode the dossier:',
+                    payload: 'MzggMzUgMzIgMzIgMzUgMzggMzIgMzggMzU=',
                 },
                 {
                     stage: 2,
                     title: 'Root Graph',
-                    instruction: '(Stage 2 placeholder) Use the node activation order derived from the dossier to form the key.',
-                    payload: '',
+                    instruction: 'Use the node activation order derived from the dossier to form the key.',
+                    payload: '852258285',
                 },
                 {
                     stage: 3,
                     title: 'Canopy Riddle Chain',
-                    instruction: '(Stage 3 placeholder) Solve the chained riddles to reveal the final word.',
+                    instruction: 'Solve the chained riddles to reveal the final word.',
                     payload: '',
                 }
             ]
