@@ -288,7 +288,7 @@ export const chapterIVData = {
     puzzles: {
         TREE: {
             // keyword that unlocks the TREE multipart puzzle
-            keyword: 'sapling',
+            keyword: 'looped time bearing false tree fruit',
             stages: [
                 'Seed Decode - a long nested-encoding dossier to decode',
                 'Root Graph - interactively activate roots in the right order',
@@ -334,7 +334,7 @@ export const chapterIVData = {
             ]
         },
         TAS: {
-            keyword: 'mnemonic',
+            keyword: 'your own reflection in the clock\'s glass',
             stages: [
                 'Fragmented Logs - reorder and decode log fragments',
                 'Circuit Emulation - route signals through constrained panels',
@@ -379,7 +379,7 @@ export const chapterIVData = {
             ]
         },
         Entity: {
-            keyword: 'observer',
+            keyword: 'the void where names dissolve',
             stages: [
                 'Blindwatch Audio - layered audio clips to transcribe',
                 'Reflection Maze - visual mirrored maze pathing',

@@ -2,9 +2,10 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { chapterIVData } from '@/lib/data/chapters';
+import { chapterIVPublic as chapterIVData } from '@/lib/data/chapters.public';
 import { seededShuffle, seedFromString } from '@/lib/puzzles';
 import { useChapterAccess } from '@/hooks/BonusActHooks/useChapterAccess';
+import { routes } from '@/lib/saveData';
 
 const Riddle = ({idx, prompt, expectedChunk}: {idx: number, prompt: string, expectedChunk: string}) => {
     const [answer, setAnswer] = useState('');
@@ -114,18 +115,22 @@ export default function TreePuzzlePage() {
         }
         setNodeSeq(prev => {
             const next = prev + node.label;
-            const expected = (stages[1]?.answer || '').toLowerCase();
-            if (next.length >= expected.length) {
-                if (next === expected) {
-                    // success for stage 2
-                    setFeedback('Correct sequence! Advancing...');
-                    setTimeout(() => setStageIndex(2), 700);
-                    return '';
-                } else {
-                    setFeedback('Wrong sequence — reset and try again.');
-                    return '';
-                }
-            }
+            // when length matches expected, validate with server
+            (async () => {
+                try {
+                    const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'TREE', stageIndex: 1, provided: next }) });
+                    const json = await res.json();
+                    if (json?.ok) {
+                        setFeedback('Correct sequence! Advancing...');
+                        setTimeout(() => setStageIndex(2), 700);
+                        setNodeSeq('');
+                    } else if (next.length >= 1) {
+                        // incorrect when we've reached the length and server rejects
+                        setFeedback('Wrong sequence — reset and try again.');
+                        setNodeSeq('');
+                    }
+                } catch (e) { setFeedback('Server error'); }
+            })();
             return next;
         });
     }
@@ -169,7 +174,6 @@ export default function TreePuzzlePage() {
         <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
             <div className="max-w-4xl mx-auto text-white font-mono">
                 <h1 className="text-3xl font-bold mb-4">TREE Puzzle</h1>
-                <p className="mb-2 text-gray-400">Keyword: <span className="text-green-400">{puzzle.keyword}</span></p>
 
                 <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-1">

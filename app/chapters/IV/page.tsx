@@ -1,22 +1,23 @@
 'use client';
 
-import {useRef, useState} from 'react';
+import {useRef, useState, useEffect} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {chapter, chapterIVData, fileLinks} from "@/lib/data/chapters";
-import {PlaqueStatus} from "@/lib/types/chapters";
+import {chapter, fileLinks} from "@/lib/data/chapters";
+import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {routes} from '@/lib/saveData';
 
 export default function ChapterIVPage() {
     const {isCurrentlySolved} = useChapterAccess();
-    const [plaqueStatuses] = useState<any[]>(chapterIVData.plaqueStatus);
+    const [plaqueStatuses, setPlaqueStatuses] = useState<any[]>([]);
     const [questStatus] = useState<AllowedPlaqueStatus>('active');
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -28,7 +29,23 @@ export default function ChapterIVPage() {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loadingIds, setLoadingIds] = useState<Record<string, boolean>>({});
 
-    if (isCurrentlySolved === null) {
+    const fetchPlaqueStatuses = async () => {
+        try {
+            const res = await fetch(routes.api.chapters.iv.status);
+            const json = await res.json();
+            setPlaqueStatuses(json.plaqueStatuses || []);
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    useEffect(() => {
+        fetchPlaqueStatuses().catch(console.error);
+    }, []);
+
+    const isLoading = isCurrentlySolved === null;
+
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-white font-mono">{chapter.loading}</div>
@@ -51,18 +68,16 @@ export default function ChapterIVPage() {
         setErrors(prev => ({...prev, [id]: ''}));
         setLoadingIds(prev => ({...prev, [id]: true}));
         try {
-            const provided = (inputs[id] || '').trim().toLowerCase();
-            const expected = (chapterIVData as any).puzzles?.[id]?.keyword;
-            if (!expected) {
-                setErrors(prev => ({...prev, [id]: 'No puzzle configured.'}));
-                return;
-            }
-
-            if (provided === expected.toLowerCase()) {
-                // Navigate to the puzzle route
+            const provided = (inputs[id] || '').trim();
+            // Call server API to validate keyword — server will set signed cookie on success
+            const res = await fetch(routes.api.chapters.iv.validateKeyword, {method: 'POST', body: JSON.stringify({plaqueId: id, provided})});
+            const data = await res.json();
+            if (data?.ok) {
+                // refresh plaque statuses
+                await fetchPlaqueStatuses();
                 router.push(`/chapters/IV/puzzles/${id}`);
             } else {
-                setErrors(prev => ({...prev, [id]: 'Incorrect keyword.'}));
+                setErrors(prev => ({...prev, [id]: data?.message || 'Incorrect keyword.'}));
             }
         } finally {
             setLoadingIds(prev => ({...prev, [id]: false}));
@@ -155,33 +170,24 @@ export default function ChapterIVPage() {
                                                             aria-label={`keyword-input-${plaque.id}`}
                                                             value={inputs[plaque.id] || ''}
                                                             onChange={(e) => handleChange(plaque.id, e.target.value)}
-                                                            placeholder="Enter keyword"
+                                                            placeholder="Enter the phrase"
                                                             className="bg-gray-800 text-white font-mono text-sm px-3 py-2 rounded w-3/4 md:w-2/3"
                                                         />
 
                                                         <div className="mt-3 flex items-center gap-3">
                                                             <button
                                                                 onClick={() => handleSubmit(plaque.id)}
-                                                                disabled={!!loadingIds[plaque.id]}
+                                                                disabled={loadingIds[plaque.id]}
                                                                 className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">
                                                                 {loadingIds[plaque.id] ? 'Checking...' : 'Submit'}
                                                             </button>
 
-                                                            <a href={downloadLink} download className="text-xs text-gray-400 font-mono underline">Download clue</a>
+                                                            <a href={downloadLink} download className="text-xs text-gray-400 font-mono underline">A riddle for you</a>
                                                         </div>
 
                                                         {errors[plaque.id] && (
                                                             <div className="mt-2 text-xs text-red-400 font-mono">{errors[plaque.id]}</div>
                                                         )}
-
-                                                        <div className="mt-4 text-xs text-gray-500 font-mono">
-                                                            <span>Need a hint? </span>
-                                                            {(chapterIVData as any).puzzles?.[plaque.id]?.hints?.[0]?.[0] ? (
-                                                                <Link href={`/chapters/IV/puzzles/${plaque.id}`} className="underline">Open puzzle page for staged hints</Link>
-                                                            ) : (
-                                                                <span className="italic">No hints available.</span>
-                                                            )}
-                                                        </div>
                                                     </div>
                                                 </div>
                                             )}

@@ -66,6 +66,12 @@ export const routes = {
             // API: GET /api/chapters/III/clockStates - returns the current clock states for chapter III.
             // Return: JSON object with server time, or an error object with appropriate status.
             IIIClockStates: "/api/chapters/III/clockStates",
+            // Chapter IV API endpoints for puzzle validation/status
+            iv: {
+                validateKeyword: "/api/chapters/iv/validate-keyword",
+                validateStage: "/api/chapters/iv/validate-stage",
+                status: "/api/chapters/iv/status",
+            }
         },
         banned: {
             // API: POST /api/banned/checkMe
@@ -181,6 +187,8 @@ const rawCookies = {
     disclaimersAccepted: "accepted",
     // Cookie to check if the user already checked chapter II password for 3h15m25thUTC page
     chII_passDone: '3h15m25thUTC_passDone',
+    // Cookie for chapter IV unlocked plaques (signed, server-only)
+    _chapIV: 'chapIV_auth',
 };
 
 export const cookies = process.env.NODE_ENV !== "production"

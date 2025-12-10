@@ -2,9 +2,10 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { chapterIVData } from '@/lib/data/chapters';
-import { seededShuffle, seedFromString } from '@/lib/puzzles';
+import { chapterIVPublic as chapterIVData } from '@/lib/data/chapters.public';
+import { seededShuffle } from '@/lib/puzzles';
 import { useChapterAccess } from '@/hooks/BonusActHooks/useChapterAccess';
+import { routes } from '@/lib/saveData';
 
 export default function TasPuzzlePage() {
   const { isCurrentlySolved } = useChapterAccess();
@@ -19,8 +20,7 @@ export default function TasPuzzlePage() {
   if (!puzzle) return <div className="min-h-screen flex items-center justify-center">Puzzle not found.</div>;
 
   const stages = puzzle.stageData || [];
-  const expectedStage2 = (stages[1]?.answer || '').toLowerCase(); // '11001'
-  const expectedStage3 = (stages[2]?.answer || '').toLowerCase(); // 'consensus'
+  // Stage answers validated on server via API
 
   const [stageIndex, setStageIndex] = useState<number>(0);
   const [input, setInput] = useState<string>('');
@@ -57,11 +57,13 @@ export default function TasPuzzlePage() {
 
   const submitSwitches = () => {
     const bits = switches.join('');
-    if (!expectedStage2) { setFeedback('No expected config.'); return; }
-    if (bits === expectedStage2) {
-      setFeedback('Correct — advancing to Stage 3');
-      setTimeout(() => setStageIndex(2), 400);
-    } else setFeedback('Incorrect switch configuration.');
+    (async () => {
+      try {
+        const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'TAS', stageIndex: 1, provided: bits }) });
+        const json = await res.json();
+        if (json?.ok) { setFeedback('Correct — advancing to Stage 3'); setTimeout(() => setStageIndex(2), 400); } else setFeedback('Incorrect switch configuration.');
+      } catch (e) { setFeedback('Server error'); }
+    })();
   }
 
   const clickPart = (i: number) => {
@@ -71,27 +73,37 @@ export default function TasPuzzlePage() {
     });
     setAssembly(prev => {
       const next = prev + parts[i];
-      if (next.length >= expectedStage3.length) {
-        if (next === expectedStage3) {
-          setFeedback('Correct final assembly — puzzle finished.');
-          setTimeout(() => setStageIndex(3), 500);
-        } else {
-          setFeedback('Wrong assembly — reset and try again.');
-          setUsed(new Array(parts.length).fill(false));
-          return '';
-        }
+      if (next.length >= (stages[2]?.answer || '').length) {
+        // validate assembly result with server
+        (async () => {
+          try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'TAS', stageIndex: 2, provided: next }) });
+            const json = await res.json();
+            if (json?.ok) {
+              setFeedback('Correct final assembly — puzzle finished.');
+              setTimeout(() => setStageIndex(3), 500);
+            } else {
+              setFeedback('Wrong assembly — reset and try again.');
+              setUsed(new Array(parts.length).fill(false));
+              setAssembly('');
+            }
+          } catch (e) { setFeedback('Server error'); }
+        })();
       }
       return next;
     });
   }
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setFeedback('');
     const provided = (input || '').trim().toLowerCase();
-    const expected = (stages[stageIndex]?.answer || '').toLowerCase();
-    if (!expected) { setFeedback('No expected answer.'); return; }
-    if (provided === expected) {
+    // validate with server
+    try {
+      const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'TAS', stageIndex, provided }) });
+      const json = await res.json();
+      if (!json?.ok) { setFeedback('Incorrect answer.'); return; }
+      // proceed
       if (stageIndex >= stages.length - 1) {
         setStageIndex(stages.length);
         setFeedback('Puzzle completed.');
@@ -100,7 +112,7 @@ export default function TasPuzzlePage() {
         setInput('');
         setFeedback('Correct — advanced.');
       }
-    } else setFeedback('Incorrect answer.');
+    } catch (e) { setFeedback('Server error'); }
   }
 
   const reset = () => {
@@ -111,7 +123,7 @@ export default function TasPuzzlePage() {
     <div className="min-h-screen p-8 bg-gray-900 text-white font-mono">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">TAS Puzzle</h1>
-        <p className="text-sm text-gray-400 mb-6">Keyword: <span className="text-green-300">{puzzle.keyword}</span></p>
+        <p className="text-sm text-gray-400 mb-6">Follow the staged hints to solve the multipart circuit.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>

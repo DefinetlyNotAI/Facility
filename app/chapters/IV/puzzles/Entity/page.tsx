@@ -2,9 +2,10 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { chapterIVData } from '@/lib/data/chapters';
-import { seedFromString, mulberry32, seededTokens } from '@/lib/puzzles';
+import { chapterIVPublic as chapterIVData } from '@/lib/data/chapters.public';
+import { seededTokens } from '@/lib/puzzles';
 import { useChapterAccess } from '@/hooks/BonusActHooks/useChapterAccess';
+import { routes } from '@/lib/saveData';
 
 export default function EntityPuzzlePage() {
   const { isCurrentlySolved } = useChapterAccess();
@@ -19,8 +20,7 @@ export default function EntityPuzzlePage() {
   if (!puzzle) return <div className="min-h-screen flex items-center justify-center">Puzzle not found.</div>;
 
   const stages = puzzle.stageData || [];
-  const expectedStage2 = (stages[1]?.answer || '').toLowerCase(); // 'mirror'
-  const expectedStage3 = (stages[2]?.answer || '').toLowerCase(); // 'anomaly'
+  // Answers are validated server-side. We'll call the validate-stage API for checks.
 
   const [stageIndex, setStageIndex] = useState<number>(0);
   const [input, setInput] = useState<string>('');
@@ -48,9 +48,13 @@ export default function EntityPuzzlePage() {
   }, [stageIndex]);
 
   const clickGrid = (i: number) => { setSelection(prev => prev + grid[i]); setFeedback(''); }
-  const submitGrid = () => {
-    if (!expectedStage2) { setFeedback('No expected config'); return; }
-    if (selection === expectedStage2) { setFeedback('Correct — advancing'); setTimeout(() => setStageIndex(2), 400); } else setFeedback('Incorrect path');
+  const submitGrid = async () => {
+    // validate stage 2 with server
+    try {
+      const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'Entity', stageIndex: 1, provided: selection }) });
+      const json = await res.json();
+      if (json?.ok) { setFeedback('Correct — advancing'); setTimeout(() => setStageIndex(2), 400); } else setFeedback('Incorrect path');
+    } catch (e) { setFeedback('Server error'); }
   }
 
   const clickAnomaly = (i: number) => {
@@ -58,26 +62,32 @@ export default function EntityPuzzlePage() {
     setPicked(prev => { const c = prev.slice(); c[i] = true; return c; });
     setAnSelection(prev => prev + anomalies[i].charAt(0));
   }
-  const submitAnomalies = () => {
-    if (!expectedStage3) { setFeedback('No expected'); return; }
-    if (anSelection === expectedStage3) { setFeedback('Correct proof — complete'); setTimeout(() => setStageIndex(3), 400); } else setFeedback('Incorrect proof');
+  const submitAnomalies = async () => {
+    try {
+      const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'Entity', stageIndex: 2, provided: anSelection }) });
+      const json = await res.json();
+      if (json?.ok) { setFeedback('Correct proof — complete'); setTimeout(() => setStageIndex(3), 400); } else setFeedback('Incorrect proof');
+    } catch (e) { setFeedback('Server error'); }
   }
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const provided = (input || '').trim().toLowerCase();
-    const expected = (stages[stageIndex]?.answer || '').toLowerCase();
-    if (!expected) { setFeedback('No expected'); return; }
-    if (provided === expected) {
-      if (stageIndex >= stages.length - 1) {
-        setStageIndex(stages.length);
-        setFeedback('Puzzle completed');
-      } else {
-        setStageIndex(prev => prev + 1);
-        setInput('');
-        setFeedback('Advanced');
-      }
-    } else setFeedback('Incorrect');
+    // Validate with server (stage 0 and others)
+    try {
+      const res = await fetch(routes.api.chapters.iv.validateStage, { method: 'POST', body: JSON.stringify({ plaqueId: 'Entity', stageIndex, provided }) });
+      const json = await res.json();
+      if (json?.ok) {
+        if (stageIndex >= stages.length - 1) {
+          setStageIndex(stages.length);
+          setFeedback('Puzzle completed');
+        } else {
+          setStageIndex(prev => prev + 1);
+          setInput('');
+          setFeedback('Advanced');
+        }
+      } else setFeedback('Incorrect');
+    } catch (e) { setFeedback('Server error'); }
   }
 
   const reset = () => { setStageIndex(0); setInput(''); setSelection(''); setAnomalies([]); setPicked([]); setAnSelection(''); setFeedback('Reset'); }
@@ -86,7 +96,7 @@ export default function EntityPuzzlePage() {
     <div className="min-h-screen p-8 bg-gray-900 text-white font-mono">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Entity Puzzle</h1>
-        <p className="text-sm text-gray-400 mb-6">Keyword: <span className="text-green-300">{puzzle.keyword}</span></p>
+        <p className="text-sm text-gray-400 mb-6">Follow the staged hints to solve the multipart proof.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
