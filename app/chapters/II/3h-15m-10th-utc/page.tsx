@@ -9,7 +9,7 @@ import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
-import {useChapter2Access} from "@/hooks/BonusActHooks/useChapter2Access";
+import {useChapter2Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 

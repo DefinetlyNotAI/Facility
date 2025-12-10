@@ -4,12 +4,12 @@ import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
 import { chapterIVPublic as chapterIVData } from '@/lib/data/chapters.public';
 import { seededShuffle } from '@/lib/puzzles';
-import { useChapterAccess } from '@/hooks/BonusActHooks/useChapterAccess';
 import { routes } from '@/lib/saveData';
+import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 
 export default function TasPuzzlePage() {
-  const { isCurrentlySolved } = useChapterAccess();
-  if (isCurrentlySolved === null) {
+  const isCurrentlySolved = useChapter4Access();
+  if (!isCurrentlySolved) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white font-mono">Loading...</div>
