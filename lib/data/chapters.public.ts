@@ -98,7 +98,7 @@ export const chapterIVPublic = {
                 {
                     stage: 1,
                     title: 'Fragmented Logs',
-                    instruction: 'Decode the base64 payload. Your answer is the word after the colon: entropy',
+                    instruction: 'Decode the base64 payload.',
                     payload: 'dG9rZW46ZW50cm9weQ==',
                     type: 'payload',
                 },
@@ -118,17 +118,17 @@ export const chapterIVPublic = {
                 },
                 {
                     stage: 4,
-                    title: 'Sequence Lock',
+                    title: 'Decaying Keypad',
                     instruction: '5 number password. The sequence is based of word of the day: length, vowels, unique-letters, first-letter position in the alphabet, syllables.',
                     payload: '52633',
-                    type: 'timed',
+                    type: 'numpad',
                 },
                 {
                     stage: 5,
-                    title: 'Final Proof',
-                    instruction: 'Combine all previous answers',
-                    payload: '00111consensus52633',
-                    type: 'payload',
+                    title: 'The Question',
+                    instruction: 'What is the word of the day?',
+                    payload: '',
+                    type: 'wordofday',
                 }
             ]
         },

@@ -142,6 +142,17 @@ export default function TasPuzzlePage() {
     const RIDDLE_COUNT = 8;
     const [riddleCorrects, setRiddleCorrects] = useState<boolean[]>(new Array(RIDDLE_COUNT).fill(false));
 
+    // Numpad state (Stage 5)
+    const [numpadInput, setNumpadInput] = useState<string>('');
+    const [witheredNumbers, setWitheredNumbers] = useState<number[]>([]);
+    const [consecutiveErrors, setConsecutiveErrors] = useState<number>(0);
+
+    // Word of the Day state (Stage 4)
+    const [wordOfDayInput, setWordOfDayInput] = useState<string>('');
+    const [wordOfDayCountdown, setWordOfDayCountdown] = useState<number>(15);
+    const [isInverted, setIsInverted] = useState<boolean>(false);
+
+
     useEffect(() => {
         if (stageIndex === 2 && parts.length === 0) {
             // deterministic parts order seeded from stage0 payload
@@ -691,14 +702,177 @@ export default function TasPuzzlePage() {
         setStageResults({});
     }
 
+    // Numpad handler
+    const handleNumpadPress = (digit: number) => {
+        if (witheredNumbers.includes(digit)) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
+            setFeedback('That number has withered away...');
+            return;
+        }
+
+        const newInput = numpadInput + digit;
+        setNumpadInput(newInput);
+
+        // 20% chance to wither a random number with each key press
+        if (Math.random() < 0.2) {
+            const available = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !witheredNumbers.includes(n) && n !== digit);
+            if (available.length > 0) {
+                const toWither = available[Math.floor(Math.random() * available.length)];
+                setWitheredNumbers(prev => [...prev, toWither]);
+                setFeedback(`The keypad decays... ${toWither} has withered.`);
+            }
+        }
+
+        // Check if complete
+        if (newInput.length >= 5) {
+            // Validate
+            (async () => {
+                try {
+                    const res = await fetch(routes.api.chapters.iv.validateStage, {
+                        method: 'POST',
+                        body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: newInput})
+                    });
+                    const json = await res.json();
+                    if (json?.ok) {
+                        try {
+                            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                        } catch (e) {
+                        }
+                        setFeedback('Code accepted. Advancing...');
+                        setStageResult(3, newInput);
+                        setNumpadInput('');
+                        setWitheredNumbers([]);
+                        setConsecutiveErrors(0);
+                        setTimeout(() => advanceTo(4), 500);
+                    } else {
+                        try {
+                            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                        } catch (e) {
+                        }
+
+                        const errors = consecutiveErrors + 1;
+                        setConsecutiveErrors(errors);
+
+                        if (errors >= 3) {
+                            // Reset keypad
+                            setWitheredNumbers([]);
+                            setConsecutiveErrors(0);
+                            setFeedback('Keypad reset after 3 errors.');
+                        } else {
+                            setFeedback(`Wrong code. Try again.`);
+                        }
+                        setNumpadInput('');
+                    }
+                } catch (e) {
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                    } catch (er) {
+                    }
+                    setFeedback('Server error');
+                    setNumpadInput('');
+                }
+            })();
+        }
+    };
+
+    // Word of Day stage initialization and countdown
+    useEffect(() => {
+        if (stageIndex === 4) {
+            // Stop music
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+            // Enable color inversion
+            setIsInverted(true);
+            // Reset countdown
+            setWordOfDayCountdown(15);
+            setWordOfDayInput('');
+            setFeedback('');
+
+            // Countdown timer
+            const interval = setInterval(() => {
+                setWordOfDayCountdown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        } else {
+            // Resume music and disable inversion when leaving stage 4
+            if (isInverted) {
+                if (audioRef.current) {
+                    audioRef.current.play().catch(() => {
+                    });
+                }
+                setIsInverted(false);
+            }
+        }
+    }, [stageIndex, isInverted]);
+
+    const handleWordOfDaySubmit = async (e?: React.FormEvent) => {
+        e?.preventDefault();
+        if (wordOfDayCountdown > 0) {
+            setFeedback(`Wait ${wordOfDayCountdown} seconds...`);
+            return;
+        }
+
+        const provided = wordOfDayInput.trim().toLowerCase();
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: 'TAS', stageIndex: 4, provided})
+            });
+            const json = await res.json();
+            if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
+                setFeedback('Correct.');
+                setStageResult(4, provided);
+                setTimeout(() => {
+                    setIsInverted(false);
+                    if (audioRef.current) {
+                        audioRef.current.play().catch(() => {
+                        });
+                    }
+                    setCompleted(true);
+                    markCompleted();
+                    localStorage.setItem(storageKey, String(stages.length));
+                }, 800);
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Incorrect.');
+            }
+        } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
+            setFeedback('Error');
+        }
+    };
+
     return (
         <>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
-            <div className="min-h-screen p-8 bg-gray-900 text-white font-mono">
+            <div
+                className={`min-h-screen p-8 font-mono transition-all duration-500 ${isInverted ? 'bg-white text-black' : 'bg-gray-900 text-white'}`}>
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-6">
                         <h1 className="text-3xl font-bold">TAS Puzzle Challenge</h1>
-                        <p className="text-sm text-gray-400 mt-2">Progress is saved locally and to a plaque cookie
+                        <p className={`text-sm mt-2 ${isInverted ? 'text-gray-600' : 'text-gray-400'}`}>Progress is
+                            saved locally and to a plaque cookie
                             (3-state save).</p>
                     </div>
 
@@ -718,7 +892,8 @@ export default function TasPuzzlePage() {
                         </div>
                     </div>
 
-                    <div className="bg-gray-900 border border-gray-800 p-6 rounded">
+                    <div
+                        className={`p-6 rounded border-2 ${isInverted ? 'bg-gray-50 border-gray-300' : 'bg-gray-900 border-gray-800'}`}>
                         <h2 className="font-mono text-lg mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
                         <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
 
@@ -869,6 +1044,129 @@ export default function TasPuzzlePage() {
                         )}
 
                         {stages[stageIndex]?.type === 'riddle-chain' && renderFinalRiddleChain()}
+
+                        {/* Numpad Stage */}
+                        {stages[stageIndex]?.type === 'numpad' && (
+                            <div className="space-y-4">
+                                <div className="text-center">
+                                    <div className="text-xl font-mono tracking-widest mb-4">
+                                        {numpadInput.padEnd(5, '_').split('').map((char, i) => (
+                                            <span key={i}
+                                                  className="inline-block w-8 mx-1 text-center border-b-2 border-green-500">
+                                                {char}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="text-xs text-gray-400 mb-4">
+                                        Errors: {consecutiveErrors}/3 (keypad resets at 3)
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => {
+                                        const isWithered = witheredNumbers.includes(digit);
+                                        return (
+                                            <button
+                                                key={digit}
+                                                onClick={() => handleNumpadPress(digit)}
+                                                disabled={isWithered}
+                                                className={`p-6 text-2xl font-mono rounded transition-all ${
+                                                    isWithered
+                                                        ? 'bg-red-900/30 text-red-600 cursor-not-allowed opacity-30 line-through'
+                                                        : 'bg-gray-800 hover:bg-gray-700 text-white active:bg-green-600'
+                                                }`}
+                                            >
+                                                {isWithered ? '✗' : digit}
+                                            </button>
+                                        );
+                                    })}
+                                    <button
+                                        onClick={() => setNumpadInput('')}
+                                        className="p-6 text-sm font-mono bg-gray-700 hover:bg-gray-600 rounded"
+                                    >
+                                        CLR
+                                    </button>
+                                    <button
+                                        onClick={() => handleNumpadPress(0)}
+                                        disabled={witheredNumbers.includes(0)}
+                                        className={`p-6 text-2xl font-mono rounded transition-all ${
+                                            witheredNumbers.includes(0)
+                                                ? 'bg-red-900/30 text-red-600 cursor-not-allowed opacity-30 line-through'
+                                                : 'bg-gray-800 hover:bg-gray-700 text-white active:bg-green-600'
+                                        }`}
+                                    >
+                                        {witheredNumbers.includes(0) ? '✗' : '0'}
+                                    </button>
+                                    <button
+                                        onClick={() => setNumpadInput(prev => prev.slice(0, -1))}
+                                        className="p-6 text-sm font-mono bg-gray-700 hover:bg-gray-600 rounded"
+                                    >
+                                        ←
+                                    </button>
+                                </div>
+
+                                {witheredNumbers.length > 0 && (
+                                    <div className="text-center space-y-2">
+                                        <div className="text-xs text-red-400 animate-pulse">
+                                            Withered: {witheredNumbers.sort().join(', ')}
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setWitheredNumbers([]);
+                                                setNumpadInput('');
+                                                setConsecutiveErrors(0);
+                                                setFeedback('Keypad forcefully reset.');
+                                            }}
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-mono text-sm rounded"
+                                        >
+                                            Force Reset Keypad
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Word of the Day Stage */}
+                        {stages[stageIndex]?.type === 'wordofday' && (
+                            <div className="space-y-6">
+                                <div className="text-center">
+                                    <h2 className={`text-4xl font-bold mb-8 ${isInverted ? 'text-black' : 'text-white'}`}>
+                                        What is the word of the day?
+                                    </h2>
+                                </div>
+
+                                <form onSubmit={handleWordOfDaySubmit} className="space-y-4">
+                                    <input
+                                        type="text"
+                                        value={wordOfDayInput}
+                                        onChange={(e) => setWordOfDayInput(e.target.value)}
+                                        placeholder="Type the word..."
+                                        className={`w-full px-4 py-3 rounded font-mono text-lg text-center border-2 focus:outline-none ${
+                                            isInverted
+                                                ? 'bg-gray-100 border-black text-black placeholder-gray-500 focus:border-gray-600'
+                                                : 'bg-gray-800 border-white text-white placeholder-gray-400 focus:border-gray-300'
+                                        }`}
+                                    />
+
+                                    <button
+                                        type="submit"
+                                        disabled={wordOfDayCountdown > 0}
+                                        className={`w-full px-6 py-4 rounded font-mono text-lg transition-all ${
+                                            wordOfDayCountdown > 0
+                                                ? isInverted
+                                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                    : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                                : isInverted
+                                                    ? 'bg-black text-white hover:bg-gray-800'
+                                                    : 'bg-white text-black hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        {wordOfDayCountdown > 0 ? `Wait ${wordOfDayCountdown}s` : 'SUBMIT'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
 
                         <div className="mt-4">
                             <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>

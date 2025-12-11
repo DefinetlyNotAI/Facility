@@ -9,8 +9,8 @@ const PUZZLES: Record<PlaqueId, { keyword: string; stageAnswers: string[] }> = {
             'entropy',              // 0 Fragmented Logs - decode base64 "token:entropy"
             '00111',                // 1 Circuit Pattern - "entropy" = 7 letters in binary
             'consensus',            // 2 Word Assembly - 00111 has three 1s
-            '52633',                // 3 Sequence Lock - consensus: 5 vowels, 2 vowel-pairs, 6 unique consonants, 3 syllables, 3rd letter is 'n'
-            '00111consensus52633'   // 4 Final Proof - combine all answers
+            '52633',                // 3 Numpad - consensus properties
+            'consensus',            // 4 The Question - word of the day (from stage 2)
         ]
     },
     Entity: {
