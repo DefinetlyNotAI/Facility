@@ -165,9 +165,6 @@ export default function EntityPuzzlePage() {
     const [stageResults, setStageResults] = useState<Record<number, string>>({});
     const setStageResult = (idx: number, val: string) => setStageResults(prev => ({...prev, [idx]: val}));
 
-    // show stage hints (if any)
-    const stageHints = (chapterIVData as any).puzzles?.Entity?.hints?.[stageIndex] || [];
-
     // unlocked stage tracking (TREE-style)
     const [unlockedStage, setUnlockedStage] = useState<number>(0);
     const unlockAndGo = (index: number) => {
@@ -640,15 +637,6 @@ export default function EntityPuzzlePage() {
                                             </button>
                                         </div>
                                     </form>
-                                )}
-
-                                {/* show hints if available */}
-                                {stageHints.length > 0 && (
-                                    <div className="mt-3 text-xs text-gray-500">
-                                        <strong>Hints:</strong>
-                                        <ul className="list-disc ml-5">{stageHints.map((h: string, idx: number) => (
-                                            <li key={idx}>{h}</li>))}</ul>
-                                    </div>
                                 )}
 
                                 {stages[stageIndex]?.type === 'riddle-chain' && renderRiddleChainForStage(stageIndex)}

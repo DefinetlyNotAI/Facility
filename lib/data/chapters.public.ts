@@ -94,37 +94,11 @@ export const chapterIVPublic = {
             stages: [
                 'Fragmented Logs', 'Circuit Emulation', 'Consensus Assembly', 'Signal Spike', 'XOR Grid', 'Forensics Riddle', 'Consensus Merge', 'Entropy Drift', 'Mirror Panel', 'Parity Locks', 'Relay Taps', 'Clockwork Puzzle', 'Merge Final', 'Echo Hollow', 'Signal Grave', 'Token Scrape', 'Threshold Locks', 'Pulse Relay', 'Entropy Echo', 'Mirror Vault', 'Parity Mirror', 'Relay Depths', 'Clock Cleave', 'Final Proof'
             ],
-            hints: [
-                ['Stage 1: Timestamps were stripped; sort by logical progression.', 'Stage 1: Look for small fixed XOR patterns and base64.', 'The first fragment smells faintly of rust.'],
-                ['Stage 2: Words map to binary patterns used as wiring targets.', 'Stage 2: You can reset sub-panels independently.', 'Listen for the faint click.'],
-                ['Stage 3: Collect short keys from earlier stages and order them.', 'Stage 3: The final phrase uses a separator character from Stage 2.', 'One fragment hums when you pass it.'],
-                ['Stage 4: Withered nodes will occasionally change; timing is critical.', 'Stage 4: Failures increase base time penalties.', 'A shadow passes across one root.'],
-                ['Stage 5: Parity across rows reveals tile truth.', 'Stage 5: Mirrored tiles behave similarly.', 'Count slowly; the pattern changes after blink.'],
-                ['Stage 6: Riddles use metaphorical names; think tools and signals.', 'Stage 6: Answers are single-word connectors.', 'The riddle whispers at the edges.'],
-                ['Stage 7: Order keys by their originating stage number.', 'Stage 7: The separator character from Stage 2 sits between each key.', 'A name is half-erased.'],
-                ['Stage 8: Entropy shifts will scramble small tokens; record changes.', 'Some tokens decay if left alone.'],
-                ['Stage 9: Mirror panels reflect adjacent digits; use reflection to deduce.', 'Mirrors sometimes show a face that is not yours.'],
-                ['Stage 10: Locks respond to parity windows.', 'Staying too long may cause a lock to flip.'],
-                ['Stage 11: Relay taps expose hidden micro-keys.', 'Tap patterns can be replayed.', 'The room hums like distant breathing.'],
-                ['Stage 12: Clockwork alignment yields a long sequence.', 'Rotate slowly; misalignment causes echoes.'],
-                ['Stage 13: Final merge of collected fragments.', 'Unexpected characters may appear during merge.'],
-                ['Stage 14: Echo Hollow: interpret repeated echoes to find the token.', 'Echoes sometimes speak your name.'],
-                ['Stage 15: Signal Grave: old transmissions imprint on new ones.', 'Listen for the buried voice.'],
-                ['Stage 16: Token Scrape: scrape tokens from the edges without breaking them.', 'Some pieces will scream softly.'],
-                ['Stage 17: Threshold Locks: hold threshold parity to open deeper locks.', 'Thresholds shift after failure.'],
-                ['Stage 18: Pulse Relay: relay pulses through buried wiring to extract microkeys.', 'Pulses sometimes lag.'],
-                ['Stage 19: Entropy Echo: track the echoing token changes over minutes.', 'Entropy accumulates — record it.'],
-                ['Stage 20: Mirror Vault: arrange reflections to reveal a hidden phrase.', 'The reflections remember you.'],
-                ['Stage 21: Parity Mirror: mirror parity with a time offset.', 'Offsets make ghosts in the pattern.'],
-                ['Stage 22: Relay Depths: dig through relay layers to find nested keys.', 'Depths are cold and smell of iron.'],
-                ['Stage 23: Clock Cleave: cleave clock faces to reveal a long code.', 'Faces may bleed digits.'],
-                ['Stage 24: Final Proof: an extended riddle-chain seals the result.', 'Screenshot your completion; the room will forget you otherwise.']
-            ],
             stageData: [
                 {
                     stage: 1,
                     title: 'Fragmented Logs',
-                    instruction: 'Reconstruct and decode the fragments. Data: dG9rZW46ZW50cm9weQ== (base64)',
+                    instruction: 'Reconstruct and decode the fragments.',
                     payload: 'dG9rZW46ZW50cm9weQ==',
                     type: 'payload'
                 },
@@ -296,38 +270,12 @@ export const chapterIVPublic = {
             stages: [
                 'Blindwatch Audio', 'Reflection Maze', 'Temporal Markers', 'Anomaly Harvest', 'Token Weave', 'Timeline Proof', 'Eldritch Foray', 'Eldritch Drift', 'Mirror Index', 'Weave Final', 'Chronicle Merge', 'Oracle Page', 'Riddle Spire', 'Whisper Log', 'Drift Echo', 'Anomaly Wells', 'Index Fold', 'Weave Depth', 'Chronicle Vault', 'Oracle Gate', 'Spire Descent', 'Echo Vault', 'Depth Merge', 'Final Seal'
             ],
-            hints: [
-                ['Stage 1: Some clips are reversed or slowed.', 'Stage 1: Hidden tones map to character separators.', 'A voice in the clip says something familiar.'],
-                ['Stage 2: Marked path tiles correspond to tokens used later.', 'Stage 2: The maze uses mirrored tiles; treat symmetric tiles as identical.', 'Sometimes the maze rearranges when you blink.'],
-                ['Stage 3: Look for abrupt timestamp repeats and negative deltas.', 'Small increments hide large jumps.', 'Time here stutters.'],
-                ['Stage 4: Anomalies will mutate; choose quickly.', 'Three timeouts raise the base timer.', 'Anomalies hiss when you touch them.'],
-                ['Stage 5: The weave requires correct ordering by parity.', 'Missing tokens are inferred by position.', 'Some tokens are warm to the touch.'],
-                ['Stage 6: The proof string is short but non-obvious.', 'Compare indices to the maze tokens.', 'A page of the chronicle trembles.'],
-                ['Stage 7: The riddle chain is longer and thematic.', 'Each riddle yields one word of the final phrase.', 'The riddles smell faintly of brimstone.'],
-                ['Stage 8: Drift logs shift token prefixes; record changes.'],
-                ['Stage 9: Mirror indices reveal swapped positions.'],
-                ['Stage 10: Final weave consolidates tokens.'],
-                ['Stage 11: Chronicle merge requires ordering by timestamp.'],
-                ['Stage 12: Oracle hints point to phrase fragments.'],
-                ['Stage 13: Riddle spire is tall — many riddles to climb.'],
-                ['Stage 14: Whisper Log: capture the whisper that only plays at 3am.'],
-                ['Stage 15: Drift Echo: echoes shift letters across repeats.'],
-                ['Stage 16: Anomaly Wells: harvest before they sink.'],
-                ['Stage 17: Index Fold: fold indices to compress the proof.'],
-                ['Stage 18: Weave Depth: weave tokens across layers.'],
-                ['Stage 19: Chronicle Vault: vault stores corrupt fragments.'],
-                ['Stage 20: Oracle Gate: choose the right oracle page to reveal the phrase.'],
-                ['Stage 21: Spire Descent: riddles become darker as you descend.'],
-                ['Stage 22: Echo Vault: assemble echoes into a melody.'],
-                ['Stage 23: Depth Merge: merge all deep tokens into the final key.'],
-                ['Stage 24: Final Seal: submit the exact phrase to seal the Entity plaque.']
-            ],
             stageData: [
                 {
                     stage: 1,
                     title: 'Blindwatch Audio',
-                    instruction: 'Transcribe the layered clip. (Simulated) Data: bm90ZSB0byB3YXRjaA== (base64)',
-                    payload: 'bm90ZSB0byB3YXRjaA==',
+                    instruction: 'Transcribe the layered clip.',
+                    payload: '/static/chapters/IV/payload.mp3',
                     type: 'payload'
                 },
                 {
