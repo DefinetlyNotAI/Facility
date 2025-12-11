@@ -119,7 +119,7 @@ export const chapterIVPublic = {
                 {
                     stage: 4,
                     title: 'Decaying Keypad',
-                    instruction: '5 number password. The sequence is based of word of the day: length, vowels, unique-letters, first-letter position in the alphabet, syllables.',
+                    instruction: '5 number password. The sequence is based of word of the day: length of this password, vowels in the word, unique-letters in the word, first-letter position in the alphabet, syllables count.',
                     payload: '52633',
                     type: 'numpad',
                 },
