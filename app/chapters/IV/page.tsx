@@ -12,7 +12,7 @@ import {AllowedPlaqueStatus} from "@/lib/types/api";
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {routes} from '@/lib/saveData';
 
 // JSON cookie helpers to store merged plaque progress
@@ -99,6 +99,10 @@ export default function ChapterIVPage() {
             });
             const data = await res.json();
             if (data?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 // merge this plaque into the local JSON cookie so we don't overwrite previous progress
                 try {
                     const cookieKey = 'chapterIV-plaque-progress';
@@ -115,6 +119,10 @@ export default function ChapterIVPage() {
                 await fetchPlaqueStatuses();
                 router.push(`/chapters/IV/puzzles/${id}`);
             } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
                 setErrors(prev => ({...prev, [id]: data?.message || 'Incorrect keyword.'}));
             }
         } finally {

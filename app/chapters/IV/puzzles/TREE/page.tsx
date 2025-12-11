@@ -6,7 +6,7 @@ import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
 import {seededShuffle, seedFromString} from '@/lib/puzzles';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
     idx: number,
@@ -183,6 +183,10 @@ export default function TreePuzzlePage() {
                     // Time expired: count as a time failure
                     // Reset sequence and increment consecutive time-fails
                     setNodeSeq('');
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                    } catch (e) {
+                    }
                     setFeedback('Time expired - sequence reset.');
                     setConsecutiveTimeFails(prevFails => {
                         const next = prevFails + 1;
@@ -250,6 +254,10 @@ export default function TreePuzzlePage() {
         if (node.withered) {
             // touching a withered node resets sequence and also resets consecutive time-fail counter
             setNodeSeq('');
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
             setFeedback('You touched a withered node - sequence reset.');
             setConsecutiveTimeFails(0);
             // restart timer
@@ -267,6 +275,10 @@ export default function TreePuzzlePage() {
             const expected = stages[1]?.payload || '';
             if (expected && next.length >= expected.length) {
                 if (next === expected) {
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                    } catch (e) {
+                    }
                     setFeedback('Correct sequence! Advancing...');
                     // reset timer/consecutive fails on success
                     setConsecutiveTimeFails(0);
@@ -279,6 +291,10 @@ export default function TreePuzzlePage() {
                         setNodeSeq('');
                     }, 700);
                 } else {
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                    } catch (e) {
+                    }
                     setFeedback('Wrong sequence - reset and try again.');
                     // reset sequence and timer
                     setRemainingTime(stage2BaseTime);
@@ -304,10 +320,18 @@ export default function TreePuzzlePage() {
             const stage2PayloadLengthStr = String(stage2PayloadRaw.length);
             // accept if normalized direct match, or numeric length match
             if (providedNorm === stage2Payload || providedNorm === normalize(stage2PayloadLengthStr)) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Correct - unlocking Stage 2.');
                 unlockAndGo(1);
                 setInput('');
             } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
                 setFeedback('Incorrect answer. Try again.');
             }
             return;
@@ -316,10 +340,18 @@ export default function TreePuzzlePage() {
         // Generic fallback: compare to explicit 'answer' if provided in stageData
         const expected = (stages[stageIndex]?.answer || '').toLowerCase();
         if (!expected) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
             setFeedback('No expected answer configured for this stage.');
             return;
         }
         if (provided === expected) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+            } catch (e) {
+            }
             // correct for this stage
             setFeedback('Correct!');
             if (stageIndex < stages.length - 1) {
@@ -337,6 +369,10 @@ export default function TreePuzzlePage() {
                 setStageIndex(stages.length);
             }
         } else {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
             setFeedback('Incorrect. Try again.');
         }
     }
@@ -355,8 +391,16 @@ export default function TreePuzzlePage() {
 
     const handleStage3FinalSubmit = () => {
         if (!riddleCorrects.every(Boolean)) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
             setFeedback('All riddles must be correct before submission.');
             return;
+        }
+        try {
+            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+        } catch (e) {
         }
         setFeedback('Stage complete — take a screenshot of this page as proof and then continue.');
         setTimeout(() => {
@@ -368,6 +412,37 @@ export default function TreePuzzlePage() {
             } catch (e) {
             }
         }, 800);
+    }
+
+    // Download helper for stage0 payload (dossier)
+    const downloadPayload = async () => {
+        const url = stages[0]?.payload;
+        if (!url) {
+            setFeedback('No payload to download.');
+            return;
+        }
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Network response not ok');
+            const blob = await resp.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const parts = url.split('/');
+            const filename = parts[parts.length - 1] || 'payload.bin';
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(blobUrl);
+            setFeedback('Payload downloaded');
+        } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
+            setFeedback('Failed to download payload');
+        }
     }
 
     // Basic UI rendering for stages
@@ -425,6 +500,8 @@ export default function TreePuzzlePage() {
                                             className="bg-emerald-600 hover:bg-emerald-500 text-black font-mono px-2 py-1 rounded text-xs">
                                             Copy
                                         </button>
+                                        + <button onClick={downloadPayload}
+                                                  className="bg-indigo-600 hover:bg-indigo-500 text-black font-mono px-2 py-1 rounded text-xs">Download</button>
                                     </div>
                                 </div>
 

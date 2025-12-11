@@ -7,7 +7,7 @@ import {seededTokens} from '@/lib/puzzles';
 import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 // Riddle component reused from TREE/TAS
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
@@ -284,11 +284,27 @@ export default function EntityPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                // success sound
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Correct — advancing');
                 setStageResult(1, selection);
                 setTimeout(() => unlockAndGo(2), 400);
-            } else setFeedback('Incorrect path');
+            } else {
+                // error sound
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Incorrect path');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -313,6 +329,10 @@ export default function EntityPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Correct proof — complete');
                 setStageResult(2, anSelection);
                 setTimeout(() => {
@@ -324,8 +344,18 @@ export default function EntityPuzzlePage() {
                     }
                     markCompleted();
                 }, 400);
-            } else setFeedback('Incorrect proof');
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Incorrect proof');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -363,11 +393,25 @@ export default function EntityPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Weave accepted.');
                 setStageResult(4, payload);
                 setTimeout(() => unlockAndGo(5), 400);
-            } else setFeedback('Weave incorrect');
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Weave incorrect');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -382,11 +426,25 @@ export default function EntityPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Timeline proof validated.');
                 setStageResult(5, payload);
                 setTimeout(() => unlockAndGo(6), 400);
-            } else setFeedback('Validation failed');
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Validation failed');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -402,6 +460,10 @@ export default function EntityPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 if (stageIndex >= stages.length - 1) {
                     // require riddle chain to be solved on final
                     if (!riddleCorrects.every(Boolean)) {
@@ -422,8 +484,18 @@ export default function EntityPuzzlePage() {
                     setInput('');
                     setFeedback('Advanced');
                 }
-            } else setFeedback('Incorrect');
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Incorrect');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -505,6 +577,38 @@ export default function EntityPuzzlePage() {
                 </div>
             </div>
         );
+    }
+
+    // Download helper for payloads (Entity stage 1 uses an audio payload)
+    const downloadPayload = async () => {
+        const url = stages[stageIndex]?.payload;
+        if (!url) {
+            setFeedback('No payload to download.');
+            return;
+        }
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Network response not ok');
+            const blob = await resp.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            // derive filename from url
+            const parts = url.split('/');
+            const filename = parts[parts.length - 1] || 'payload.bin';
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(blobUrl);
+            setFeedback('Payload downloaded');
+        } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
+            setFeedback('Failed to download payload');
+        }
     }
 
     return (
@@ -627,8 +731,17 @@ export default function EntityPuzzlePage() {
                                 {/* Generic form for payload/final/riddle/other simple input types */}
                                 {(['payload', 'final', 'riddle'] as string[]).includes(stages[stageIndex]?.type) && (
                                     <form onSubmit={handleSubmit} className="mt-4">
-                                        {stages[stageIndex]?.payload && <div
-                                            className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
+                                        {stages[stageIndex]?.payload && (
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>
+                                                {/* If this is the first stage (index 0) allow downloading the payload */}
+                                                {stageIndex === 0 && (
+                                                    <button type="button" onClick={downloadPayload}
+                                                            className="px-2 py-1 bg-indigo-600 rounded text-xs">Download</button>
+                                                )}
+                                            </div>
+                                        )}
                                         <div className="mt-2 flex gap-2"><input value={input}
                                                                                 onChange={(e) => setInput(e.target.value)}
                                                                                 placeholder="Enter answer"

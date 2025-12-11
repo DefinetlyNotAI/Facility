@@ -7,7 +7,7 @@ import {seededShuffle} from '@/lib/puzzles';
 import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 // Riddle component (adapted from TREE puzzle for a riddle-chain mini-game)
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
@@ -229,13 +229,27 @@ export default function TasPuzzlePage() {
                 });
                 const json = await res.json();
                 if (json?.ok) {
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                    } catch (e) {
+                    }
                     setFeedback('Correct — advancing to Stage 3');
                     // save result
                     setStageResult(1, bits);
                     // unlock/persist like TREE
                     setTimeout(() => unlockAndGo(2), 400);
-                } else setFeedback('Incorrect switch configuration.');
+                } else {
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                    } catch (e) {
+                    }
+                    setFeedback('Incorrect switch configuration.');
+                }
             } catch (e) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (er) {
+                }
                 setFeedback('Server error');
             }
         })();
@@ -260,6 +274,10 @@ export default function TasPuzzlePage() {
                         });
                         const json = await res.json();
                         if (json?.ok) {
+                            try {
+                                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                            } catch (e) {
+                            }
                             setFeedback('Correct final assembly — saved.');
                             // save assembly result
                             setStageResult(2, next);
@@ -268,11 +286,19 @@ export default function TasPuzzlePage() {
                                 unlockAndGo(3);
                             }, 500);
                         } else {
+                            try {
+                                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                            } catch (e) {
+                            }
                             setFeedback('Wrong assembly — reset and try again.');
                             setUsed(new Array(parts.length).fill(false));
                             setAssembly('');
                         }
                     } catch (e) {
+                        try {
+                            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                        } catch (er) {
+                        }
                         setFeedback('Server error');
                     }
                 })();
@@ -323,6 +349,10 @@ export default function TasPuzzlePage() {
                 if (cancelled) return prev;
                 if (prev <= 1) {
                     setNodeSeq('');
+                    try {
+                        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                    } catch (e) {
+                    }
                     setFeedback('Time expired - sequence reset.');
                     const next = consecutiveTimeouts + 1;
                     setConsecutiveTimeouts(next);
@@ -376,6 +406,10 @@ export default function TasPuzzlePage() {
         mutateWithered();
         if (n.withered) {
             setNodeSeq('');
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
             setFeedback('You touched a withered node - sequence reset.');
             setRemainingTime(stageTimedBase);
             setConsecutiveTimeouts(0);
@@ -385,7 +419,6 @@ export default function TasPuzzlePage() {
         setNodeSeq(prev => {
             const next = prev + n.label;
             const expected = (stages[3]?.payload || '');
-            // we'll validate once length reaches server answer length (if known), else defer to manual submit
             const serverExpectedLen = (stages[3]?.payload || '').length || 5;
             if (next.length >= serverExpectedLen) {
                 // validate with server
@@ -396,16 +429,28 @@ export default function TasPuzzlePage() {
                         });
                         const json = await res.json();
                         if (json?.ok) {
+                            try {
+                                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                            } catch (e) {
+                            }
                             setFeedback('Signal sequence correct — saved.');
                             setStageResult(3, next);
                             // unlock next stage
                             setTimeout(() => unlockAndGo(4), 400);
                         } else {
+                            try {
+                                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                            } catch (e) {
+                            }
                             setFeedback('Wrong sequence - reset and try again.');
                             setNodeSeq('');
                             setRemainingTime(stageTimedBase);
                         }
                     } catch (e) {
+                        try {
+                            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                        } catch (er) {
+                        }
                         setFeedback('Server error');
                     }
                 })();
@@ -432,11 +477,25 @@ export default function TasPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Grid pattern correct — saved.');
                 setStageResult(4, bits);
                 setTimeout(() => unlockAndGo(5), 400);
-            } else setFeedback('Incorrect grid pattern');
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Incorrect grid pattern');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -465,11 +524,25 @@ export default function TasPuzzlePage() {
             });
             const json = await res.json();
             if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
                 setFeedback('Merge accepted — saved.');
                 setStageResult(6, payload);
                 setTimeout(() => unlockAndGo(7), 400);
-            } else setFeedback('Merge incorrect');
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Merge incorrect');
+            }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -481,6 +554,10 @@ export default function TasPuzzlePage() {
         // If on final configured stage, require riddles to be solved client-side before allowing finalization
         if (stageIndex === stages.length - 1) {
             if (!riddleCorrects.every(Boolean)) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
                 setFeedback('Solve the riddle chain before finalizing the plaque.');
                 return;
             }
@@ -493,10 +570,18 @@ export default function TasPuzzlePage() {
             });
             const json = await res.json();
             if (!json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
                 setFeedback('Incorrect answer.');
                 return;
             }
             // proceed
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+            } catch (e) {
+            }
             // save result
             setStageResult(stageIndex, provided);
             // if this is the final stage (last configured), mark completed state
@@ -518,6 +603,10 @@ export default function TasPuzzlePage() {
                 }, 500);
             }
         } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
             setFeedback('Server error');
         }
     }
@@ -601,6 +690,37 @@ export default function TasPuzzlePage() {
         setAssembly('');
         setRiddleCorrects(new Array(RIDDLE_COUNT).fill(false));
         setStageResults({});
+    }
+
+    // Download helper for payloads (stage 0 payload)
+    const downloadPayload = async () => {
+        const url = stages[stageIndex]?.payload;
+        if (!url) {
+            setFeedback('No payload to download.');
+            return;
+        }
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Network response not ok');
+            const blob = await resp.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const parts = url.split('/');
+            const filename = parts[parts.length - 1] || 'payload.bin';
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(blobUrl);
+            setFeedback('Payload downloaded');
+        } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
+            setFeedback('Failed to download payload');
+        }
     }
 
     return (
@@ -743,8 +863,16 @@ export default function TasPuzzlePage() {
 
                         {stages[stageIndex]?.type === 'payload' && (
                             <div>
-                                {stages[stageIndex]?.payload && <div
-                                    className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>}
+                                {stages[stageIndex]?.payload && (
+                                    <div className="flex items-center gap-2">
+                                        <div
+                                            className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>
+                                        {stageIndex === 0 && (
+                                            <button type="button" onClick={downloadPayload}
+                                                    className="px-2 py-1 bg-indigo-600 rounded text-xs">Download</button>
+                                        )}
+                                    </div>
+                                )}
                                 <form onSubmit={handleSubmit} className="mt-2">
                                     <input value={input} onChange={(e) => setInput(e.target.value)}
                                            placeholder="Enter answer" className="w-full bg-gray-900 px-3 py-2 rounded"/>
