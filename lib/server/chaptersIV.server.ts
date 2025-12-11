@@ -6,31 +6,11 @@ const PUZZLES: Record<PlaqueId, { keyword: string; stageAnswers: string[] }> = {
     TAS: {
         keyword: 'your own reflection in the clock\'s glass',
         stageAnswers: [
-            'entropy',      // 0 Fragmented Logs
-            '11001',        // 1 Circuit Emulation
-            'consensus',    // 2 Consensus Assembly
-            '52815',        // 3 Signal Spike
-            '10101',        // 4 XOR Grid
-            'lead',         // 5 Forensics Riddle
-            'consensus-merged', // 6 Consensus Merge
-            'drift',        // 7 Entropy Drift
-            'mirror9',      // 8 Mirror Panel
-            '11100',        // 9 Parity Locks
-            'taptap',       // 10 Relay Taps
-            'clockwise',    // 11 Clockwork Puzzle
-            'merged-final', // 12 Merge Final
-            'echohollow',   // 13 Echo Hollow
-            'signalgrave',  // 14 Signal Grave
-            'tokenscrape',  // 15 Token Scrape
-            'threshold',    // 16 Threshold
-            'pulserelay',   // 17 Pulse Relay
-            'entropyecho',  // 18 Entropy Echo
-            'mirrorvault',  // 19 Mirror Vault
-            'paritymirror', // 20 Parity Mirror
-            'relaydepths',  // 21 Relay Depths
-            'clockcleave',  // 22 Clock Cleave
-            'finalmerged',  // 23 Final Merged
-            'finalproof'    // 24 Final Proof
+            'entropy',              // 0 Fragmented Logs - decode base64 "token:entropy"
+            '00111',                // 1 Circuit Pattern - "entropy" = 7 letters in binary
+            'consensus',            // 2 Word Assembly - 00111 has three 1s
+            '52633',                // 3 Sequence Lock - consensus: 5 vowels, 2 vowel-pairs, 6 unique consonants, 3 syllables, 3rd letter is 'n'
+            '00111consensus52633'   // 4 Final Proof - combine all answers
         ]
     },
     Entity: {

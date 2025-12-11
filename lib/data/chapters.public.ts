@@ -92,176 +92,43 @@ export const chapterIVPublic = {
         // Expanded TAS puzzle to 24 stages with horror-leaning hints and varied mechanics
         TAS: {
             stages: [
-                'Fragmented Logs', 'Circuit Emulation', 'Consensus Assembly', 'Signal Spike', 'XOR Grid', 'Forensics Riddle', 'Consensus Merge', 'Entropy Drift', 'Mirror Panel', 'Parity Locks', 'Relay Taps', 'Clockwork Puzzle', 'Merge Final', 'Echo Hollow', 'Signal Grave', 'Token Scrape', 'Threshold Locks', 'Pulse Relay', 'Entropy Echo', 'Mirror Vault', 'Parity Mirror', 'Relay Depths', 'Clock Cleave', 'Final Proof'
+                'Fragmented Logs', 'Circuit Pattern', 'Word Assembly', 'Sequence Lock', 'Final Proof'
             ],
             stageData: [
                 {
                     stage: 1,
                     title: 'Fragmented Logs',
-                    instruction: 'Reconstruct and decode the fragments.',
+                    instruction: 'Decode the base64 payload. Your answer is the word after the colon: entropy',
                     payload: 'dG9rZW46ZW50cm9weQ==',
-                    type: 'payload'
+                    type: 'payload',
                 },
                 {
                     stage: 2,
-                    title: 'Circuit Emulation',
-                    instruction: 'Toggle the circuit panel to match the known wiring pattern (submit as bitstring).',
-                    payload: '',
-                    type: 'switches'
+                    title: 'Circuit Pattern',
+                    instruction: 'Length of the word in bin. Toggle switches to match.',
+                    payload: '00111',
+                    type: 'switches',
                 },
                 {
                     stage: 3,
-                    title: 'Consensus Assembly',
-                    instruction: 'Use parts collected from earlier fragments to assemble a key word.',
-                    payload: '',
-                    type: 'assembly'
+                    title: 'Word Assembly',
+                    instruction: 'Assemble the word of the day.',
+                    payload: 'consensus',
+                    type: 'assembly',
                 },
                 {
                     stage: 4,
-                    title: 'Signal Spike',
-                    instruction: 'Activate nodes quickly while avoiding withered roots. Timer active.',
-                    payload: '52815',
-                    type: 'timed'
+                    title: 'Sequence Lock',
+                    instruction: '5 number password. The sequence is based of word of the day: length, vowels, unique-letters, first-letter position in the alphabet, syllables.',
+                    payload: '52633',
+                    type: 'timed',
                 },
                 {
                     stage: 5,
-                    title: 'XOR Grid',
-                    instruction: 'Select tiles whose row parity matches the target pattern.',
-                    payload: '',
-                    type: 'grid'
-                },
-                {
-                    stage: 6,
-                    title: 'Forensics Riddle',
-                    instruction: 'Solve the short riddle to reveal the connector key.',
-                    payload: '',
-                    type: 'riddle'
-                },
-                {
-                    stage: 7,
-                    title: 'Consensus Merge',
-                    instruction: 'Merge the keys from stages into an ordered phrase; use the circuit separator.',
-                    payload: '',
-                    type: 'merge'
-                },
-                {
-                    stage: 8,
-                    title: 'Entropy Drift',
-                    instruction: 'Observe the entropy drift log and extract the token sequence.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 9,
-                    title: 'Mirror Panel',
-                    instruction: 'Use mirror reflections to deduce hidden digits.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 10,
-                    title: 'Parity Locks',
-                    instruction: 'Open parity locks by selecting correct combinations.',
-                    payload: '',
-                    type: 'grid'
-                },
-                {
-                    stage: 11,
-                    title: 'Relay Taps',
-                    instruction: 'Tap relays in sequence to record micro-keys.',
-                    payload: '',
-                    type: 'timed'
-                },
-                {
-                    stage: 12,
-                    title: 'Clockwork Puzzle',
-                    instruction: 'Align clock hands to reveal the long sequence.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 13,
-                    title: 'Merge Final',
-                    instruction: 'Merge remaining fragments into the final merge payload.',
-                    payload: '',
-                    type: 'merge'
-                },
-                {
-                    stage: 14,
-                    title: 'Echo Hollow',
-                    instruction: 'Listen to the hollow echoes and decode the repeated fragment.',
-                    payload: 'ZWNoby1ob2xsb3c=',
-                    type: 'payload'
-                },
-                {
-                    stage: 15,
-                    title: 'Signal Grave',
-                    instruction: 'Recover a buried transmission by reconstructing signal offsets.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 16,
-                    title: 'Token Scrape',
-                    instruction: 'Carefully scrape tokens from the casing without breaking them.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 17,
-                    title: 'Threshold Locks',
-                    instruction: 'Hold threshold parity to open hidden locks.',
-                    payload: '',
-                    type: 'grid'
-                },
-                {
-                    stage: 18,
-                    title: 'Pulse Relay',
-                    instruction: 'Route pulses through relays to extract micro-signatures.',
-                    payload: '',
-                    type: 'timed'
-                },
-                {
-                    stage: 19,
-                    title: 'Entropy Echo',
-                    instruction: 'Track entropy changes across minutes to derive a token sequence.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 20,
-                    title: 'Mirror Vault',
-                    instruction: 'Arrange reflections to reveal a hidden phrase.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 21,
-                    title: 'Parity Mirror',
-                    instruction: 'Mirror parity patterns across a timed offset.',
-                    payload: '',
-                    type: 'grid'
-                },
-                {
-                    stage: 22,
-                    title: 'Relay Depths',
-                    instruction: 'Trace nested relays to find deep keys.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 23,
-                    title: 'Clock Cleave',
-                    instruction: 'Modify clock faces to bleed digits into a stream.',
-                    payload: '',
-                    type: 'payload'
-                },
-                {
-                    stage: 24,
                     title: 'Final Proof',
-                    instruction: 'A long riddle-chain seals the TAS plaque. Screenshot on completion.',
-                    payload: '',
-                    type: 'riddle-chain'
+                    instruction: 'Combine all previous answers',
+                    payload: '00111consensus52633',
+                    type: 'payload',
                 }
             ]
         },
@@ -274,9 +141,10 @@ export const chapterIVPublic = {
                 {
                     stage: 1,
                     title: 'Blindwatch Audio',
-                    instruction: 'Transcribe the layered clip.',
-                    payload: '/static/chapters/IV/payload.mp3',
-                    type: 'payload'
+                    instruction: 'Transcribe the layered clip. The audio contains a hidden message.',
+                    payload: 'bm90ZSB0byB3YXJjaA==',
+                    type: 'payload',
+                    hint: 'This appears to be base64 encoded. Decode it to reveal the message, then extract the key word.'
                 },
                 {
                     stage: 2,

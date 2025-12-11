@@ -192,7 +192,6 @@ export default function WifiPanel() {
                         <h2>{wifiPanel.transmissionPanel.mainTitle}</h2>
                         <p><em>{wifiPanel.transmissionPanel.title}</em></p>
                         <div className={styles.codeBlock}>{question}</div>
-                        <div className={styles.hint}>{wifiPanel.transmissionPanel.hint}</div>
                         <label className={styles.inputLabel} htmlFor="wifi-answer-input">
                             {wifiPanel.transmissionPanel.ansForm.request}
                         </label>

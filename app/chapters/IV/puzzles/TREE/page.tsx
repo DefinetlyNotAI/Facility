@@ -414,37 +414,6 @@ export default function TreePuzzlePage() {
         }, 800);
     }
 
-    // Download helper for stage0 payload (dossier)
-    const downloadPayload = async () => {
-        const url = stages[0]?.payload;
-        if (!url) {
-            setFeedback('No payload to download.');
-            return;
-        }
-        try {
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error('Network response not ok');
-            const blob = await resp.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const parts = url.split('/');
-            const filename = parts[parts.length - 1] || 'payload.bin';
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(blobUrl);
-            setFeedback('Payload downloaded');
-        } catch (e) {
-            try {
-                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-            } catch (er) {
-            }
-            setFeedback('Failed to download payload');
-        }
-    }
-
     // Basic UI rendering for stages
     return (
         <>
@@ -500,8 +469,6 @@ export default function TreePuzzlePage() {
                                             className="bg-emerald-600 hover:bg-emerald-500 text-black font-mono px-2 py-1 rounded text-xs">
                                             Copy
                                         </button>
-                                        + <button onClick={downloadPayload}
-                                                  className="bg-indigo-600 hover:bg-indigo-500 text-black font-mono px-2 py-1 rounded text-xs">Download</button>
                                     </div>
                                 </div>
 

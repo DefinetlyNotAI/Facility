@@ -579,37 +579,6 @@ export default function EntityPuzzlePage() {
         );
     }
 
-    // Download helper for payloads (Entity stage 1 uses an audio payload)
-    const downloadPayload = async () => {
-        const url = stages[stageIndex]?.payload;
-        if (!url) {
-            setFeedback('No payload to download.');
-            return;
-        }
-        try {
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error('Network response not ok');
-            const blob = await resp.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            // derive filename from url
-            const parts = url.split('/');
-            const filename = parts[parts.length - 1] || 'payload.bin';
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(blobUrl);
-            setFeedback('Payload downloaded');
-        } catch (e) {
-            try {
-                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-            } catch (er) {
-            }
-            setFeedback('Failed to download payload');
-        }
-    }
 
     return (
         <>
@@ -728,17 +697,20 @@ export default function EntityPuzzlePage() {
                                     </div>
                                 )}
 
-                                {/* Generic form for payload/final/riddle/other simple input types */}
                                 {(['payload', 'final', 'riddle'] as string[]).includes(stages[stageIndex]?.type) && (
                                     <form onSubmit={handleSubmit} className="mt-4">
                                         {stages[stageIndex]?.payload && (
-                                            <div className="flex items-center gap-2">
-                                                <div
-                                                    className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>
-                                                {/* If this is the first stage (index 0) allow downloading the payload */}
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div
+                                                        className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>
+                                                </div>
                                                 {stageIndex === 0 && (
-                                                    <button type="button" onClick={downloadPayload}
-                                                            className="px-2 py-1 bg-indigo-600 rounded text-xs">Download</button>
+                                                    <div className="text-xs text-gray-400 italic">
+                                                        💡 Hint: This appears to be base64 encoded. Decode it (you can
+                                                        use atob() in browser console or an online decoder) to reveal
+                                                        the message, then extract the key word.
+                                                    </div>
                                                 )}
                                             </div>
                                         )}

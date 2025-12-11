@@ -1,3 +1,51 @@
+// Storage Management for Chapter IV Puzzles
+
+const STORAGE_PREFIX = 'chapterIV-';
+
+/**
+ * Get saved stage index from localStorage
+ */
+export function getSavedStageIndex(
+    plaqueId: string,
+    maxStages: number
+): { stageIndex: number; isCompleted: boolean; unlockedStage: number } {
+    const storageKey = `${STORAGE_PREFIX}${plaqueId}-progress`;
+
+    try {
+        const raw = localStorage.getItem(storageKey);
+        if (!raw) return {stageIndex: 0, isCompleted: false, unlockedStage: 0};
+
+        const i = parseInt(raw, 10);
+        if (isNaN(i)) return {stageIndex: 0, isCompleted: false, unlockedStage: 0};
+
+        if (i >= maxStages) {
+            return {stageIndex: maxStages, isCompleted: true, unlockedStage: maxStages - 1};
+        }
+
+        if (i >= 0) {
+            return {stageIndex: i, isCompleted: false, unlockedStage: i};
+        }
+
+        return {stageIndex: 0, isCompleted: false, unlockedStage: 0};
+    } catch (e) {
+        console.warn('Failed to load progress:', e);
+        return {stageIndex: 0, isCompleted: false, unlockedStage: 0};
+    }
+}
+
+/**
+ * Save stage index to localStorage
+ */
+export function saveStageIndex(plaqueId: string, stageIndex: number): void {
+    const storageKey = `${STORAGE_PREFIX}${plaqueId}-progress`;
+
+    try {
+        localStorage.setItem(storageKey, String(stageIndex));
+    } catch (e) {
+        console.warn('Failed to save progress:', e);
+    }
+}
+
 import {localStorageKeys} from '@/lib/saveData';
 
 /**

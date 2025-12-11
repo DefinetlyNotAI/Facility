@@ -184,13 +184,15 @@ export default function TasPuzzlePage() {
 
     // NEW: unlocked stage tracking (TREE-style)
     const [unlockedStage, setUnlockedStage] = useState<number>(0);
-    const unlockAndGo = (index: number) => {
-        setUnlockedStage(prev => Math.max(prev, index));
-        setStageIndex(index);
+    // NEW: robust advancement helper that persists unlocked stage and index
+    const advanceTo = (index: number) => {
         try {
+            // persist immediately
             localStorage.setItem(storageKey, String(index));
         } catch (e) {
         }
+        setUnlockedStage(prev => Math.max(prev, index));
+        setStageIndex(index);
     }
 
     useEffect(() => {
@@ -237,7 +239,7 @@ export default function TasPuzzlePage() {
                     // save result
                     setStageResult(1, bits);
                     // unlock/persist like TREE
-                    setTimeout(() => unlockAndGo(2), 400);
+                    setTimeout(() => advanceTo(2), 400);
                 } else {
                     try {
                         playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
@@ -262,49 +264,48 @@ export default function TasPuzzlePage() {
             c[i] = true;
             return c;
         });
-        setAssembly(prev => {
-            const next = prev + parts[i];
-            if (next.length >= (stages[2]?.answer || '').length) {
-                // validate assembly result with server
-                (async () => {
-                    try {
-                        const res = await fetch(routes.api.chapters.iv.validateStage, {
-                            method: 'POST',
-                            body: JSON.stringify({plaqueId: 'TAS', stageIndex: 2, provided: next})
-                        });
-                        const json = await res.json();
-                        if (json?.ok) {
-                            try {
-                                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
-                            } catch (e) {
-                            }
-                            setFeedback('Correct final assembly — saved.');
-                            // save assembly result
-                            setStageResult(2, next);
-                            setTimeout(() => {
-                                // unlock next stage (Signal Spike)
-                                unlockAndGo(3);
-                            }, 500);
-                        } else {
-                            try {
-                                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-                            } catch (e) {
-                            }
-                            setFeedback('Wrong assembly — reset and try again.');
-                            setUsed(new Array(parts.length).fill(false));
-                            setAssembly('');
-                        }
-                    } catch (e) {
-                        try {
-                            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-                        } catch (er) {
-                        }
-                        setFeedback('Server error');
-                    }
-                })();
+        setAssembly(prev => prev + parts[i]);
+        setFeedback('');
+    }
+
+    const submitAssembly = async () => {
+        if (!assembly) {
+            setFeedback('Please select at least one part.');
+            return;
+        }
+
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                body: JSON.stringify({plaqueId: 'TAS', stageIndex: 2, provided: assembly})
+            });
+            const json = await res.json();
+            if (json?.ok) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
+                setFeedback('Correct final assembly — saved.');
+                // save assembly result
+                setStageResult(2, assembly);
+                setTimeout(() => {
+                    // unlock next stage (Signal Spike)
+                    advanceTo(3);
+                }, 500);
+            } else {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                } catch (e) {
+                }
+                setFeedback('Wrong assembly — try a different order.');
             }
-            return next;
-        });
+        } catch (e) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (er) {
+            }
+            setFeedback('Server error');
+        }
     }
 
     // TIMED stage (Signal Spike) implementation
@@ -418,7 +419,6 @@ export default function TasPuzzlePage() {
         setConsecutiveTimeouts(0);
         setNodeSeq(prev => {
             const next = prev + n.label;
-            const expected = (stages[3]?.payload || '');
             const serverExpectedLen = (stages[3]?.payload || '').length || 5;
             if (next.length >= serverExpectedLen) {
                 // validate with server
@@ -436,7 +436,7 @@ export default function TasPuzzlePage() {
                             setFeedback('Signal sequence correct — saved.');
                             setStageResult(3, next);
                             // unlock next stage
-                            setTimeout(() => unlockAndGo(4), 400);
+                            setTimeout(() => advanceTo(4), 400);
                         } else {
                             try {
                                 playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
@@ -483,7 +483,7 @@ export default function TasPuzzlePage() {
                 }
                 setFeedback('Grid pattern correct — saved.');
                 setStageResult(4, bits);
-                setTimeout(() => unlockAndGo(5), 400);
+                setTimeout(() => advanceTo(5), 400);
             } else {
                 try {
                     playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
@@ -501,7 +501,7 @@ export default function TasPuzzlePage() {
     }
 
     // MERGE stage: allow ordering of previously collected keys (from stageResults)
-    const [mergeOrder, setMergeOrder] = useState<number[]>([]);
+    const [_mergeOrder, setMergeOrder] = useState<number[]>([]);
     useEffect(() => {
         // initialize mergeOrder with available keys when entering merge stage
         if (stageIndex === 6) {
@@ -530,7 +530,7 @@ export default function TasPuzzlePage() {
                 }
                 setFeedback('Merge accepted — saved.');
                 setStageResult(6, payload);
-                setTimeout(() => unlockAndGo(7), 400);
+                setTimeout(() => advanceTo(7), 400);
             } else {
                 try {
                     playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
@@ -596,11 +596,10 @@ export default function TasPuzzlePage() {
             }
             setInput('');
             setFeedback('Correct!');
-            // auto-advance if not final stage
+            // auto-advance/unlock next stage if not final stage
             if (stageIndex < stages.length - 1) {
-                setTimeout(() => {
-                    setStageIndex(idx => Math.min(idx + 1, stages.length));
-                }, 500);
+                // use unlockAndGo so unlockedStage is updated (prevents clamp in useEffect)
+                setTimeout(() => advanceTo(stageIndex + 1), 500);
             }
         } catch (e) {
             try {
@@ -692,37 +691,6 @@ export default function TasPuzzlePage() {
         setStageResults({});
     }
 
-    // Download helper for payloads (stage 0 payload)
-    const downloadPayload = async () => {
-        const url = stages[stageIndex]?.payload;
-        if (!url) {
-            setFeedback('No payload to download.');
-            return;
-        }
-        try {
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error('Network response not ok');
-            const blob = await resp.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const parts = url.split('/');
-            const filename = parts[parts.length - 1] || 'payload.bin';
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(blobUrl);
-            setFeedback('Payload downloaded');
-        } catch (e) {
-            try {
-                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-            } catch (er) {
-            }
-            setFeedback('Failed to download payload');
-        }
-    }
-
     return (
         <>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
@@ -773,18 +741,32 @@ export default function TasPuzzlePage() {
 
                         {stages[stageIndex]?.type === 'assembly' && (
                             <div>
+                                <div className="text-xs text-gray-400 mb-2">
+                                    Click parts in order to assemble the word. You can reset and try different orders.
+                                </div>
                                 <div className="flex gap-2 flex-wrap mb-3">
                                     {parts.map((p, i) => (
                                         <button key={i} disabled={used[i]} onClick={() => clickPart(i)}
                                                 className={used[i] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 border rounded'}>{p}</button>
                                     ))}
+                                </div>
+                                <div className="mb-3">Current: <span
+                                    className="font-mono text-green-300">{assembly || '(empty)'}</span></div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={submitAssembly}
+                                        disabled={!assembly}
+                                        className="px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded"
+                                    >
+                                        Submit Assembly
+                                    </button>
                                     <button onClick={() => {
                                         setUsed(new Array(parts.length).fill(false));
                                         setAssembly('');
-                                    }} className="ml-2 text-xs underline">Reset
+                                        setFeedback('');
+                                    }} className="px-3 py-2 text-xs text-red-400 underline">Reset
                                     </button>
                                 </div>
-                                <div>Current: <span className="font-mono text-green-300">{assembly}</span></div>
                             </div>
                         )}
 
@@ -864,12 +846,15 @@ export default function TasPuzzlePage() {
                         {stages[stageIndex]?.type === 'payload' && (
                             <div>
                                 {stages[stageIndex]?.payload && (
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="bg-black p-2 rounded text-xs text-green-300 break-all">{stages[stageIndex].payload}</div>
+                                    <div className="space-y-2">
+                                        <div className="bg-black p-2 rounded text-xs text-green-300 break-all">
+                                            {stages[stageIndex].payload}
+                                        </div>
                                         {stageIndex === 0 && (
-                                            <button type="button" onClick={downloadPayload}
-                                                    className="px-2 py-1 bg-indigo-600 rounded text-xs">Download</button>
+                                            <div className="text-xs text-gray-400 italic">
+                                                💡 Hint: This appears to be base64 encoded. Try decoding it to find the
+                                                key word.
+                                            </div>
                                         )}
                                     </div>
                                 )}
