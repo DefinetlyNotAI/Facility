@@ -135,7 +135,11 @@ export const chapterIVPublic = {
         // Expanded Entity puzzle to 24 stages with psych-horror flavor
         Entity: {
             stages: [
-                'Blindwatch Audio', 'Reflection Maze', 'Temporal Markers', 'Anomaly Harvest', 'Token Weave', 'Timeline Proof', 'Eldritch Foray', 'Eldritch Drift', 'Mirror Index', 'Weave Final', 'Chronicle Merge', 'Oracle Page', 'Riddle Spire', 'Whisper Log', 'Drift Echo', 'Anomaly Wells', 'Index Fold', 'Weave Depth', 'Chronicle Vault', 'Oracle Gate', 'Spire Descent', 'Echo Vault', 'Depth Merge', 'Final Seal'
+                'Blindwatch Audio', 'Reflection Maze', 'Memory Decay', 'Shadow Typing', 'Breathing Walls',
+                'Fragmented Self', 'Time Distortion', 'Whispering Names', 'The Unwatched Door', 'Token Weave',
+                'Chronicle Merge', 'Oracle Page', 'Riddle Spire', 'Whisper Log', 'Drift Echo', 'Anomaly Wells',
+                'Index Fold', 'Weave Depth', 'Chronicle Vault', 'Oracle Gate', 'Spire Descent', 'Echo Vault',
+                'Depth Merge', 'Final Seal'
             ],
             stageData: [
                 {
@@ -155,31 +159,59 @@ export const chapterIVPublic = {
                 },
                 {
                     stage: 3,
-                    title: 'Temporal Markers',
-                    instruction: 'Identify the index of timestamp jumps; submit as a short index string.',
+                    title: 'Memory Decay',
+                    instruction: 'Watch the sequence carefully. Each viewing corrupts your memory further. Memorize before it decays completely.',
                     payload: '',
-                    type: 'payload'
+                    type: 'memory-decay'
                 },
                 {
                     stage: 4,
-                    title: 'Anomaly Harvest',
-                    instruction: 'Collect anomaly tokens before they mutate. Timer active.',
+                    title: 'Shadow Typing',
+                    instruction: 'Type the phrase without looking. The screen hides your input. Trust your muscle memory, not your eyes.',
                     payload: '',
-                    type: 'timed'
+                    type: 'shadow-typing'
                 },
                 {
                     stage: 5,
+                    title: 'Breathing Walls',
+                    instruction: 'The walls breathe with malevolent life. Match their rhythm or be crushed. Time is running out.',
+                    payload: '',
+                    type: 'breathing-walls'
+                },
+                {
+                    stage: 6,
+                    title: 'Fragmented Self',
+                    instruction: 'Your reflection shatters into fragments. Choose the pieces that are truly you before integrity fails.',
+                    payload: '',
+                    type: 'fragmented-self'
+                },
+                {
+                    stage: 7,
+                    title: 'Time Distortion',
+                    instruction: 'Reality loops and fractures. Select only the real temporal markers. False moments increase the drift.',
+                    payload: '',
+                    type: 'time-distortion'
+                },
+                {
+                    stage: 8,
+                    title: 'Whispering Names',
+                    instruction: 'Many names whisper in the darkness. The volume shifts. Find the true name among the corruption.',
+                    payload: '',
+                    type: 'whispering-names'
+                },
+                {
+                    stage: 9,
+                    title: 'The Unwatched Door',
+                    instruction: 'There is a door. It only opens when you are not watching. Let it open fully. Do not look.',
+                    payload: '',
+                    type: 'unwatched-door'
+                },
+                {
+                    stage: 10,
                     title: 'Token Weave',
                     instruction: 'Weave tokens into index positions to form the proof string.',
                     payload: '',
                     type: 'weave'
-                },
-                {
-                    stage: 6,
-                    title: 'Timeline Proof',
-                    instruction: 'Validate the assembled indices against the timeline anomalies.',
-                    payload: '',
-                    type: 'validate'
                 },
                 {
                     stage: 7,

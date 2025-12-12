@@ -165,6 +165,46 @@ export default function EntityPuzzlePage() {
     const [stageResults, setStageResults] = useState<Record<number, string>>({});
     const setStageResult = (idx: number, val: string) => setStageResults(prev => ({...prev, [idx]: val}));
 
+    // PUZZLE 1: Memory Decay - Stage 3
+    const [memorySequence, setMemorySequence] = useState<string[]>([]);
+    const [memoryInput, setMemoryInput] = useState<string>('');
+    const [sequenceShown, setSequenceShown] = useState<boolean>(false);
+    const [decayLevel, setDecayLevel] = useState<number>(0);
+    const [memoryFlashCount, setMemoryFlashCount] = useState<number>(0);
+
+    // PUZZLE 2: Shadow Typing - Stage 4
+    const [shadowText, setShadowText] = useState<string>('');
+    const [shadowInput, setShadowInput] = useState<string>('');
+    const [shadowGlitches, setShadowGlitches] = useState<number[]>([]);
+    const [isTypingBlind, setIsTypingBlind] = useState<boolean>(false);
+
+    // PUZZLE 3: Breathing Walls - Stage 5
+    const [wallPattern, setWallPattern] = useState<boolean[]>([]);
+    const [breathPhase, setBreathPhase] = useState<number>(0);
+    const [wallPressure, setWallPressure] = useState<number>(0);
+    const [lastBreathTime, setLastBreathTime] = useState<number>(Date.now());
+
+    // PUZZLE 4: Fragmented Self - Stage 6
+    const [mirrorFragments, setMirrorFragments] = useState<{ id: string, text: string, corrupted: boolean }[]>([]);
+    const [fragmentSelection, setFragmentSelection] = useState<string[]>([]);
+    const [reflectionIntegrity, setReflectionIntegrity] = useState<number>(100);
+
+    // PUZZLE 5: Time Distortion - Stage 7
+    const [timeMarkers, setTimeMarkers] = useState<{ time: number, real: boolean }[]>([]);
+    const [selectedMarkers, setSelectedMarkers] = useState<number[]>([]);
+    const [temporalDrift, setTemporalDrift] = useState<number>(0);
+
+    // PUZZLE 6: Whispering Names - Stage 8
+    const [whisperNames, setWhisperNames] = useState<string[]>([]);
+    const [whisperVolume, setWhisperVolume] = useState<number>(0.5);
+    const [nameConfidence, setNameConfidence] = useState<number>(0);
+
+    // PUZZLE 7: The Unwatched Door - Stage 9
+    const [doorState, setDoorState] = useState<'closed' | 'cracked' | 'opening' | 'open'>('closed');
+    const [watchingDoor, setWatchingDoor] = useState<boolean>(false);
+    const [doorOpenProgress, setDoorOpenProgress] = useState<number>(0);
+    const [somethingBehindDoor, setSomethingBehindDoor] = useState<boolean>(false);
+
     // unlocked stage tracking (TREE-style)
     const [unlockedStage, setUnlockedStage] = useState<number>(0);
     const unlockAndGo = (index: number) => {
@@ -213,6 +253,102 @@ export default function EntityPuzzlePage() {
         }
     }, [stageIndex]);
 
+    // PUZZLE 1: Memory Decay initialization
+    useEffect(() => {
+        if (stageIndex === 3 && memorySequence.length === 0) {
+            const symbols = ['◆', '◇', '◈', '◉', '○', '●', '△', '▽'];
+            const length = 6 + decayLevel;
+            const sequence = Array.from({length}, () => symbols[Math.floor(Math.random() * symbols.length)]);
+            setMemorySequence(sequence);
+            setSequenceShown(false);
+            setMemoryInput('');
+            setFeedback('Watch the sequence carefully. It will decay with each viewing...');
+        }
+    }, [stageIndex, decayLevel]);
+
+    // PUZZLE 2: Shadow Typing initialization
+    useEffect(() => {
+        if (stageIndex === 4 && shadowText === '') {
+            const texts = [
+                'I_am_watching_you_type',
+                'your_fingers_know_the_truth',
+                'dont_look_at_the_screen',
+                'trust_your_muscle_memory'
+            ];
+            const selected = texts[Math.floor(Math.random() * texts.length)];
+            setShadowText(selected);
+            setShadowInput('');
+            setShadowGlitches([]);
+            setFeedback('Type the phrase. But the screen will hide what you type...');
+        }
+    }, [stageIndex]);
+
+    // PUZZLE 3: Breathing Walls initialization
+    useEffect(() => {
+        if (stageIndex === 5 && wallPattern.length === 0) {
+            const pattern = Array.from({length: 9}, (_, i) => i % 2 === 0);
+            setWallPattern(pattern);
+            setBreathPhase(0);
+            setWallPressure(0);
+            setLastBreathTime(Date.now());
+            setFeedback('The walls breathe. Match their rhythm or be crushed...');
+        }
+    }, [stageIndex]);
+
+    // PUZZLE 4: Fragmented Self initialization
+    useEffect(() => {
+        if (stageIndex === 6 && mirrorFragments.length === 0) {
+            const fragments = [
+                {id: 'f1', text: 'WHO', corrupted: false},
+                {id: 'f2', text: 'ARE', corrupted: false},
+                {id: 'f3', text: 'YOU', corrupted: true},
+                {id: 'f4', text: 'REALLY', corrupted: false},
+                {id: 'f5', text: 'NOT', corrupted: true},
+                {id: 'f6', text: 'HUMAN', corrupted: false}
+            ];
+            setMirrorFragments(fragments);
+            setFragmentSelection([]);
+            setReflectionIntegrity(100);
+            setFeedback('Your reflection fragments. Choose the pieces that are truly you...');
+        }
+    }, [stageIndex]);
+
+    // PUZZLE 5: Time Distortion initialization
+    useEffect(() => {
+        if (stageIndex === 7 && timeMarkers.length === 0) {
+            const markers = Array.from({length: 12}, (_, i) => ({
+                time: Date.now() + (i * 1000) + Math.random() * 500,
+                real: Math.random() > 0.4
+            }));
+            setTimeMarkers(markers);
+            setSelectedMarkers([]);
+            setTemporalDrift(0);
+            setFeedback('Time loops and fractures. Select only the real moments...');
+        }
+    }, [stageIndex]);
+
+    // PUZZLE 6: Whispering Names initialization
+    useEffect(() => {
+        if (stageIndex === 8 && whisperNames.length === 0) {
+            const names = ['Entity', 'Shadow', 'Watcher', 'Witness', 'Nobody', 'Something', 'It', 'Them'];
+            const shuffled = names.sort(() => Math.random() - 0.5);
+            setWhisperNames(shuffled);
+            setNameConfidence(0);
+            setFeedback('Many names whisper in the dark. Which ones are real?');
+        }
+    }, [stageIndex]);
+
+    // PUZZLE 7: Unwatched Door initialization
+    useEffect(() => {
+        if (stageIndex === 9 && doorState === 'closed') {
+            setDoorState('closed');
+            setWatchingDoor(false);
+            setDoorOpenProgress(0);
+            setSomethingBehindDoor(true);
+            setFeedback('There is a door. It only opens when you are not looking...');
+        }
+    }, [stageIndex]);
+
     useEffect(() => {
         try {
             localStorage.setItem(storageKey, String(stageIndex));
@@ -254,6 +390,120 @@ export default function EntityPuzzlePage() {
         };
     }, [stageIndex, anomaliesStarted, anomalies.length, stage2BaseTime]);
 
+    // PUZZLE 1: Memory Decay - sequence flashing and degradation
+    useEffect(() => {
+        if (stageIndex !== 3 || !sequenceShown) return;
+        const flashInterval = setInterval(() => {
+            setMemoryFlashCount(prev => {
+                const next = prev + 1;
+                if (next >= 3) {
+                    setSequenceShown(false);
+                    setDecayLevel(d => d + 1);
+                    return 0;
+                }
+                return next;
+            });
+        }, 2000);
+        return () => clearInterval(flashInterval);
+    }, [stageIndex, sequenceShown]);
+
+    // PUZZLE 3: Breathing Walls - continuous breathing cycle
+    useEffect(() => {
+        if (stageIndex !== 5) return;
+        const breathInterval = setInterval(() => {
+            setBreathPhase(prev => (prev + 1) % 4);
+            const now = Date.now();
+            const timeSinceLastBreath = now - lastBreathTime;
+
+            // If player doesn't interact, walls close in
+            if (timeSinceLastBreath > 8000) {
+                setWallPressure(prev => Math.min(100, prev + 5));
+            } else {
+                setWallPressure(prev => Math.max(0, prev - 2));
+            }
+
+            if (wallPressure >= 100) {
+                setFeedback('The walls have crushed you. Restarting...');
+                setWallPattern(Array.from({length: 9}, (_, i) => i % 2 === 0));
+                setWallPressure(0);
+                setLastBreathTime(Date.now());
+            }
+        }, 1000);
+        return () => clearInterval(breathInterval);
+    }, [stageIndex, lastBreathTime, wallPressure]);
+
+    // PUZZLE 4: Fragmented Self - integrity decay over time
+    useEffect(() => {
+        if (stageIndex !== 6) return;
+        const decayInterval = setInterval(() => {
+            setReflectionIntegrity(prev => {
+                const next = Math.max(0, prev - 2);
+                if (next <= 0) {
+                    setFeedback('Your reflection has shattered completely. Restarting...');
+                    setMirrorFragments(mf => mf.map(f => ({...f, corrupted: Math.random() > 0.5})));
+                    setFragmentSelection([]);
+                    return 100;
+                }
+                return next;
+            });
+        }, 1500);
+        return () => clearInterval(decayInterval);
+    }, [stageIndex]);
+
+    // PUZZLE 5: Time Distortion - temporal drift increases with bad selections
+    useEffect(() => {
+        if (stageIndex !== 7) return;
+        const driftInterval = setInterval(() => {
+            setTemporalDrift(prev => Math.min(100, prev + 0.5));
+        }, 100);
+        return () => clearInterval(driftInterval);
+    }, [stageIndex]);
+
+    // PUZZLE 6: Whispering Names - volume oscillation
+    useEffect(() => {
+        if (stageIndex !== 8) return;
+        const whisperInterval = setInterval(() => {
+            setWhisperVolume(Math.random() * 0.3 + 0.5);
+            // Names occasionally change
+            if (Math.random() < 0.1) {
+                setWhisperNames(prev => {
+                    const newNames = [...prev];
+                    const idx = Math.floor(Math.random() * newNames.length);
+                    const corrupted = ['Nobody', 'Nothing', 'Never', 'Nowhere', 'No One'];
+                    newNames[idx] = corrupted[Math.floor(Math.random() * corrupted.length)];
+                    return newNames;
+                });
+            }
+        }, 2000);
+        return () => clearInterval(whisperInterval);
+    }, [stageIndex]);
+
+    // PUZZLE 7: Unwatched Door - opens when not being watched
+    useEffect(() => {
+        if (stageIndex !== 9) return;
+        const doorInterval = setInterval(() => {
+            if (!watchingDoor) {
+                setDoorOpenProgress(prev => {
+                    const next = Math.min(100, prev + 2);
+                    if (next >= 25 && doorState === 'closed') setDoorState('cracked');
+                    if (next >= 50 && doorState === 'cracked') setDoorState('opening');
+                    if (next >= 100 && doorState === 'opening') {
+                        setDoorState('open');
+                        setFeedback('The door is open. Something passed through...');
+                    }
+                    return next;
+                });
+            } else {
+                // Door closes when watched
+                setDoorOpenProgress(prev => Math.max(0, prev - 5));
+                if (doorState !== 'closed' && doorOpenProgress < 10) {
+                    setDoorState('closed');
+                }
+            }
+        }, 100);
+        return () => clearInterval(doorInterval);
+    }, [stageIndex, watchingDoor, doorState, doorOpenProgress]);
+
     // mutate anomalies occasionally to increase challenge
     const mutateAnomalies = () => {
         setAnomalies(prev => {
@@ -278,11 +528,7 @@ export default function EntityPuzzlePage() {
     const submitGrid = async () => {
         // validate stage 2 with server
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
-                method: 'POST',
-                body: JSON.stringify({plaqueId: 'Entity', stageIndex: 1, provided: selection})
-            });
-            const json = await res.json();
+            const json = await apiValidate('Entity', 1, selection);
             if (json?.ok) {
                 // success sound
                 try {
@@ -323,11 +569,7 @@ export default function EntityPuzzlePage() {
     }
     const submitAnomalies = async () => {
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
-                method: 'POST',
-                body: JSON.stringify({plaqueId: 'Entity', stageIndex: 2, provided: anSelection})
-            });
-            const json = await res.json();
+            const json = await apiValidate('Entity', 2, anSelection);
             if (json?.ok) {
                 try {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
@@ -387,11 +629,7 @@ export default function EntityPuzzlePage() {
     const submitWeave = async () => {
         const payload = weaveSlots.join('');
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
-                method: 'POST',
-                body: JSON.stringify({plaqueId: 'Entity', stageIndex: 4, provided: payload})
-            });
-            const json = await res.json();
+            const json = await apiValidate('Entity', 4, payload);
             if (json?.ok) {
                 try {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
@@ -420,11 +658,7 @@ export default function EntityPuzzlePage() {
     const handleValidateSubmit = async () => {
         const payload = stageResults[4] || '';
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
-                method: 'POST',
-                body: JSON.stringify({plaqueId: 'Entity', stageIndex: 5, provided: payload})
-            });
-            const json = await res.json();
+            const json = await apiValidate('Entity', 5, payload);
             if (json?.ok) {
                 try {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
@@ -454,11 +688,7 @@ export default function EntityPuzzlePage() {
         const provided = (input || '').trim().toLowerCase();
         // Validate with server (stage 0 and others)
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
-                method: 'POST',
-                body: JSON.stringify({plaqueId: 'Entity', stageIndex, provided})
-            });
-            const json = await res.json();
+            const json = await apiValidate('Entity', stageIndex, provided);
             if (json?.ok) {
                 try {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
@@ -500,6 +730,187 @@ export default function EntityPuzzlePage() {
         }
     }
 
+    // PUZZLE 1: Memory Decay handlers
+    const showMemorySequence = () => {
+        setSequenceShown(true);
+        setMemoryFlashCount(0);
+        setFeedback('Memorizing... sequence will hide soon.');
+    };
+
+    const submitMemorySequence = async () => {
+        const correct = memoryInput === memorySequence.join('');
+        if (correct) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+            } catch (e) {
+            }
+            setFeedback('Memory intact. Advancing...');
+            setTimeout(() => unlockAndGo(4), 500);
+        } else {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
+            setFeedback('Memory corrupted. The sequence has changed...');
+            setMemorySequence([]);
+            setDecayLevel(prev => prev + 1);
+        }
+    };
+
+    // PUZZLE 2: Shadow Typing handlers
+    const handleShadowTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setShadowInput(value);
+
+        // Random glitches
+        if (Math.random() < 0.15) {
+            setShadowGlitches(prev => [...prev, value.length]);
+        }
+
+        // Occasionally hide input
+        if (Math.random() < 0.1) {
+            setIsTypingBlind(true);
+            setTimeout(() => setIsTypingBlind(false), 1000);
+        }
+    };
+
+    const submitShadowTyping = async () => {
+        const correct = shadowInput.toLowerCase() === shadowText.toLowerCase();
+        if (correct) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+            } catch (e) {
+            }
+            setFeedback('You trusted yourself. Advancing...');
+            setTimeout(() => unlockAndGo(5), 500);
+        } else {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
+            setFeedback(`Incorrect. Expected: ${shadowText}`);
+            setShadowInput('');
+            setShadowGlitches([]);
+        }
+    };
+
+    // PUZZLE 3: Breathing Walls handlers
+    const clickWallPanel = (index: number) => {
+        const newPattern = [...wallPattern];
+        newPattern[index] = !newPattern[index];
+        setWallPattern(newPattern);
+        setLastBreathTime(Date.now());
+
+        // Check if correct pattern (alternating)
+        const isCorrect = newPattern.every((val, i) => val === (i % 2 === 0));
+        if (isCorrect) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+            } catch (e) {
+            }
+            setFeedback('You matched the breath. The walls recede...');
+            setTimeout(() => unlockAndGo(6), 500);
+        }
+    };
+
+    // PUZZLE 4: Fragmented Self handlers
+    const selectFragment = (fragment: { id: string, text: string, corrupted: boolean }) => {
+        if (fragment.corrupted) {
+            setReflectionIntegrity(prev => Math.max(0, prev - 15));
+            setFeedback('That fragment is corrupted. You lose yourself further...');
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
+        } else {
+            setFragmentSelection(prev => [...prev, fragment.text]);
+            setFeedback(`Fragment collected: ${fragment.text}`);
+
+            // Check if correct fragments collected
+            const correctFragments = ['WHO', 'ARE', 'REALLY', 'HUMAN'];
+            const hasAll = correctFragments.every(f => [...fragmentSelection, fragment.text].includes(f));
+            if (hasAll && fragmentSelection.length >= 3) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
+                setFeedback('You remember yourself. Advancing...');
+                setTimeout(() => unlockAndGo(7), 500);
+            }
+        }
+    };
+
+    // PUZZLE 5: Time Distortion handlers
+    const selectTimeMarker = (index: number) => {
+        const marker = timeMarkers[index];
+
+        if (!marker.real) {
+            setTemporalDrift(prev => Math.min(100, prev + 10));
+            setFeedback('That moment was false. Time distorts further...');
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
+        } else {
+            setSelectedMarkers(prev => [...prev, index]);
+            setFeedback(`Real moment captured. ${selectedMarkers.length + 1}/5`);
+
+            if (selectedMarkers.length >= 4) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
+                setFeedback('Timeline stabilized. Advancing...');
+                setTimeout(() => unlockAndGo(8), 500);
+            }
+        }
+    };
+
+    // PUZZLE 6: Whispering Names handlers
+    const selectWhisperName = (name: string) => {
+        const trueName = 'Entity';
+        if (name === trueName) {
+            setNameConfidence(prev => Math.min(100, prev + 25));
+            setFeedback('That name resonates with truth...');
+
+            if (nameConfidence >= 75) {
+                try {
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                } catch (e) {
+                }
+                setFeedback('You know its true name. Advancing...');
+                setTimeout(() => unlockAndGo(9), 500);
+            }
+        } else {
+            setNameConfidence(prev => Math.max(0, prev - 10));
+            setFeedback('That name is false. The whispers grow louder...');
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+            } catch (e) {
+            }
+        }
+    };
+
+    // PUZZLE 7: Unwatched Door handlers
+    const toggleWatchDoor = () => {
+        setWatchingDoor(prev => !prev);
+    };
+
+    const checkDoorState = () => {
+        if (doorState === 'open' && somethingBehindDoor) {
+            try {
+                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+            } catch (e) {
+            }
+            setFeedback('The entity has passed. You may continue...');
+            setTimeout(() => unlockAndGo(10), 500);
+        } else if (doorState === 'open') {
+            setFeedback('The door is open, but nothing has passed yet...');
+        } else {
+            setFeedback('The door remains closed. Stop watching...');
+        }
+    };
+
     const reset = () => {
         setStageIndex(0);
         setInput('');
@@ -508,6 +919,19 @@ export default function EntityPuzzlePage() {
         setPicked([]);
         setFeedback('Reset');
         setRiddleCorrects(new Array(MAX_RIDDLES).fill(false));
+
+        // Reset puzzle states
+        setMemorySequence([]);
+        setMemoryInput('');
+        setSequenceShown(false);
+        setDecayLevel(0);
+        setShadowText('');
+        setShadowInput('');
+        setWallPattern([]);
+        setMirrorFragments([]);
+        setTimeMarkers([]);
+        setWhisperNames([]);
+        setDoorState('closed');
     }
 
     const onRiddleResult = (i: number, ok: boolean) => {
@@ -579,6 +1003,19 @@ export default function EntityPuzzlePage() {
         );
     }
 
+    // helper to validate stage with API (uses the app router route added)
+    async function apiValidate(plaqueId: string, stage: number, provided: string) {
+        try {
+            const res = await fetch(routes.api.chapters.iv.validateStage, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({plaqueId, stageIndex: stage, provided})
+            });
+            return await res.json();
+        } catch (e) {
+            return {ok: false, error: 'network'};
+        }
+    }
 
     return (
         <>
@@ -618,6 +1055,334 @@ export default function EntityPuzzlePage() {
                             <div className="p-4 bg-gray-800 rounded">
                                 <h3 className="font-semibold">{stages[stageIndex]?.title}</h3>
                                 <p className="text-sm text-gray-300 mt-2">{stages[stageIndex]?.instruction}</p>
+
+                                {/* PUZZLE 1: Memory Decay - Stage 3 */}
+                                {stageIndex === 3 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="text-sm text-red-400">
+                                            Decay Level: {decayLevel} | Each viewing corrupts the sequence further
+                                        </div>
+                                        {!sequenceShown ? (
+                                            <button
+                                                onClick={showMemorySequence}
+                                                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded"
+                                            >
+                                                View Sequence
+                                            </button>
+                                        ) : (
+                                            <div className="p-6 bg-black rounded border border-purple-500 text-center">
+                                                <div className="text-3xl tracking-widest space-x-2">
+                                                    {memorySequence.map((sym, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className={`inline-block transition-opacity duration-300 ${
+                                                                memoryFlashCount > 1 ? 'opacity-30' : 'opacity-100'
+                                                            }`}
+                                                            style={{
+                                                                filter: `blur(${memoryFlashCount * 2}px)`,
+                                                                transform: `rotate(${Math.random() * 10 - 5}deg)`
+                                                            }}
+                                                        >
+                                                            {sym}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <div className="mt-2 text-xs text-gray-500">
+                                                    Memorize quickly... {3 - memoryFlashCount} views remaining
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="space-y-2">
+                                            <input
+                                                type="text"
+                                                value={memoryInput}
+                                                onChange={(e) => setMemoryInput(e.target.value)}
+                                                placeholder="Enter the sequence..."
+                                                className="w-full px-4 py-2 bg-gray-900 rounded border border-gray-700"
+                                            />
+                                            <button
+                                                onClick={submitMemorySequence}
+                                                className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded"
+                                            >
+                                                Submit Memory
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PUZZLE 2: Shadow Typing - Stage 4 */}
+                                {stageIndex === 4 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="p-4 bg-black rounded border border-red-900">
+                                            <div className="text-sm text-gray-500 mb-2">Target phrase:</div>
+                                            <div className="text-lg font-mono text-red-600 blur-sm select-none">
+                                                {shadowText}
+                                            </div>
+                                        </div>
+                                        <div className="text-xs text-yellow-400">
+                                            Type without looking at what you type. Trust your fingers.
+                                        </div>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={shadowInput}
+                                                onChange={handleShadowTyping}
+                                                className="w-full px-4 py-3 bg-gray-900 rounded border border-gray-700 font-mono"
+                                                style={{
+                                                    color: isTypingBlind ? 'transparent' : 'white',
+                                                    textShadow: isTypingBlind ? '0 0 8px rgba(255,255,255,0.5)' : 'none'
+                                                }}
+                                                placeholder="Type here..."
+                                            />
+                                            {shadowGlitches.map((pos, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="absolute text-red-500 text-xs"
+                                                    style={{
+                                                        left: `${pos * 8}px`,
+                                                        top: '-10px',
+                                                        animation: 'pulse 0.5s'
+                                                    }}
+                                                >
+                                                    ⚠
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <button
+                                            onClick={submitShadowTyping}
+                                            className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* PUZZLE 3: Breathing Walls - Stage 5 */}
+                                {stageIndex === 5 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-red-400">Pressure: {wallPressure}%</span>
+                                            <span
+                                                className="text-blue-400">Breath Phase: {['Inhale', 'Hold', 'Exhale', 'Rest'][breathPhase]}</span>
+                                        </div>
+                                        <div
+                                            className="grid grid-cols-3 gap-2 p-4 rounded transition-all duration-1000"
+                                            style={{
+                                                backgroundColor: `rgba(139, 0, 0, ${wallPressure / 200})`,
+                                                transform: `scale(${1 - wallPressure / 200})`
+                                            }}
+                                        >
+                                            {wallPattern.map((active, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => clickWallPanel(idx)}
+                                                    className={`h-20 rounded transition-all duration-500 ${
+                                                        active
+                                                            ? 'bg-green-800 border-2 border-green-400'
+                                                            : 'bg-gray-800 border-2 border-gray-600'
+                                                    }`}
+                                                    style={{
+                                                        transform: `scale(${breathPhase === 0 ? 1.05 : breathPhase === 2 ? 0.95 : 1})`
+                                                    }}
+                                                >
+                                                    {active ? '▓' : '░'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-gray-400 text-center">
+                                            Click panels to match the breathing pattern. Alternating pattern required.
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PUZZLE 4: Fragmented Self - Stage 6 */}
+                                {stageIndex === 6 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span
+                                                className="text-cyan-400">Reflection Integrity: {reflectionIntegrity.toFixed(0)}%</span>
+                                            <span
+                                                className="text-purple-400">Collected: {fragmentSelection.length}/4</span>
+                                        </div>
+                                        <div
+                                            className="grid grid-cols-2 gap-3"
+                                            style={{
+                                                filter: `blur(${(100 - reflectionIntegrity) / 20}px)`,
+                                                opacity: reflectionIntegrity / 100
+                                            }}
+                                        >
+                                            {mirrorFragments.map((frag) => (
+                                                <button
+                                                    key={frag.id}
+                                                    onClick={() => selectFragment(frag)}
+                                                    disabled={fragmentSelection.includes(frag.text)}
+                                                    className={`p-4 rounded border-2 transition-all ${
+                                                        frag.corrupted
+                                                            ? 'bg-red-900 border-red-500 text-red-200'
+                                                            : 'bg-blue-900 border-blue-500 text-blue-200'
+                                                    } ${
+                                                        fragmentSelection.includes(frag.text)
+                                                            ? 'opacity-30'
+                                                            : 'hover:scale-105'
+                                                    }`}
+                                                    style={{
+                                                        transform: `rotate(${Math.random() * 6 - 3}deg)`,
+                                                        textShadow: frag.corrupted ? '0 0 10px red' : 'none'
+                                                    }}
+                                                >
+                                                    {frag.text}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                            Select the uncorrupted fragments of your identity. Avoid the lies.
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PUZZLE 5: Time Distortion - Stage 7 */}
+                                {stageIndex === 7 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span
+                                                className="text-yellow-400">Temporal Drift: {temporalDrift.toFixed(1)}%</span>
+                                            <span
+                                                className="text-green-400">Real Moments: {selectedMarkers.length}/5</span>
+                                        </div>
+                                        <div
+                                            className="space-y-2"
+                                            style={{
+                                                filter: `hue-rotate(${temporalDrift * 3}deg)`
+                                            }}
+                                        >
+                                            {timeMarkers.map((marker, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => selectTimeMarker(idx)}
+                                                    disabled={selectedMarkers.includes(idx)}
+                                                    className={`w-full p-3 rounded border transition-all ${
+                                                        selectedMarkers.includes(idx)
+                                                            ? 'bg-green-900 border-green-500 opacity-50'
+                                                            : marker.real
+                                                                ? 'bg-gray-800 border-gray-600 hover:border-green-400'
+                                                                : 'bg-gray-800 border-gray-600 hover:border-red-400'
+                                                    }`}
+                                                    style={{
+                                                        animation: !marker.real ? 'pulse 2s infinite' : 'none',
+                                                        opacity: selectedMarkers.includes(idx) ? 0.3 : 1
+                                                    }}
+                                                >
+                                                    <span className="font-mono text-xs">
+                                                        {new Date(marker.time).toLocaleTimeString()}
+                                                    </span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                            Select only the real temporal markers. False moments increase drift.
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PUZZLE 6: Whispering Names - Stage 8 */}
+                                {stageIndex === 8 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-purple-400">Name Confidence: {nameConfidence}%</span>
+                                            <span
+                                                className="text-gray-400"
+                                                style={{opacity: whisperVolume}}
+                                            >
+                                                Volume: {(whisperVolume * 100).toFixed(0)}%
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {whisperNames.map((name, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => selectWhisperName(name)}
+                                                    className="p-4 bg-black rounded border border-purple-900 hover:border-purple-500 transition-all"
+                                                    style={{
+                                                        opacity: whisperVolume,
+                                                        fontSize: `${0.8 + whisperVolume * 0.4}rem`,
+                                                        textShadow: name === 'Entity' ? '0 0 10px purple' : '0 0 5px red',
+                                                        animation: 'pulse 3s infinite'
+                                                    }}
+                                                >
+                                                    {name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                            Listen to the whispers. Find the true name among the lies.
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PUZZLE 7: Unwatched Door - Stage 9 */}
+                                {stageIndex === 9 && (
+                                    <div className="mt-4 space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-red-400">Door State: {doorState}</span>
+                                            <span
+                                                className="text-yellow-400">Progress: {doorOpenProgress.toFixed(0)}%</span>
+                                        </div>
+                                        <div
+                                            className="relative h-64 bg-black rounded border-2 border-gray-700 overflow-hidden"
+                                            style={{
+                                                borderColor: doorState === 'open' ? 'red' : 'gray'
+                                            }}
+                                        >
+                                            {/* Door visualization */}
+                                            <div
+                                                className="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-700 transition-all duration-500"
+                                                style={{
+                                                    clipPath: `polygon(0 0, ${100 - doorOpenProgress}% 0, ${100 - doorOpenProgress}% 100%, 0 100%)`
+                                                }}
+                                            >
+                                                <div
+                                                    className="absolute top-1/2 right-4 w-3 h-3 bg-yellow-600 rounded-full"/>
+                                            </div>
+                                            {/* What's behind */}
+                                            <div
+                                                className="absolute inset-0 bg-black flex items-center justify-center"
+                                                style={{
+                                                    opacity: doorOpenProgress / 100
+                                                }}
+                                            >
+                                                {doorState === 'open' && (
+                                                    <div className="text-6xl animate-pulse" style={{
+                                                        textShadow: '0 0 20px red',
+                                                        animation: 'pulse 1s infinite'
+                                                    }}>
+                                                        👁️
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={toggleWatchDoor}
+                                                className={`flex-1 px-4 py-2 rounded ${
+                                                    watchingDoor
+                                                        ? 'bg-blue-600 hover:bg-blue-500'
+                                                        : 'bg-gray-600 hover:bg-gray-500'
+                                                }`}
+                                            >
+                                                {watchingDoor ? '👁️ Watching Door' : '🚫 Not Watching'}
+                                            </button>
+                                            <button
+                                                onClick={checkDoorState}
+                                                className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded"
+                                            >
+                                                Check State
+                                            </button>
+                                        </div>
+                                        <div className="text-xs text-gray-400">
+                                            The door only opens when you look away. Let it open fully...
+                                        </div>
+                                    </div>
+                                )}
 
                                 {stages[stageIndex]?.type === 'path' && (
                                     <div className="mt-4">
