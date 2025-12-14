@@ -17,7 +17,7 @@ export default function WhiteRoomPage() {
     const mountRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [phase, setPhase] = useState<'explore' | 'watching' | 'darkening' | 'eyes' | 'complete'>('explore');
-    const [instructions, setInstructions] = useState('Click to enter');
+    const [instructions, setInstructions] = useState('Click to enter the moonlights room');
     const access = useChapter4Access();
 
     // Scene references
