@@ -647,25 +647,27 @@ export default function EntityPuzzlePage() {
         if (cmd === 'help' || cmd === '--help' || cmd === 'man') {
             if (isFirstTime('help')) pushLog({text: '[SYS] Loading command reference...', color: 'gray'});
             // help provides visible commands (secrets are only hinted at)
+            const lt = String.fromCharCode(60); // <
+            const gt = String.fromCharCode(62); // >
             pushLog({text: 'help: available commands (brief):', color: 'green'});
             pushLog('  ps | tasklist          - list processes');
             pushLog('  top                    - show top CPU consumers');
-            pushLog('  pidof <name>           - find PID by process name');
-            pushLog('  inspect <pid>          - inspect a process (spikes CPU)');
-            pushLog('  kill <pid>             - terminate a process (careful)');
+            pushLog('  pidof ' + lt + 'name' + gt + '           - find PID by process name');
+            pushLog('  inspect ' + lt + 'pid' + gt + '          - inspect a process (spikes CPU)');
+            pushLog('  kill ' + lt + 'pid' + gt + '             - terminate a process (careful)');
             pushLog('  ls | tree              - list directories');
-            pushLog('  cd <dir> | cd ..       - change directory (watch for tricks)');
+            pushLog('  cd ' + lt + 'dir' + gt + ' | cd ..       - change directory (watch for tricks)');
             pushLog('  cd /                   - return to root');
             pushLog('  pwd                    - show current path');
-            pushLog('  cat <file>             - show file contents (try logs/tas.log)');
-            pushLog('  sha256sum <file>       - compute hash (timing matters)');
+            pushLog('  cat ' + lt + 'file' + gt + '             - show file contents (try logs/tas.log)');
+            pushLog('  sha256sum ' + lt + 'file' + gt + '       - compute hash (timing matters)');
             pushLog('  capture heartbeat      - capture pulse timing');
             pushLog('  capture log            - capture a whispered token');
             pushLog('  whoami | id            - who are you currently');
             pushLog('  last                   - show recent logins');
-            pushLog('  su | login <user>      - attempt to assume an identity');
+            pushLog('  su | login ' + lt + 'user' + gt + '      - attempt to assume an identity');
             pushLog('  echo_toggle            - toggle output hijack');
-            pushLog('  map_echo <from> <to>   - set substitution for echoed output');
+            pushLog('  map_echo ' + lt + 'from' + gt + ' ' + lt + 'to' + gt + '   - set substitution for echoed output');
             pushLog('  clear | cls            - clear terminal (resets flavor text)');
             return;
         }
