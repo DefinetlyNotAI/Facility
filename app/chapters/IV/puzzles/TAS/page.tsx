@@ -246,7 +246,7 @@ export default function TasPuzzlePage() {
                         playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                     } catch (e) {
                     }
-                    setFeedback('Correct — advancing to Stage 3');
+                    setFeedback('Correct - advancing to Stage 3');
                     // save result
                     setStageResult(1, bits);
                     // unlock/persist like TREE
@@ -296,7 +296,7 @@ export default function TasPuzzlePage() {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                 } catch (e) {
                 }
-                setFeedback('Correct final assembly — saved.');
+                setFeedback('Correct final assembly - saved.');
                 // save assembly result
                 setStageResult(2, assembly);
                 setTimeout(() => {
@@ -308,7 +308,7 @@ export default function TasPuzzlePage() {
                     playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
                 } catch (e) {
                 }
-                setFeedback('Wrong assembly — try a different order.');
+                setFeedback('Wrong assembly - try a different order.');
             }
         } catch (e) {
             try {
@@ -370,7 +370,7 @@ export default function TasPuzzlePage() {
                     setConsecutiveTimeouts(next);
                     if (next >= 3) {
                         setStageTimedBase(b => b + 5);
-                        setFeedback('Three consecutive timeouts — base timer increased by 5s.');
+                        setFeedback('Three consecutive timeouts - base timer increased by 5s.');
                         setConsecutiveTimeouts(0);
                     }
                     return stageTimedBase;
@@ -444,7 +444,7 @@ export default function TasPuzzlePage() {
                                 playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                             } catch (e) {
                             }
-                            setFeedback('Signal sequence correct — saved.');
+                            setFeedback('Signal sequence correct - saved.');
                             setStageResult(3, next);
                             // unlock next stage
                             setTimeout(() => advanceTo(4), 400);
@@ -492,7 +492,7 @@ export default function TasPuzzlePage() {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                 } catch (e) {
                 }
-                setFeedback('Grid pattern correct — saved.');
+                setFeedback('Grid pattern correct - saved.');
                 setStageResult(4, bits);
                 setTimeout(() => advanceTo(5), 400);
             } else {
@@ -539,7 +539,7 @@ export default function TasPuzzlePage() {
                     playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                 } catch (e) {
                 }
-                setFeedback('Merge accepted — saved.');
+                setFeedback('Merge accepted - saved.');
                 setStageResult(6, payload);
                 setTimeout(() => advanceTo(7), 400);
             } else {
@@ -668,7 +668,7 @@ export default function TasPuzzlePage() {
                                 setFeedback('All riddles must be correct before completion.');
                                 return;
                             }
-                            setFeedback('Stage complete — take a screenshot of this page as proof and then it will be saved.');
+                            setFeedback('Stage complete - take a screenshot of this page as proof and then it will be saved.');
                             setTimeout(() => {
                                 setCompleted(true);
                                 try {

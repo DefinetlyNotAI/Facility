@@ -174,7 +174,7 @@ export default function OSTPlayer() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrackIndex]);
 
-    // When the user toggles play/pause: do not reset currentTime — only play or pause the element.
+    // When the user toggles play/pause: do not reset currentTime - only play or pause the element.
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;

@@ -92,7 +92,7 @@ export default function ChapterIVPage() {
         setLoadingIds(prev => ({...prev, [id]: true}));
         try {
             const provided = (inputs[id] || '').trim();
-            // Call server API to validate keyword — server will set signed cookie on success
+            // Call server API to validate keyword - server will set signed cookie on success
             const res = await fetch(routes.api.chapters.iv.validateKeyword, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: id, provided})

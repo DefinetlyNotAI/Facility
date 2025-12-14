@@ -402,7 +402,7 @@ export default function TreePuzzlePage() {
             playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
         } catch (e) {
         }
-        setFeedback('Stage complete — take a screenshot of this page as proof and then continue.');
+        setFeedback('Stage complete - take a screenshot of this page as proof and then continue.');
         setTimeout(() => {
             setCompleted(true);
             setUnlockedStage(stages.length - 1);
@@ -537,7 +537,7 @@ export default function TreePuzzlePage() {
                                     <div className="text-sm text-yellow-400">{feedback}</div>
                                 </div>
                                 {riddleCorrects.every(Boolean) && (
-                                    <div className="text-xs text-gray-400 italic">All riddles correct — please take a
+                                    <div className="text-xs text-gray-400 italic">All riddles correct - please take a
                                         screenshot of this screen to document completion.</div>
                                 )}
                             </div>

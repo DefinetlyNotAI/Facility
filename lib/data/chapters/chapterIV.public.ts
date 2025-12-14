@@ -258,7 +258,7 @@ export const chapterIVPublic = {
                 {
                     stage: 13,
                     title: 'Riddle Spire',
-                    instruction: 'An extended riddle spire — many riddles to climb.',
+                    instruction: 'An extended riddle spire - many riddles to climb.',
                     payload: '',
                     type: 'riddle-chain'
                 },

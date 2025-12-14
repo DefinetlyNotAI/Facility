@@ -285,7 +285,7 @@ export default function EntityPuzzlePage() {
     // command processor (async for hash)
     const processCommand = async (rawCommand: string) => {
         if (commandLocked) {
-            pushLog('[SEC] terminal locked — no input accepted');
+            pushLog('[SEC] terminal locked - no input accepted');
             return;
         }
         if (!rawCommand) return;
@@ -301,7 +301,7 @@ export default function EntityPuzzlePage() {
         if (tasWaiting && tasPredictions) {
             const cmdBase = rawCommand.split(' ')[0];
             if (!tasPredictions.includes(cmdBase)) {
-                pushLog('[TAS] prediction failed — TAS reacting...');
+                pushLog('[TAS] prediction failed - TAS reacting...');
                 // reveal a key
                 setFragmentSafely(2, 'taskey-' + (Math.floor(Math.random() * 900) + 100));
                 setTasWaiting(false);
@@ -378,7 +378,7 @@ export default function EntityPuzzlePage() {
             }
             if (isFirstTime('inspect')) pushLog({text: '[SYS] Monitoring process activity...', color: 'gray'});
             setCpuMap(prev => ({...prev, [pid]: 99}));
-            pushLog(`inspect: process ${found.name} @${pid} — CPU spike observed`);
+            pushLog(`inspect: process ${found.name} @${pid} - CPU spike observed`);
             if (found.name === 'TREE.exe' && isFirstTime('inspect-tree')) {
                 pushLog({text: '[WARN] TREE.exe exhibits anomalous behavior when observed', color: 'yellow'});
             }
@@ -406,7 +406,7 @@ export default function EntityPuzzlePage() {
                     text: '[WARN] Critical process termination detected',
                     color: 'yellow'
                 });
-                pushLog({text: `[SEC] attempt to kill ${found.name} — containment failure`, color: 'yellow'});
+                pushLog({text: `[SEC] attempt to kill ${found.name} - containment failure`, color: 'yellow'});
                 setCommandLocked(true);
                 pushLog({text: '[ALERT] TERMINAL HARD-LOCKED', color: 'red'});
                 playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
@@ -419,7 +419,7 @@ export default function EntityPuzzlePage() {
             const remain = subprocs.filter(p => p.pid !== pid);
             if (remain.length === 1 && (remain[0].name === 'TREE.exe' || remain[0].name === 'TR33.exe')) {
                 setFragmentSafely(1, 'containment');
-                pushLog({text: '[PUZZLE] only TREE.exe remains — containment intact', color: 'green'});
+                pushLog({text: '[PUZZLE] only TREE.exe remains - containment intact', color: 'green'});
 
                 // Transform TREE.exe to TR33.exe with PID 666
                 setTimeout(() => {

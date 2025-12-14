@@ -207,7 +207,7 @@ export const FILE_BUILD: any = {
 
 // Startup log text
 export const STARTUP_TEXT = (sessionId: string | number, pid: string | number): LogEntry[] => [
-    {text: `[BOOT] entity-shell online — session ${sessionId}`, color: 'green'},
+    {text: `[BOOT] entity-shell online - session ${sessionId}`, color: 'green'},
     {text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'},
     {text: `[HINT] watch the processes; not every child should die`, color: 'gray'}
 ];
