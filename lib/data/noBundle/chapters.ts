@@ -216,7 +216,6 @@ export const chIIData = {
 
 // Chapter III data
 export const chapterIIIData = {
-    startDate: new Date('2025-12-08T00:00:00Z'),
     text: {
         header: '3: Clocks and Hands',
         failHeader: 'TIME HAS RUN OUT',
@@ -226,11 +225,6 @@ export const chapterIIIData = {
             message: 'The hands have revealed their secrets. Continue forward.',
         },
     },
-    clocks: [
-        {id: 1, keyword: 'BrokenMe', symbol: '∞', revealDay: 1},
-        {id: 2, keyword: 'IntelligentYou', symbol: 'Ω', revealDay: 3},
-        {id: 3, keyword: 'NoNameForHim', symbol: '0', revealDay: 6},
-    ]
 };
 
 // Chapter IV data in chapter.public.ts
