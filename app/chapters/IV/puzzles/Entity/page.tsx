@@ -7,28 +7,17 @@ import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry} from "@/lib/types/chapterIV.types";
-import {getJsonCookie, setJsonCookie} from "@/lib/utils/cookies.server";
+import {markCompleted} from "@/lib/utils/cookies.server";
+import {localStorageKeys} from "@/lib/saveData";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
+    const commandHistoryRef = useRef<string[]>([]);
+
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
     if (!access) return <div className={styles.loadingContainer}>Booting shell...</div>;
-
-    // storage keys
-    const storageKey = 'chapterIV-Entity-progress';
-    const cookieKey = 'chapterIV-plaque-progress';
-
-    // cookie helpers
-    function markCompleted() {
-        try {
-            const cur = getJsonCookie(cookieKey) || {};
-            cur['Entity'] = Math.max(Number(cur['Entity'] || 0), 2);
-            setJsonCookie(cookieKey, cur, 365);
-        } catch (e) {
-        }
-    }
 
     // UI and state
     const [streamLogs, setStreamLogs] = useState<LogEntry[]>([]); // terminal output (color-aware)
@@ -48,35 +37,31 @@ export default function EntityPuzzlePage() {
     const [glitchActive, setGlitchActive] = useState<boolean>(false);
     const [horrorMessages, setHorrorMessages] = useState<string[]>([]);
     const [seenFlavorText, setSeenFlavorText] = useState<boolean>(false);
-    // sessionId must be derived on the client only to avoid SSR hydration mismatches
     const [sessionId, setSessionId] = useState<number | null>(null);
-    useEffect(() => {
-        // set a stable session id on mount
-        setSessionId(Math.floor(Date.now() / 1000));
-    }, []);
-    // treePid not stored as state; we log it during init for reference
     const [echoMap, setEchoMap] = useState<{ from: string, to: string }>({from: 'a', to: '@'});
     const [echoHijack, setEchoHijack] = useState<boolean>(true);
     const [commandLocked, setCommandLocked] = useState<boolean>(false);
     const [mounted, setMounted] = useState(false);
+    const [hbPhase, setHbPhase] = useState<number>(0);  // heartbeat phase used by hash puzzle
+    const [tasPredictions, setTasPredictions] = useState<string[] | null>(null);  // TAS predictions state
+    const [tasWaiting, setTasWaiting] = useState<boolean>(false);
+    const [visitedPathLetters, setVisitedPathLetters] = useState<string[]>([]);  // TR33 maze tracking
+
+    // sessionId must be derived on the client only to avoid SSR hydration mismatches
+    useEffect(() => {
+        // set a stable session id on mount
+        setSessionId(Math.floor(Date.now() / 1000));
+    }, []);
+
+    // treePid not stored as state; we log it during init for reference
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // heartbeat phase used by hash puzzle
-    const [hbPhase, setHbPhase] = useState<number>(0);
-
-    // TAS predictions state
-    const [tasPredictions, setTasPredictions] = useState<string[] | null>(null);
-    const [tasWaiting, setTasWaiting] = useState<boolean>(false);
-
-    // TR33 maze tracking
-    const [visitedPathLetters, setVisitedPathLetters] = useState<string[]>([]);
-
     // restore saved
     useEffect(() => {
         try {
-            const raw = localStorage.getItem(storageKey);
+            const raw = localStorage.getItem(localStorageKeys.chapterIVProgress);
             if (raw) {
                 const data = JSON.parse(raw);
                 if (data.fragments) setFragments(data.fragments);
@@ -86,7 +71,7 @@ export default function EntityPuzzlePage() {
     }, []);
     useEffect(() => {
         try {
-            localStorage.setItem(storageKey, JSON.stringify({fragments}));
+            localStorage.setItem(localStorageKeys.chapterIVProgress, JSON.stringify({fragments}));
         } catch (e) {
         }
     }, [fragments]);
@@ -117,7 +102,6 @@ export default function EntityPuzzlePage() {
     }, [horrorMessages, fragmentsCollected]);
 
     // Ref to track command history without triggering re-initialization
-    const commandHistoryRef = useRef<string[]>([]);
     useEffect(() => {
         commandHistoryRef.current = commandHistory;
     }, [commandHistory]);
@@ -940,7 +924,7 @@ export default function EntityPuzzlePage() {
         pushLog(`${cmd}: command not found`);
     };
 
-    // heartbeat capture helper (for compatibility with older UI calls)
+    // heartbeat capture helper
     const submitHeartbeat = () => {
         if (hbPhase > 44 && hbPhase < 57) {
             const frag = 'HB' + String(Math.floor(Math.random() * 900) + 100);

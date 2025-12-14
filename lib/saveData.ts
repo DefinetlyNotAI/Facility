@@ -189,6 +189,8 @@ const rawCookies = {
     chII_passDone: '3h15m25thUTC_passDone',
     // Cookie for chapter IV unlocked plaques (signed, server-only)
     _chapIV: 'chapIV_auth',
+    // Cookie for ch 4 entity puzzle progress
+    chIV_progress: 'chapterIV-plaque-progress',
 };
 
 export const cookies = process.env.NODE_ENV !== "production"
@@ -231,6 +233,8 @@ export const localStorageKeys = {
         switch: "VIII_part_switch",
         whisper: "VIII_part_whisper",
     },
+    // Chapter IV progress storage key
+    chapterIVProgress: "chapterIV-Entity-progress",
 }
 
 // Keys for items to be checked via hash

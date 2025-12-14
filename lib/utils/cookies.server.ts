@@ -1,5 +1,6 @@
 // Server-only cookie signing utilities for chapter IV gating
 import crypto from 'crypto';
+import {cookies} from "@/lib/saveData";
 
 const DEFAULT_SECRET = process.env.COOKIE_SECRET || 'please_set_a_real_secret_in_production';
 
@@ -57,6 +58,15 @@ export function setJsonCookie(name: string, obj: any, days = 365) {
         const d = new Date();
         d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
         document.cookie = `${name}=${v}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
+    } catch (e) {
+    }
+}
+
+export function markCompleted() {
+    try {
+        const cur = getJsonCookie(cookies.chIV_progress) || {};
+        cur['Entity'] = Math.max(Number(cur['Entity'] || 0), 2);
+        setJsonCookie(cookies.chIV_progress, cur, 365);
     } catch (e) {
     }
 }
