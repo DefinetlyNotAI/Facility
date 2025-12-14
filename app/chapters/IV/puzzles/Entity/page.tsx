@@ -160,6 +160,19 @@ export default function EntityPuzzlePage() {
         const initial: { pid: number, name: string, status: 'running' | 'stalled' | 'ghost' }[] = [
             {pid, name: 'TREE.exe', status: 'running'},
         ];
+
+        // Add 3-5 random starting processes
+        const randomProcessNames = ['svchost', 'explorer', 'chrome', 'discord', 'spotify', 'steam', 'winlogon', 'csrss', 'lsass', 'dwm', 'taskmgr'];
+        const numStartingProcs = Math.floor(Math.random() * 3) + 3; // 3-5 processes
+        let nextPid = pid + 1;
+
+        for (let i = 0; i < numStartingProcs; i++) {
+            const name = randomProcessNames[Math.floor(Math.random() * randomProcessNames.length)] + '-' + Math.floor(Math.random() * 999);
+            initial.push({pid: nextPid, name, status: 'running'});
+            setCpuMap(m => ({...m, [nextPid]: Math.floor(Math.random() * 6) + 1}));
+            nextPid++;
+        }
+
         setSubprocs(initial);
 
         // build filesystem for TR33 maze with proper nested structure
@@ -256,8 +269,11 @@ export default function EntityPuzzlePage() {
             setSeenFlavorText(true)
         }
 
-        // occasional child spawn
+        // occasional child spawn (stop if Fragment 1 collected)
         const spawnId = setInterval(() => {
+            // Don't spawn if Fragment 1 is collected
+            if (fragments[1]) return;
+
             if (Math.random() < 0.18) {
                 setSubprocs(prev => {
                     const npid = Math.max(...prev.map(p => p.pid)) + 1;
@@ -541,13 +557,13 @@ export default function EntityPuzzlePage() {
                 pushLog(`kill: pid ${pid} not found`);
                 return;
             }
-            if (found.name === 'TREE.exe') {
+            if (found.name === 'TREE.exe' || found.name === 'TR33.exe') {
                 // hard lock
                 if (isFirstTime('kill-tree')) pushLog({
                     text: '[WARN] Critical process termination detected',
                     color: 'yellow'
                 });
-                pushLog({text: '[SEC] attempt to kill TREE.exe — containment failure', color: 'yellow'});
+                pushLog({text: `[SEC] attempt to kill ${found.name} — containment failure`, color: 'yellow'});
                 setCommandLocked(true);
                 pushLog({text: '[ALERT] TERMINAL HARD-LOCKED', color: 'red'});
                 playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
@@ -558,9 +574,27 @@ export default function EntityPuzzlePage() {
             pushLog(`killed ${pid} (${found.name})`);
             // if only TREE remains, player succeeded
             const remain = subprocs.filter(p => p.pid !== pid);
-            if (remain.length === 1 && remain[0].name === 'TREE.exe') {
+            if (remain.length === 1 && (remain[0].name === 'TREE.exe' || remain[0].name === 'TR33.exe')) {
                 setFragmentSafely(1, 'containment');
                 pushLog({text: '[PUZZLE] only TREE.exe remains — containment intact', color: 'green'});
+
+                // Transform TREE.exe to TR33.exe with PID 666
+                setTimeout(() => {
+                    setSubprocs(prev => prev.map(p => {
+                        if (p.name === 'TREE.exe') {
+                            pushLog({text: '[ALERT] TREE.exe metamorphosis detected...', color: 'red'});
+                            pushLog({text: '[SYS] Process renamed: TR33.exe [PID 666]', color: 'yellow'});
+                            return {...p, name: 'TR33.exe', pid: 666};
+                        }
+                        return p;
+                    }));
+                    setCpuMap(m => {
+                        const newMap = {...m};
+                        delete newMap[remain[0].pid];
+                        newMap[666] = 13;
+                        return newMap;
+                    });
+                }, 1500);
             }
             return;
         }
@@ -742,6 +776,13 @@ export default function EntityPuzzlePage() {
             setCwd(next);
             setVisitedPathLetters(prev => [...prev, target.charAt(0).toUpperCase()]);
             pushLog(`cd: ${next}`);
+
+            // Check if we reached the exact door path
+            if (next === '/random2/tree/raven/echo/echo/lion/iris/edge/door') {
+                setFragmentSafely(6, 'tr33lied');
+                pushLog({text: '[PUZZLE] you found the path that spells the truth', color: 'green'});
+            }
+
             checkTr33lied();
             return;
         }
@@ -1058,7 +1099,12 @@ export default function EntityPuzzlePage() {
                 ` : ''}
                 
                 ${fragmentsCollected >= 5 ? `
-                    body { cursor: none !important; }
+                    * { 
+                        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M2,2 L2,28 L12,18 L16,28 L20,26 L16,16 L28,16 Z' fill='%2300ff66' opacity='0.8'/%3E%3Cpath d='M4,2 L4,26 L14,17 L17,26 L19,25 L16,17 L27,17 Z' fill='%23ff0066' opacity='0.6'/%3E%3Cpath d='M3,4 L3,27 L13,18 L16,27 L19,26 L16,18 L27,18 Z' fill='%2366ff00' opacity='0.5'/%3E%3C/svg%3E") 2 2, crosshair !important;
+                    }
+                    a, button, input { 
+                        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M2,2 L2,28 L12,18 L16,28 L20,26 L16,16 L28,16 Z' fill='%2300ff66' opacity='0.8'/%3E%3Cpath d='M4,2 L4,26 L14,17 L17,26 L19,25 L16,17 L27,17 Z' fill='%23ff0066' opacity='0.6'/%3E%3Cpath d='M3,4 L3,27 L13,18 L16,27 L19,26 L16,18 L27,18 Z' fill='%2366ff00' opacity='0.5'/%3E%3C/svg%3E") 2 2, pointer !important;
+                    }
                     .terminal-window { 
                         animation: flicker 4s infinite;
                     }
