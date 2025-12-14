@@ -154,8 +154,6 @@ export default function EntityPuzzlePage() {
         const pid = 2000 + (sessionId % 1000);
         const initial: { pid: number, name: string, status: 'running' | 'stalled' | 'ghost' }[] = [
             {pid, name: 'TREE.exe', status: 'running'},
-            {pid: pid + 1, name: 'child-A', status: 'running'},
-            {pid: pid + 2, name: 'child-B', status: 'running'},
         ];
         setSubprocs(initial);
 
