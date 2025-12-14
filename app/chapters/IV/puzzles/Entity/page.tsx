@@ -6,6 +6,7 @@ import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
+import {LogEntry} from "@/lib/types/chapterIV.types";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
@@ -49,7 +50,6 @@ export default function EntityPuzzlePage() {
     }
 
     // UI and state
-    type LogEntry = { text: string; color?: 'green' | 'yellow' | 'red' | 'cyan' | 'magenta' | 'gray' };
     const [streamLogs, setStreamLogs] = useState<LogEntry[]>([]); // terminal output (color-aware)
     const [commandInput, setCommandInput] = useState<string>('');
     const [fragments, setFragments] = useState<Record<number, string>>({});
