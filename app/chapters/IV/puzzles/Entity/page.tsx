@@ -23,7 +23,6 @@ export default function EntityPuzzlePage() {
         alignItems: 'center',
         justifyContent: 'center'
     }}>Booting shell...</div>;
-    // (no direct puzzle object needed here)
 
     // storage keys
     const storageKey = 'chapterIV-Entity-progress';
@@ -146,6 +145,12 @@ export default function EntityPuzzlePage() {
         return () => clearInterval(id);
     }, [horrorMessages, fragmentsCollected]);
 
+    // Ref to track command history without triggering re-initialization
+    const commandHistoryRef = useRef<string[]>([]);
+    useEffect(() => {
+        commandHistoryRef.current = commandHistory;
+    }, [commandHistory]);
+
     // initialize subprocesses, TREE.exe PID, fs once sessionId is available (client-only)
     useEffect(() => {
         if (sessionId === null) return;
@@ -173,36 +178,56 @@ export default function EntityPuzzlePage() {
                     dirs: []
                 },
                 {
-                    name: 'noise', dirs: [
-                        {name: 'static', dirs: []},
-                        {name: 'echo', dirs: []},
+                    name: 'noise',
+                    files: [],
+                    dirs: [
+                        {name: 'static', files: [], dirs: []},
+                        {name: 'echo', files: [], dirs: []},
                     ]
                 },
                 {
-                    name: 'silence', dirs: [
-                        {name: 'void', dirs: []},
+                    name: 'silence',
+                    files: [],
+                    dirs: [
+                        {name: 'void', files: [], dirs: []},
                     ]
                 },
-                {name: 'random0', dirs: []},
-                {name: 'random1', dirs: []},
+                {name: 'random0', files: [], dirs: []},
+                {name: 'random1', files: [], dirs: []},
                 {
-                    name: 'random2', dirs: [
-                        {name: 'temp', dirs: []},
+                    name: 'random2',
+                    files: [],
+                    dirs: [
+                        {name: 'temp', files: [], dirs: []},
                         {
-                            name: 'tree', dirs: [
+                            name: 'tree',
+                            files: [],
+                            dirs: [
                                 {
-                                    name: 'raven', dirs: [
+                                    name: 'raven',
+                                    files: [],
+                                    dirs: [
                                         {
-                                            name: 'echo', dirs: [
+                                            name: 'echo',
+                                            files: [],
+                                            dirs: [
                                                 {
-                                                    name: 'echo', dirs: [
+                                                    name: 'echo',
+                                                    files: [],
+                                                    dirs: [
                                                         {
-                                                            name: 'lion', dirs: [
+                                                            name: 'lion',
+                                                            files: [],
+                                                            dirs: [
                                                                 {
-                                                                    name: 'iris', dirs: [
+                                                                    name: 'iris',
+                                                                    files: [],
+                                                                    dirs: [
                                                                         {
-                                                                            name: 'edge', dirs: [
-                                                                                {name: 'door', dirs: []},
+                                                                            name: 'edge',
+                                                                            files: [],
+                                                                            dirs: [
+                                                                                {name: 'door', files: [], dirs: []},
                                                                             ]
                                                                         },
                                                                     ]
@@ -238,7 +263,7 @@ export default function EntityPuzzlePage() {
                     const npid = Math.max(...prev.map(p => p.pid)) + 1;
                     // choose a token from recent command history if possible
                     let name = 'child-' + Math.floor(Math.random() * 99);
-                    const flat = commandHistory.join(' ').split(/\s+/).filter(Boolean);
+                    const flat = commandHistoryRef.current.join(' ').split(/\s+/).filter(Boolean);
                     if (flat.length > 0) {
                         const token = flat[Math.floor(Math.random() * flat.length)].replace(/[^a-zA-Z0-9]/g, '');
                         name = (token || 'child') + '-' + Math.floor(Math.random() * 99);
@@ -252,7 +277,7 @@ export default function EntityPuzzlePage() {
         }, 6000);
 
         return () => clearInterval(spawnId);
-    }, [sessionId, commandHistory]);
+    }, [sessionId]);
 
     // ensure subproc cpu entries exist when subprocs change
     useEffect(() => {
@@ -547,8 +572,25 @@ export default function EntityPuzzlePage() {
                 return;
             }
 
-            // Handle special log files
-            if (target === 'logs/tas.log' || target === '/logs/tas.log') {
+            // Resolve path: if not absolute, treat as relative to cwd
+            let resolvedPath = target;
+            if (!target.startsWith('/')) {
+                // Relative path - combine with cwd
+                if (cwd === '/') {
+                    resolvedPath = '/' + target;
+                } else {
+                    resolvedPath = cwd + '/' + target;
+                }
+            }
+
+            // First check if file exists in filesystem
+            if (!fileExists(fs, resolvedPath)) {
+                pushLog(`cat: ${target}: No such file`);
+                return;
+            }
+
+            // Handle special log files (these are the actual file contents)
+            if (resolvedPath === '/logs/tas.log') {
                 // produce TAS log including predictions
                 if (isFirstTime('cat-tas')) pushLog({
                     text: '[TAS] Loading archived memory traces...',
@@ -564,7 +606,7 @@ export default function EntityPuzzlePage() {
                 pushLog({text: '[TAS] end log', color: 'magenta'});
                 return;
             }
-            if (target === 'logs/system.log' || target === '/logs/system.log') {
+            if (resolvedPath === '/logs/system.log') {
                 if (isFirstTime('cat-system')) pushLog({text: '[SYS] Accessing system logs...', color: 'gray'});
                 pushLog('[LOG] 2024-03-15: Project VESSEL initialization');
                 pushLog('[LOG] 2024-03-16: First successful consciousness transfer');
@@ -572,18 +614,18 @@ export default function EntityPuzzlePage() {
                 pushLog('[LOG] 2024-03-18: TR33.exe containment protocol active');
                 return;
             }
-            if (target === 'logs/heartbeat.log' || target === '/logs/heartbeat.log') {
+            if (resolvedPath === '/logs/heartbeat.log') {
                 if (isFirstTime('cat-heartbeat')) pushLog({text: '[SYS] Reading heartbeat logs...', color: 'gray'});
                 pushLog('[HB] 00:42:13 - pulse detected - 72 BPM');
                 pushLog('[HB] 00:42:14 - synchronization attempt');
                 pushLog('[HB] 00:42:15 - vessel resonance achieved');
                 return;
             }
-            if (target === 'vessel.bin' || target === '/vessel.bin') {
+            if (resolvedPath === '/vessel.bin') {
                 pushLog('cat: vessel.bin: binary file (use sha256sum instead)');
                 return;
             }
-            if (target === 'README.txt' || target === '/README.txt') {
+            if (resolvedPath === '/README.txt') {
                 pushLog('=== ENTITY SHELL README ===');
                 pushLog('This system is part of Project VESSEL.');
                 pushLog('Not all commands work as expected.');
@@ -591,19 +633,25 @@ export default function EntityPuzzlePage() {
                 pushLog('Watch the processes carefully.');
                 return;
             }
-            if (target === 'etc/passwd' || target === '/etc/passwd') {
+            if (resolvedPath === '/etc/passwd') {
                 pushLog('root:x:0:0:root:/root:/bin/bash');
                 pushLog('operator:x:1000:1000::/home/operator:/bin/bash');
                 pushLog('VESSEL:x:9999:9999:entity:/nowhere:/bin/entity-shell');
                 return;
             }
-            if (target === 'etc/hosts' || target === '/etc/hosts') {
+            if (resolvedPath === '/etc/hosts') {
                 pushLog('127.0.0.1 localhost');
                 pushLog('0.0.0.0 VESSEL.local');
                 pushLog('192.168.1.33 TR33.internal');
                 return;
             }
-            pushLog(`cat: ${target}: No such file`);
+            if (resolvedPath === '/etc/shadow') {
+                pushLog('cat: /etc/shadow: Permission denied');
+                return;
+            }
+
+            // File exists but no content defined - show placeholder
+            pushLog(`cat: ${target}: (empty file)`);
             return;
         }
 
@@ -725,6 +773,7 @@ export default function EntityPuzzlePage() {
             pushLog('  whoami | id            - who are you currently');
             pushLog('  last                   - show recent logins');
             pushLog('  su | login ' + lt + 'user' + gt + '      - attempt to assume an identity');
+            pushLog('  echo ' + lt + 'text' + gt + '            - print text (affected by echo_toggle/map_echo)');
             pushLog('  echo_toggle            - toggle output hijack');
             pushLog('  map_echo ' + lt + 'from' + gt + ' ' + lt + 'to' + gt + '   - set substitution for echoed output');
             pushLog('  clear | cls            - clear terminal (resets flavor text)');
@@ -736,6 +785,22 @@ export default function EntityPuzzlePage() {
             if (isFirstTime('tas_release')) pushLog({text: '[TAS] Authorization bypass detected...', color: 'magenta'});
             setFragmentSafely(4, 'betrayal');
             pushLog({text: 'TAS: ... why would you do that?', color: 'magenta'});
+            return;
+        }
+
+        if (cmd === 'echo') {
+            const message = args.join(' ');
+            if (!message) {
+                pushLog('');
+                return;
+            }
+            // Apply echo transformation if hijack is enabled
+            if (echoHijack) {
+                const transformed = applyEcho(message);
+                pushLog(transformed);
+            } else {
+                pushLog(message);
+            }
             return;
         }
 
@@ -760,10 +825,34 @@ export default function EntityPuzzlePage() {
 
         if (cmd === 'sha256sum' || cmd === 'sha256') { // timing-based vessel.bin
             const target = args.join(' ');
-            if (!target || !target.includes('vessel')) {
-                pushLog('sha256sum: missing file or wrong target');
+            if (!target) {
+                pushLog('sha256sum: missing file argument');
                 return;
             }
+
+            // Resolve path: if not absolute, treat as relative to cwd
+            let resolvedPath = target;
+            if (!target.startsWith('/')) {
+                // Relative path - combine with cwd
+                if (cwd === '/') {
+                    resolvedPath = '/' + target;
+                } else {
+                    resolvedPath = cwd + '/' + target;
+                }
+            }
+
+            // Check if file exists in filesystem
+            if (!fileExists(fs, resolvedPath)) {
+                pushLog(`sha256sum: ${target}: No such file`);
+                return;
+            }
+
+            // Only vessel.bin has a hash implementation
+            if (!resolvedPath.includes('vessel')) {
+                pushLog(`sha256sum: ${target}: (no hash available for this file)`);
+                return;
+            }
+
             // compute a fake hash dependent on heartbeat phase at execution
             if (isFirstTime('sha256')) pushLog({
                 text: '[SYS] Computing checksum... (timing is critical)',
@@ -877,6 +966,25 @@ export default function EntityPuzzlePage() {
             cur = next;
         }
         return cur;
+    }
+
+    // helper to check if a file exists in the filesystem
+    function fileExists(root: any, path: string): boolean {
+        if (!root) return false;
+
+        // Split path into directory path and filename
+        const parts = path.split('/').filter(Boolean);
+        if (parts.length === 0) return false;
+
+        const filename = parts[parts.length - 1];
+        const dirPath = parts.slice(0, -1).join('/');
+
+        // Get the directory node (or root if no dir path)
+        const dirNode = dirPath ? getFsNode(root, '/' + dirPath) : root;
+        if (!dirNode) return false;
+
+        // Check if file exists in this directory
+        return (dirNode.files || []).includes(filename);
     }
 
     // check TR33LIED sequence from visited letters
