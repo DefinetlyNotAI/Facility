@@ -6,7 +6,7 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {AlertCircle, HelpCircle} from 'lucide-react';
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
-import {chapter, chIData, fileLinks} from "@/lib/data/chapters";
+import {chapter, chIData, fileLinks} from "@/lib/data/noBundle/chapters";
 import {checkPass} from "@/lib/utils";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";

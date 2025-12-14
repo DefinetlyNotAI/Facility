@@ -4,9 +4,9 @@ import {useEffect, useMemo, useState} from "react";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 import {ActionState, BonusAct} from "@/lib/types/api";
 import {cookies, routes} from "@/lib/saveData";
-import {validRomans} from "@/lib/data/chapters.noBundle/chapters";
+import {validRomans} from "@/lib/data/chapters";
 import Cookies from "js-cookie";
-import {validRomansNoTimeLeft} from "@/lib/data/chapters";
+import {validRomansNoTimeLeft} from "@/lib/data/noBundle/chapters";
 
 export function useChapterAccess() {
     const router = useRouter();

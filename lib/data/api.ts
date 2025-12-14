@@ -1,4 +1,4 @@
-import {chIData, chIIData} from "@/lib/data/chapters";
+import {chIData, chIIData} from "@/lib/data/noBundle/chapters";
 import {ItemKey} from "@/lib/saveData";
 
 // Generic error messages used across various API endpoints

@@ -2,7 +2,7 @@
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
-import {chapter} from "@/lib/data/chapters";
+import {chapter} from "@/lib/data/noBundle/chapters";
 import {ChapterTemplateProps} from "@/lib/types/chapters";
 import {useEffect, useRef} from "react";
 import styles from "@/styles/ChaptersXandV.module.css";

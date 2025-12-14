@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
-import {chapter, chapterIIIData} from "@/lib/data/chapters";
+import {chapter, chapterIIIData} from "@/lib/data/noBundle/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/lib/types/chapters";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";

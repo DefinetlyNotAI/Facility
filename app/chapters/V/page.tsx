@@ -1,6 +1,6 @@
 'use client';
 
-import {chapterVData, fileLinks} from "@/lib/data/chapters";
+import {chapterVData, fileLinks} from "@/lib/data/noBundle/chapters";
 import ChapterTemplate from "@/components/ChapterTemplate";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 import {useRef} from "react";

@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef} from 'react';
-import {chapterIXData, fileLinks} from "@/lib/data/chapters";
+import {chapterIXData, fileLinks} from "@/lib/data/noBundle/chapters";
 import styles from '@/styles/Philosophy.module.css';
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
