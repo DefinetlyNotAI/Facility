@@ -6,7 +6,6 @@ import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
-// New command-driven terminal implementing discovery-only puzzles (no multiple-choice)
 const TERM_BG = '#000000';
 const TERM_GREEN = '#00ff66';
 
@@ -78,6 +77,7 @@ export default function EntityPuzzlePage() {
     const [fragmentsCollected, setFragmentsCollected] = useState<number>(0);
     const [glitchActive, setGlitchActive] = useState<boolean>(false);
     const [horrorMessages, setHorrorMessages] = useState<string[]>([]);
+    const [seenFlavorText, setSeenFlavorText] = useState<boolean>(false);
     // sessionId must be derived on the client only to avoid SSR hydration mismatches
     const [sessionId, setSessionId] = useState<number | null>(null);
     useEffect(() => {
@@ -210,17 +210,17 @@ export default function EntityPuzzlePage() {
                         },
                     ]
                 },
-                {name: 'random3', dirs: []},
-                {name: 'random4', dirs: []},
-                {name: 'random5', dirs: []},
             ]
         };
         setFs(build);
 
         // initial log (colorized)
-        pushLog({text: `[BOOT] entity-shell online — session ${sessionId}`, color: 'green'});
-        pushLog({text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'});
-        pushLog({text: `[HINT] watch the processes; not every child should die`, color: 'gray'});
+        if (!seenFlavorText) {
+            pushLog({text: `[BOOT] entity-shell online — session ${sessionId}`, color: 'green'});
+            pushLog({text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'});
+            pushLog({text: `[HINT] watch the processes; not every child should die`, color: 'gray'});
+            setSeenFlavorText(true)
+        }
 
         // occasional child spawn
         const spawnId = setInterval(() => {
@@ -428,7 +428,6 @@ export default function EntityPuzzlePage() {
         let echoed = rawCommand;
         if (echoHijack) {
             echoed = applyEcho(rawCommand);
-            pushLog(`echo: ${echoed}`);
             // system executes the echoed version (entity speaks through you)
             effective = echoed;
         }
@@ -653,27 +652,23 @@ export default function EntityPuzzlePage() {
             pushLog({text: 'help: available commands (brief):', color: 'green'});
             pushLog('  ps | tasklist          - list processes');
             pushLog('  top                    - show top CPU consumers');
-            pushLog('  pidof &lt;name&gt;           - find PID by process name');
-            pushLog('  inspect &lt;pid&gt;          - inspect a process (spikes CPU)');
-            pushLog('  kill &lt;pid&gt;             - terminate a process (careful)');
+            pushLog('  pidof <name>           - find PID by process name');
+            pushLog('  inspect <pid>          - inspect a process (spikes CPU)');
+            pushLog('  kill <pid>             - terminate a process (careful)');
             pushLog('  ls | tree              - list directories');
-            pushLog('  cd &lt;dir&gt; | cd ..       - change directory (watch for tricks)');
+            pushLog('  cd <dir> | cd ..       - change directory (watch for tricks)');
             pushLog('  cd /                   - return to root');
             pushLog('  pwd                    - show current path');
-            pushLog('  cat &lt;file&gt;             - show file contents (try logs/tas.log)');
-            pushLog('  sha256sum &lt;file&gt;       - compute hash (timing matters)');
+            pushLog('  cat <file>             - show file contents (try logs/tas.log)');
+            pushLog('  sha256sum <file>       - compute hash (timing matters)');
             pushLog('  capture heartbeat      - capture pulse timing');
             pushLog('  capture log            - capture a whispered token');
             pushLog('  whoami | id            - who are you currently');
             pushLog('  last                   - show recent logins');
-            pushLog('  su &lt;user&gt; | login &lt;user&gt; - attempt to assume an identity');
+            pushLog('  su | login <user>      - attempt to assume an identity');
             pushLog('  echo_toggle            - toggle output hijack');
-            pushLog('  map_echo &lt;from&gt; &lt;to&gt;   - set substitution for echoed output');
+            pushLog('  map_echo <from> <to>   - set substitution for echoed output');
             pushLog('  clear | cls            - clear terminal (resets flavor text)');
-            pushLog({
-                text: 'Hint: some things are hinted at in logs and help will not list everything.',
-                color: 'magenta'
-            });
             return;
         }
 
