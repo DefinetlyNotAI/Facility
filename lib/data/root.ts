@@ -1,5 +1,5 @@
 import {routes} from "@/lib/saveData";
-import {successQuestNames, validRomans} from "@/lib/data/chapters";
+import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.public";
 
 // Layout.tsx
 export const TITLES: Record<string, string> = {

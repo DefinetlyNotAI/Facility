@@ -1,7 +1,7 @@
 'use client';
 
 import styles from '@/styles/ChapterBonusSpecial.module.css';
-import {bonusErrorText} from "@/lib/data/noBundle/chapters";
+import {bonusErrorText} from "@/lib/data/chapters/chapters";
 import React, {useEffect, useRef} from "react";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";

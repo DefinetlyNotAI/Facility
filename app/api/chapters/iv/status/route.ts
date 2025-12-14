@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {verifySignedValue} from '@/lib/server/cookies.server';
+import {verifySignedValue} from '@/lib/utils/server/cookies.server';
 
 export async function GET(req: Request) {
     try {

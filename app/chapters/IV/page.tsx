@@ -5,8 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {chapter, fileLinks} from "@/lib/data/noBundle/chapters";
-import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
+import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
+import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";

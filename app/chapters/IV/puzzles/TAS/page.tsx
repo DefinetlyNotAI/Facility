@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters.public';
+import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {seededShuffle} from '@/lib/puzzles';
 import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";

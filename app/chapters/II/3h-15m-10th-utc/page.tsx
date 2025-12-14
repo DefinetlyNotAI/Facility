@@ -7,7 +7,7 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/utils";
-import {chIIData, fileLinks} from "@/lib/data/noBundle/chapters";
+import {chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
 import {useChapter2Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";

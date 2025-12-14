@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {formatTime} from "@/lib/utils";
-import {chapter, chIIData, fileLinks} from "@/lib/data/noBundle/chapters";
+import {chapter, chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {Button} from "@/components/ui/button";
 
 import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";

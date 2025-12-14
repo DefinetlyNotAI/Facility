@@ -4,11 +4,11 @@ import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import styles from "@/styles/ChapterBonusRoot.module.css";
 import {bonusApi} from "@/lib/utils";
-import {failQuestNames, rootChapterText} from "@/lib/data/noBundle/chapters";
+import {failQuestNames, rootChapterText} from "@/lib/data/chapters/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/lib/types/api";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
-import {successQuestNames, validRomans} from "@/lib/data/chapters";
+import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.public";
 
 
 export default function ChapterBonusPage() {

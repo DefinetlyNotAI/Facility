@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {chapterIIIData} from '@/lib/server/chapters.server';
+import {chapterIIIData} from '@/lib/data/chapters/chapters.server';
 
 export async function GET() {
     try {
