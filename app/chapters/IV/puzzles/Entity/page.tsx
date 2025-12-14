@@ -956,7 +956,7 @@ export default function EntityPuzzlePage() {
         try {
             if (typeof window !== 'undefined' && (window.crypto as any)?.subtle) {
                 const enc = new TextEncoder();
-                const buf = await (window.crypto.subtle.digest('SHA-256', enc.encode(s)) as Promise<ArrayBuffer>);
+                const buf: ArrayBuffer = (await window.crypto.subtle.digest('SHA-256', enc.encode(s)));
                 return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
             }
         } catch (e) {
