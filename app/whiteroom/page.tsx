@@ -3,13 +3,17 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
+import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
+
+const TERM_BG = '#000000';
+const TERM_GREEN = '#00ff66';
 
 export default function WhiteRoomPage() {
     const mountRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [phase, setPhase] = useState<'explore' | 'darkening' | 'turn' | 'complete'>('explore');
     const [instructions, setInstructions] = useState('Click to enter the vessel');
-
+    const access = useChapter4Access();
     const sceneRef = useRef<THREE.Scene | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -24,6 +28,16 @@ export default function WhiteRoomPage() {
         canJump: false,
         position: new THREE.Vector3(0, 1.6, 0)
     });
+
+    if (!access) return <div style={{
+        height: '100vh',
+        background: TERM_BG,
+        color: TERM_GREEN,
+        fontFamily: 'monospace',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    }}>Booting the room...</div>;
 
     const roadProgressRef = useRef(0);
     const ambientLightRef = useRef<THREE.AmbientLight | null>(null);
