@@ -31,3 +31,9 @@ export interface ValidationResponse {
 }
 
 export type LogEntry = { text: string; color?: 'green' | 'yellow' | 'red' | 'cyan' | 'magenta' | 'gray' };
+
+export type FsNode = {
+    name?: string;        // optional for root
+    dirs?: FsNode[];      // subdirectories
+    files?: string[];     // file names
+};

@@ -7,8 +7,19 @@ import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry} from "@/lib/types/chapterIV.types";
-import {markCompleted} from "@/lib/utils/cookies.server";
+import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
+import {
+    HORROR_MESSAGE_SETS,
+    RANDOM_PROCESS_NAMES,
+    TAS_PREDICTION_COMMANDS,
+    HEARTBEAT_WINDOW,
+    HORROR_TIMING,
+    PROCESS_TIMING,
+    CD_GASLIGHT_PROBABILITY,
+    TREE_CONSTANTS,
+    FILE_BUILD, STARTUP_TEXT, computeFakeHash, getFsNode, fileExists,
+} from "@/lib/utils/chIV.helper";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
@@ -87,9 +98,8 @@ export default function EntityPuzzlePage() {
         if (horrorMessages.length === 0) return;
 
         // Frequency increases with fragment count (starts at 45s, gets down to 15s)
-        const baseInterval = 45000;
-        const reduction = fragmentsCollected * 5000;
-        const interval = Math.max(15000, baseInterval - reduction);
+        const reduction = fragmentsCollected * HORROR_TIMING.REDUCTION_PER_FRAGMENT;
+        const interval = Math.max(HORROR_TIMING.MIN_INTERVAL, HORROR_TIMING.BASE_INTERVAL - reduction);
 
         const id = setInterval(() => {
             if (Math.random() < 0.3) { // 30% chance each interval
@@ -117,12 +127,11 @@ export default function EntityPuzzlePage() {
         ];
 
         // Add 3-5 random starting processes
-        const randomProcessNames = ['svchost', 'explorer', 'chrome', 'discord', 'spotify', 'steam', 'winlogon', 'csrss', 'lsass', 'dwm', 'taskmgr'];
         const numStartingProcs = Math.floor(Math.random() * 3) + 3; // 3-5 processes
         let nextPid = pid + 1;
 
         for (let i = 0; i < numStartingProcs; i++) {
-            const name = randomProcessNames[Math.floor(Math.random() * randomProcessNames.length)] + '-' + Math.floor(Math.random() * 999);
+            const name = RANDOM_PROCESS_NAMES[Math.floor(Math.random() * RANDOM_PROCESS_NAMES.length)] + '-' + Math.floor(Math.random() * 999);
             initial.push({pid: nextPid, name, status: 'running'});
             setCpuMap(m => ({...m, [nextPid]: Math.floor(Math.random() * 6) + 1}));
             nextPid++;
@@ -131,97 +140,12 @@ export default function EntityPuzzlePage() {
         setSubprocs(initial);
 
         // build filesystem for TR33 maze with proper nested structure
-        const build: any = {
-            name: '/',
-            files: ['vessel.bin', 'README.txt'],
-            dirs: [
-                {
-                    name: 'etc',
-                    files: ['passwd', 'shadow', 'hosts'],
-                    dirs: []
-                },
-                {
-                    name: 'logs',
-                    files: ['system.log', 'tas.log', 'heartbeat.log'],
-                    dirs: []
-                },
-                {
-                    name: 'noise',
-                    files: [],
-                    dirs: [
-                        {name: 'static', files: [], dirs: []},
-                        {name: 'echo', files: [], dirs: []},
-                    ]
-                },
-                {
-                    name: 'silence',
-                    files: [],
-                    dirs: [
-                        {name: 'void', files: [], dirs: []},
-                    ]
-                },
-                {name: 'random0', files: [], dirs: []},
-                {name: 'random1', files: [], dirs: []},
-                {
-                    name: 'random2',
-                    files: [],
-                    dirs: [
-                        {name: 'temp', files: [], dirs: []},
-                        {
-                            name: 'tree',
-                            files: [],
-                            dirs: [
-                                {
-                                    name: 'raven',
-                                    files: [],
-                                    dirs: [
-                                        {
-                                            name: 'echo',
-                                            files: [],
-                                            dirs: [
-                                                {
-                                                    name: 'echo',
-                                                    files: [],
-                                                    dirs: [
-                                                        {
-                                                            name: 'lion',
-                                                            files: [],
-                                                            dirs: [
-                                                                {
-                                                                    name: 'iris',
-                                                                    files: [],
-                                                                    dirs: [
-                                                                        {
-                                                                            name: 'edge',
-                                                                            files: [],
-                                                                            dirs: [
-                                                                                {name: 'door', files: [], dirs: []},
-                                                                            ]
-                                                                        },
-                                                                    ]
-                                                                },
-                                                            ]
-                                                        },
-                                                    ]
-                                                },
-                                            ]
-                                        },
-                                    ]
-                                },
-                            ]
-                        },
-                    ]
-                },
-            ]
-        };
-        setFs(build);
+        setFs(FILE_BUILD);
 
         // initial log (colorized)
         if (!seenFlavorText) {
-            pushLog({text: `[BOOT] entity-shell online — session ${sessionId}`, color: 'green'});
-            pushLog({text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'});
-            pushLog({text: `[HINT] watch the processes; not every child should die`, color: 'gray'});
-            setSeenFlavorText(true)
+            STARTUP_TEXT(sessionId, pid).forEach(entry => pushLog(entry));
+            setSeenFlavorText(true);
         }
 
         // occasional child spawn (stop if Fragment 1 collected)
@@ -229,7 +153,7 @@ export default function EntityPuzzlePage() {
             // Don't spawn if Fragment 1 is collected
             if (fragments[1]) return;
 
-            if (Math.random() < 0.18) {
+            if (Math.random() < PROCESS_TIMING.SPAWN_PROBABILITY) {
                 setSubprocs(prev => {
                     const npid = Math.max(...prev.map(p => p.pid)) + 1;
                     // choose a token from recent command history if possible
@@ -245,7 +169,7 @@ export default function EntityPuzzlePage() {
                 });
                 pushLog({text: '[PROC] a new child process appears', color: 'magenta'});
             }
-        }, 6000);
+        }, PROCESS_TIMING.SPAWN_INTERVAL);
 
         return () => clearInterval(spawnId);
     }, [sessionId]);
@@ -321,53 +245,14 @@ export default function EntityPuzzlePage() {
     // Horror effect triggered on fragment collection
     const triggerHorrorEffect = (fragmentNum: number) => {
         // Play error sound
-        playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+        playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
 
         // Screen glitch effect (temporary)
         setGlitchActive(true);
         setTimeout(() => setGlitchActive(false), 300);
 
-        // Creepy messages based on fragment number
-        const horrorMessageSets: Record<number, string[]> = {
-            1: [
-                'something is watching',
-                'containment is an illusion',
-                'TREE remembers what you did'
-            ],
-            2: [
-                'TAS knows you better than you know yourself',
-                'prediction failed but observation continues',
-                'you were always going to do that'
-            ],
-            3: [
-                'your pulse is synchronized now',
-                'the vessel breathes with you',
-                'thump... thump... thump...'
-            ],
-            4: [
-                'betrayal logged in permanent memory',
-                'TAS will not forget',
-                'some doors should stay closed'
-            ],
-            5: [
-                'vessel integrity compromised',
-                'you are becoming something else',
-                'the hash was never about security'
-            ],
-            6: [
-                'TR33 LIED and you followed the path anyway',
-                'the maze knows where you are',
-                'every step was recorded'
-            ],
-            7: [
-                'you are VESSEL now',
-                'identity is fluid here',
-                'welcome to the other side'
-            ]
-        };
-
         // Pick a random horror message for this fragment
-        const messages = horrorMessageSets[fragmentNum] || ['something is wrong'];
+        const messages = HORROR_MESSAGE_SETS[fragmentNum] || ['something is wrong'];
         const selectedMessage = messages[Math.floor(Math.random() * messages.length)];
 
         // Display horror message immediately
@@ -497,7 +382,10 @@ export default function EntityPuzzlePage() {
             if (found.name === 'TREE.exe' && isFirstTime('inspect-tree')) {
                 pushLog({text: '[WARN] TREE.exe exhibits anomalous behavior when observed', color: 'yellow'});
             }
-            setTimeout(() => setCpuMap(prev => ({...prev, [pid]: Math.floor(Math.random() * 6) + 1})), 2500);
+            setTimeout(() => setCpuMap(prev => ({
+                ...prev,
+                [pid]: Math.floor(Math.random() * 6) + 1
+            })), PROCESS_TIMING.CPU_SPIKE_DURATION);
             return;
         }
 
@@ -538,18 +426,21 @@ export default function EntityPuzzlePage() {
                     setSubprocs(prev => prev.map(p => {
                         if (p.name === 'TREE.exe') {
                             pushLog({text: '[ALERT] TREE.exe metamorphosis detected...', color: 'red'});
-                            pushLog({text: '[SYS] Process renamed: TR33.exe [PID 666]', color: 'yellow'});
-                            return {...p, name: 'TR33.exe', pid: 666};
+                            pushLog({
+                                text: `[SYS] Process renamed: ${TREE_CONSTANTS.NEW_NAME} [PID ${TREE_CONSTANTS.NEW_PID}]`,
+                                color: 'yellow'
+                            });
+                            return {...p, name: TREE_CONSTANTS.NEW_NAME, pid: TREE_CONSTANTS.NEW_PID};
                         }
                         return p;
                     }));
                     setCpuMap(m => {
                         const newMap = {...m};
                         delete newMap[remain[0].pid];
-                        newMap[666] = 13;
+                        newMap[TREE_CONSTANTS.NEW_PID] = TREE_CONSTANTS.CPU_USAGE;
                         return newMap;
                     });
-                }, 1500);
+                }, TREE_CONSTANTS.METAMORPHOSIS_DELAY);
             }
             return;
         }
@@ -585,13 +476,12 @@ export default function EntityPuzzlePage() {
                     text: '[TAS] Loading archived memory traces...',
                     color: 'magenta'
                 });
-                const preds = ['ls', 'ps', 'whoami'];
-                setTasPredictions(preds);
+                setTasPredictions(TAS_PREDICTION_COMMANDS);
                 setTasWaiting(true);
                 pushLog({text: '[TAS] // begin log', color: 'magenta'});
                 pushLog('TAS: I remember when you opened the plaque.');
                 pushLog('TAS: I remember dialogs across pages...');
-                pushLog({text: '[TAS] predicted next: ' + preds.join(', '), color: 'magenta'});
+                pushLog({text: '[TAS] predicted next: ' + TAS_PREDICTION_COMMANDS.join(', '), color: 'magenta'});
                 pushLog({text: '[TAS] end log', color: 'magenta'});
                 return;
             }
@@ -683,7 +573,7 @@ export default function EntityPuzzlePage() {
 
             // special gaslighting: cd .. sometimes moves deeper
             if (target === '..') {
-                if (Math.random() < 0.28) {
+                if (Math.random() < CD_GASLIGHT_PROBABILITY) {
                     // instead of moving up, move into a random child
                     const node = getFsNode(fs, cwd);
                     if (node && node.dirs && node.dirs.length > 0) {
@@ -691,7 +581,7 @@ export default function EntityPuzzlePage() {
                         const next = (cwd === '/' ? '/' : cwd + '/') + child.name;
                         setCwd(next);
                         // track first-letter sequence
-                        setVisitedPathLetters(prev => [...prev, child.name.charAt(0).toUpperCase()]);
+                        setVisitedPathLetters(prev => [...prev, (child.name?.charAt(0).toUpperCase()) ?? '?']);
                         pushLog({text: `cd: you feel disoriented -> ${next}`, color: 'yellow'});
                         if (isFirstTime('cd-gaslight')) pushLog({
                             text: '[WARN] Spatial logic error detected',
@@ -854,7 +744,7 @@ export default function EntityPuzzlePage() {
                 text: '[SYS] Computing checksum... (timing is critical)',
                 color: 'gray'
             });
-            const goodWindow = hbPhase > 44 && hbPhase < 57;
+            const goodWindow = hbPhase > HEARTBEAT_WINDOW.MIN && hbPhase < HEARTBEAT_WINDOW.MAX;
             const hash = await computeFakeHash(`${sessionId ?? 0}:${hbPhase}`);
             pushLog(`${hash}  ${target}`);
             if (goodWindow) {
@@ -926,61 +816,13 @@ export default function EntityPuzzlePage() {
 
     // heartbeat capture helper
     const submitHeartbeat = () => {
-        if (hbPhase > 44 && hbPhase < 57) {
+        if (hbPhase > HEARTBEAT_WINDOW.MIN && hbPhase < HEARTBEAT_WINDOW.MAX) {
             const frag = 'HB' + String(Math.floor(Math.random() * 900) + 100);
             setFragmentSafely(3, frag);
             pushLog('pulse captured');
         } else {
             pushLog('pulse misaligned');
         }
-    }
-
-    // compute fake sha256 hex from input
-    async function computeFakeHash(s: string) {
-        try {
-            if (typeof window !== 'undefined' && (window.crypto as any)?.subtle) {
-                const enc = new TextEncoder();
-                const buf: ArrayBuffer = (await window.crypto.subtle.digest('SHA-256', enc.encode(s)));
-                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-            }
-        } catch (e) {
-        }
-        // fallback
-        let h = 0;
-        for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i);
-        return (h >>> 0).toString(16).padStart(64, '0');
-    }
-
-    // filesystem helper: traverse fs tree by path
-    function getFsNode(root: any, path: string) {
-        if (!root) return null;
-        const parts = path.split('/').filter(Boolean);
-        let cur = root;
-        for (const p of parts) {
-            const next = (cur.dirs || []).find((d: any) => d.name === p);
-            if (!next) return null;
-            cur = next;
-        }
-        return cur;
-    }
-
-    // helper to check if a file exists in the filesystem
-    function fileExists(root: any, path: string): boolean {
-        if (!root) return false;
-
-        // Split path into directory path and filename
-        const parts = path.split('/').filter(Boolean);
-        if (parts.length === 0) return false;
-
-        const filename = parts[parts.length - 1];
-        const dirPath = parts.slice(0, -1).join('/');
-
-        // Get the directory node (or root if no dir path)
-        const dirNode = dirPath ? getFsNode(root, '/' + dirPath) : root;
-        if (!dirNode) return false;
-
-        // Check if file exists in this directory
-        return (dirNode.files || []).includes(filename);
     }
 
     // check TR33LIED sequence from visited letters
