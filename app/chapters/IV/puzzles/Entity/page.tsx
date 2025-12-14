@@ -5,24 +5,14 @@ import Link from 'next/link';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-
-const TERM_BG = '#000000';
-const TERM_GREEN = '#00ff66';
+import styles from '@/styles/Entity.module.css';
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    if (!access) return <div style={{
-        height: '100vh',
-        background: TERM_BG,
-        color: TERM_GREEN,
-        fontFamily: 'monospace',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-    }}>Booting shell...</div>;
+    if (!access) return <div className={styles.loadingContainer}>Booting shell...</div>;
 
     // storage keys
     const storageKey = 'chapterIV-Entity-progress';
@@ -1049,170 +1039,95 @@ export default function EntityPuzzlePage() {
     }
 
     // UI render
-    return (
-        <div style={{
-            height: '100vh',
-            background: TERM_BG,
-            color: TERM_GREEN,
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace',
-            padding: 12,
-            boxSizing: 'border-box'
-        }} className={glitchActive ? 'glitch-active' : ''}>
-            <style>{`
-                .crt { background: linear-gradient(0deg, rgba(0,0,0,1), rgba(2,8,2,0.95)); color: ${TERM_GREEN}; }
-                .scan { background-image: linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px); background-size:100% 3px; }
-                .crt .term-pre { text-shadow: 0 0 8px rgba(0,255,120,0.06); }
-                .cursor::after { content:'\\2588'; margin-left:6px; color:${TERM_GREEN}; animation: blink 1s steps(2,start) infinite }
-                @keyframes blink { 50%{ opacity:0 } }
-                .proc-running { color:#7fff7f } .proc-stalled { color:#ffa500 } .proc-ghost { color:#ff6b6b } .proc-new{ color:#9ecbff }
-                .log { color:#9fffa0; font-size:12px }
-                .prompt { color:#aaffcc }
-                .ascii { color:#66ff88 }
-                .small { font-size:12px; color:#9fbf9f }
-                .terminal-window { border: 2px solid rgba(0,255,120,0.06); padding:12px; border-radius:6px; box-shadow: 0 0 40px rgba(0,255,120,0.02) inset; transition: all 0.3s ease; }
-                
-                /* Horror glitch effects */
-                .glitch-active {
-                    animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both;
-                }
-                
-                @keyframes glitch {
-                    0% { transform: translate(0); filter: hue-rotate(0deg); }
-                    10% { transform: translate(-5px, 5px); filter: hue-rotate(90deg) invert(1); }
-                    20% { transform: translate(-10px, -5px); filter: hue-rotate(180deg); }
-                    30% { transform: translate(10px, 5px); filter: hue-rotate(270deg) invert(1); }
-                    40% { transform: translate(-5px, -10px); filter: hue-rotate(0deg); }
-                    50% { transform: translate(5px, 10px); filter: hue-rotate(90deg) invert(1); }
-                    60% { transform: translate(-10px, 5px); filter: hue-rotate(180deg); }
-                    70% { transform: translate(10px, -5px); filter: hue-rotate(270deg) invert(1); }
-                    80% { transform: translate(-5px, 5px); filter: hue-rotate(0deg); }
-                    90% { transform: translate(5px, -5px); filter: hue-rotate(180deg) invert(1); }
-                    100% { transform: translate(0); filter: hue-rotate(0deg); }
-                }
-                
-                /* Progressive corruption based on fragment count */
-                ${fragmentsCollected >= 3 ? `
-                    .terminal-window { 
-                        box-shadow: 0 0 40px rgba(255,0,0,0.1) inset, 0 0 20px rgba(255,0,0,0.05); 
-                        border-color: rgba(255,0,120,0.15);
-                    }
-                ` : ''}
-                
-                ${fragmentsCollected >= 5 ? `
-                    * { 
-                        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M2,2 L2,28 L12,18 L16,28 L20,26 L16,16 L28,16 Z' fill='%2300ff66' opacity='0.8'/%3E%3Cpath d='M4,2 L4,26 L14,17 L17,26 L19,25 L16,17 L27,17 Z' fill='%23ff0066' opacity='0.6'/%3E%3Cpath d='M3,4 L3,27 L13,18 L16,27 L19,26 L16,18 L27,18 Z' fill='%2366ff00' opacity='0.5'/%3E%3C/svg%3E") 2 2, crosshair !important;
-                    }
-                    a, button, input { 
-                        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M2,2 L2,28 L12,18 L16,28 L20,26 L16,16 L28,16 Z' fill='%2300ff66' opacity='0.8'/%3E%3Cpath d='M4,2 L4,26 L14,17 L17,26 L19,25 L16,17 L27,17 Z' fill='%23ff0066' opacity='0.6'/%3E%3Cpath d='M3,4 L3,27 L13,18 L16,27 L19,26 L16,18 L27,18 Z' fill='%2366ff00' opacity='0.5'/%3E%3C/svg%3E") 2 2, pointer !important;
-                    }
-                    .terminal-window { 
-                        animation: flicker 4s infinite;
-                    }
-                    @keyframes flicker {
-                        0%, 100% { opacity: 1; }
-                        50% { opacity: 0.97; }
-                        51% { opacity: 0.95; }
-                        52% { opacity: 1; }
-                    }
-                ` : ''}
-                
-                ${fragmentsCollected >= 7 ? `
-                    .terminal-window {
-                        background: linear-gradient(145deg, rgba(20,0,0,0.3), rgba(0,0,0,1));
-                    }
-                ` : ''}
-            `}</style>
+    const getContainerClasses = () => {
+        const classes = [styles.container];
+        if (glitchActive) classes.push(styles.glitchActive);
+        if (fragmentsCollected >= 3) classes.push(styles.corruption3);
+        if (fragmentsCollected >= 5) classes.push(styles.corruption5);
+        if (fragmentsCollected >= 7) classes.push(styles.corruption7);
+        return classes.join(' ');
+    };
 
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8}}>
-                <div style={{fontFamily: 'monospace', fontSize: 14}}>entity-shell // access: uncanny</div>
-                <div style={{fontSize: 12, color: '#666'}}>session {mounted && sessionId}</div>
+    return (
+        <div className={getContainerClasses()}>
+            <div className={styles.header}>
+                <div className={styles.headerTitle}>entity-shell // access: uncanny</div>
+                <div className={styles.sessionInfo}>session {mounted && sessionId}</div>
             </div>
 
-            <div style={{display: 'flex', height: 'calc(100% - 72px)'}}>
-                <div style={{
-                    width: 320,
-                    borderRight: '1px solid rgba(255,255,255,0.03)',
-                    paddingRight: 12,
-                    overflow: 'auto'
-                }}>
-                    <div style={{fontSize: 12, marginBottom: 8}}>processes</div>
-                    <div style={{fontSize: 13, marginBottom: 12}}>
-                        {subprocs.map(s => (<div key={s.pid} style={{display: 'flex', justifyContent: 'space-between'}}>
-                            <div style={{fontFamily: 'monospace'}}>{s.name}</div>
-                            <div style={{color: '#7f9f7f'}}>@{s.pid}</div>
+            <div className={styles.mainContent}>
+                <div className={styles.sidebar}>
+                    <div className={styles.sidebarTitle}>processes</div>
+                    <div className={styles.processList}>
+                        {subprocs.map(s => (<div key={s.pid} className={styles.processItem}>
+                            <div className={styles.processName}>{s.name}</div>
+                            <div className={styles.processPid}>@{s.pid}</div>
                         </div>))}
                     </div>
 
-                    <div style={{fontSize: 12, marginTop: 8}}>fragments</div>
-                    <div style={{fontSize: 13, marginTop: 8}}>
+                    <div className={styles.fragmentsTitle}>fragments</div>
+                    <div className={styles.fragmentsList}>
                         {Array.from({length: 7}, (_, i) => i + 1).map(i => (
-                            <div key={i} style={{fontFamily: 'monospace'}}>{i}: {fragments[i] || '---'}</div>))}
+                            <div key={i} className={styles.fragmentItem}>{i}: {fragments[i] || '---'}</div>))}
                     </div>
 
-                    <div style={{marginTop: 18, fontSize: 12, color: '#9fbf9f'}}>tips: discover commands; the system
+                    <div className={styles.tips}>tips: discover commands; the system
                         will not hold your hand.
                     </div>
                 </div>
 
-                <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                    <div style={{
-                        flex: 1,
-                        background: '#001100',
-                        padding: 12,
-                        overflow: 'auto',
-                        border: '1px solid rgba(255,255,255,0.03)'
-                    }}>
-                        <div style={{fontFamily: 'monospace', whiteSpace: 'pre-wrap'}}>
+                <div className={styles.terminalArea}>
+                    <div className={styles.terminal}>
+                        <div className={styles.terminalOutput}>
                             {streamLogs.map((l, idx) => {
                                 const colorMap: Record<string, string> = {
-                                    green: '#b6ffb6',
-                                    yellow: '#ffd97a',
-                                    red: '#ff7b7b',
-                                    cyan: '#9feaff',
-                                    magenta: '#d7b3ff',
-                                    gray: '#9fbf9f'
+                                    green: styles.logGreen,
+                                    yellow: styles.logYellow,
+                                    red: styles.logRed,
+                                    cyan: styles.logCyan,
+                                    magenta: styles.logMagenta,
+                                    gray: styles.logGray
                                 };
-                                const color = l.color ? colorMap[l.color] : '#aaffcc';
-                                return (<div key={idx} style={{marginBottom: 6, color}}>{l.text}</div>);
+                                const colorClass = l.color ? colorMap[l.color] : styles.logDefault;
+                                return (<div key={idx} className={`${styles.logLine} ${colorClass}`}>{l.text}</div>);
                             })}
                         </div>
                     </div>
 
-                    <div style={{marginTop: 8, display: 'flex', gap: 8, alignItems: 'center'}}>
-                        <input value={commandInput} onChange={e => setCommandInput(e.target.value)} onKeyDown={e => {
-                            if (e.key === 'Enter') {
+                    <div className={styles.inputArea}>
+                        <input
+                            value={commandInput}
+                            onChange={e => setCommandInput(e.target.value)}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                    processCommand(commandInput).catch(console.error);
+                                    setCommandInput('');
+                                }
+                            }}
+                            placeholder={`type a command`}
+                            className={styles.commandInput}
+                        />
+                        <button
+                            onClick={() => {
                                 processCommand(commandInput).catch(console.error);
                                 setCommandInput('');
-                            }
-                        }} placeholder={`type a command`} style={{
-                            flex: 1,
-                            background: '#050505',
-                            color: TERM_GREEN,
-                            border: '1px solid rgba(255,255,255,0.03)',
-                            fontFamily: 'monospace',
-                            padding: 8
-                        }}/>
-                        <button onClick={() => {
-                            processCommand(commandInput).catch(console.error);
-                            setCommandInput('');
-                        }} style={{
-                            background: 'transparent',
-                            border: '1px solid rgba(255,255,255,0.03)',
-                            color: TERM_GREEN,
-                            padding: '8px 12px'
-                        }}>RUN
+                            }}
+                            className={styles.runButton}
+                        >
+                            RUN
                         </button>
                     </div>
 
-                    <div style={{marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <div style={{fontSize: 12, color: '#9fbf9f'}}>live stream • {streamLogs.length} lines</div>
-                        <div style={{fontSize: 12}}><Link href="/chapters/IV" style={{color: '#9fbf9f'}}>back to chapter
-                            IV</Link></div>
+                    <div className={styles.footer}>
+                        <div className={styles.streamInfo}>live stream • {streamLogs.length} lines</div>
+                        <div className={styles.backLink}>
+                            <Link href="/chapters/IV" className={styles.backLinkAnchor}>back to chapter IV</Link>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
+            <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" className={styles.audioPlayer}/>
         </div>
     );
 }
