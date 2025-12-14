@@ -160,7 +160,18 @@ export default function EntityPuzzlePage() {
         // build filesystem for TR33 maze with proper nested structure
         const build: any = {
             name: '/',
+            files: ['vessel.bin', 'README.txt'],
             dirs: [
+                {
+                    name: 'etc',
+                    files: ['passwd', 'shadow', 'hosts'],
+                    dirs: []
+                },
+                {
+                    name: 'logs',
+                    files: ['system.log', 'tas.log', 'heartbeat.log'],
+                    dirs: []
+                },
                 {
                     name: 'noise', dirs: [
                         {name: 'static', dirs: []},
@@ -421,16 +432,17 @@ export default function EntityPuzzlePage() {
             }
         }
 
-        // echo hijack behavior
+        // echo hijack behavior - show transformed output but execute original command
         let effective = rawCommand;
         let echoed = rawCommand;
         if (echoHijack) {
             echoed = applyEcho(rawCommand);
-            // system executes the echoed version (entity speaks through you)
-            effective = echoed;
+            // show the hijacked version but execute the original
+            pushLog({text: `${echoed}`, color: 'gray'});
         }
 
-        const parts = effective.trim().split(/\s+/);
+        // Always parse the original command, not the echoed version
+        const parts = rawCommand.trim().split(/\s+/);
         const cmd = parts[0];
         const args = parts.slice(1);
 
@@ -530,7 +542,13 @@ export default function EntityPuzzlePage() {
 
         if (cmd === 'cat') {
             const target = args.join(' ');
-            if (target === 'logs/tas.log') {
+            if (!target) {
+                pushLog('cat: missing file argument');
+                return;
+            }
+
+            // Handle special log files
+            if (target === 'logs/tas.log' || target === '/logs/tas.log') {
                 // produce TAS log including predictions
                 if (isFirstTime('cat-tas')) pushLog({
                     text: '[TAS] Loading archived memory traces...',
@@ -546,12 +564,43 @@ export default function EntityPuzzlePage() {
                 pushLog({text: '[TAS] end log', color: 'magenta'});
                 return;
             }
-            if (target === 'logs/system.log') {
+            if (target === 'logs/system.log' || target === '/logs/system.log') {
                 if (isFirstTime('cat-system')) pushLog({text: '[SYS] Accessing system logs...', color: 'gray'});
                 pushLog('[LOG] 2024-03-15: Project VESSEL initialization');
                 pushLog('[LOG] 2024-03-16: First successful consciousness transfer');
                 pushLog('[LOG] 2024-03-17: Anomaly detected in substrate layer');
                 pushLog('[LOG] 2024-03-18: TR33.exe containment protocol active');
+                return;
+            }
+            if (target === 'logs/heartbeat.log' || target === '/logs/heartbeat.log') {
+                if (isFirstTime('cat-heartbeat')) pushLog({text: '[SYS] Reading heartbeat logs...', color: 'gray'});
+                pushLog('[HB] 00:42:13 - pulse detected - 72 BPM');
+                pushLog('[HB] 00:42:14 - synchronization attempt');
+                pushLog('[HB] 00:42:15 - vessel resonance achieved');
+                return;
+            }
+            if (target === 'vessel.bin' || target === '/vessel.bin') {
+                pushLog('cat: vessel.bin: binary file (use sha256sum instead)');
+                return;
+            }
+            if (target === 'README.txt' || target === '/README.txt') {
+                pushLog('=== ENTITY SHELL README ===');
+                pushLog('This system is part of Project VESSEL.');
+                pushLog('Not all commands work as expected.');
+                pushLog('Type "help" for command list.');
+                pushLog('Watch the processes carefully.');
+                return;
+            }
+            if (target === 'etc/passwd' || target === '/etc/passwd') {
+                pushLog('root:x:0:0:root:/root:/bin/bash');
+                pushLog('operator:x:1000:1000::/home/operator:/bin/bash');
+                pushLog('VESSEL:x:9999:9999:entity:/nowhere:/bin/entity-shell');
+                return;
+            }
+            if (target === 'etc/hosts' || target === '/etc/hosts') {
+                pushLog('127.0.0.1 localhost');
+                pushLog('0.0.0.0 VESSEL.local');
+                pushLog('192.168.1.33 TR33.internal');
                 return;
             }
             pushLog(`cat: ${target}: No such file`);
@@ -567,10 +616,20 @@ export default function EntityPuzzlePage() {
                 return;
             }
             pushLog({text: `Contents of ${cwd}:`, color: 'cyan'});
-            if (!node.dirs || node.dirs.length === 0) {
+            const hasDirs = node.dirs && node.dirs.length > 0;
+            const hasFiles = node.files && node.files.length > 0;
+
+            if (!hasDirs && !hasFiles) {
                 pushLog('  (empty)');
             } else {
-                (node.dirs || []).forEach((d: any) => pushLog(`  ${d.name}/`));
+                // Show directories first
+                if (hasDirs) {
+                    (node.dirs || []).forEach((d: any) => pushLog(`  ${d.name}/`));
+                }
+                // Show files
+                if (hasFiles) {
+                    (node.files || []).forEach((f: any) => pushLog(`  ${f}`));
+                }
             }
             return;
         }
@@ -968,7 +1027,7 @@ export default function EntityPuzzlePage() {
                     <div style={{marginTop: 8, display: 'flex', gap: 8, alignItems: 'center'}}>
                         <input value={commandInput} onChange={e => setCommandInput(e.target.value)} onKeyDown={e => {
                             if (e.key === 'Enter') {
-                                processCommand(commandInput);
+                                processCommand(commandInput).catch(console.error);
                                 setCommandInput('');
                             }
                         }} placeholder={`type a command`} style={{
@@ -980,7 +1039,7 @@ export default function EntityPuzzlePage() {
                             padding: 8
                         }}/>
                         <button onClick={() => {
-                            processCommand(commandInput);
+                            processCommand(commandInput).catch(console.error);
                             setCommandInput('');
                         }} style={{
                             background: 'transparent',

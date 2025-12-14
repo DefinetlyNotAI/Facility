@@ -18,8 +18,3 @@ export async function POST(req: Request) {
         return NextResponse.json({ok: false, error: 'Server error', debug: String(e)}, {status: 500});
     }
 }
-
-// Provide a default export so tsc's validator import recognizes this as a module.
-// This does not change Next.js routing behavior which uses the named POST export above.
-export default {} as any;
-
