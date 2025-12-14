@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {PlaqueId, validateStageAnswer} from '@/lib/data/chapters/chapters.server';
-import {makeSignedValue, verifySignedValue} from '@/lib/utils/server/cookies.server';
+import {makeSignedValue, verifySignedValue} from '@/lib/utils/cookies.server';
 
 export async function POST(req: Request) {
     try {

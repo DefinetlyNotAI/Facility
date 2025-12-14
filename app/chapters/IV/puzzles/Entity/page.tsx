@@ -7,6 +7,7 @@ import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry} from "@/lib/types/chapterIV.types";
+import {getJsonCookie, setJsonCookie} from "@/lib/utils/cookies.server";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
@@ -20,26 +21,6 @@ export default function EntityPuzzlePage() {
     const cookieKey = 'chapterIV-plaque-progress';
 
     // cookie helpers
-    function getJsonCookie(name: string): any | null {
-        try {
-            const match = document.cookie.split(';').map(s => s.trim()).find(c => c.startsWith(name + '='));
-            if (!match) return null;
-            return JSON.parse(decodeURIComponent(match.split('=')[1] || ''));
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function setJsonCookie(name: string, obj: any, days = 365) {
-        try {
-            const v = encodeURIComponent(JSON.stringify(obj));
-            const d = new Date();
-            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-            document.cookie = `${name}=${v}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
-        } catch (e) {
-        }
-    }
-
     function markCompleted() {
         try {
             const cur = getJsonCookie(cookieKey) || {};

@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
+import {getJsonCookie, setJsonCookie} from "@/lib/utils/cookies.server";
 
 const TERM_BG = '#000000';
 const TERM_GREEN = '#00ff66';
@@ -905,27 +906,6 @@ export default function WhiteRoomPage() {
             renderer.dispose();
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // Cookie helpers
-    function getJsonCookie(name: string): any | null {
-        try {
-            const match = document.cookie.split(';').map(s => s.trim()).find(c => c.startsWith(name + '='));
-            if (!match) return null;
-            return JSON.parse(decodeURIComponent(match.split('=')[1] || ''));
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function setJsonCookie(name: string, obj: any, days = 365) {
-        try {
-            const v = encodeURIComponent(JSON.stringify(obj));
-            const d = new Date();
-            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-            document.cookie = `${name}=${v}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
-        } catch (e) {
-        }
-    }
 
     return (
         <div style={{width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden', background: '#000'}}>
