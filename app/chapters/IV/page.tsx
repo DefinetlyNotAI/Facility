@@ -9,9 +9,7 @@ import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
-import {useFailed} from "@/hooks/BonusActHooks/useFailed";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {useBackgroundAudio, useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {routes} from '@/lib/saveData';
 

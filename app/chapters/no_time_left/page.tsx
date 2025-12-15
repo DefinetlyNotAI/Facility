@@ -6,7 +6,7 @@ import {chapterMessages} from '@/lib/data/chapters/chapters';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
 import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
-import {usePreloadActStates} from "@/hooks/BonusActHooks/usePreloadActStates";
+import {usePreloadActStates} from "@/hooks";
 
 const chapterStyles: Record<string, string> = {
     I: styles.textWhite,

@@ -117,7 +117,6 @@ export default function Moonlight() {
                 setShowMoon(true);
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [allowed, waitingForClick]);
 
     useEffect(() => {

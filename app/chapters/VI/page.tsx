@@ -2,7 +2,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from '@/styles/ChaptersVI.module.css';
 import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIData} from "@/lib/data/chapters/chapters";
 

@@ -15,7 +15,7 @@ import {
 } from "@/lib/data/choices";
 import TASGoodBye from "./TASGoodBye";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-import {useTypewriter} from "@/hooks/useTypeWriter";
+import {useTypewriter} from "@/hooks";
 import {detectOsBrowser, renderMsg, signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
 

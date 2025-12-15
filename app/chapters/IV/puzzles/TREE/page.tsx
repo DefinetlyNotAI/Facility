@@ -4,8 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {seededShuffle, seedFromString} from '@/lib/utils/chIV.helper';
-import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {useBackgroundAudio, useChapter4Access} from "@/hooks";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {

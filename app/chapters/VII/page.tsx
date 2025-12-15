@@ -1,9 +1,8 @@
 "use client";
 import {useEffect, useRef, useState} from "react";
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useBackgroundAudio, useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIIData} from "@/lib/data/chapters/chapters";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 

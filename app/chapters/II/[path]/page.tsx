@@ -5,7 +5,7 @@ import {useParams, useRouter} from 'next/navigation';
 import {chIIData} from '@/lib/data/chapters/chapters';
 import Image from 'next/image';
 import {routes} from "@/lib/saveData";
-import {useChapter2Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
+import {useChapter2Access} from "@/hooks";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 export default function ChapterIIPathPage() {

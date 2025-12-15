@@ -1,9 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-
-interface VNTextRendererProps {
-    text: string;
-    onDone?: () => void;
-}
+import {VNTextRendererProps} from "@/lib/types/other";
 
 export const VNTextRenderer = ({text, onDone}: VNTextRendererProps) => {
     const [displayedText, setDisplayedText] = useState('');

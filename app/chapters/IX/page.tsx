@@ -3,9 +3,7 @@
 import {useEffect, useRef} from 'react';
 import {chapterIXData, fileLinks} from "@/lib/data/chapters/chapters";
 import styles from '@/styles/Philosophy.module.css';
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
-import {useFailed} from "@/hooks/BonusActHooks/useFailed";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {useBackgroundAudio, useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 export default function Philosophy() {

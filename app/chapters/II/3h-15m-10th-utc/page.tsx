@@ -9,8 +9,7 @@ import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
-import {useChapter2Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {useBackgroundAudio, useChapter2Access} from "@/hooks";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 export default function ChapterIITimedPage() {

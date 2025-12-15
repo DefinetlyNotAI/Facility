@@ -4,8 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {chapter, chapterIIIData} from "@/lib/data/chapters/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/lib/types/chapters";
-import {useFailed} from "@/hooks/BonusActHooks/useFailed";
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 import {routes} from "@/lib/saveData";
 

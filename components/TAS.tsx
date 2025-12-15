@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {usePathname} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {PAGE_HINTS, SNARKY_COMMENTS, UNKNOWN_PAGE_HINTS} from "@/components/TAScript";
+import {PAGE_HINTS, SNARKY_COMMENTS, UNKNOWN_PAGE_HINTS} from "@/lib/data/TAScript";
 import {cookies, routes} from "@/lib/saveData";
 import {TASProps} from '@/lib/types/tas';
 

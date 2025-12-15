@@ -9,7 +9,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@
 import {chapter, chIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {checkPass} from "@/lib/utils";
 
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useChapterAccess} from "@/hooks";
 import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
 
 

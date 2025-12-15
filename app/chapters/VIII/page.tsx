@@ -1,11 +1,10 @@
 "use client";
 import React, {useEffect, useRef, useState} from "react";
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
+import {useBackgroundAudio, useChapterAccess} from "@/hooks";
 import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
 import {CheckMeResponse} from "@/lib/types/api";
 import {chapterVIIIData} from "@/lib/data/chapters/chapters";
 import {localStorageKeys} from "@/lib/saveData";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
 
 

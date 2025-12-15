@@ -2,8 +2,6 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/lib/types/chapterIV.types";
@@ -11,6 +9,8 @@ import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
 import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode,} from "@/lib/utils/chIV.helper";
 import {
+    useBackgroundAudio,
+    useChapter4Access,
     useClientSideValue,
     useCommandHistory,
     useCyclingPhase,
@@ -18,7 +18,7 @@ import {
     useGlitchEffect,
     useInterval,
     useLocalStorageState
-} from "@/hooks/BonusActHooks/ChapterIV";
+} from "@/hooks";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();

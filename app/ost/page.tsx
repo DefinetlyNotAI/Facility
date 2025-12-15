@@ -170,8 +170,6 @@ export default function OSTPlayer() {
                 setIsPlaying(false);
             });
         }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrackIndex]);
 
     // When the user toggles play/pause: do not reset currentTime - only play or pause the element.

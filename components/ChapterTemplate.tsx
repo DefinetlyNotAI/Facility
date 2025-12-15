@@ -1,7 +1,6 @@
 'use client';
 
-import {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
-import {useFailed} from "@/hooks/BonusActHooks/useFailed";
+import {useChapterAccess, useFailed} from "@/hooks";
 import {chapter} from "@/lib/data/chapters/chapters";
 import {ChapterTemplateProps} from "@/lib/types/chapters";
 import {useEffect, useRef} from "react";

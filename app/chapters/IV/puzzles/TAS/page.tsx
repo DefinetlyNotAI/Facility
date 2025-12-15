@@ -5,8 +5,7 @@ import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {seededShuffle} from '@/lib/utils/chIV.helper';
 import {routes} from '@/lib/saveData';
-import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
-import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
+import {useBackgroundAudio, useChapter4Access} from "@/hooks";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 // Riddle component (adapted from TREE puzzle for a riddle-chain mini-game)

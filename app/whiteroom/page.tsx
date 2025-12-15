@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
-import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
+import {useChapter4Access} from "@/hooks";
 import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV.cookies.server";
 
 const TERM_BG = '#000000';
@@ -905,7 +905,7 @@ export default function WhiteRoomPage() {
 
             renderer.dispose();
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div style={{width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden', background: '#000'}}>
