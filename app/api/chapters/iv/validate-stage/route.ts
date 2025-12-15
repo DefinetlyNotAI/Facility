@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
-import {PlaqueId, validateStageAnswer} from '@/lib/data/chapters/chapters.server';
-import {makeSignedValue, verifySignedValue} from '@/lib/utils/chIV.cookies.server';
+import {PlaqueId} from '@/lib/data/chapters/chapters.server';
+import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/utils/chIV.server';
 
 export async function POST(req: Request) {
     try {

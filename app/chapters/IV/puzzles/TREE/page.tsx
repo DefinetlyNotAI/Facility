@@ -2,8 +2,8 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
-import {seededShuffle, seedFromString} from '@/lib/utils/chIV.helper';
+import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
+import {seededShuffle, seedFromString} from '@/lib/utils/chIV';
 import {useChapter4Access} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 

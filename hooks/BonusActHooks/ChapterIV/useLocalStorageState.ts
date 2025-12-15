@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {deserializeFragments, serializeFragments} from '@/lib/utils/chIV.helper';
+import {deserializeFragments, serializeFragments} from '@/lib/utils/chIV';
 import {FragmentsMap} from "@/types";
 
 /**

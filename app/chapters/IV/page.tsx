@@ -6,35 +6,12 @@ import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components';
 import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
-import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
+import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {AllowedPlaqueStatus} from "@/types";
-
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {routes} from '@/lib/saveData';
-
-// JSON cookie helpers to store merged plaque progress
-function getJsonCookie(name: string): any | null {
-    try {
-        const match = document.cookie.split(';').map(s => s.trim()).find(c => c.startsWith(name + '='));
-        if (!match) return null;
-        const value = decodeURIComponent(match.split('=')[1] || '');
-        return JSON.parse(value);
-    } catch (e) {
-        return null;
-    }
-}
-
-function setJsonCookie(name: string, obj: any, days = 365) {
-    try {
-        const value = encodeURIComponent(JSON.stringify(obj));
-        const d = new Date();
-        d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${value}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
-    } catch (e) {
-        // ignore cookie errors
-    }
-}
+import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
 
 export default function ChapterIVPage() {
     const {isCurrentlySolved} = useChapterAccess();

@@ -5,9 +5,8 @@ import Link from 'next/link';
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/types";
-import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
-import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode,} from "@/lib/utils/chIV.helper";
+import {computeFakeHash, fileExists, getContainerClasses, getFsNode, markCompleted,} from "@/lib/utils/chIV";
 import {
     useChapter4Access,
     useClientSideValue,
@@ -18,6 +17,7 @@ import {
     useInterval,
     useLocalStorageState
 } from "@/hooks";
+import {entityConst} from "@/lib/data/chapters/chapterIV";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
@@ -722,7 +722,7 @@ export default function EntityPuzzlePage() {
                 });
                 setFragmentSafely(7, 'vessel-identity');
                 pushLog({text: entityConst.messages.suAssumeVessel, color: 'green'});
-                markCompleted();
+                markCompleted('Entity');
                 return;
             }
             pushLog(entityConst.messages.suUserChangeFailed);

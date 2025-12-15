@@ -1,3 +1,7 @@
+// These are used in layout.tsx and as such will be bundled in the JS client-side
+// Keep this file minimal to avoid bloating the client-side code.
+// Do not include any secret or sensitive information here.
+
 export const successQuestNames: string[] = [
     "Connecting...",
     "Empty?",

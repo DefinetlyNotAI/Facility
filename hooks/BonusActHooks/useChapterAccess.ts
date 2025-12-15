@@ -4,7 +4,7 @@ import {useEffect, useMemo, useState} from "react";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 import {ActionState, BonusAct} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
-import {validRomans} from "@/lib/data/chapters/chapters.public";
+import {validRomans} from "@/lib/data/chapters/chapters.bundled";
 import Cookies from "js-cookie";
 import {validRomansNoTimeLeft} from "@/lib/data/chapters/chapters";
 

@@ -2,8 +2,8 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
-import {seededShuffle} from '@/lib/utils/chIV.helper';
+import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
+import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/utils/chIV';
 import {routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
@@ -67,40 +67,6 @@ export default function TasPuzzlePage() {
     const stages = puzzle.stageData || [];
     const storageKey = 'chapterIV-TAS-progress';
     const cookieKey = 'chapterIV-plaque-progress';
-
-    // JSON cookie helpers (same as other files)
-    function getJsonCookie(name: string): any | null {
-        try {
-            const match = document.cookie.split(';').map(s => s.trim()).find(c => c.startsWith(name + '='));
-            if (!match) return null;
-            const value = decodeURIComponent(match.split('=')[1] || '');
-            return JSON.parse(value);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function setJsonCookie(name: string, obj: any, days = 365) {
-        try {
-            const value = encodeURIComponent(JSON.stringify(obj));
-            const d = new Date();
-            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-            document.cookie = `${name}=${value}; path=/; expires=${d.toUTCString()}; SameSite=Lax`;
-        } catch (e) {
-            // ignore cookie errors
-        }
-    }
-
-    const markCompleted = () => {
-        try {
-            const current = getJsonCookie(cookieKey) || {};
-            const prev = Number(current['TAS'] || 0);
-            // 0 = not started, 1 = started, 2 = completed
-            current['TAS'] = Math.max(prev, 2);
-            setJsonCookie(cookieKey, current, 365);
-        } catch (e) {
-        }
-    }
 
     useEffect(() => {
         // when user opens TAS puzzle, mark as started (2) if lower
@@ -674,7 +640,7 @@ export default function TasPuzzlePage() {
                                     localStorage.setItem(storageKey, String(stages.length));
                                 } catch (e) {
                                 }
-                                markCompleted();
+                                markCompleted('TAS');
                             }, 800);
                         }}
                         className={`px-3 py-1 font-mono text-sm rounded ${riddleCorrects.every(Boolean) ? 'bg-emerald-600 text-black' : 'bg-gray-800 text-gray-500'}`}>
@@ -843,7 +809,7 @@ export default function TasPuzzlePage() {
                         });
                     }
                     setCompleted(true);
-                    markCompleted();
+                    markCompleted('TAS');
                     localStorage.setItem(storageKey, String(stages.length));
                 }, 800);
             } else {

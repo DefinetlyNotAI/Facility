@@ -227,7 +227,7 @@ export const chapterIIIData = {
     },
 };
 
-// Chapter IV data in chapterIV.public.ts
+// Chapter IV data in chapterIV.ts
 
 // Chapter V data
 export const chapterVData = {

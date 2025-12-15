@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {useChapter4Access} from "@/hooks";
-import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV.cookies.server";
+import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
 
 const TERM_BG = '#000000';
 const TERM_GREEN = '#00ff66';
