@@ -37,3 +37,15 @@ export type FsNode = {
     dirs?: FsNode[];      // subdirectories
     files?: string[];     // file names
 };
+
+export interface Process {
+    pid: number,
+    name: string,
+    status: 'running' | 'stalled' | 'ghost'
+}
+
+export type ContainerClassArgs = {
+    styles: Record<string, string>;
+    glitchActive: boolean;
+    fragmentsCollected: number;
+};

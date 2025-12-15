@@ -1,6 +1,6 @@
 // Shared puzzle utilities: deterministic PRNG and helpers
 // Keep pure, deterministic and client-side only.
-import {FsNode, LogEntry} from "@/lib/types/chapterIV.types";
+import {ContainerClassArgs, FsNode, LogEntry} from "@/lib/types/chapterIV.types";
 
 export function seedFromString(str: string) {
     let h = 2166136261 >>> 0;
@@ -259,3 +259,17 @@ export function fileExists(root: FsNode | null, path: string): boolean {
 
     return (dirNode.files || []).includes(filename);
 }
+
+// UI render
+export const getContainerClasses = ({
+                                        styles, glitchActive, fragmentsCollected
+                                    }: ContainerClassArgs) => {
+    const classes = [styles.container];
+
+    if (glitchActive) classes.push(styles.glitchActive);
+    if (fragmentsCollected >= 3) classes.push(styles.corruption3);
+    if (fragmentsCollected >= 5) classes.push(styles.corruption5);
+    if (fragmentsCollected >= 7) classes.push(styles.corruption7);
+
+    return classes.join(' ');
+};

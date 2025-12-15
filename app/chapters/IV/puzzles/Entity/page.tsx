@@ -6,7 +6,7 @@ import {useChapter4Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 import {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
-import {LogEntry} from "@/lib/types/chapterIV.types";
+import {LogEntry, Process} from "@/lib/types/chapterIV.types";
 import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
 import {
@@ -18,7 +18,7 @@ import {
     PROCESS_TIMING,
     CD_GASLIGHT_PROBABILITY,
     TREE_CONSTANTS,
-    FILE_BUILD, STARTUP_TEXT, computeFakeHash, getFsNode, fileExists,
+    FILE_BUILD, STARTUP_TEXT, computeFakeHash, getFsNode, fileExists, getContainerClasses,
 } from "@/lib/utils/chIV.helper";
 
 export default function EntityPuzzlePage() {
@@ -34,11 +34,7 @@ export default function EntityPuzzlePage() {
     const [streamLogs, setStreamLogs] = useState<LogEntry[]>([]); // terminal output (color-aware)
     const [commandInput, setCommandInput] = useState<string>('');
     const [fragments, setFragments] = useState<Record<number, string>>({});
-    const [subprocs, setSubprocs] = useState<{
-        pid: number,
-        name: string,
-        status: 'running' | 'stalled' | 'ghost'
-    }[]>([]);
+    const [subprocs, setSubprocs] = useState<Process[]>([]);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [cpuMap, setCpuMap] = useState<Record<number, number>>({});
     const [fs, setFs] = useState<any>(null);
@@ -845,18 +841,8 @@ export default function EntityPuzzlePage() {
         pushLog(`captured token: ${w}`);
     }
 
-    // UI render
-    const getContainerClasses = () => {
-        const classes = [styles.container];
-        if (glitchActive) classes.push(styles.glitchActive);
-        if (fragmentsCollected >= 3) classes.push(styles.corruption3);
-        if (fragmentsCollected >= 5) classes.push(styles.corruption5);
-        if (fragmentsCollected >= 7) classes.push(styles.corruption7);
-        return classes.join(' ');
-    };
-
     return (
-        <div className={getContainerClasses()}>
+        <div className={getContainerClasses(styles, glitchActive, fragmentsCollected)}>
             <div className={styles.header}>
                 <div className={styles.headerTitle}>entity-shell // access: uncanny</div>
                 <div className={styles.sessionInfo}>session {mounted && sessionId}</div>
