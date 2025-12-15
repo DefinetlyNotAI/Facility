@@ -109,6 +109,7 @@ export const routes = {
     tree98: "/file-console/tree98",
     scroll: "/scroll",
     codex: "/codex",
+    saveFile: "/save-file",
     bonus: {
         main: "/chapters",
         notYet: "/chapters/not_yet_child",
