@@ -4,7 +4,7 @@ import React, {useEffect} from "react";
 import {usePathname} from "next/navigation";
 import "./globals.css";
 import styles from "@/styles/Layout.module.css";
-import TAS from "@/components/TAS";
+import {TAS} from "@/components";
 import {FAVICON, TITLES} from "@/lib/data/root";
 import {Analytics} from "@vercel/analytics/next"
 

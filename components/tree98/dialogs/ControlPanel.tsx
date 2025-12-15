@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import {controlPanelData, sysConfigDefaults} from '@/lib/data/tree98';
-import {getIcon} from '@/components/tree98/icons';
+import {getIcon} from '@/components';
 import {localStorageKeys} from "@/lib/saveData";
 import {ControlPanelData} from "@/types";
 import {detectOsBrowser} from "@/lib/utils";

@@ -1,5 +1,5 @@
 import React from "react";
-import {Icons} from "@/components/tree98/icons";
+import {Icons} from "@/components";
 
 
 // Define the types for the tree98 application window management.

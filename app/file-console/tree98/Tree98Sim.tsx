@@ -4,23 +4,25 @@ import React, {useEffect, useState} from 'react';
 import LoginScreen from './LoginScreen';
 import {desktop, exeTitle, sysConfigDefaults} from '@/lib/data/tree98';
 import Cookies from "js-cookie";
-import {getIcon} from '@/components/tree98/icons';
 import {ContextMenu, FileSystemItem} from '@/types';
 import {useBootSequence, useSystemCorruption, useWindowManagement} from '@/hooks';
-import {WindowComponent} from '@/components/tree98/WindowComponent';
-import {Notepad} from '@/components/tree98/applications/Notepad';
-import {Paint} from '@/components/tree98/applications/Paint';
-import {FileExplorer} from '@/components/tree98/applications/FileExplorer';
-import {StartMenu} from '@/components/tree98/ui/StartMenu';
-import {ContextMenuComponent} from '@/components/tree98/ui/ContextMenu';
-import {LoadingScreen} from '@/components/tree98/ui/LoadingScreen';
-import {BlueScreen} from '@/components/tree98/ui/BlueScreen';
-import {cookies, routes} from '@/lib/saveData';
-import {CMD} from '@/components/tree98/applications/CMD';
-import {ControlPanel} from "@/components/tree98/dialogs/ControlPanel";
-import {VesselBootDialog} from "@/components/tree98/dialogs/VesselBootDialog";
-import {FileViewer} from "@/components/tree98/dialogs/FileViewer";
+import {
+    BlueScreen,
+    CMD,
+    ContextMenuComponent,
+    ControlPanel,
+    FileExplorer,
+    FileViewer,
+    getIcon,
+    LoadingScreen,
+    Notepad,
+    Paint,
+    StartMenu,
+    VesselBootDialog,
+    WindowComponent
+} from '@/components';
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {cookies, routes} from '@/lib/saveData';
 
 const Tree98Sim: React.FC<{
     audioRef: React.RefObject<HTMLAudioElement>;

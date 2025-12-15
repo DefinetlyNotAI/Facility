@@ -3,8 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {Input} from '@/components/ui/input';
-import {Button} from '@/components/ui/button';
+import {Button, Input} from '@/components';
 import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters/chapters";

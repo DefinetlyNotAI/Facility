@@ -1,9 +1,7 @@
 'use client';
 
 import React, {useEffect, useRef, useState} from 'react';
-import CodexReader from '@/components/codex/CodexReader';
-import ChapterNavigation from '@/components/codex/ChapterNavigation';
-import OverlaySystem from '@/components/codex/OverlaySystem';
+import {ChapterNavigation, CodexReader, OverlaySystem} from '@/components';
 import styles from '@/styles/Codex.module.css';
 import {BACKGROUND_AUDIO, playBackgroundAudio} from '@/lib/data/audio';
 import Cookies from 'js-cookie';

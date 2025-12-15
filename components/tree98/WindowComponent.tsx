@@ -1,7 +1,7 @@
 import React, {useLayoutEffect, useRef, useState} from 'react';
 import {WindowComponentProps} from '@/types';
 import {sysConfigDefaults} from '@/lib/data/tree98';
-import {getIcon} from '@/components/tree98/icons';
+import {getIcon} from '@/components';
 
 
 // Minimum window size to prevent hiding elements
