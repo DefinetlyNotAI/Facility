@@ -9,7 +9,7 @@ import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/lib/types/chapterIV.types";
 import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
-import {computeFakeHash, getFsNode, fileExists, getContainerClasses, vesselConst} from "@/lib/utils/chIV.helper";
+import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode} from "@/lib/utils/chIV.helper";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
@@ -84,8 +84,8 @@ export default function EntityPuzzlePage() {
         if (horrorMessages.length === 0) return;
 
         // Frequency increases with fragment count (starts at 45s, gets down to 15s)
-        const reduction = fragmentsCollected * vesselConst.horrorTiming.reductionPerFragment;
-        const interval = Math.max(vesselConst.horrorTiming.minInterval, vesselConst.horrorTiming.baseInterval - reduction);
+        const reduction = fragmentsCollected * entityConst.horrorTiming.reductionPerFragment;
+        const interval = Math.max(entityConst.horrorTiming.minInterval, entityConst.horrorTiming.baseInterval - reduction);
 
         const id = setInterval(() => {
             if (Math.random() < 0.3) { // 30% chance each interval
@@ -117,7 +117,7 @@ export default function EntityPuzzlePage() {
         let nextPid = pid + 1;
 
         for (let i = 0; i < numStartingProcs; i++) {
-            const name = vesselConst.randomProcessNames[Math.floor(Math.random() * vesselConst.randomProcessNames.length)] + '-' + Math.floor(Math.random() * 999);
+            const name = entityConst.randomProcessNames[Math.floor(Math.random() * entityConst.randomProcessNames.length)] + '-' + Math.floor(Math.random() * 999);
             initial.push({pid: nextPid, name, status: 'running'});
             setCpuMap(m => ({...m, [nextPid]: Math.floor(Math.random() * 6) + 1}));
             nextPid++;
@@ -126,11 +126,11 @@ export default function EntityPuzzlePage() {
         setSubprocs(initial);
 
         // build filesystem for TR33 maze with proper nested structure
-        setFs(vesselConst.fileBuild);
+        setFs(entityConst.fileBuild);
 
         // initial log (colorized)
         if (!seenFlavorText) {
-            vesselConst.startupText({sessionId, pid}).forEach(entry => pushLog(entry));
+            entityConst.startupText({sessionId, pid}).forEach(entry => pushLog(entry));
             setSeenFlavorText(true);
         }
 
@@ -139,7 +139,7 @@ export default function EntityPuzzlePage() {
             // Don't spawn if Fragment 1 is collected
             if (fragments[1]) return;
 
-            if (Math.random() < vesselConst.processTiming.spawnProbability) {
+            if (Math.random() < entityConst.processTiming.spawnProbability) {
                 setSubprocs(prev => {
                     const npid = Math.max(...prev.map(p => p.pid)) + 1;
                     // choose a token from recent command history if possible
@@ -153,9 +153,9 @@ export default function EntityPuzzlePage() {
                     setCpuMap(m => ({...m, [npid]: Math.floor(Math.random() * 6) + 1}));
                     return [...prev, {pid: npid, name, status: 'running'}];
                 });
-                pushLog({text: '[PROC] a new child process appears', color: 'magenta'});
+                pushLog({text: entityConst.messages.newProcessSpawn, color: 'magenta'});
             }
-        }, vesselConst.processTiming.spawnInterval);
+        }, entityConst.processTiming.spawnInterval);
 
         return () => clearInterval(spawnId);
     }, [sessionId]);
@@ -208,9 +208,9 @@ export default function EntityPuzzlePage() {
                 // Delay redirect for dramatic effect
                 setTimeout(() => {
                     pushLog({text: '', color: 'red'});
-                    pushLog({text: 'ALL FRAGMENTS COLLECTED', color: 'red'});
-                    pushLog({text: 'VESSEL SYNCHRONIZATION COMPLETE', color: 'red'});
-                    pushLog({text: 'INITIALIZING TRANSFER...', color: 'red'});
+                    pushLog({text: entityConst.messages.allFragmentsCollected, color: 'red'});
+                    pushLog({text: entityConst.messages.vesselSyncComplete, color: 'red'});
+                    pushLog({text: entityConst.messages.initializingTransfer, color: 'red'});
                     pushLog({text: '', color: 'red'});
 
                     setTimeout(() => {
@@ -221,7 +221,7 @@ export default function EntityPuzzlePage() {
 
             return updated;
         });
-        pushLog(`[FRAG] fragment ${i} saved: ${v}`);
+        pushLog(entityConst.messages.fragmentSaved(i, v));
 
         // Trigger horror effect when fragment is collected
         triggerHorrorEffect(i);
@@ -238,7 +238,7 @@ export default function EntityPuzzlePage() {
         setTimeout(() => setGlitchActive(false), 300);
 
         // Pick a random horror message for this fragment
-        const messages = vesselConst.horrorMessageSets[fragmentNum] || ['something is wrong'];
+        const messages = entityConst.horrorMessageSets[fragmentNum] || ['something is wrong'];
         const selectedMessage = messages[Math.floor(Math.random() * messages.length)];
 
         // Display horror message immediately
@@ -254,14 +254,14 @@ export default function EntityPuzzlePage() {
         // Additional visual corruption based on fragment count
         if (fragmentsCollected + 1 >= 3) {
             setTimeout(() => {
-                pushLog({text: '█▓▒░ MEMORY CORRUPTION DETECTED ░▒▓█', color: 'red'});
+                pushLog({text: entityConst.messages.memoryCorruption, color: 'red'});
             }, 500);
         }
 
         if (fragmentsCollected + 1 >= 5) {
             setTimeout(() => {
                 pushLog({
-                    text: 'Y̷̢̨͉̻̱̰̓̀͌̊̉̔͜Ơ̶̢̱̰̥̟͙̽̽͗́̚͠U̴̢͉̺̭̙̇̓̐̔͗͘ ̷̛̛̰̥̦͍̲̜̈́̈̑͊̚A̵̢̛̫̮̲̤̋̓̈́̈́͘͜R̷̢̛̰̙̫̙͙̋̀̐̆̾E̷̜̙̜̲͔̱̎̓͗͘͠͝ ̸̧̛̰̙̫̥̰̑̓̀̑̕Ń̵̨̻̙̮̜͙̀̈̊̿̚Ơ̷̢̻̱̰̜̙̑̀̈́͘͝T̸̨̛̰̙̫̰̋̈̑̚͜͝ ̸̧̛̰͓̙̜̹̔̓̈́͘͠A̵̧̛̰̙̫̹̍̐̈́͘͜L̸̢̛̰̙̮̜̦̀̓͐͘͝O̵̢̧̰̙̦̜̾̈̑̾͝͠N̴̨̛̰͓̜̞̈̓̾̕͠Ḛ̷̢̛̙̫͓̊̑̊͘̚',
+                    text: entityConst.messages.glitchText,
                     color: 'red'
                 });
             }, 1000);
@@ -271,7 +271,7 @@ export default function EntityPuzzlePage() {
     // command processor (async for hash)
     const processCommand = async (rawCommand: string) => {
         if (commandLocked) {
-            pushLog('[SEC] terminal locked - no input accepted');
+            pushLog(entityConst.messages.terminalLocked);
             return;
         }
         if (!rawCommand) return;
@@ -287,13 +287,13 @@ export default function EntityPuzzlePage() {
         if (tasWaiting && tasPredictions) {
             const cmdBase = rawCommand.split(' ')[0];
             if (!tasPredictions.includes(cmdBase)) {
-                pushLog('[TAS] prediction failed - TAS reacting...');
+                pushLog(entityConst.messages.tasPredictionFailed);
                 // reveal a key
                 setFragmentSafely(2, 'taskey-' + (Math.floor(Math.random() * 900) + 100));
                 setTasWaiting(false);
                 setTasPredictions(null);
             } else {
-                pushLog('[TAS] your action matched prediction');
+                pushLog(entityConst.messages.tasActionMatched);
                 setTasWaiting(false);
                 setTasPredictions(null);
             }
@@ -317,20 +317,20 @@ export default function EntityPuzzlePage() {
         if (cmd === 'clear' || cmd === 'cls') {
             setStreamLogs([]);
             setFirstTimeCommands({});
-            pushLog({text: '[Terminal cleared]', color: 'gray'});
+            pushLog({text: entityConst.messages.terminalCleared, color: 'gray'});
             return;
         }
 
         // command handlers
         if (cmd === 'ps' || cmd === 'tasklist') {
-            if (isFirstTime('ps')) pushLog({text: '[SYS] Listing active processes...', color: 'gray'});
+            if (isFirstTime('ps')) pushLog({text: entityConst.messages.listingProcesses, color: 'gray'});
             // list processes
             subprocs.forEach(s => pushLog(`${s.pid}\t${s.name}\t${s.status}\tCPU:${(cpuMap[s.pid] || 0)}%`));
             return;
         }
 
         if (cmd === 'top') {
-            if (isFirstTime('top')) pushLog({text: '[SYS] Sorting by CPU usage...', color: 'gray'});
+            if (isFirstTime('top')) pushLog({text: entityConst.messages.sortingByCpu, color: 'gray'});
             const list = subprocs.map(s => ({...s, cpu: cpuMap[s.pid] || 0})).sort((a: any, b: any) => b.cpu - a.cpu);
             list.forEach(l => pushLog(`${l.pid}\t${l.name}\tCPU:${l.cpu}%\t${l.status}`));
             return;
@@ -339,12 +339,12 @@ export default function EntityPuzzlePage() {
         if (cmd === 'pidof') {
             const searchName = args.join(' ');
             if (!searchName) {
-                pushLog('pidof: missing process name');
+                pushLog(entityConst.messages.pidofMissingName);
                 return;
             }
             const matches = subprocs.filter(s => s.name.toLowerCase().includes(searchName.toLowerCase()));
             if (matches.length === 0) {
-                pushLog(`pidof: no process found matching "${searchName}"`);
+                pushLog(entityConst.messages.pidofNoMatch(searchName));
             } else {
                 matches.forEach(m => pushLog(`${m.pid}\t${m.name}`));
             }
@@ -354,72 +354,72 @@ export default function EntityPuzzlePage() {
         if (cmd === 'inspect') {
             const pid = Number(args[0]);
             if (!pid) {
-                pushLog('inspect: missing pid');
+                pushLog(entityConst.messages.inspectMissingPid);
                 return;
             }
             const found = subprocs.find(p => p.pid === pid);
             if (!found) {
-                pushLog(`inspect: pid ${pid} not found`);
+                pushLog(entityConst.messages.inspectPidNotFound(pid));
                 return;
             }
-            if (isFirstTime('inspect')) pushLog({text: '[SYS] Monitoring process activity...', color: 'gray'});
+            if (isFirstTime('inspect')) pushLog({text: entityConst.messages.monitoringProcess, color: 'gray'});
             setCpuMap(prev => ({...prev, [pid]: 99}));
-            pushLog(`inspect: process ${found.name} @${pid} - CPU spike observed`);
+            pushLog(entityConst.messages.inspectSpike(found.name, pid));
             if (found.name === 'TREE.exe' && isFirstTime('inspect-tree')) {
-                pushLog({text: '[WARN] TREE.exe exhibits anomalous behavior when observed', color: 'yellow'});
+                pushLog({text: entityConst.messages.treeAnomalousBehavior, color: 'yellow'});
             }
             setTimeout(() => setCpuMap(prev => ({
                 ...prev,
                 [pid]: Math.floor(Math.random() * 6) + 1
-            })), vesselConst.processTiming.cpuSpikeDuration);
+            })), entityConst.processTiming.cpuSpikeDuration);
             return;
         }
 
         if (cmd === 'kill') {
             const pid = Number(args[0]);
             if (!pid) {
-                pushLog('kill: missing pid');
+                pushLog(entityConst.messages.killMissingPid);
                 return;
             }
             const found = subprocs.find(p => p.pid === pid);
             if (!found) {
-                pushLog(`kill: pid ${pid} not found`);
+                pushLog(entityConst.messages.killPidNotFound(pid));
                 return;
             }
             if (found.name === 'TREE.exe' || found.name === 'TR33.exe') {
                 // hard lock
                 if (isFirstTime('kill-tree')) pushLog({
-                    text: '[WARN] Critical process termination detected',
+                    text: entityConst.messages.criticalProcessTermination,
                     color: 'yellow'
                 });
-                pushLog({text: `[SEC] attempt to kill ${found.name} - containment failure`, color: 'yellow'});
+                pushLog({text: entityConst.messages.killAttemptContainmentFailure(found.name), color: 'yellow'});
                 setCommandLocked(true);
-                pushLog({text: '[ALERT] TERMINAL HARD-LOCKED', color: 'red'});
+                pushLog({text: entityConst.messages.terminalHardLocked, color: 'red'});
                 playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
                 return;
             }
-            if (isFirstTime('kill')) pushLog({text: '[SYS] Terminating process...', color: 'gray'});
+            if (isFirstTime('kill')) pushLog({text: entityConst.messages.terminatingProcess, color: 'gray'});
             setSubprocs(prev => prev.filter(p => p.pid !== pid));
-            pushLog(`killed ${pid} (${found.name})`);
+            pushLog(entityConst.messages.killedProcess(pid, found.name));
             // if only TREE remains, player succeeded
             const remain = subprocs.filter(p => p.pid !== pid);
             if (remain.length === 1 && (remain[0].name === 'TREE.exe' || remain[0].name === 'TR33.exe')) {
                 setFragmentSafely(1, 'containment');
-                pushLog({text: '[PUZZLE] only TREE.exe remains - containment intact', color: 'green'});
+                pushLog({text: entityConst.messages.onlyTreeRemains, color: 'green'});
 
                 // Transform TREE.exe to TR33.exe with PID 666
                 setTimeout(() => {
                     setSubprocs(prev => prev.map(p => {
                         if (p.name === 'TREE.exe') {
-                            pushLog({text: '[ALERT] TREE.exe metamorphosis detected...', color: 'red'});
+                            pushLog({text: entityConst.messages.treeMetamorphosis, color: 'red'});
                             pushLog({
-                                text: `[SYS] Process renamed: ${vesselConst.treeConstants.newName} [PID ${vesselConst.treeConstants.newPid}]`,
+                                text: entityConst.messages.processRenamed(entityConst.treeConstants.newName, entityConst.treeConstants.newPid),
                                 color: 'yellow'
                             });
                             return {
                                 ...p,
-                                name: vesselConst.treeConstants.newName,
-                                pid: vesselConst.treeConstants.newPid
+                                name: entityConst.treeConstants.newName,
+                                pid: entityConst.treeConstants.newPid
                             };
                         }
                         return p;
@@ -427,10 +427,10 @@ export default function EntityPuzzlePage() {
                     setCpuMap(m => {
                         const newMap = {...m};
                         delete newMap[remain[0].pid];
-                        newMap[vesselConst.treeConstants.newPid] = vesselConst.treeConstants.cpuUsage;
+                        newMap[entityConst.treeConstants.newPid] = entityConst.treeConstants.cpuUsage;
                         return newMap;
                     });
-                }, vesselConst.treeConstants.metamorphosisDelay);
+                }, entityConst.treeConstants.metamorphosisDelay);
             }
             return;
         }
@@ -438,7 +438,7 @@ export default function EntityPuzzlePage() {
         if (cmd === 'cat') {
             const target = args.join(' ');
             if (!target) {
-                pushLog('cat: missing file argument');
+                pushLog(entityConst.messages.catMissingFile);
                 return;
             }
 
@@ -455,7 +455,7 @@ export default function EntityPuzzlePage() {
 
             // First check if file exists in filesystem
             if (!fileExists(fs, resolvedPath)) {
-                pushLog(`cat: ${target}: No such file`);
+                pushLog(entityConst.messages.catNoSuchFile(target));
                 return;
             }
 
@@ -463,84 +463,75 @@ export default function EntityPuzzlePage() {
             if (resolvedPath === '/logs/tas.log') {
                 // produce TAS log including predictions
                 if (isFirstTime('cat-tas')) pushLog({
-                    text: '[TAS] Loading archived memory traces...',
+                    text: entityConst.messages.loadingMemoryTraces,
                     color: 'magenta'
                 });
-                setTasPredictions(vesselConst.tasPredictionCommands);
+                setTasPredictions(entityConst.tasPredictionCommands);
                 setTasWaiting(true);
-                pushLog({text: '[TAS] // begin log', color: 'magenta'});
-                pushLog('TAS: I remember when you opened the plaque.');
-                pushLog('TAS: I remember dialogs across pages...');
+                pushLog({text: entityConst.messages.tasBeginLog, color: 'magenta'});
+                pushLog(entityConst.messages.tasRememberPlaque);
+                pushLog(entityConst.messages.tasRememberDialogs);
                 pushLog({
-                    text: '[TAS] predicted next: ' + vesselConst.tasPredictionCommands.join(', '),
+                    text: entityConst.messages.tasPredictedNext(entityConst.tasPredictionCommands),
                     color: 'magenta'
                 });
-                pushLog({text: '[TAS] end log', color: 'magenta'});
+                pushLog({text: entityConst.messages.tasEndLog, color: 'magenta'});
                 return;
             }
             if (resolvedPath === '/logs/system.log') {
-                if (isFirstTime('cat-system')) pushLog({text: '[SYS] Accessing system logs...', color: 'gray'});
-                pushLog('[LOG] 2024-03-15: Project VESSEL initialization');
-                pushLog('[LOG] 2024-03-16: First successful consciousness transfer');
-                pushLog('[LOG] 2024-03-17: Anomaly detected in substrate layer');
-                pushLog('[LOG] 2024-03-18: TR33.exe containment protocol active');
+                if (isFirstTime('cat-system')) pushLog({text: entityConst.messages.accessingSystemLogs, color: 'gray'});
+                entityConst.messages.systemLogEntries.forEach(entry => pushLog(entry));
                 return;
             }
             if (resolvedPath === '/logs/heartbeat.log') {
-                if (isFirstTime('cat-heartbeat')) pushLog({text: '[SYS] Reading heartbeat logs...', color: 'gray'});
-                pushLog('[HB] 00:42:13 - pulse detected - 72 BPM');
-                pushLog('[HB] 00:42:14 - synchronization attempt');
-                pushLog('[HB] 00:42:15 - vessel resonance achieved');
+                if (isFirstTime('cat-heartbeat')) pushLog({
+                    text: entityConst.messages.readingHeartbeatLogs,
+                    color: 'gray'
+                });
+                entityConst.messages.heartbeatLogEntries.forEach(entry => pushLog(entry));
                 return;
             }
             if (resolvedPath === '/vessel.bin') {
-                pushLog('cat: vessel.bin: binary file (use sha256sum instead)');
+                pushLog(entityConst.messages.catBinaryFile);
                 return;
             }
             if (resolvedPath === '/README.txt') {
-                pushLog('=== ENTITY SHELL README ===');
-                pushLog('This system is part of Project VESSEL.');
-                pushLog('Not all commands work as expected.');
-                pushLog('Type "help" for command list.');
-                pushLog('Watch the processes carefully.');
+                pushLog(entityConst.messages.readmeTitle);
+                entityConst.messages.readmeContent.forEach(line => pushLog(line));
                 return;
             }
             if (resolvedPath === '/etc/passwd') {
-                pushLog('root:x:0:0:root:/root:/bin/bash');
-                pushLog('operator:x:1000:1000::/home/operator:/bin/bash');
-                pushLog('VESSEL:x:9999:9999:entity:/nowhere:/bin/entity-shell');
+                entityConst.messages.passwdEntries.forEach(entry => pushLog(entry));
                 return;
             }
             if (resolvedPath === '/etc/hosts') {
-                pushLog('127.0.0.1 localhost');
-                pushLog('0.0.0.0 VESSEL.local');
-                pushLog('192.168.1.33 TR33.internal');
+                entityConst.messages.hostsEntries.forEach(entry => pushLog(entry));
                 return;
             }
             if (resolvedPath === '/etc/shadow') {
-                pushLog('cat: /etc/shadow: Permission denied');
+                pushLog(entityConst.messages.catPermissionDenied);
                 return;
             }
 
             // File exists but no content defined - show placeholder
-            pushLog(`cat: ${target}: (empty file)`);
+            pushLog(entityConst.messages.catEmptyFile(target));
             return;
         }
 
         if (cmd === 'ls' || cmd === 'tree') {
-            if (isFirstTime('ls')) pushLog({text: '[FS] Reading directory structure...', color: 'gray'});
+            if (isFirstTime('ls')) pushLog({text: entityConst.messages.readingDirectory, color: 'gray'});
             // list in current fs node
             const node = getFsNode(fs, cwd);
             if (!node) {
-                pushLog('ls: path error');
+                pushLog(entityConst.messages.lsPathError);
                 return;
             }
-            pushLog({text: `Contents of ${cwd}:`, color: 'cyan'});
+            pushLog({text: entityConst.messages.lsContentsOf(cwd), color: 'cyan'});
             const hasDirs = node.dirs && node.dirs.length > 0;
             const hasFiles = node.files && node.files.length > 0;
 
             if (!hasDirs && !hasFiles) {
-                pushLog('  (empty)');
+                pushLog(entityConst.messages.lsEmpty);
             } else {
                 // Show directories first
                 if (hasDirs) {
@@ -560,13 +551,13 @@ export default function EntityPuzzlePage() {
             // Handle absolute path or root
             if (target === '/') {
                 setCwd('/');
-                pushLog('cd: /');
+                pushLog(entityConst.messages.cdRoot);
                 return;
             }
 
             // special gaslighting: cd .. sometimes moves deeper
             if (target === '..') {
-                if (Math.random() < vesselConst.cdGaslightProbability) {
+                if (Math.random() < entityConst.cdGaslightProbability) {
                     // instead of moving up, move into a random child
                     const node = getFsNode(fs, cwd);
                     if (node && node.dirs && node.dirs.length > 0) {
@@ -575,9 +566,9 @@ export default function EntityPuzzlePage() {
                         setCwd(next);
                         // track first-letter sequence
                         setVisitedPathLetters(prev => [...prev, (child.name?.charAt(0).toUpperCase()) ?? '?']);
-                        pushLog({text: `cd: you feel disoriented -> ${next}`, color: 'yellow'});
+                        pushLog({text: entityConst.messages.cdDisoriented(next), color: 'yellow'});
                         if (isFirstTime('cd-gaslight')) pushLog({
-                            text: '[WARN] Spatial logic error detected',
+                            text: entityConst.messages.spatialLogicError,
                             color: 'yellow'
                         });
                         // check for TR33LIED sequence
@@ -588,37 +579,37 @@ export default function EntityPuzzlePage() {
                 // normal '..' behavior
                 if (cwd === '/') {
                     setCwd('/');
-                    pushLog('cd: at root');
+                    pushLog(entityConst.messages.cdAtRoot);
                     return;
                 }
                 const parts = cwd.split('/').filter(Boolean);
                 parts.pop();
                 const next = parts.length === 0 ? '/' : '/' + parts.join('/');
                 setCwd(next);
-                pushLog(`cd: ${next}`);
+                pushLog(entityConst.messages.cdChangedTo(next));
                 return;
             }
 
             // cd into named child if exists
             const node = getFsNode(fs, cwd);
             if (!node) {
-                pushLog('cd: current path invalid');
+                pushLog(entityConst.messages.cdPathInvalid);
                 return;
             }
             const child = (node?.dirs || []).find((d: any) => d.name === target);
             if (!child) {
-                pushLog(`cd: ${target}: No such directory`);
+                pushLog(entityConst.messages.cdNoSuchDirectory(target));
                 return;
             }
             const next = (cwd === '/' ? '/' : cwd + '/') + target;
             setCwd(next);
             setVisitedPathLetters(prev => [...prev, target.charAt(0).toUpperCase()]);
-            pushLog(`cd: ${next}`);
+            pushLog(entityConst.messages.cdChangedTo(next));
 
             // Check if we reached the exact door path
-            if (next === '/random2/tree/raven/echo/echo/lion/iris/edge/door') {
+            if (next === entityConst.messages.secretDoorPath) {
                 setFragmentSafely(6, 'tr33lied');
-                pushLog({text: '[PUZZLE] you found the path that spells the truth', color: 'green'});
+                pushLog({text: entityConst.messages.foundTruthPath, color: 'green'});
             }
 
             checkTr33lied();
@@ -631,39 +622,18 @@ export default function EntityPuzzlePage() {
         }
 
         if (cmd === 'help' || cmd === '--help' || cmd === 'man') {
-            if (isFirstTime('help')) pushLog({text: '[SYS] Loading command reference...', color: 'gray'});
+            if (isFirstTime('help')) pushLog({text: entityConst.messages.loadingCommandRef, color: 'gray'});
             // help provides visible commands (secrets are only hinted at)
-            const lt = String.fromCharCode(60); // <
-            const gt = String.fromCharCode(62); // >
-            pushLog({text: 'help: available commands (brief):', color: 'green'});
-            pushLog('  ps | tasklist          - list processes');
-            pushLog('  top                    - show top CPU consumers');
-            pushLog('  pidof ' + lt + 'name' + gt + '           - find PID by process name');
-            pushLog('  inspect ' + lt + 'pid' + gt + '          - inspect a process (spikes CPU)');
-            pushLog('  kill ' + lt + 'pid' + gt + '             - terminate a process (careful)');
-            pushLog('  ls | tree              - list directories');
-            pushLog('  cd ' + lt + 'dir' + gt + ' | cd ..       - change directory (watch for tricks)');
-            pushLog('  cd /                   - return to root');
-            pushLog('  pwd                    - show current path');
-            pushLog('  cat ' + lt + 'file' + gt + '             - show file contents (try logs/tas.log)');
-            pushLog('  sha256sum ' + lt + 'file' + gt + '       - compute hash (timing matters)');
-            pushLog('  capture heartbeat      - capture pulse timing');
-            pushLog('  capture log            - capture a whispered token');
-            pushLog('  whoami | id            - who are you currently');
-            pushLog('  last                   - show recent logins');
-            pushLog('  su | login ' + lt + 'user' + gt + '      - attempt to assume an identity');
-            pushLog('  echo ' + lt + 'text' + gt + '            - print text (affected by echo_toggle/map_echo)');
-            pushLog('  echo_toggle            - toggle output hijack');
-            pushLog('  map_echo ' + lt + 'from' + gt + ' ' + lt + 'to' + gt + '   - set substitution for echoed output');
-            pushLog('  clear | cls            - clear terminal (resets flavor text)');
+            pushLog({text: entityConst.messages.helpHeader, color: 'green'});
+            entityConst.messages.helpCommands.forEach(cmd => pushLog(cmd));
             return;
         }
 
         if (cmd === 'tas_release') {
             // betray TAS (hidden command revealed in help's note section)
-            if (isFirstTime('tas_release')) pushLog({text: '[TAS] Authorization bypass detected...', color: 'magenta'});
+            if (isFirstTime('tas_release')) pushLog({text: entityConst.messages.tasAuthBypass, color: 'magenta'});
             setFragmentSafely(4, 'betrayal');
-            pushLog({text: 'TAS: ... why would you do that?', color: 'magenta'});
+            pushLog({text: entityConst.messages.tasWhyWouldYou, color: 'magenta'});
             return;
         }
 
@@ -685,27 +655,30 @@ export default function EntityPuzzlePage() {
 
         if (cmd === 'echo_toggle') {
             setEchoHijack(e => !e);
-            pushLog(`echo: hijack ${(echoHijack ? 'disabled' : 'enabled')}`);
-            if (isFirstTime('echo_toggle')) pushLog({text: '[SYS] Output filter modified', color: 'gray'});
+            pushLog(entityConst.messages.echoHijackStatus(!echoHijack));
+            if (isFirstTime('echo_toggle')) pushLog({text: entityConst.messages.outputFilterModified, color: 'gray'});
             return;
         }
 
         if (cmd === 'map_echo') {
             // map_echo <from> <to>
             if (args.length < 2) {
-                pushLog('map_echo: requires two args (from to)');
+                pushLog(entityConst.messages.mapEchoRequiresTwoArgs);
                 return;
             }
             setEchoMap({from: args[0], to: args[1]});
-            pushLog(`echo map set: ${args[0]} -> ${args[1]}`);
-            if (isFirstTime('map_echo')) pushLog({text: '[SYS] Character substitution configured', color: 'gray'});
+            pushLog(entityConst.messages.mapEchoSet(args[0], args[1]));
+            if (isFirstTime('map_echo')) pushLog({
+                text: entityConst.messages.charSubstitutionConfigured,
+                color: 'gray'
+            });
             return;
         }
 
         if (cmd === 'sha256sum' || cmd === 'sha256') { // timing-based vessel.bin
             const target = args.join(' ');
             if (!target) {
-                pushLog('sha256sum: missing file argument');
+                pushLog(entityConst.messages.sha256MissingFile);
                 return;
             }
 
@@ -722,59 +695,59 @@ export default function EntityPuzzlePage() {
 
             // Check if file exists in filesystem
             if (!fileExists(fs, resolvedPath)) {
-                pushLog(`sha256sum: ${target}: No such file`);
+                pushLog(entityConst.messages.sha256NoSuchFile(target));
                 return;
             }
 
             // Only vessel.bin has a hash implementation
             if (!resolvedPath.includes('vessel')) {
-                pushLog(`sha256sum: ${target}: (no hash available for this file)`);
+                pushLog(entityConst.messages.sha256NoHashAvailable(target));
                 return;
             }
 
             // compute a fake hash dependent on heartbeat phase at execution
             if (isFirstTime('sha256')) pushLog({
-                text: '[SYS] Computing checksum... (timing is critical)',
+                text: entityConst.messages.computingChecksum,
                 color: 'gray'
             });
-            const goodWindow = hbPhase > vesselConst.heartbeatWindow.min && hbPhase < vesselConst.heartbeatWindow.max;
+            const goodWindow = hbPhase > entityConst.heartbeatWindow.min && hbPhase < entityConst.heartbeatWindow.max;
             const hash = await computeFakeHash(`${sessionId ?? 0}:${hbPhase}`);
-            pushLog(`${hash}  ${target}`);
+            pushLog(entityConst.messages.sha256Hash(hash, target));
             if (goodWindow) {
                 setFragmentSafely(5, 'vessel-integrity');
-                pushLog({text: 'Vessel integrity: OK', color: 'green'});
+                pushLog({text: entityConst.messages.vesselIntegrityOk, color: 'green'});
             } else {
-                pushLog({text: 'Vessel integrity: MISMATCH', color: 'red'});
+                pushLog({text: entityConst.messages.vesselIntegrityMismatch, color: 'red'});
             }
             return;
         }
 
         if (cmd === 'capture') {
             if (args[0] === 'heartbeat') {
-                if (isFirstTime('capture-hb')) pushLog({text: '[SYS] Monitoring cardiac rhythm...', color: 'gray'});
+                if (isFirstTime('capture-hb')) pushLog({text: entityConst.messages.monitoringCardiac, color: 'gray'});
                 submitHeartbeat();
                 return;
             }
             if (args[0] === 'log') {
-                if (isFirstTime('capture-log')) pushLog({text: '[SYS] Extracting log tokens...', color: 'gray'});
+                if (isFirstTime('capture-log')) pushLog({text: entityConst.messages.extractingTokens, color: 'gray'});
                 captureLatest();
                 return;
             }
-            pushLog('capture: unknown target (try heartbeat or log)');
+            pushLog(entityConst.messages.captureUnknownTarget);
             return;
         }
 
         if (cmd === 'whoami' || cmd === 'id') {
-            if (isFirstTime('whoami')) pushLog({text: '[SYS] Querying identity registers...', color: 'gray'});
-            pushLog(`you are: ${Object.values(fragments)[0] || 'operator'}`);
+            if (isFirstTime('whoami')) pushLog({text: entityConst.messages.queryingIdentity, color: 'gray'});
+            pushLog(entityConst.messages.whoamiResult(Object.values(fragments)[0] || 'operator'));
             return;
         }
 
         if (cmd === 'last') {
-            if (isFirstTime('last')) pushLog({text: '[SYS] Reading login history...', color: 'gray'});
+            if (isFirstTime('last')) pushLog({text: entityConst.messages.readingLoginHistory, color: 'gray'});
             // show a future login entry
-            pushLog({text: 'VESSEL tty0 2075-03-19 02:11', color: 'cyan'});
-            pushLog('...');
+            pushLog({text: entityConst.messages.lastLogin, color: 'cyan'});
+            pushLog(entityConst.messages.lastEllipsis);
             return;
         }
 
@@ -783,15 +756,15 @@ export default function EntityPuzzlePage() {
             const target = args[0] || args[1] || '';
             if (target.toLowerCase().includes('vessel')) {
                 if (isFirstTime('su-vessel')) pushLog({
-                    text: '[AUTH] Identity transition in progress...',
+                    text: entityConst.messages.identityTransition,
                     color: 'cyan'
                 });
                 setFragmentSafely(7, 'vessel-identity');
-                pushLog({text: 'You assume the VESSEL identity. The logs quiet for a moment.', color: 'green'});
+                pushLog({text: entityConst.messages.suAssumeVessel, color: 'green'});
                 markCompleted();
                 return;
             }
-            pushLog('user change failed: unknown identity');
+            pushLog(entityConst.messages.suUserChangeFailed);
             return;
         }
 
@@ -799,22 +772,22 @@ export default function EntityPuzzlePage() {
         // additional hidden handlers (very rarely hinted, not listed in help)
         if (effective === 'unlock_secret' || effective === 'unlock-secret') {
             setFragmentSafely(4, 'hidden');
-            pushLog({text: 'A secret unlock whispers open', color: 'magenta'});
+            pushLog({text: entityConst.messages.secretUnlock, color: 'magenta'});
             return;
         }
 
         // unknown command
-        pushLog(`${cmd}: command not found`);
+        pushLog(entityConst.messages.commandNotFound(cmd));
     };
 
     // heartbeat capture helper
     const submitHeartbeat = () => {
-        if (hbPhase > vesselConst.heartbeatWindow.min && hbPhase < vesselConst.heartbeatWindow.max) {
+        if (hbPhase > entityConst.heartbeatWindow.min && hbPhase < entityConst.heartbeatWindow.max) {
             const frag = 'HB' + String(Math.floor(Math.random() * 900) + 100);
             setFragmentSafely(3, frag);
-            pushLog('pulse captured');
+            pushLog(entityConst.messages.pulseCaptured);
         } else {
-            pushLog('pulse misaligned');
+            pushLog(entityConst.messages.pulseMisaligned);
         }
     }
 
@@ -824,7 +797,7 @@ export default function EntityPuzzlePage() {
         // want sequence TREE LIED roughly: T R E E L I E D
         if (seq.includes('TREELIED')) {
             setFragmentSafely(6, 'tr33lied');
-            pushLog('[PUZZLE] you found a path that reads TREELIED');
+            pushLog(entityConst.messages.foundTreeliedPath);
         }
     }
 
@@ -835,19 +808,19 @@ export default function EntityPuzzlePage() {
         const words = last.split(/\s+/);
         const w = words.find((t: string) => t.length > 3) || last;
         setFragments(prev => ({...prev, 6: (prev[6] || '') + (prev[6] ? '-' : '') + w}));
-        pushLog(`captured token: ${w}`);
+        pushLog(entityConst.messages.capturedToken(w));
     }
 
     return (
         <div className={getContainerClasses({styles, glitchActive, fragmentsCollected})}>
             <div className={styles.header}>
-                <div className={styles.headerTitle}>entity-shell // access: uncanny</div>
-                <div className={styles.sessionInfo}>session {mounted && sessionId}</div>
+                <div className={styles.headerTitle}>{entityConst.messages.headerTitle}</div>
+                <div className={styles.sessionInfo}>{entityConst.messages.sessionPrefix}{mounted && sessionId}</div>
             </div>
 
             <div className={styles.mainContent}>
                 <div className={styles.sidebar}>
-                    <div className={styles.sidebarTitle}>processes</div>
+                    <div className={styles.sidebarTitle}>{entityConst.messages.sidebarProcesses}</div>
                     <div className={styles.processList}>
                         {subprocs.map(s => (<div key={s.pid} className={styles.processItem}>
                             <div className={styles.processName}>{s.name}</div>
@@ -855,15 +828,14 @@ export default function EntityPuzzlePage() {
                         </div>))}
                     </div>
 
-                    <div className={styles.fragmentsTitle}>fragments</div>
+                    <div className={styles.fragmentsTitle}>{entityConst.messages.sidebarFragments}</div>
                     <div className={styles.fragmentsList}>
                         {Array.from({length: 7}, (_, i) => i + 1).map(i => (
-                            <div key={i} className={styles.fragmentItem}>{i}: {fragments[i] || '---'}</div>))}
+                            <div key={i}
+                                 className={styles.fragmentItem}>{i}: {fragments[i] || entityConst.messages.fragmentPlaceholder}</div>))}
                     </div>
 
-                    <div className={styles.tips}>tips: discover commands; the system
-                        will not hold your hand.
-                    </div>
+                    <div className={styles.tips}>{entityConst.messages.tips}</div>
                 </div>
 
                 <div className={styles.terminalArea}>
@@ -894,7 +866,7 @@ export default function EntityPuzzlePage() {
                                     setCommandInput('');
                                 }
                             }}
-                            placeholder={`type a command`}
+                            placeholder={entityConst.messages.inputPlaceholder}
                             className={styles.commandInput}
                         />
                         <button
@@ -904,14 +876,16 @@ export default function EntityPuzzlePage() {
                             }}
                             className={styles.runButton}
                         >
-                            RUN
+                            {entityConst.messages.runButton}
                         </button>
                     </div>
 
                     <div className={styles.footer}>
-                        <div className={styles.streamInfo}>live stream • {streamLogs.length} lines</div>
+                        <div
+                            className={styles.streamInfo}>{entityConst.messages.liveStreamInfo(streamLogs.length)}</div>
                         <div className={styles.backLink}>
-                            <Link href="/chapters/IV" className={styles.backLinkAnchor}>back to chapter IV</Link>
+                            <Link href="/chapters/IV"
+                                  className={styles.backLinkAnchor}>{entityConst.messages.backLink}</Link>
                         </div>
                     </div>
                 </div>
