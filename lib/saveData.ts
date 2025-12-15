@@ -131,7 +131,13 @@ export const routes = {
             path1033333013: '/chapters/II/1033333013',
             pathTimedUrl: '/chapters/II/3h-15m-10th-utc',
         },
-    }
+        chapterIVSpecial: {
+            entity: '/chapters/IV/puzzles/Entity',
+            tree: '/chapters/IV/puzzles/TREE',
+            tas: '/chapters/IV/puzzles/TAS',
+        }
+    },
+    whiteroom: "/whiteroom"
 }
 
 const rawCookies = {

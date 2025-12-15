@@ -1,5 +1,5 @@
 import {routes} from "@/lib/saveData";
-import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.public";
+import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.bundled";
 
 // Layout.tsx
 export const TITLES: Record<string, string> = {
@@ -17,6 +17,10 @@ export const TITLES: Record<string, string> = {
     [routes.bonus.notYet]: "A door being built",
     [routes.bonus.locked]: "A locked door",
     [routes.bonus.noTime]: "A broken down door, time the perpetrator",
+    [routes.whiteroom]: "The Moonlight's room",
+    [routes.bonus.chapterIVSpecial.tas]: "TREE ASSISTANCE SYSTEM",
+    [routes.bonus.chapterIVSpecial.entity]: "TR33.exe",
+    [routes.bonus.chapterIVSpecial.tree]: "Grow little TREE",
     // Dynamically create act titles, these are the success quest names mapped to their roman numeral
     ...validRomans.reduce((acc, roman, index) => {
         acc[routes.bonus.actID(roman)] = successQuestNames[index];
