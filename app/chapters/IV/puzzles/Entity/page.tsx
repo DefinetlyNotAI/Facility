@@ -140,7 +140,7 @@ export default function EntityPuzzlePage() {
 
         // initial log (colorized)
         if (!seenFlavorText) {
-            STARTUP_TEXT(sessionId, pid).forEach(entry => pushLog(entry));
+            STARTUP_TEXT({sessionId, pid}).forEach(entry => pushLog(entry));
             setSeenFlavorText(true);
         }
 
@@ -842,7 +842,7 @@ export default function EntityPuzzlePage() {
     }
 
     return (
-        <div className={getContainerClasses(styles, glitchActive, fragmentsCollected)}>
+        <div className={getContainerClasses({styles, glitchActive, fragmentsCollected})}>
             <div className={styles.header}>
                 <div className={styles.headerTitle}>entity-shell // access: uncanny</div>
                 <div className={styles.sessionInfo}>session {mounted && sessionId}</div>
