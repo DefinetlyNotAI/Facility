@@ -1,6 +1,6 @@
 // Shared puzzle utilities: deterministic PRNG and helpers
 // Keep pure, deterministic and client-side only.
-import {ContainerClassArgs, FsNode, StartupTextFactory} from "@/lib/types/chapterIV.types";
+import {ContainerClassArgs, FsNode, vesselConstType} from "@/lib/types/chapterIV.types";
 
 export function seedFromString(str: string) {
     let h = 2166136261 >>> 0;
@@ -31,187 +31,177 @@ export function seededShuffle<T>(arr: T[], seedStr: string) {
 }
 
 // == Entity puzzle const ==
+export const vesselConst: vesselConstType = {
+    horrorMessageSets: {
+        1: [
+            'something is watching',
+            'containment is an illusion',
+            'TREE remembers what you did'
+        ],
+        2: [
+            'TAS knows you better than you know yourself',
+            'prediction failed but observation continues',
+            'you were always going to do that'
+        ],
+        3: [
+            'your pulse is synchronized now',
+            'the vessel breathes with you',
+            'thump... thump... thump...'
+        ],
+        4: [
+            'betrayal logged in permanent memory',
+            'TAS will not forget',
+            'some doors should stay closed'
+        ],
+        5: [
+            'vessel integrity compromised',
+            'you are becoming something else',
+            'the hash was never about security'
+        ],
+        6: [
+            'TR33 LIED and you followed the path anyway',
+            'the maze knows where you are',
+            'every step was recorded'
+        ],
+        7: [
+            'you are VESSEL now',
+            'identity is fluid here',
+            'welcome to the other side'
+        ]
+    },
 
-// Horror messages for each fragment
-export const HORROR_MESSAGE_SETS: Record<number, string[]> = {
-    1: [
-        'something is watching',
-        'containment is an illusion',
-        'TREE remembers what you did'
+    randomProcessNames: [
+        'svchost',
+        'explorer',
+        'chrome',
+        'discord',
+        'spotify',
+        'steam',
+        'winlogon',
+        'csrss',
+        'lsass',
+        'dwm',
+        'taskmgr'
     ],
-    2: [
-        'TAS knows you better than you know yourself',
-        'prediction failed but observation continues',
-        'you were always going to do that'
-    ],
-    3: [
-        'your pulse is synchronized now',
-        'the vessel breathes with you',
-        'thump... thump... thump...'
-    ],
-    4: [
-        'betrayal logged in permanent memory',
-        'TAS will not forget',
-        'some doors should stay closed'
-    ],
-    5: [
-        'vessel integrity compromised',
-        'you are becoming something else',
-        'the hash was never about security'
-    ],
-    6: [
-        'TR33 LIED and you followed the path anyway',
-        'the maze knows where you are',
-        'every step was recorded'
-    ],
-    7: [
-        'you are VESSEL now',
-        'identity is fluid here',
-        'welcome to the other side'
+
+    tasPredictionCommands: ['ls', 'ps', 'whoami'],
+
+    heartbeatWindow: {
+        min: 44,
+        max: 57
+    },
+
+    horrorTiming: {
+        baseInterval: 45000,
+        minInterval: 15000,
+        reductionPerFragment: 5000
+    },
+
+    processTiming: {
+        spawnInterval: 6000,
+        spawnProbability: 0.18,
+        cpuSpikeDuration: 2500
+    },
+
+    cdGaslightProbability: 0.28,
+
+    treeConstants: {
+        newPid: 666,
+        newName: 'TR33.exe',
+        cpuUsage: 13,
+        metamorphosisDelay: 1500
+    },
+
+    fileBuild: {
+        name: '/',
+        files: ['vessel.bin', 'README.txt'],
+        dirs: [
+            {
+                name: 'etc',
+                files: ['passwd', 'shadow', 'hosts'],
+                dirs: []
+            },
+            {
+                name: 'logs',
+                files: ['system.log', 'tas.log', 'heartbeat.log'],
+                dirs: []
+            },
+            {
+                name: 'noise',
+                files: [],
+                dirs: [
+                    {name: 'static', files: [], dirs: []},
+                    {name: 'echo', files: [], dirs: []}
+                ]
+            },
+            {
+                name: 'silence',
+                files: [],
+                dirs: [
+                    {name: 'void', files: [], dirs: []}
+                ]
+            },
+            {name: 'random0', files: [], dirs: []},
+            {name: 'random1', files: [], dirs: []},
+            {
+                name: 'random2',
+                files: [],
+                dirs: [
+                    {name: 'temp', files: [], dirs: []},
+                    {
+                        name: 'tree',
+                        files: [],
+                        dirs: [
+                            {
+                                name: 'raven',
+                                files: [],
+                                dirs: [
+                                    {
+                                        name: 'echo',
+                                        files: [],
+                                        dirs: [
+                                            {
+                                                name: 'echo',
+                                                files: [],
+                                                dirs: [
+                                                    {
+                                                        name: 'lion',
+                                                        files: [],
+                                                        dirs: [
+                                                            {
+                                                                name: 'iris',
+                                                                files: [],
+                                                                dirs: [
+                                                                    {
+                                                                        name: 'edge',
+                                                                        files: [],
+                                                                        dirs: [
+                                                                            {name: 'door', files: [], dirs: []}
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+
+    startupText: ({sessionId, pid}) => [
+        {text: `[BOOT] entity-shell online - session ${sessionId}`, color: 'green'},
+        {text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'},
+        {text: `[HINT] watch the processes; not every child should die`, color: 'gray'}
     ]
 };
-
-// Random process names for initial processes
-export const RANDOM_PROCESS_NAMES = [
-    'svchost',
-    'explorer',
-    'chrome',
-    'discord',
-    'spotify',
-    'steam',
-    'winlogon',
-    'csrss',
-    'lsass',
-    'dwm',
-    'taskmgr'
-];
-
-// TAS prediction commands
-export const TAS_PREDICTION_COMMANDS = ['ls', 'ps', 'whoami'];
-
-// Heartbeat window timing
-export const HEARTBEAT_WINDOW = {
-    MIN: 44,
-    MAX: 57
-} as const;
-
-// Fragment collection intervals
-export const HORROR_TIMING = {
-    BASE_INTERVAL: 45000,
-    MIN_INTERVAL: 15000,
-    REDUCTION_PER_FRAGMENT: 5000
-} as const;
-
-// Process timing
-export const PROCESS_TIMING = {
-    SPAWN_INTERVAL: 6000,
-    SPAWN_PROBABILITY: 0.18,
-    CPU_SPIKE_DURATION: 2500
-} as const;
-
-// Gaslighting probability for 'cd ..'
-export const CD_GASLIGHT_PROBABILITY = 0.28;
-
-// Tree metamorphosis constants
-export const TREE_CONSTANTS = {
-    NEW_PID: 666,
-    NEW_NAME: 'TR33.exe',
-    CPU_USAGE: 13,
-    METAMORPHOSIS_DELAY: 1500
-} as const;
-
-// File system structure for the vessel
-export const FILE_BUILD: any = {
-    name: '/',
-    files: ['vessel.bin', 'README.txt'],
-    dirs: [
-        {
-            name: 'etc',
-            files: ['passwd', 'shadow', 'hosts'],
-            dirs: []
-        },
-        {
-            name: 'logs',
-            files: ['system.log', 'tas.log', 'heartbeat.log'],
-            dirs: []
-        },
-        {
-            name: 'noise',
-            files: [],
-            dirs: [
-                {name: 'static', files: [], dirs: []},
-                {name: 'echo', files: [], dirs: []},
-            ]
-        },
-        {
-            name: 'silence',
-            files: [],
-            dirs: [
-                {name: 'void', files: [], dirs: []},
-            ]
-        },
-        {name: 'random0', files: [], dirs: []},
-        {name: 'random1', files: [], dirs: []},
-        {
-            name: 'random2',
-            files: [],
-            dirs: [
-                {name: 'temp', files: [], dirs: []},
-                {
-                    name: 'tree',
-                    files: [],
-                    dirs: [
-                        {
-                            name: 'raven',
-                            files: [],
-                            dirs: [
-                                {
-                                    name: 'echo',
-                                    files: [],
-                                    dirs: [
-                                        {
-                                            name: 'echo',
-                                            files: [],
-                                            dirs: [
-                                                {
-                                                    name: 'lion',
-                                                    files: [],
-                                                    dirs: [
-                                                        {
-                                                            name: 'iris',
-                                                            files: [],
-                                                            dirs: [
-                                                                {
-                                                                    name: 'edge',
-                                                                    files: [],
-                                                                    dirs: [
-                                                                        {name: 'door', files: [], dirs: []},
-                                                                    ]
-                                                                },
-                                                            ]
-                                                        },
-                                                    ]
-                                                },
-                                            ]
-                                        },
-                                    ]
-                                },
-                            ]
-                        },
-                    ]
-                },
-            ]
-        },
-    ]
-};
-
-// Startup log text
-export const STARTUP_TEXT: StartupTextFactory = ({sessionId, pid}) => [
-    {text: `[BOOT] entity-shell online - session ${sessionId}`, color: 'green'},
-    {text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'},
-    {text: `[HINT] watch the processes; not every child should die`, color: 'gray'}
-];
-
 
 // == Entity puzzle utils ==
 

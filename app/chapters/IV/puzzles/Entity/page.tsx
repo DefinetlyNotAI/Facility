@@ -9,17 +9,7 @@ import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/lib/types/chapterIV.types";
 import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
-import {
-    HORROR_MESSAGE_SETS,
-    RANDOM_PROCESS_NAMES,
-    TAS_PREDICTION_COMMANDS,
-    HEARTBEAT_WINDOW,
-    HORROR_TIMING,
-    PROCESS_TIMING,
-    CD_GASLIGHT_PROBABILITY,
-    TREE_CONSTANTS,
-    FILE_BUILD, STARTUP_TEXT, computeFakeHash, getFsNode, fileExists, getContainerClasses,
-} from "@/lib/utils/chIV.helper";
+import {computeFakeHash, getFsNode, fileExists, getContainerClasses, vesselConst} from "@/lib/utils/chIV.helper";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
@@ -94,8 +84,8 @@ export default function EntityPuzzlePage() {
         if (horrorMessages.length === 0) return;
 
         // Frequency increases with fragment count (starts at 45s, gets down to 15s)
-        const reduction = fragmentsCollected * HORROR_TIMING.REDUCTION_PER_FRAGMENT;
-        const interval = Math.max(HORROR_TIMING.MIN_INTERVAL, HORROR_TIMING.BASE_INTERVAL - reduction);
+        const reduction = fragmentsCollected * vesselConst.horrorTiming.reductionPerFragment;
+        const interval = Math.max(vesselConst.horrorTiming.minInterval, vesselConst.horrorTiming.baseInterval - reduction);
 
         const id = setInterval(() => {
             if (Math.random() < 0.3) { // 30% chance each interval
@@ -127,7 +117,7 @@ export default function EntityPuzzlePage() {
         let nextPid = pid + 1;
 
         for (let i = 0; i < numStartingProcs; i++) {
-            const name = RANDOM_PROCESS_NAMES[Math.floor(Math.random() * RANDOM_PROCESS_NAMES.length)] + '-' + Math.floor(Math.random() * 999);
+            const name = vesselConst.randomProcessNames[Math.floor(Math.random() * vesselConst.randomProcessNames.length)] + '-' + Math.floor(Math.random() * 999);
             initial.push({pid: nextPid, name, status: 'running'});
             setCpuMap(m => ({...m, [nextPid]: Math.floor(Math.random() * 6) + 1}));
             nextPid++;
@@ -136,11 +126,11 @@ export default function EntityPuzzlePage() {
         setSubprocs(initial);
 
         // build filesystem for TR33 maze with proper nested structure
-        setFs(FILE_BUILD);
+        setFs(vesselConst.fileBuild);
 
         // initial log (colorized)
         if (!seenFlavorText) {
-            STARTUP_TEXT({sessionId, pid}).forEach(entry => pushLog(entry));
+            vesselConst.startupText({sessionId, pid}).forEach(entry => pushLog(entry));
             setSeenFlavorText(true);
         }
 
@@ -149,7 +139,7 @@ export default function EntityPuzzlePage() {
             // Don't spawn if Fragment 1 is collected
             if (fragments[1]) return;
 
-            if (Math.random() < PROCESS_TIMING.SPAWN_PROBABILITY) {
+            if (Math.random() < vesselConst.processTiming.spawnProbability) {
                 setSubprocs(prev => {
                     const npid = Math.max(...prev.map(p => p.pid)) + 1;
                     // choose a token from recent command history if possible
@@ -165,7 +155,7 @@ export default function EntityPuzzlePage() {
                 });
                 pushLog({text: '[PROC] a new child process appears', color: 'magenta'});
             }
-        }, PROCESS_TIMING.SPAWN_INTERVAL);
+        }, vesselConst.processTiming.spawnInterval);
 
         return () => clearInterval(spawnId);
     }, [sessionId]);
@@ -248,7 +238,7 @@ export default function EntityPuzzlePage() {
         setTimeout(() => setGlitchActive(false), 300);
 
         // Pick a random horror message for this fragment
-        const messages = HORROR_MESSAGE_SETS[fragmentNum] || ['something is wrong'];
+        const messages = vesselConst.horrorMessageSets[fragmentNum] || ['something is wrong'];
         const selectedMessage = messages[Math.floor(Math.random() * messages.length)];
 
         // Display horror message immediately
@@ -381,7 +371,7 @@ export default function EntityPuzzlePage() {
             setTimeout(() => setCpuMap(prev => ({
                 ...prev,
                 [pid]: Math.floor(Math.random() * 6) + 1
-            })), PROCESS_TIMING.CPU_SPIKE_DURATION);
+            })), vesselConst.processTiming.cpuSpikeDuration);
             return;
         }
 
@@ -423,20 +413,24 @@ export default function EntityPuzzlePage() {
                         if (p.name === 'TREE.exe') {
                             pushLog({text: '[ALERT] TREE.exe metamorphosis detected...', color: 'red'});
                             pushLog({
-                                text: `[SYS] Process renamed: ${TREE_CONSTANTS.NEW_NAME} [PID ${TREE_CONSTANTS.NEW_PID}]`,
+                                text: `[SYS] Process renamed: ${vesselConst.treeConstants.newName} [PID ${vesselConst.treeConstants.newPid}]`,
                                 color: 'yellow'
                             });
-                            return {...p, name: TREE_CONSTANTS.NEW_NAME, pid: TREE_CONSTANTS.NEW_PID};
+                            return {
+                                ...p,
+                                name: vesselConst.treeConstants.newName,
+                                pid: vesselConst.treeConstants.newPid
+                            };
                         }
                         return p;
                     }));
                     setCpuMap(m => {
                         const newMap = {...m};
                         delete newMap[remain[0].pid];
-                        newMap[TREE_CONSTANTS.NEW_PID] = TREE_CONSTANTS.CPU_USAGE;
+                        newMap[vesselConst.treeConstants.newPid] = vesselConst.treeConstants.cpuUsage;
                         return newMap;
                     });
-                }, TREE_CONSTANTS.METAMORPHOSIS_DELAY);
+                }, vesselConst.treeConstants.metamorphosisDelay);
             }
             return;
         }
@@ -472,12 +466,15 @@ export default function EntityPuzzlePage() {
                     text: '[TAS] Loading archived memory traces...',
                     color: 'magenta'
                 });
-                setTasPredictions(TAS_PREDICTION_COMMANDS);
+                setTasPredictions(vesselConst.tasPredictionCommands);
                 setTasWaiting(true);
                 pushLog({text: '[TAS] // begin log', color: 'magenta'});
                 pushLog('TAS: I remember when you opened the plaque.');
                 pushLog('TAS: I remember dialogs across pages...');
-                pushLog({text: '[TAS] predicted next: ' + TAS_PREDICTION_COMMANDS.join(', '), color: 'magenta'});
+                pushLog({
+                    text: '[TAS] predicted next: ' + vesselConst.tasPredictionCommands.join(', '),
+                    color: 'magenta'
+                });
                 pushLog({text: '[TAS] end log', color: 'magenta'});
                 return;
             }
@@ -569,7 +566,7 @@ export default function EntityPuzzlePage() {
 
             // special gaslighting: cd .. sometimes moves deeper
             if (target === '..') {
-                if (Math.random() < CD_GASLIGHT_PROBABILITY) {
+                if (Math.random() < vesselConst.cdGaslightProbability) {
                     // instead of moving up, move into a random child
                     const node = getFsNode(fs, cwd);
                     if (node && node.dirs && node.dirs.length > 0) {
@@ -740,7 +737,7 @@ export default function EntityPuzzlePage() {
                 text: '[SYS] Computing checksum... (timing is critical)',
                 color: 'gray'
             });
-            const goodWindow = hbPhase > HEARTBEAT_WINDOW.MIN && hbPhase < HEARTBEAT_WINDOW.MAX;
+            const goodWindow = hbPhase > vesselConst.heartbeatWindow.min && hbPhase < vesselConst.heartbeatWindow.max;
             const hash = await computeFakeHash(`${sessionId ?? 0}:${hbPhase}`);
             pushLog(`${hash}  ${target}`);
             if (goodWindow) {
@@ -812,7 +809,7 @@ export default function EntityPuzzlePage() {
 
     // heartbeat capture helper
     const submitHeartbeat = () => {
-        if (hbPhase > HEARTBEAT_WINDOW.MIN && hbPhase < HEARTBEAT_WINDOW.MAX) {
+        if (hbPhase > vesselConst.heartbeatWindow.min && hbPhase < vesselConst.heartbeatWindow.max) {
             const frag = 'HB' + String(Math.floor(Math.random() * 900) + 100);
             setFragmentSafely(3, frag);
             pushLog('pulse captured');
