@@ -44,8 +44,17 @@ export interface Process {
     status: 'running' | 'stalled' | 'ghost'
 }
 
+
+// Container class names factory args
 export type ContainerClassArgs = {
     styles: Record<string, string>;
     glitchActive: boolean;
     fragmentsCollected: number;
 };
+
+type StartupTextArgs = {
+    sessionId: string | number;
+    pid: string | number;
+};
+
+export type StartupTextFactory = (args: StartupTextArgs) => LogEntry[];

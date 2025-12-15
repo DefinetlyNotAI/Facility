@@ -1,6 +1,6 @@
 // Shared puzzle utilities: deterministic PRNG and helpers
 // Keep pure, deterministic and client-side only.
-import {ContainerClassArgs, FsNode, LogEntry} from "@/lib/types/chapterIV.types";
+import {ContainerClassArgs, FsNode, StartupTextFactory} from "@/lib/types/chapterIV.types";
 
 export function seedFromString(str: string) {
     let h = 2166136261 >>> 0;
@@ -206,7 +206,7 @@ export const FILE_BUILD: any = {
 };
 
 // Startup log text
-export const STARTUP_TEXT = (sessionId: string | number, pid: string | number): LogEntry[] => [
+export const STARTUP_TEXT: StartupTextFactory = ({sessionId, pid}) => [
     {text: `[BOOT] entity-shell online - session ${sessionId}`, color: 'green'},
     {text: `[INFO] TREE.exe present (pid ${pid})`, color: 'yellow'},
     {text: `[HINT] watch the processes; not every child should die`, color: 'gray'}
