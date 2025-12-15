@@ -9,98 +9,67 @@ import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/lib/types/chapterIV.types";
 import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
-import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode} from "@/lib/utils/chIV.helper";
+import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode,} from "@/lib/utils/chIV.helper";
+import {
+    useClientSideValue,
+    useCommandHistory,
+    useCyclingPhase,
+    useFirstTimeTracker,
+    useGlitchEffect,
+    useInterval,
+    useLocalStorageState
+} from "@/hooks/BonusActHooks/ChapterIV";
 
 export default function EntityPuzzlePage() {
     const access = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
-    const commandHistoryRef = useRef<string[]>([]);
 
     useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
     if (!access) return <div className={styles.loadingContainer}>Booting shell...</div>;
 
+    // Custom hooks for reusable logic
+    const sessionId = useClientSideValue(() => Math.floor(Date.now() / 1000));
+    const [mounted, setMounted] = useState(false);
+    const {commandHistoryRef, addCommand: addToCommandHistory} = useCommandHistory();
+    const {isFirstTime, reset: resetFirstTime} = useFirstTimeTracker();
+    const {isGlitchActive, triggerGlitch} = useGlitchEffect(300);
+    const hbPhase = useCyclingPhase(entityConst.heartbeatWindow.interval, entityConst.heartbeatWindow.maxPhase);
+    const [fragments, setFragments] = useLocalStorageState(localStorageKeys.chapterIVProgress, {});
+
     // UI and state
     const [streamLogs, setStreamLogs] = useState<LogEntry[]>([]); // terminal output (color-aware)
     const [commandInput, setCommandInput] = useState<string>('');
-    const [fragments, setFragments] = useState<Record<number, string>>({});
     const [subprocs, setSubprocs] = useState<Process[]>([]);
-    const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [cpuMap, setCpuMap] = useState<Record<number, number>>({});
     const [fs, setFs] = useState<any>(null);
     const [cwd, setCwd] = useState<string>('/');
-    const [firstTimeCommands, setFirstTimeCommands] = useState<Record<string, boolean>>({});
     const [fragmentsCollected, setFragmentsCollected] = useState<number>(0);
-    const [glitchActive, setGlitchActive] = useState<boolean>(false);
     const [horrorMessages, setHorrorMessages] = useState<string[]>([]);
     const [seenFlavorText, setSeenFlavorText] = useState<boolean>(false);
-    const [sessionId, setSessionId] = useState<number | null>(null);
     const [echoMap, setEchoMap] = useState<{ from: string, to: string }>({from: 'a', to: '@'});
     const [echoHijack, setEchoHijack] = useState<boolean>(true);
     const [commandLocked, setCommandLocked] = useState<boolean>(false);
-    const [mounted, setMounted] = useState(false);
-    const [hbPhase, setHbPhase] = useState<number>(0);  // heartbeat phase used by hash puzzle
     const [tasPredictions, setTasPredictions] = useState<string[] | null>(null);  // TAS predictions state
     const [tasWaiting, setTasWaiting] = useState<boolean>(false);
     const [visitedPathLetters, setVisitedPathLetters] = useState<string[]>([]);  // TR33 maze tracking
-
-    // sessionId must be derived on the client only to avoid SSR hydration mismatches
-    useEffect(() => {
-        // set a stable session id on mount
-        setSessionId(Math.floor(Date.now() / 1000));
-    }, []);
 
     // treePid not stored as state; we log it during init for reference
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // restore saved
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem(localStorageKeys.chapterIVProgress);
-            if (raw) {
-                const data = JSON.parse(raw);
-                if (data.fragments) setFragments(data.fragments);
-            }
-        } catch (e) {
-        }
-    }, []);
-    useEffect(() => {
-        try {
-            localStorage.setItem(localStorageKeys.chapterIVProgress, JSON.stringify({fragments}));
-        } catch (e) {
-        }
-    }, [fragments]);
-
-    // heart beat interval
-    useEffect(() => {
-        const id = setInterval(() => setHbPhase(p => (p + 1) % 100), 80);
-        return () => clearInterval(id);
-    }, []);
-
     // Random horror message appearances (gets more frequent with more fragments)
-    useEffect(() => {
+    useInterval(() => {
         if (horrorMessages.length === 0) return;
-
-        // Frequency increases with fragment count (starts at 45s, gets down to 15s)
+        if (Math.random() < 0.3) { // 30% chance each interval
+            const msg = horrorMessages[Math.floor(Math.random() * horrorMessages.length)];
+            pushLog({text: `[whisper] ${msg}`, color: 'red'});
+        }
+    }, horrorMessages.length > 0 ? (() => {
         const reduction = fragmentsCollected * entityConst.horrorTiming.reductionPerFragment;
-        const interval = Math.max(entityConst.horrorTiming.minInterval, entityConst.horrorTiming.baseInterval - reduction);
-
-        const id = setInterval(() => {
-            if (Math.random() < 0.3) { // 30% chance each interval
-                const msg = horrorMessages[Math.floor(Math.random() * horrorMessages.length)];
-                pushLog({text: `[whisper] ${msg}`, color: 'red'});
-            }
-        }, interval);
-
-        return () => clearInterval(id);
-    }, [horrorMessages, fragmentsCollected]);
-
-    // Ref to track command history without triggering re-initialization
-    useEffect(() => {
-        commandHistoryRef.current = commandHistory;
-    }, [commandHistory]);
+        return Math.max(entityConst.horrorTiming.minInterval, entityConst.horrorTiming.baseInterval - reduction);
+    })() : null);
 
     // initialize subprocesses, TREE.exe PID, fs once sessionId is available (client-only)
     useEffect(() => {
@@ -183,12 +152,6 @@ export default function EntityPuzzlePage() {
         });
     };
 
-    // helper: check if this is the first time a command is run (for flavor text)
-    const isFirstTime = (cmd: string) => {
-        if (firstTimeCommands[cmd]) return false;
-        setFirstTimeCommands(prev => ({...prev, [cmd]: true}));
-        return true;
-    };
 
     // apply echo substitution
     const applyEcho = (raw: string) => {
@@ -234,8 +197,7 @@ export default function EntityPuzzlePage() {
         playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);
 
         // Screen glitch effect (temporary)
-        setGlitchActive(true);
-        setTimeout(() => setGlitchActive(false), 300);
+        triggerGlitch();
 
         // Pick a random horror message for this fragment
         const messages = entityConst.horrorMessageSets[fragmentNum] || ['something is wrong'];
@@ -280,7 +242,7 @@ export default function EntityPuzzlePage() {
         pushLog({text: ''});
 
         // record history (tokens)
-        setCommandHistory(prev => [...prev.slice(-200), rawCommand]);
+        addToCommandHistory(rawCommand);
         pushLog({text: `> ${rawCommand}`, color: 'cyan'});
 
         // if TAS predicted list is active and waiting, check whether this command breaks prediction
@@ -316,7 +278,7 @@ export default function EntityPuzzlePage() {
         // clear command - clears terminal and resets first-time tracking
         if (cmd === 'clear' || cmd === 'cls') {
             setStreamLogs([]);
-            setFirstTimeCommands({});
+            resetFirstTime();
             pushLog({text: entityConst.messages.terminalCleared, color: 'gray'});
             return;
         }
@@ -812,7 +774,7 @@ export default function EntityPuzzlePage() {
     }
 
     return (
-        <div className={getContainerClasses({styles, glitchActive, fragmentsCollected})}>
+        <div className={getContainerClasses({styles, glitchActive: isGlitchActive, fragmentsCollected})}>
             <div className={styles.header}>
                 <div className={styles.headerTitle}>{entityConst.messages.headerTitle}</div>
                 <div className={styles.sessionInfo}>{entityConst.messages.sessionPrefix}{mounted && sessionId}</div>

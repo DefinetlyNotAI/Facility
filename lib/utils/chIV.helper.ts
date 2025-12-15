@@ -1,6 +1,6 @@
 // Shared puzzle utilities: deterministic PRNG and helpers
 // Keep pure, deterministic and client-side only.
-import {ContainerClassArgs, FsNode, vesselConstType} from "@/lib/types/chapterIV.types";
+import {ContainerClassArgs, FragmentsMap, FsNode, vesselConstType} from "@/lib/types/chapterIV.types";
 
 export function seedFromString(str: string) {
     let h = 2166136261 >>> 0;
@@ -116,7 +116,9 @@ export const entityConst: vesselConstType = {
 
     heartbeatWindow: {
         min: 44,
-        max: 57
+        max: 57,
+        interval: 80,
+        maxPhase: 100
     },
 
     horrorTiming: {
@@ -448,4 +450,15 @@ export const getContainerClasses = ({
     if (fragmentsCollected >= 7) classes.push(styles.corruption7);
 
     return classes.join(' ');
+};
+
+// Serializer and Deserializer function for useLocalStorageState hook
+export const serializeFragments = (value: FragmentsMap) => JSON.stringify({fragments: value});
+export const deserializeFragments = (raw: string): FragmentsMap => {
+    try {
+        const data = JSON.parse(raw);
+        return data.fragments || {};
+    } catch {
+        return {};
+    }
 };

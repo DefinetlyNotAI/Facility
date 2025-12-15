@@ -51,6 +51,8 @@ export type ContainerClassArgs = {
     fragmentsCollected: number;
 };
 
+export type FragmentsMap = Record<number, string>;
+
 // Ch IV Const arg (text)
 type StartupTextArgs = {
     sessionId: string | number;
@@ -65,6 +67,8 @@ export interface vesselConstType {
     heartbeatWindow: {
         min: number;
         max: number;
+        interval: number;
+        maxPhase: number;
     };
 
     horrorTiming: {
