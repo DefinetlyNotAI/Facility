@@ -883,7 +883,7 @@ export default function WhiteRoomPage() {
                 droneGainRef.current.disconnect();
             }
             if (audioContextRef.current) {
-                audioContextRef.current.close();
+                audioContextRef.current.close().catch(console.error);
             }
 
             // Clean up Three.js

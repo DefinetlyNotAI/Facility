@@ -13,7 +13,6 @@ export {useChapter2Access, useChapter4Access} from "@/hooks/BonusActHooks";
 export {useFailed} from "@/hooks/BonusActHooks";
 export {usePreloadActStates} from "@/hooks/BonusActHooks";
 
-export {useBackgroundAudio} from "@/hooks/useBackgroundAudio";
 export {useBootSequence} from "@/hooks/useBootSequence";
 export {useStageProgression} from "@/hooks/useStageProgression";
 export {useStageValidation} from "@/hooks/useStageValidation";

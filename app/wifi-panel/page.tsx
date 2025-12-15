@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/WifiPanel.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {checkKeyword, signCookie} from "@/lib/utils";
 import {messages, wifiPanel} from "@/lib/data/wifi";
 import {cookies, routes} from "@/lib/saveData";
@@ -22,7 +22,7 @@ export default function WifiPanel() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Initialize background audio
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_PANEL);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_PANEL);
 
     // Check cookies on mount
     useEffect(() => {

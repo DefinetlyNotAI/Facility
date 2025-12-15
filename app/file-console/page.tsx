@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/FileConsole.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {
     BOOT_MESSAGES,
     CAT_FILES,
@@ -38,7 +38,7 @@ export default function FileConsole() {
     }, []);
 
     // Initialize background audio
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.FILE_CONSOLE);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.FILE_CONSOLE);
 
     useEffect(() => {
         if (!Cookies.get(cookies.fileConsole)) {

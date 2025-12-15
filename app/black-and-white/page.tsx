@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playAudio, playBackgroundAudio, SFX_AUDIO} from "@/lib/data/audio";
 import {checkKeyword, signCookie} from "@/lib/utils";
 import {
     FORM_PLACEHOLDER,
@@ -32,7 +32,7 @@ export default function BlackAndWhitePage() {
     const [submitting, setSubmitting] = useState(false);
 
     // Initialize background audio
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BNW)
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BNW)
 
     // On mount: check cookie, else redirect 404
     useEffect(() => {

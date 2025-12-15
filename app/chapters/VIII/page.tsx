@@ -1,11 +1,11 @@
 "use client";
 import React, {useEffect, useRef, useState} from "react";
-import {useBackgroundAudio, useChapterAccess} from "@/hooks";
+import {useChapterAccess} from "@/hooks";
 import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
 import {CheckMeResponse} from "@/lib/types/api";
 import {chapterVIIIData} from "@/lib/data/chapters/chapters";
 import {localStorageKeys} from "@/lib/saveData";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 
 
 export default function BloomLiveDiePage() {
@@ -25,7 +25,7 @@ export default function BloomLiveDiePage() {
     const totalBanned = Array.isArray(globalList) ? globalList.length : 0;
     const remaining = 43 - totalBanned;
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VIII);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VIII);
 
     useEffect(() => {
         if (totalBanned >= meta.totalNeeded && !solvedLocal) {

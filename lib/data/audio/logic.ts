@@ -1,9 +1,9 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 
 // Utility function to play audio with error handling
 // Useful for custom sound control
-// It is recommended to use playSafeSFX for SFX and useBackgroundAudio for background music
+// However it is recommended to use playSafeSFX for SFX and playBackgroundAudio for background music
 export const playAudio =
     (audioPath: string, options: {
         volume?: number;
@@ -31,8 +31,8 @@ export const playAudio =
         }
     };
 
-// Don't use normally - Utility function to initialize background audio with user interaction handling
-export const initializeBackgroundAudio = (
+// Utility function to initialize background audio with user interaction handling
+const initializeBackgroundAudio = (
     audioRef: React.RefObject<HTMLAudioElement>,
     _audioPath: string,
     options: {
@@ -63,8 +63,8 @@ export const initializeBackgroundAudio = (
     };
 };
 
-// Don't use normally - Utility function to clean up audio
-export const cleanupAudio = (audioRef: React.RefObject<HTMLAudioElement>) => {
+// Utility function to clean up audio
+const cleanupAudio = (audioRef: React.RefObject<HTMLAudioElement>) => {
     if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
@@ -95,4 +95,32 @@ export function playSafeSFX(audioRef: React.RefObject<HTMLAudioElement>, audioPa
     } catch (error) {
         console.warn('Failed to play interaction audio:', error);
     }
+}
+
+// Custom hook to manage background audio with user interaction
+// You will need to pass an HTML audio element reference with both the audioRef and audioSrc for this to work
+export function playBackgroundAudio(audioRef: React.RefObject<HTMLAudioElement>, audioSrc: string, conditional: boolean | null | undefined = true) {
+    useEffect(() => {
+        if (!conditional) {
+            cleanupAudio(audioRef);
+            return;
+        }
+        let hasInteracted = false;
+        const startAudio = () => {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                const initAudio = initializeBackgroundAudio(audioRef, audioSrc);
+                initAudio();
+                window.removeEventListener('pointerdown', startAudio);
+                window.removeEventListener('keydown', startAudio);
+            }
+        };
+        window.addEventListener('pointerdown', startAudio);
+        window.addEventListener('keydown', startAudio);
+        return () => {
+            window.removeEventListener('pointerdown', startAudio);
+            window.removeEventListener('keydown', startAudio);
+            cleanupAudio(audioRef);
+        };
+    }, [audioRef, audioSrc, conditional]);
 }

@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/utils";
 import styles from '../../styles/WifiLogin.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {form, hashes, messages} from "@/lib/data/wifi";
 import {cookies, routes} from "@/lib/saveData";
 
@@ -92,7 +92,7 @@ const WifiLoginPage: React.FC = () => {
     const [showCurlHint, setShowCurlHint] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.WIFI_LOGIN);
 
     useEffect(() => {
         const wifiPassed = Cookies.get(cookies.wifiPassed);

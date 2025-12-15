@@ -20,7 +20,7 @@ import {CMD} from '@/components/tree98/applications/CMD';
 import {ControlPanel} from "@/components/tree98/dialogs/ControlPanel";
 import {VesselBootDialog} from "@/components/tree98/dialogs/VesselBootDialog";
 import {FileViewer} from "@/components/tree98/dialogs/FileViewer";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 const Tree98Sim: React.FC<{
     audioRef: React.RefObject<HTMLAudioElement>;
@@ -190,7 +190,7 @@ const Tree98Sim: React.FC<{
             setAudioSrc(BACKGROUND_AUDIO.COMPUTER);
         }
     }, [showBlueScreen, bootPhase]);
-    useBackgroundAudio(audioRef, audioSrc);
+    playBackgroundAudio(audioRef, audioSrc);
 
     // Show appropriate boot phase
     if (bootPhase === 'boot') {

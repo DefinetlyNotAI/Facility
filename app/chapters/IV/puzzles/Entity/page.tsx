@@ -2,14 +2,13 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/lib/types/chapterIV.types";
 import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
 import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode,} from "@/lib/utils/chIV.helper";
 import {
-    useBackgroundAudio,
     useChapter4Access,
     useClientSideValue,
     useCommandHistory,
@@ -24,7 +23,7 @@ export default function EntityPuzzlePage() {
     const access = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
     if (!access) return <div className={styles.loadingContainer}>Booting shell...</div>;
 

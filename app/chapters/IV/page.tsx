@@ -9,8 +9,8 @@ import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {AllowedPlaqueStatus} from "@/lib/types/api";
 
-import {useBackgroundAudio, useChapterAccess, useFailed} from "@/hooks";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {useChapterAccess, useFailed} from "@/hooks";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {routes} from '@/lib/saveData';
 
 // JSON cookie helpers to store merged plaque progress
@@ -42,7 +42,7 @@ export default function ChapterIVPage() {
     const [questStatus] = useState<AllowedPlaqueStatus>('active');
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
     const isAllFailed = useFailed("IV");
 
     const router = useRouter();

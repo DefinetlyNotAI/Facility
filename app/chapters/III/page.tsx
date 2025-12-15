@@ -5,7 +5,7 @@ import {chapter, chapterIIIData} from "@/lib/data/chapters/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/lib/types/chapters";
 import {useChapterAccess, useFailed} from "@/hooks";
-import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 import {routes} from "@/lib/saveData";
 
 const renderCorruptedClock = () => {
@@ -14,7 +14,7 @@ const renderCorruptedClock = () => {
     const randomSkew = -20 + Math.random() * 40;
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.III);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.III);
     return (
         <>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.III} loop preload="auto" style={{display: 'none'}}/>

@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import styles from '../../styles/Buttons.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {BROWSERS, SUBTITLE_TEXT, TITLE, TOOLTIP, WINGDING} from '@/lib/data/buttons';
 import {BrowserName} from "@/lib/types/buttons";
 import {cookies, routes} from "@/lib/saveData";
@@ -64,7 +64,7 @@ export default function ButtonsPage() {
     const pressedCount = Object.values(buttonStates).filter(Boolean).length;
 
     // Initialize background audio
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS)
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS)
 
     useEffect(() => {
         axios.get(routes.api.security.csrfToken).catch(() => {

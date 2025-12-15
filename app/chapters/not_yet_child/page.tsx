@@ -3,8 +3,7 @@
 import styles from '@/styles/ChapterBonusSpecial.module.css';
 import {bonusErrorText} from "@/lib/data/chapters/chapters";
 import React, {useEffect, useRef} from "react";
-import {useBackgroundAudio} from "@/hooks";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {cookies, routes} from "@/lib/saveData";
@@ -21,7 +20,7 @@ export default function NotYetChild() {
     }, [router]);
 
     // Initialize background audio
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NOT_YET)
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NOT_YET)
 
     useEffect(() => {
         playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);

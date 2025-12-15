@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {VNTextRenderer} from "@/components/VNRenderer";
 import styles from '../../styles/Terminal.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {
     cutsceneMetaCountdown,
     errorMessages,
@@ -57,7 +57,7 @@ export default function TerminalPage() {
             .join(' ');
     };
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.TERMINAL, (unlocked && !fullScreenOverlay));
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.TERMINAL, (unlocked && !fullScreenOverlay));
 
     // Queue system for timed rendering
     const flushMessagesSequentially = async (queue: string[], delay = 800) => {

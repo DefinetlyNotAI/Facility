@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useEffect, useRef, useState} from 'react';
-import {BACKGROUND_AUDIO, useBackgroundAudio} from '@/lib/data/audio';
+import {BACKGROUND_AUDIO, playBackgroundAudio} from '@/lib/data/audio';
 import {IMAGE_CAPTION, SMILE_LOC, WHISPER_TEXTS} from '@/lib/data/dream';
 import styles from '@/styles/Dream.module.css';
 import Cookies from "js-cookie";
@@ -13,7 +13,7 @@ export default function DreamScreen() {
     const [caption, setCaption] = useState<string>('');
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.DREAM);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.DREAM);
 
     useEffect(() => {
         const treeCookie = Cookies.get(cookies.tree);

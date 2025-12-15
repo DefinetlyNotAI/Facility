@@ -4,8 +4,8 @@ import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {seededShuffle, seedFromString} from '@/lib/utils/chIV.helper';
-import {useBackgroundAudio, useChapter4Access} from "@/hooks";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {useChapter4Access} from "@/hooks";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
     idx: number,
@@ -52,7 +52,7 @@ export default function TreePuzzlePage() {
     const isCurrentlySolved = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
     if (!isCurrentlySolved) {
         return (

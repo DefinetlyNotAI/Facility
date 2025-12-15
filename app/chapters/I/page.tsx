@@ -10,7 +10,7 @@ import {chapter, chIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {checkPass} from "@/lib/utils";
 
 import {useChapterAccess} from "@/hooks";
-import {BACKGROUND_AUDIO, useBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 
 
 export default function ChapterIPage() {
@@ -21,7 +21,7 @@ export default function ChapterIPage() {
     const [isConnecting, setIsConnecting] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.I);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.I);
 
     const handleConnect = async () => {
         setError("");

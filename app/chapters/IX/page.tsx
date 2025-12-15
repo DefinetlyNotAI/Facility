@@ -3,14 +3,14 @@
 import {useEffect, useRef} from 'react';
 import {chapterIXData, fileLinks} from "@/lib/data/chapters/chapters";
 import styles from '@/styles/Philosophy.module.css';
-import {useBackgroundAudio, useChapterAccess, useFailed} from "@/hooks";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {useChapterAccess, useFailed} from "@/hooks";
+import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 
 export default function Philosophy() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IX);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IX);
     useFailed('IX');
 
     useEffect(() => {

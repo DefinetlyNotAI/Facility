@@ -9,8 +9,8 @@ import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
-import {useBackgroundAudio, useChapter2Access} from "@/hooks";
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {useChapter2Access} from "@/hooks";
+import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 
 export default function ChapterIITimedPage() {
     const router = useRouter();
@@ -20,7 +20,7 @@ export default function ChapterIITimedPage() {
     const [error, setError] = useState('');
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
     useChapter2Access()
 
     useEffect(() => {

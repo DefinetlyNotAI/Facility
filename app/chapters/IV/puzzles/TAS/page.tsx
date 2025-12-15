@@ -5,8 +5,8 @@ import Link from 'next/link';
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
 import {seededShuffle} from '@/lib/utils/chIV.helper';
 import {routes} from '@/lib/saveData';
-import {useBackgroundAudio, useChapter4Access} from "@/hooks";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {useChapter4Access} from "@/hooks";
+import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 // Riddle component (adapted from TREE puzzle for a riddle-chain mini-game)
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
@@ -53,7 +53,7 @@ export default function TasPuzzlePage() {
     const isCurrentlySolved = useChapter4Access();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
+    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
     if (!isCurrentlySolved) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
