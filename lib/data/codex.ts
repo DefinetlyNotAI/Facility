@@ -1,4 +1,4 @@
-import {Chapter, CodexOverlay} from "@/lib/types/codex";
+import {Chapter, CodexOverlay} from "@/types";
 
 
 // Data for main codex page

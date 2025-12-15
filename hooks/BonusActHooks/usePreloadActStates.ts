@@ -1,6 +1,6 @@
 // Preload all checks and return ready flag
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
-import {ActionState, BonusAct} from "@/lib/types/api";
+import {ActionState, BonusAct} from "@/types";
 import {routes} from "@/lib/saveData";
 import {useFailed} from "@/hooks/BonusActHooks/useFailed";
 import {useEffect, useState} from "react";

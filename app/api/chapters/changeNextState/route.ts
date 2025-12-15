@@ -2,7 +2,7 @@ import {NextRequest} from "next/server";
 import {createSecureResponse, verifyAdmin} from "@/lib/utils";
 import {dbPool} from "@/lib/db";
 import {allowedActs, genericErrors} from "@/lib/data/api";
-import {ActionState} from "@/lib/types/api";
+import {ActionState} from "@/types";
 
 export async function POST(req: NextRequest) {
     const authError = verifyAdmin(req);

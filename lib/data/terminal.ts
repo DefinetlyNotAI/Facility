@@ -1,5 +1,5 @@
 // terminal.tsx
-import {KeywordKey, PlaceholderKeys} from "@/lib/types/terminal";
+import {KeywordKey, PlaceholderKeys} from "@/types/terminal";
 
 // Data used for the terminal
 export const vesselLoc = {

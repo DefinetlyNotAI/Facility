@@ -1,4 +1,4 @@
-import {BootMessage, Dirent} from "@/lib/types/fileConsole";
+import {BootMessage, Dirent} from "@/types";
 
 // file console's file system declaration
 const DUMMY_FILES: Dirent[] = Array.from({length: 6}, (_, i) => ({

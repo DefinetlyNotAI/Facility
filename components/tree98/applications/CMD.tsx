@@ -2,7 +2,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {cmdData, exeTitle, files, sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
-import {DirItem} from "@/lib/types/tree98";
+import {DirItem} from "@/types";
 
 
 const resolvePath = (base: string[], targetPath?: string): DirItem | null => {

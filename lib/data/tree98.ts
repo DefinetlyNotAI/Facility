@@ -1,4 +1,4 @@
-import {CommandDeps, ControlPanelData, DesktopIcon, FileSystemItem, InfoField} from "@/lib/types/tree98";
+import {CommandDeps, ControlPanelData, DesktopIcon, FileSystemItem, InfoField} from "@/types";
 
 // System config settings for the simulation
 export const sysConfigDefaults = {

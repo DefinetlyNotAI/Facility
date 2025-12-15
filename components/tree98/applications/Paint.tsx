@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Tool} from "@/lib/types/tree98";
+import {Tool} from "@/types";
 
 
 export const Paint: React.FC = () => {

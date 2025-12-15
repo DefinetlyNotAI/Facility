@@ -1,6 +1,6 @@
 import React from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
-import {ContextMenuProps} from "@/lib/types/tree98";
+import {ContextMenuProps} from "@/types";
 
 
 export const ContextMenuComponent: React.FC<ContextMenuProps> = ({

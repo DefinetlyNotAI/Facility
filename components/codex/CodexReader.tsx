@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Eye, Play} from 'lucide-react';
 import styles from '../../styles/Codex.module.css';
-import {CodexReaderProps, HoverState} from "@/lib/types/codex";
+import {CodexReaderProps, HoverState} from "@/types";
 import {keywordInfo} from "@/lib/data/codex";
 
 

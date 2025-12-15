@@ -2,7 +2,7 @@
 import {validRomansNoTimeLeft} from "@/lib/data/chapters/chapters";
 import {routes} from "@/lib/saveData";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
-import {ActionState} from "@/lib/types/api";
+import {ActionState} from "@/types";
 
 export function useFailed(roman: string) {
     const normalized = roman.toLowerCase();

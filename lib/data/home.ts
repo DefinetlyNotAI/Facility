@@ -1,5 +1,5 @@
 // home.tsx
-import {ResearchLog} from "@/lib/types/home";
+import {ResearchLog} from "@/types";
 
 // Data for fake system metrics
 export const systemMetrics = {

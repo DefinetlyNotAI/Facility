@@ -1,6 +1,6 @@
 import React from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
-import {LoadingScreenProps} from "@/lib/types/tree98";
+import {LoadingScreenProps} from "@/types";
 
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({loadingProgress}) => (

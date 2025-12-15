@@ -6,7 +6,7 @@ import {bannedApi, bonusApi, ensureCsrfToken, getCookiesMap, signCookie} from '@
 import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
 import {cookies, routes} from '@/lib/saveData';
-import {ActionState, BonusAct, BonusResponse} from '@/lib/types/api';
+import {ActionState, BonusAct, BonusResponse} from '@/types';
 
 export default function SmilekingClient() {
     const [cookieState, setCookieState] = useState<Record<string, boolean>>({});

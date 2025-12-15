@@ -1,5 +1,5 @@
 // Generic internal hook
-import {ActionState, BonusAct} from "@/lib/types/api";
+import {ActionState, BonusAct} from "@/types";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import {validRomans} from "@/lib/data/chapters/chapters.public";

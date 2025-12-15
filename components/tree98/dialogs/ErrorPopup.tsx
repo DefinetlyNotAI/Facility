@@ -1,7 +1,7 @@
 import React from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
-import {ErrorDialogProps} from "@/lib/types/tree98";
+import {ErrorDialogProps} from "@/types";
 
 export const ErrorDialog: React.FC<ErrorDialogProps> = ({message, style, onClose}) => (
     <div

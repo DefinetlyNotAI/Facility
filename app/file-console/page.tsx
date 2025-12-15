@@ -18,7 +18,7 @@ import {
     WGET_FILES,
     WHOAMI_MSG
 } from "@/lib/data/fileConsole";
-import {BootMessage} from "@/lib/types/fileConsole";
+import {BootMessage} from "@/types";
 import {fetchUserIP} from "@/lib/utils";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 

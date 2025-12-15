@@ -4,7 +4,7 @@ import {CUTSCENE_LINES, FINALE_MSG} from "@/lib/data/choices";
 import {useTypewriter} from "@/hooks";
 import {SFX_AUDIO} from "@/lib/data/audio";
 import {renderMsg, signCookie} from "@/lib/utils";
-import {TASGoodByeProps} from "@/lib/types/tas";
+import {TASGoodByeProps} from "@/types";
 import {cookies} from "@/lib/saveData";
 
 

@@ -13,7 +13,7 @@ import {
     systemMetrics,
     text
 } from '@/lib/data/home';
-import {ResearchLog} from '@/lib/types/home';
+import {ResearchLog} from '@/types';
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 import Cookies from "js-cookie";
 

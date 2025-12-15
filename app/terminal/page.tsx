@@ -18,7 +18,7 @@ import {
     vesselLoc,
     wingdingsTitles
 } from '@/lib/data/terminal';
-import {FullScreenOverlay, KeywordKey, TerminalStep} from "@/lib/types/terminal";
+import {FullScreenOverlay, KeywordKey, TerminalStep} from "@/types";
 import {getOrCreateSessionId, signCookie} from "@/lib/utils";
 import {cookies, routes} from "@/lib/saveData";
 

@@ -6,7 +6,7 @@ import styles from "@/styles/ChapterBonusRoot.module.css";
 import {bonusApi} from "@/lib/utils";
 import {failQuestNames, rootChapterText} from "@/lib/data/chapters/chapters";
 import {routes} from "@/lib/saveData";
-import {ActionState, BonusResponse} from "@/lib/types/api";
+import {ActionState, BonusResponse} from "@/types";
 import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.public";
 

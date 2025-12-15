@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {VNTextRendererProps} from "@/lib/types/other";
+import {VNTextRendererProps} from "@/types";
 
 export const VNTextRenderer = ({text, onDone}: VNTextRendererProps) => {
     const [displayedText, setDisplayedText] = useState('');
@@ -14,7 +14,7 @@ export const VNTextRenderer = ({text, onDone}: VNTextRendererProps) => {
         const interval = setInterval(() => {
             if (indexRef.current >= textRef.current.length) {
                 clearInterval(interval);
-                if (onDone) onDone(); // ✅ fire callback after text is done typing
+                if (onDone) onDone(); // fire callback after text is done typing
                 return;
             }
 

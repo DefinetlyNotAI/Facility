@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {files, sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from '@/components/tree98/icons';
-import {FileExplorerProps, FileSystemItem} from "@/lib/types/tree98";
+import {FileExplorerProps, FileSystemItem} from "@/types";
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({startPath, onFileOpen}) => {
     const [currentPath, setCurrentPath] = useState(startPath || ['/']);

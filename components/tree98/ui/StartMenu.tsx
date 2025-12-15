@@ -1,7 +1,6 @@
 import React from 'react';
 import {startMenu, sysConfigDefaults} from '@/lib/data/tree98';
-import {StartMenuProps} from '@/lib/types/tree98';
-
+import {StartMenuProps} from '@/types';
 import {getIcon} from '@/components/tree98/icons';
 
 

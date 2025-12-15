@@ -3,7 +3,7 @@
 import React, {useCallback, useRef} from 'react';
 import {routes} from '@/lib/saveData';
 import {playSafeSFX, SFX_AUDIO} from '@/lib/data/audio';
-import type {PlaqueId, ValidationResponse} from '@/lib/types/chapterIV.types';
+import type {PlaqueId, ValidationResponse} from '@/types';
 
 interface UseStageValidationOptions {
     plaqueId: PlaqueId;

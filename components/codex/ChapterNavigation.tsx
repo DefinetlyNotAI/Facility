@@ -1,5 +1,5 @@
 import {BookOpen, ChevronLeft, ChevronRight} from 'lucide-react';
-import {ChapterNavigationProps} from "@/lib/types/codex";
+import {ChapterNavigationProps} from "@/types";
 
 
 export default function ChapterNavigation({

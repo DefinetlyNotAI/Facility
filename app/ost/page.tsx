@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import styles from '@/styles/OST.module.css';
 import {BACKGROUND_AUDIO} from "@/lib/data/audio";
-import {Track} from "@/lib/types/ost";
+import {Track} from "@/types";
 import {DISPLAY_NAMES, TRACK_NAMES} from "@/lib/data/audio/ost";
 
 

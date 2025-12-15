@@ -1,6 +1,6 @@
 import {useRouter} from "next/navigation";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
-import {ActionState} from "@/lib/types/api";
+import {ActionState} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
 import {useEffect} from "react";
 import Cookies from "js-cookie";

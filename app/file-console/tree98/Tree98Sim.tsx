@@ -5,7 +5,7 @@ import LoginScreen from './LoginScreen';
 import {desktop, exeTitle, sysConfigDefaults} from '@/lib/data/tree98';
 import Cookies from "js-cookie";
 import {getIcon} from '@/components/tree98/icons';
-import {ContextMenu, FileSystemItem} from '@/lib/types/tree98';
+import {ContextMenu, FileSystemItem} from '@/types';
 import {useBootSequence, useSystemCorruption, useWindowManagement} from '@/hooks';
 import {WindowComponent} from '@/components/tree98/WindowComponent';
 import {Notepad} from '@/components/tree98/applications/Notepad';

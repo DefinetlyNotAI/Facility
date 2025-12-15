@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {deserializeFragments, serializeFragments} from '@/lib/utils/chIV.helper';
-import {FragmentsMap} from "@/lib/types/chapterIV.types";
+import {FragmentsMap} from "@/types";
 
 /**
  * Custom hook to sync FragmentsMap state with localStorage

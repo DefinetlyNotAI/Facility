@@ -1,4 +1,4 @@
-import {FinaleMessage, FormFields} from "@/lib/types/wifi";
+import {FinaleMessage, FormFields} from "@/types";
 
 export const messages = {
     finale: [

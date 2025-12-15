@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
-import {LogEntry, Process} from "@/lib/types/chapterIV.types";
+import {LogEntry, Process} from "@/types";
 import {markCompleted} from "@/lib/utils/chIV.cookies.server";
 import {localStorageKeys} from "@/lib/saveData";
 import {computeFakeHash, entityConst, fileExists, getContainerClasses, getFsNode,} from "@/lib/utils/chIV.helper";

@@ -7,7 +7,7 @@ import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
 import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
 import {chapterIVPublic as chapterIVData} from '@/lib/data/chapters/chapterIV.public';
-import {AllowedPlaqueStatus} from "@/lib/types/api";
+import {AllowedPlaqueStatus} from "@/types";
 
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";

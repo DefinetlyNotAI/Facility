@@ -1,4 +1,4 @@
-import {ChapterVIIData} from "@/lib/types/chapters";
+import {ChapterVIIData} from "@/types";
 
 // All texts used in bonus chapters for errors or messages
 export const bonusErrorText = {

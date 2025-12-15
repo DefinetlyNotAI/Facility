@@ -1,5 +1,5 @@
 // Console messages with increasing intensity
-import {MemoryFragment} from "@/lib/types/theEnd";
+import {MemoryFragment} from "@/types";
 
 export const messages = {
     memoryFragments: [

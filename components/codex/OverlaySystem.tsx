@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {AlertTriangle, X} from 'lucide-react';
 import styles from '../../styles/Codex.module.css';
-import {CodexOverlay, OverlaySystemProps} from "@/lib/types/codex";
+import {CodexOverlay, OverlaySystemProps} from "@/types";
 
 
 export default function OverlaySystem({overlays, currentLine, hoveredKeyword}: OverlaySystemProps) {

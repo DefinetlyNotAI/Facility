@@ -1,6 +1,6 @@
 // Shared puzzle utilities: deterministic PRNG and helpers
 // Keep pure, deterministic and client-side only.
-import {ContainerClassArgs, FragmentsMap, FsNode, vesselConstType} from "@/lib/types/chapterIV.types";
+import {ContainerClassArgs, FragmentsMap, FsNode, vesselConstType} from "@/types";
 
 export function seedFromString(str: string) {
     let h = 2166136261 >>> 0;

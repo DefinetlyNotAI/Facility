@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/utils";
 import {script} from "@/lib/data/oArvoreDaCarne";
-import {ScriptItem} from "@/lib/types/oArvoreDaCarne";
+import {ScriptItem} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
 import styles from "@/styles/CarnePlay.module.css";
 

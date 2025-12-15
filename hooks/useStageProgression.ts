@@ -1,8 +1,8 @@
 // Stage Progression Hook for Chapter IV Puzzles
 
-import {useState, useEffect, useCallback, useRef} from 'react';
-import {saveStageIndex, getSavedStageIndex} from '@/lib/utils/storage';
-import type {StageData} from '@/lib/types/chapterIV.types';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {getSavedStageIndex, saveStageIndex} from '@/lib/utils/storage';
+import type {StageData} from '@/types';
 
 interface UseStageProgressionOptions {
     plaqueId: string;

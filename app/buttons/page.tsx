@@ -7,7 +7,7 @@ import {useRouter} from 'next/navigation';
 import styles from '../../styles/Buttons.module.css';
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {BROWSERS, SUBTITLE_TEXT, TITLE, TOOLTIP, WINGDING} from '@/lib/data/buttons';
-import {BrowserName} from "@/lib/types/buttons";
+import {BrowserName} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
 import {signCookie} from "@/lib/utils";
 

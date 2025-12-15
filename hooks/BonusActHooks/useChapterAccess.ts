@@ -2,7 +2,7 @@
 import {usePathname, useRouter} from "next/navigation";
 import {useEffect, useMemo, useState} from "react";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
-import {ActionState, BonusAct} from "@/lib/types/api";
+import {ActionState, BonusAct} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
 import {validRomans} from "@/lib/data/chapters/chapters.public";
 import Cookies from "js-cookie";

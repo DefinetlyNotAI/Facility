@@ -2,7 +2,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
 import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
-import {CheckMeResponse} from "@/lib/types/api";
+import {CheckMeResponse} from "@/types";
 import {chapterVIIIData} from "@/lib/data/chapters/chapters";
 import {localStorageKeys} from "@/lib/saveData";
 import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";

@@ -1,6 +1,6 @@
 import React from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
-import {FileViewerProps} from "@/lib/types/tree98";
+import {FileViewerProps} from "@/types";
 
 
 export const FileViewer: React.FC<FileViewerProps> = ({item}) => (

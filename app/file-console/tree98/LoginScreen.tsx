@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {loginData, sysConfigDefaults} from "@/lib/data/tree98";
 import {signCookie} from "@/lib/utils";
 import {cookies} from "@/lib/saveData";
-import {LoginScreenProps} from "@/lib/types/tree98";
+import {LoginScreenProps} from "@/types";
 import {playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
 async function sha256(text: string): Promise<string> {

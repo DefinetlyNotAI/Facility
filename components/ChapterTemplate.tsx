@@ -2,7 +2,7 @@
 
 import {useChapterAccess, useFailed} from "@/hooks";
 import {chapter} from "@/lib/data/chapters/chapters";
-import {ChapterTemplateProps} from "@/lib/types/chapters";
+import {ChapterTemplateProps} from "@/types";
 import {useEffect, useRef} from "react";
 import styles from "@/styles/ChaptersXandV.module.css";
 
