@@ -64,7 +64,14 @@ export const text = {
         header: "CRITICAL WARNING",
         lines: [
             {
-                text: "Developer console access STRICTLY PROHIBITED - Unauthorized console usage may destroy the experience",
+                text: "Developer console access STRICTLY PROHIBITED " +
+                    "- Unauthorized console usage may destroy the experience " +
+                    "- [As in editing, you may still check it out for secrets, just do not type] ",
+                class: "text-red-400"
+            },
+            {
+                text: "Sources tab that includes the JS Bundle access is STRICTLY PROHIBITED " +
+                    "- Do not even open it, as in by cheating, you are only affecting your own experience",
                 class: "text-red-400"
             },
             {
