@@ -40,7 +40,7 @@ export function useStageValidation({
             isValidatingRef.current = true;
 
             try {
-                const res = await fetch(routes.api.chapters.iv.validateStage, {
+                const res = await fetch(routes.api.chapters.IV.validateStage, {
                     method: 'POST',
                     body: JSON.stringify({plaqueId, stageIndex, provided}),
                 });

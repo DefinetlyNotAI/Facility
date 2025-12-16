@@ -10,7 +10,7 @@ import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {AllowedPlaqueStatus} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-import {routes} from '@/lib/saveData';
+import {cookies, routes} from '@/lib/saveData';
 import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
 
 export default function ChapterIVPage() {
@@ -29,7 +29,7 @@ export default function ChapterIVPage() {
 
     const fetchPlaqueStatuses = async () => {
         try {
-            const res = await fetch(routes.api.chapters.iv.status);
+            const res = await fetch(routes.api.chapters.IV.status);
             const json = await res.json();
             setPlaqueStatuses(json.plaqueStatuses || []);
         } catch (e) {
@@ -68,7 +68,7 @@ export default function ChapterIVPage() {
         try {
             const provided = (inputs[id] || '').trim();
             // Call server API to validate keyword - server will set signed cookie on success
-            const res = await fetch(routes.api.chapters.iv.validateKeyword, {
+            const res = await fetch(routes.api.chapters.IV.validateKeyword, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: id, provided})
             });
@@ -80,12 +80,11 @@ export default function ChapterIVPage() {
                 }
                 // merge this plaque into the local JSON cookie so we don't overwrite previous progress
                 try {
-                    const cookieKey = 'chapterIV-plaque-progress';
-                    const current = getJsonCookie(cookieKey) || {};
+                    const current = getJsonCookie(cookies.chIV_progress) || {};
                     // progress states: 1 = keyword entered, 2 = started puzzle, 3 = completed
                     const prevState = Number(current[id] || 0);
                     current[id] = Math.max(prevState, 1);
-                    setJsonCookie(cookieKey, current, 365);
+                    setJsonCookie(cookies.chIV_progress, current, 365);
                 } catch (e) {
                     // ignore cookie errors
                 }

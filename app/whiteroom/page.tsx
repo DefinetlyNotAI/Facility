@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {useChapter4Access} from "@/hooks";
 import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
+import {cookies} from "@/lib/saveData";
 
 const TERM_BG = '#000000';
 const TERM_GREEN = '#00ff66';
@@ -836,10 +837,9 @@ export default function WhiteRoomPage() {
 
                     // Save completion
                     try {
-                        const cookieKey = 'chapterIV-plaque-progress';
-                        const cur = getJsonCookie(cookieKey) || {};
+                        const cur = getJsonCookie(cookies.chIV_progress) || {};
                         cur['WhiteRoom'] = 2;
-                        setJsonCookie(cookieKey, cur, 365);
+                        setJsonCookie(cookies.chIV_progress, cur, 365);
                     } catch (e) {
                         console.warn('Could not save progress');
                     }

@@ -66,10 +66,15 @@ export const routes = {
             // API: GET /api/chapters/III/clockStates - returns the current clock states for chapter III.
             // Return: JSON object with server time, or an error object with appropriate status.
             IIIClockStates: "/api/chapters/III/clockStates",
-            // Chapter IV API endpoints for puzzle validation/status
-            iv: {
-                validateKeyword: "/api/chapters/iv/validate-keyword",
-                validateStage: "/api/chapters/iv/validate-stage",
+            IV: {
+                // API: POST /api/chapters/IV/validate-keyword - validates a plaque keyword and unlocks it for Chapter IV.
+                // Return: Success flag and sets a signed HttpOnly auth cookie on valid input.
+                validateKeyword: "/api/chapters/IV/validate-keyword",
+                // API: POST /api/chapters/IV/validate-stage - validates a stage answer and updates Chapter IV plaque progress.
+                // Return: Success flag and refreshes the signed auth cookie with unlocked plaques.
+                validateStage: "/api/chapters/IV/validate-stage",
+                // API: GET /api/chapters/IV/status - returns the current plaque solve states for Chapter IV.
+                // Return: List of plaque IDs marked as solved based on verified auth cookie.
                 status: "/api/chapters/iv/status",
             }
         },
@@ -110,6 +115,7 @@ export const routes = {
     scroll: "/scroll",
     codex: "/codex",
     saveFile: "/save-file",
+    whiteroom: "/whiteroom",
     bonus: {
         main: "/chapters",
         notYet: "/chapters/not_yet_child",
@@ -137,7 +143,6 @@ export const routes = {
             tas: '/chapters/IV/puzzles/TAS',
         }
     },
-    whiteroom: "/whiteroom"
 }
 
 const rawCookies = {
@@ -195,7 +200,7 @@ const rawCookies = {
     // Cookie to check if the user already checked chapter II password for 3h15m25thUTC page
     chII_passDone: '3h15m25thUTC_passDone',
     // Cookie for chapter IV unlocked plaques (signed, server-only)
-    _chapIV: 'chapIV_auth',
+    chapIV_auth: 'chapIV_auth',
     // Cookie for ch 4 entity puzzle progress
     chIV_progress: 'chapterIV-plaque-progress',
 };
@@ -240,8 +245,10 @@ export const localStorageKeys = {
         switch: "VIII_part_switch",
         whisper: "VIII_part_whisper",
     },
-    // Chapter IV progress storage key
-    chapterIVProgress: "chapterIV-Entity-progress",
+    // Chapter IV progress storage key (For TAS Puzzle)
+    chIV_TASProgress: "chapterIV-TAS-progress",
+    // Chapter IV progress storage key (For TREE Puzzle)
+    chIV_TREEProgress: "chapterIV-TREE-progress",
 }
 
 // Keys for items to be checked via hash

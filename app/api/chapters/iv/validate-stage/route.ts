@@ -1,43 +1,81 @@
 import {NextResponse} from 'next/server';
 import {PlaqueId} from '@/lib/data/chapters/chapters.server';
 import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/utils/chIV.server';
+import {cookies} from "@/lib/saveData";
 
+/**
+ * POST handler for validating a specific stage answer of a Chapter IV plaque.
+ * On success, the plaque is added to the unlocked list stored in a signed
+ * HttpOnly cookie, preserving any previously unlocked plaques.
+ */
 export async function POST(req: Request) {
     try {
+        // Parse request body
         const body = await req.json();
+
+        // Normalize inputs
         const plaqueId = String(body.plaqueId || '');
         const stageIndex = Number(body.stageIndex);
         const provided = String(body.provided || '');
-        if (!plaqueId || isNaN(stageIndex) || !provided) return NextResponse.json({
-            ok: false,
-            message: 'Invalid input'
-        }, {status: 400});
 
-        const ok = validateStageAnswer(plaqueId as PlaqueId, stageIndex, provided);
-        if (!ok) return NextResponse.json({ok: false, message: 'Incorrect answer'}, {status: 200});
+        // Reject invalid or missing input
+        if (!plaqueId || isNaN(stageIndex) || !provided) {
+            return NextResponse.json(
+                {ok: false, message: 'Invalid input'},
+                {status: 400}
+            );
+        }
 
-        // Optionally extend unlocked plaques in cookie
+        // Validate the provided answer for the given plaque stage
+        const ok = validateStageAnswer(
+            plaqueId as PlaqueId,
+            stageIndex,
+            provided
+        );
+
+        // Incorrect answers are handled as a normal failure, not an error
+        if (!ok) {
+            return NextResponse.json(
+                {ok: false, message: 'Incorrect answer'},
+                {status: 200}
+            );
+        }
+
+        // Read existing authentication cookie, if present
         const raw = req.headers.get('cookie') || '';
-        // naive read; proper approach uses NextRequest cookies but this is server-only route
+
+        // Naive cookie extraction and verification
+        // This route is server-only, so NextRequest cookies are not used
         const existing = (() => {
             try {
-                const m = raw.match(new RegExp('chapIV_auth=([^;]+)'));
+                const m = raw.match(
+                    new RegExp(`${cookies.chapIV_auth}=([^;]+)`)
+                );
                 if (!m) return null;
                 const val = decodeURIComponent(m[1]);
                 return verifySignedValue(val);
-            } catch (e) {
+            } catch {
                 return null;
             }
         })();
 
+        // Merge previously unlocked plaques with the newly solved one
         const prev = existing?.unlocked || [];
         const unlocked = Array.from(new Set([...prev, plaqueId]));
-        const payload = {unlocked, t: Date.now()};
+
+        // Create updated signed payload
+        const payload = {
+            unlocked,
+            t: Date.now()
+        };
         const signed = makeSignedValue(payload);
 
+        // Return success response
         const res = NextResponse.json({ok: true});
+
+        // Update HttpOnly auth cookie with extended unlock state
         res.cookies.set({
-            name: 'chapIV_auth',
+            name: cookies.chapIV_auth,
             value: signed,
             httpOnly: true,
             path: '/',
@@ -45,8 +83,13 @@ export async function POST(req: Request) {
             secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60 * 24
         });
+
         return res;
     } catch (e) {
-        return NextResponse.json({ok: false, message: 'Server error'}, {status: 500});
+        // Any unexpected failure results in a server error
+        return NextResponse.json(
+            {ok: false, message: 'Server error'},
+            {status: 500}
+        );
     }
 }

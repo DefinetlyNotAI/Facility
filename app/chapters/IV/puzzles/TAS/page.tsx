@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/utils/chIV';
-import {routes} from '@/lib/saveData';
+import {cookies, localStorageKeys, routes} from '@/lib/saveData';
 import {useChapter4Access} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 
@@ -65,17 +65,15 @@ export default function TasPuzzlePage() {
     if (!puzzle) return <div className="min-h-screen flex items-center justify-center">Puzzle not found.</div>;
 
     const stages = puzzle.stageData || [];
-    const storageKey = 'chapterIV-TAS-progress';
-    const cookieKey = 'chapterIV-plaque-progress';
 
     useEffect(() => {
         // when user opens TAS puzzle, mark as started (2) if lower
         try {
-            const current = getJsonCookie(cookieKey) || {};
+            const current = getJsonCookie(cookies.chIV_progress) || {};
             const prev = Number(current['TAS'] || 0);
             if (prev < 1) {
                 current['TAS'] = 1;
-                setJsonCookie(cookieKey, current, 365);
+                setJsonCookie(cookies.chIV_progress, current, 365);
             }
         } catch (e) {
         }
@@ -134,7 +132,7 @@ export default function TasPuzzlePage() {
     // Load saved progress
     useEffect(() => {
         try {
-            const raw = localStorage.getItem(storageKey);
+            const raw = localStorage.getItem(localStorageKeys.chIV_TASProgress);
             if (raw) {
                 const i = parseInt(raw, 10);
                 if (!isNaN(i)) {
@@ -153,7 +151,7 @@ export default function TasPuzzlePage() {
     // Persist progress
     useEffect(() => {
         try {
-            localStorage.setItem(storageKey, String(stageIndex));
+            localStorage.setItem(localStorageKeys.chIV_TASProgress, String(stageIndex));
         } catch (e) {
         }
     }, [stageIndex]);
@@ -164,7 +162,7 @@ export default function TasPuzzlePage() {
     const advanceTo = (index: number) => {
         try {
             // persist immediately
-            localStorage.setItem(storageKey, String(index));
+            localStorage.setItem(localStorageKeys.chIV_TASProgress, String(index));
         } catch (e) {
         }
         setUnlockedStage(prev => Math.max(prev, index));
@@ -178,7 +176,7 @@ export default function TasPuzzlePage() {
     useEffect(() => {
         // if loading a saved index, also ensure unlockedStage is at least that index
         try {
-            const raw = localStorage.getItem(storageKey);
+            const raw = localStorage.getItem(localStorageKeys.chIV_TASProgress);
             if (raw) {
                 const i = parseInt(raw, 10);
                 if (!isNaN(i)) {
@@ -201,7 +199,7 @@ export default function TasPuzzlePage() {
         const bits = switches.join('');
         (async () => {
             try {
-                const res = await fetch(routes.api.chapters.iv.validateStage, {
+                const res = await fetch(routes.api.chapters.IV.validateStage, {
                     method: 'POST',
                     body: JSON.stringify({plaqueId: 'TAS', stageIndex: 1, provided: bits})
                 });
@@ -251,7 +249,7 @@ export default function TasPuzzlePage() {
         }
 
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
+            const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 2, provided: assembly})
             });
@@ -400,7 +398,7 @@ export default function TasPuzzlePage() {
                 // validate with server
                 (async () => {
                     try {
-                        const res = await fetch(routes.api.chapters.iv.validateStage, {
+                        const res = await fetch(routes.api.chapters.IV.validateStage, {
                             method: 'POST', body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: next})
                         });
                         const json = await res.json();
@@ -447,7 +445,7 @@ export default function TasPuzzlePage() {
     const submitGridBits = async () => {
         const bits = gridBits.join('');
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
+            const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 4, provided: bits})
             });
@@ -494,7 +492,7 @@ export default function TasPuzzlePage() {
     const submitMerge = async () => {
         const payload = assembly;
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
+            const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 6, provided: payload})
             });
@@ -540,7 +538,7 @@ export default function TasPuzzlePage() {
         }
         // validate with server
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
+            const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex, provided})
             });
@@ -563,10 +561,10 @@ export default function TasPuzzlePage() {
             // if this is the final stage (last configured), mark completed state
             if (stageIndex >= stages.length - 1) {
                 try {
-                    const current = getJsonCookie(cookieKey) || {};
+                    const current = getJsonCookie(cookies.chIV_progress) || {};
                     const prev = Number(current['TAS'] || 0);
                     current['TAS'] = Math.max(prev, 2);
-                    setJsonCookie(cookieKey, current, 365);
+                    setJsonCookie(cookies.chIV_progress, current, 365);
                 } catch (e) {
                 }
             }
@@ -637,7 +635,7 @@ export default function TasPuzzlePage() {
                             setTimeout(() => {
                                 setCompleted(true);
                                 try {
-                                    localStorage.setItem(storageKey, String(stages.length));
+                                    localStorage.setItem(localStorageKeys.chIV_TASProgress, String(stages.length));
                                 } catch (e) {
                                 }
                                 markCompleted('TAS');
@@ -696,7 +694,7 @@ export default function TasPuzzlePage() {
             // Validate
             (async () => {
                 try {
-                    const res = await fetch(routes.api.chapters.iv.validateStage, {
+                    const res = await fetch(routes.api.chapters.IV.validateStage, {
                         method: 'POST',
                         body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: newInput})
                     });
@@ -790,7 +788,7 @@ export default function TasPuzzlePage() {
 
         const provided = wordOfDayInput.trim().toLowerCase();
         try {
-            const res = await fetch(routes.api.chapters.iv.validateStage, {
+            const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 4, provided})
             });
@@ -810,7 +808,7 @@ export default function TasPuzzlePage() {
                     }
                     setCompleted(true);
                     markCompleted('TAS');
-                    localStorage.setItem(storageKey, String(stages.length));
+                    localStorage.setItem(localStorageKeys.chIV_TASProgress, String(stages.length));
                 }, 800);
             } else {
                 try {

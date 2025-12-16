@@ -46,7 +46,8 @@ export default function TAS({className = ''}: TASProps) {
             pathname === routes.bonus.noTime ||
             pathname === routes.bonus.notYet ||
             pathname === routes.bonus.main ||
-            pathname === routes.saveFile
+            pathname === routes.saveFile ||
+            pathname === routes.whiteroom
         ) {
             setIsVisible(false);
             return;

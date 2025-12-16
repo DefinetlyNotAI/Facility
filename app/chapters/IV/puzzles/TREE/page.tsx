@@ -6,6 +6,7 @@ import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {seededShuffle, seedFromString} from '@/lib/utils/chIV';
 import {useChapter4Access} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {localStorageKeys} from "@/lib/saveData";
 
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
     idx: number,
@@ -71,7 +72,6 @@ export default function TreePuzzlePage() {
     }
 
     const stages = puzzle.stageData || [];
-    const storageKey = 'chapterIV-TREE-progress';
     const [stageIndex, setStageIndex] = useState<number>(0);
     const [input, setInput] = useState<string>('');
     const [feedback, setFeedback] = useState<string>('');
@@ -85,7 +85,7 @@ export default function TreePuzzlePage() {
         setUnlockedStage(prev => Math.max(prev, index));
         setStageIndex(index);
         try {
-            localStorage.setItem(storageKey, String(index));
+            localStorage.setItem(localStorageKeys.chIV_TREEProgress, String(index));
         } catch (e) {
         }
     }
@@ -113,7 +113,7 @@ export default function TreePuzzlePage() {
     useEffect(() => {
         // load progress
         try {
-            const raw = localStorage.getItem(storageKey);
+            const raw = localStorage.getItem(localStorageKeys.chIV_TREEProgress);
             if (raw) {
                 const i = parseInt(raw, 10);
                 if (!isNaN(i) && i >= 0 && i < stages.length) {
@@ -134,7 +134,7 @@ export default function TreePuzzlePage() {
 
     useEffect(() => {
         try {
-            localStorage.setItem(storageKey, String(stageIndex));
+            localStorage.setItem(localStorageKeys.chIV_TREEProgress, String(stageIndex));
         } catch (e) {
         }
     }, [stageIndex]);
@@ -361,7 +361,7 @@ export default function TreePuzzlePage() {
                 // final stage complete
                 setCompleted(true);
                 try {
-                    localStorage.setItem(storageKey, String(stages.length));
+                    localStorage.setItem(localStorageKeys.chIV_TREEProgress, String(stages.length));
                 } catch (e) {
                 }
                 setUnlockedStage(stages.length - 1);
@@ -407,7 +407,7 @@ export default function TreePuzzlePage() {
             setUnlockedStage(stages.length - 1);
             setStageIndex(stages.length);
             try {
-                localStorage.setItem(storageKey, String(stages.length));
+                localStorage.setItem(localStorageKeys.chIV_TREEProgress, String(stages.length));
             } catch (e) {
             }
         }, 800);
