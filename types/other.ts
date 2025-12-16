@@ -1,6 +1,6 @@
 import * as React from "react";
 import {type VariantProps} from 'class-variance-authority';
-import {buttonVariants} from "@/components";
+import {buttonVariants} from "@/components/ui/button";
 
 export interface VNTextRendererProps {
     text: string;

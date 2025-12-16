@@ -6,7 +6,7 @@ import {ChapterTemplateProps} from "@/types";
 import {useEffect, useRef} from "react";
 import styles from "@/styles/ChaptersXandV.module.css";
 
-export default function ChapterTemplate({chapterId, chapterData, fileLink}: ChapterTemplateProps) {
+export function ChapterTemplate({chapterId, chapterData, fileLink}: ChapterTemplateProps) {
     const {isCurrentlySolved} = useChapterAccess();
     const isAllFailed = useFailed(chapterId);
     const canvasRef = useRef<HTMLCanvasElement>(null);

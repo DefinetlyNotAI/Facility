@@ -2,7 +2,7 @@ import {BookOpen, ChevronLeft, ChevronRight} from 'lucide-react';
 import {ChapterNavigationProps} from "@/types";
 
 
-export default function ChapterNavigation({
+export function ChapterNavigation({
                                               chapters,
                                               currentChapter,
                                               onChapterSelect,

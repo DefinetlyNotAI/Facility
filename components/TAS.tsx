@@ -9,7 +9,7 @@ import {TASProps} from '@/types';
 
 
 // Page-specific hints for TAS (friendly sarcastic tone)
-export default function TAS({className = ''}: TASProps) {
+export function TAS({className = ''}: TASProps) {
     const pathname = usePathname();
     const [isVisible, setIsVisible] = useState(false);
     const [currentHint, setCurrentHint] = useState('');

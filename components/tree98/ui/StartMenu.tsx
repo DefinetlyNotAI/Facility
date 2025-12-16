@@ -1,7 +1,7 @@
 import React from 'react';
 import {startMenu, sysConfigDefaults} from '@/lib/data/tree98';
 import {StartMenuProps} from '@/types';
-import {getIcon} from '@/components';
+import {getIcon} from "@/components/tree98/icons";
 
 
 export const StartMenu: React.FC<StartMenuProps> = ({onAction}) => (

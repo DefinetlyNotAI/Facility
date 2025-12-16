@@ -3,8 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {formatTime} from "@/lib/utils";
 import {chapter, chIIData, fileLinks} from "@/lib/data/chapters/chapters";
-import {Button} from "@/components";
-
+import {Button} from "@/components/ui/button";
 import {useChapterAccess} from "@/hooks";
 import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
 

@@ -4,7 +4,7 @@ import styles from '../../styles/Codex.module.css';
 import {CodexOverlay, OverlaySystemProps} from "@/types";
 
 
-export default function OverlaySystem({overlays, currentLine, hoveredKeyword}: OverlaySystemProps) {
+export function OverlaySystem({overlays, currentLine, hoveredKeyword}: OverlaySystemProps) {
     const [activeOverlay, setActiveOverlay] = useState<CodexOverlay | null>(null);
     const [dismissedOverlays, setDismissedOverlays] = useState<Set<string>>(new Set());
 

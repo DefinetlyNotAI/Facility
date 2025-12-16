@@ -1,5 +1,4 @@
 // noinspection JSUnusedGlobalSymbols
-
 import React from 'react';
 
 export const Icons = {

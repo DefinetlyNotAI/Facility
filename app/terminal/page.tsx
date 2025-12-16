@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {VNTextRenderer} from "@/components";
+import {VNTextRenderer} from "@/components/VNRenderer";
 import styles from '../../styles/Terminal.module.css';
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {

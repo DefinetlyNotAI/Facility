@@ -7,7 +7,7 @@ import {CodexReaderProps, HoverState} from "@/types";
 import {keywordInfo} from "@/lib/data/codex";
 
 
-export default function CodexReader({
+export function CodexReader({
                                         chapterText,
                                         onComplete,
                                         autoReveal = false,

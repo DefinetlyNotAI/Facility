@@ -2,7 +2,9 @@
 
 import React, {useRef, useState} from 'react';
 import {ItemKey} from '@/lib/saveData';
-import {Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input} from '@/components';
+import {Button} from '@/components/ui/button';
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
+import {Input} from '@/components/ui/input';
 import {AlertCircle, HelpCircle} from 'lucide-react';
 import {chapter, chIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {checkPass} from "@/lib/utils";

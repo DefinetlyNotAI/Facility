@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
-import {Card, CardContent, CardHeader} from '@/components';
+import {Card, CardContent, CardHeader} from '@/components/ui/card';
 import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {AllowedPlaqueStatus} from "@/types";
@@ -129,9 +129,9 @@ export default function ChapterIVPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {chapterIVData.chapterIVPlaques.map((plaque) => {
                             const status = plaqueStatuses.find(p => p.id === plaque.id);
-                            const isPending = !status || status.status === 'pending';
                             const isSolved = status?.status === 'solved' || isCurrentlySolved;
                             const isFailed = isAllFailed || status?.status === 'failed';
+                            const isPending = !isSolved && !isFailed && (!status || status.status === 'pending');
 
                             const downloadLink = fileLinkMap[plaque.id as keyof typeof fileLinkMap];
 

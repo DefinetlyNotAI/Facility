@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import {signCookie} from "@/lib/utils";
 import Cookies from "js-cookie";
-import {VNTextRenderer} from "@/components";
+import {VNTextRenderer} from "@/components/VNRenderer";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO} from "@/lib/data/audio";
 import {CREEPY_LINES, HOVER, MESSAGES, POETIC_LINES, RIDDLE_LOCATION, SOOTHING_EGG} from "@/lib/data/moonlight";
 import {cookies, routes} from "@/lib/saveData";
