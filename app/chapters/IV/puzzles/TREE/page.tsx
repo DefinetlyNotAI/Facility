@@ -7,7 +7,7 @@ import {seededShuffle, seedFromString} from '@/lib/utils/chIV';
 import {useActStateCheck} from "@/hooks";
 import {ActionState} from "@/types";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {PuzzleHeader, Riddle, StageContainer, StageNavigation} from '@/components/chIV';
@@ -24,7 +24,7 @@ export default function TreePuzzlePage() {
         if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
     }, [router]);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
     const puzzle = (chapterIVData as any).puzzles?.TREE;
     const stages = puzzle.stageData || [];

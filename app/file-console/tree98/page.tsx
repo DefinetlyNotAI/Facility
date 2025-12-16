@@ -5,7 +5,7 @@ import Cookie from 'js-cookie';
 import {useRouter} from 'next/navigation';
 import Tree98Sim from "./Tree98Sim";
 import {cookies, routes} from "@/lib/saveData";
-import {playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 
 function TREE() {
     const router = useRouter();

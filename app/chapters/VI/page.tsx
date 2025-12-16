@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from '@/styles/ChaptersVI.module.css';
-import {BACKGROUND_AUDIO, playBackgroundAudio} from '@/lib/data/audio';
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from '@/lib/audio';
 import {useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIData} from "@/lib/data/chapters/chapters";
@@ -44,7 +44,7 @@ export default function ChapterVIPage() {
         localStorage.setItem(localStorageKeys.chapterVISeconds, seconds.toString());
     }, [seconds]);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VI);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VI);
 
     // Solve check
     useEffect(() => {

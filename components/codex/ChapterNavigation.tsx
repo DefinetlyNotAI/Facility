@@ -3,12 +3,12 @@ import {ChapterNavigationProps} from "@/types";
 
 
 export function ChapterNavigation({
-                                              chapters,
-                                              currentChapter,
-                                              onChapterSelect,
-                                              isOpen,
-                                              onToggle
-                                          }: ChapterNavigationProps) {
+                                      chapters,
+                                      currentChapter,
+                                      onChapterSelect,
+                                      isOpen,
+                                      onToggle
+                                  }: ChapterNavigationProps) {
     const handlePrevious = () => {
         if (currentChapter > 1) {
             onChapterSelect(currentChapter - 1);

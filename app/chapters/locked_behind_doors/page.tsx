@@ -3,7 +3,7 @@
 import styles from '@/styles/ChapterBonusSpecial.module.css';
 import {bonusErrorText} from "@/lib/data/chapters/chapters";
 import React, {useEffect, useRef} from "react";
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {cookies, routes} from "@/lib/saveData";
@@ -20,7 +20,7 @@ export default function LockedBehindDoors() {
     }, [router]);
 
     // Initialize background audio
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.LOCKED)
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.LOCKED)
 
     useEffect(() => {
         playSafeSFX(audioRef, SFX_AUDIO.ERROR, true);

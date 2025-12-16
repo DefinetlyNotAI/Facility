@@ -3,7 +3,7 @@ import {loginData, sysConfigDefaults} from "@/lib/data/tree98";
 import {signCookie} from "@/lib/utils";
 import {cookies} from "@/lib/saveData";
 import {LoginScreenProps} from "@/types";
-import {playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 
 async function sha256(text: string): Promise<string> {
     const encoder = new TextEncoder();

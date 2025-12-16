@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {fetchUserIP, signCookie} from "@/lib/utils";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 import {begStop, creepyTTS, emergencyIP, errors, motivate} from "@/lib/data/scroll";
 import {cookies, routes} from "@/lib/saveData";
 

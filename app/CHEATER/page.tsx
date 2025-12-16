@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
-import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {narratorLines} from "@/lib/data/cheater";
 
 // Join all lines with two newlines
@@ -25,7 +25,7 @@ export default function CheaterTrap() {
     }, []);
 
     // Initialize background audio
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.CHEATER);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.CHEATER);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;

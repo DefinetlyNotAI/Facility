@@ -3,7 +3,7 @@ import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 import {cookies, routes} from "@/lib/saveData";
-import {playBackgroundAudio} from "@/lib/data/audio";
+import {usePlayBackgroundAudio} from "@/lib/audio";
 import {ActionState} from "@/types";
 
 export function useSetup(chapterId: string, backgroundAudio: string) {
@@ -20,7 +20,7 @@ export function useSetup(chapterId: string, backgroundAudio: string) {
 
     // Play background audio
     useEffect(() => {
-        playBackgroundAudio(audioRef, backgroundAudio);
+        usePlayBackgroundAudio(audioRef, backgroundAudio);
     }, [backgroundAudio]);
 
     const isLoading = isNotReleased === null;

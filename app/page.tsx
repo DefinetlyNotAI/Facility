@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useRouter} from 'next/navigation';
 import Cookies from "js-cookie";
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {cookies, routes} from "@/lib/saveData";
 import {text} from "@/lib/data/root";
 import {signCookie} from "@/lib/utils";
@@ -16,7 +16,7 @@ export default function RootPage() {
     const [countdown, setCountdown] = useState(25);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.ROOT_PAGE);
 
     useEffect(() => {
         const timer = setTimeout(() => {

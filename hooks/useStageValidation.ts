@@ -2,7 +2,7 @@
 
 import React, {useCallback, useRef} from 'react';
 import {routes} from '@/lib/saveData';
-import {playSafeSFX, SFX_AUDIO} from '@/lib/data/audio';
+import {playSafeSFX, SFX_AUDIO} from '@/lib/audio';
 import type {PlaqueId, ValidationResponse} from '@/types';
 
 interface UseStageValidationOptions {

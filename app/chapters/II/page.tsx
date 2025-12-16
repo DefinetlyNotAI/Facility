@@ -5,7 +5,7 @@ import {formatTime} from "@/lib/utils";
 import {chapter, chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {Button} from "@/components/ui/button";
 import {useChapterAccess} from "@/hooks";
-import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 
 
 // ---------- Component ----------
@@ -14,7 +14,7 @@ export default function ChapterIIPage() {
     const {isCurrentlySolved} = useChapterAccess();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
 
     useEffect(() => {
         const targetDate = new Date(chIIData.root.startDate);

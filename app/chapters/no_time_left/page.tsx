@@ -3,7 +3,7 @@ import React, {Suspense, useEffect, useRef} from 'react';
 import styles from '@/styles/NoTimeLeft.module.css';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {chapterMessages} from '@/lib/data/chapters/chapters';
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from '@/lib/data/audio';
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from '@/lib/audio';
 import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
 import {usePreloadActStates} from "@/hooks";
@@ -27,7 +27,7 @@ function NoTimeLeftInner() {
         if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
     }, [router]);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NO_TIME);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.NO_TIME);
     if (!roman) return null;
 
     const ready = usePreloadActStates(roman);

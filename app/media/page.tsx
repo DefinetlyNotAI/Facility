@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import styles from '../../styles/Media.module.css';
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {checkKeyword, signCookie} from "@/lib/utils";
 import {err, fileLoc, getStatusText, text} from "@/lib/data/media";
 import {cookies, routes} from "@/lib/saveData";
@@ -20,7 +20,7 @@ export default function MediaPage() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Initialize background audio
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.MEDIA);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.MEDIA);
 
     useEffect(() => {
         if (!Cookies.get(cookies.media)) {

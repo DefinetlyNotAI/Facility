@@ -3,7 +3,7 @@ import React, {useEffect} from "react";
 
 // Utility function to play audio with error handling
 // Useful for custom sound control
-// However it is recommended to use playSafeSFX for SFX and playBackgroundAudio for background music
+// However it is recommended to use playSafeSFX for SFX and usePlayBackgroundAudio for background music
 export const playAudio =
     (audioPath: string, options: {
         volume?: number;
@@ -99,7 +99,7 @@ export function playSafeSFX(audioRef: React.RefObject<HTMLAudioElement>, audioPa
 
 // Custom hook to manage background audio with user interaction
 // You will need to pass an HTML audio element reference with both the audioRef and audioSrc for this to work
-export function playBackgroundAudio(audioRef: React.RefObject<HTMLAudioElement>, audioSrc: string, conditional: boolean | null | undefined = true) {
+export function usePlayBackgroundAudio(audioRef: React.RefObject<HTMLAudioElement>, audioSrc: string, conditional: boolean | null | undefined = true) {
     useEffect(() => {
         if (!conditional) {
             cleanupAudio(audioRef);

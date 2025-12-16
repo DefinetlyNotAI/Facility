@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import styles from "../../styles/Choices.module.css";
 import {CUTSCENE_LINES, FINALE_MSG} from "@/lib/data/choices";
 import {useTypewriter} from "@/hooks";
-import {SFX_AUDIO} from "@/lib/data/audio";
+import {SFX_AUDIO} from "@/lib/audio";
 import {renderMsg, signCookie} from "@/lib/utils";
 import {TASGoodByeProps} from "@/types";
 import {cookies} from "@/lib/saveData";

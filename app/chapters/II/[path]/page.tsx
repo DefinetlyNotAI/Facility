@@ -6,7 +6,7 @@ import {chIIData} from '@/lib/data/chapters/chapters';
 import Image from 'next/image';
 import {routes} from "@/lib/saveData";
 import {useChapter2Access} from "@/hooks";
-import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 
 export default function ChapterIIPathPage() {
     const router = useRouter();
@@ -14,7 +14,7 @@ export default function ChapterIIPathPage() {
     const path = params.path as string;
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.II);
     useChapter2Access()
 
     useEffect(() => {

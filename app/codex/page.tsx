@@ -5,7 +5,7 @@ import {ChapterNavigation} from '@/components/codex/ChapterNavigation';
 import {CodexReader} from '@/components/codex/CodexReader';
 import {OverlaySystem} from '@/components/codex/OverlaySystem';
 import styles from '@/styles/Codex.module.css';
-import {BACKGROUND_AUDIO, playBackgroundAudio} from '@/lib/data/audio';
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from '@/lib/audio';
 import Cookies from 'js-cookie';
 import {cookies, routes} from '@/lib/saveData';
 import {useRouter} from 'next/navigation';
@@ -21,7 +21,7 @@ function Codex() {
     const [revealedLines, setRevealedLines] = useState(0);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.CODEX);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.CODEX);
 
     useEffect(() => {
         if (!Cookies.get(cookies.end)) {

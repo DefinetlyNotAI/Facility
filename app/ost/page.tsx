@@ -19,9 +19,9 @@ import {
     VolumeX
 } from 'lucide-react';
 import styles from '@/styles/OST.module.css';
-import {BACKGROUND_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO} from "@/lib/audio";
 import {Track} from "@/types";
-import {DISPLAY_NAMES, TRACK_NAMES} from "@/lib/data/audio/ost";
+import {DISPLAY_NAMES, TRACK_NAMES} from "@/lib/audio/ost";
 
 
 function extractTracks(): Track[] {

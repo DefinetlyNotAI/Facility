@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {
     binaryCorruptText,
     buttons,
@@ -71,7 +71,7 @@ export default function H0m3() {
     }, []);
 
     // Initialize background audio
-    playBackgroundAudio(ttsAudioRef, BACKGROUND_AUDIO.N404)
+    usePlayBackgroundAudio(ttsAudioRef, BACKGROUND_AUDIO.N404)
 
     // Redirect and cookie check logic
     useEffect(() => {

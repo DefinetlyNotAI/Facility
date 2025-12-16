@@ -3,7 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIIData} from "@/lib/data/chapters/chapters";
-import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 
 
 export default function TimelinePage() {
@@ -15,7 +15,7 @@ export default function TimelinePage() {
     const [banMessage, setBanMessage] = useState<string | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VII);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VII);
     const years = Object.keys(chapterVIIData.timelineData).map(Number);
 
     // Load progress and check completion immediately on mount

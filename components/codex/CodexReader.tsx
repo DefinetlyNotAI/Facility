@@ -8,11 +8,11 @@ import {keywordInfo} from "@/lib/data/codex";
 
 
 export function CodexReader({
-                                        chapterText,
-                                        onComplete,
-                                        autoReveal = false,
-                                        revealSpeed = 2000
-                                    }: CodexReaderProps) {
+                                chapterText,
+                                onComplete,
+                                autoReveal = false,
+                                revealSpeed = 2000
+                            }: CodexReaderProps) {
     const [lines, setLines] = useState<string[]>([]);
     const [revealedLines, setRevealedLines] = useState<number>(0);
     const [currentLineText, setCurrentLineText] = useState<string>('');

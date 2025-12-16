@@ -9,7 +9,7 @@ import {AlertCircle, HelpCircle} from 'lucide-react';
 import {chapter, chIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {checkPass} from "@/lib/utils";
 import {useChapterAccess} from "@/hooks";
-import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 
 
 export default function ChapterIPage() {
@@ -20,7 +20,7 @@ export default function ChapterIPage() {
     const [isConnecting, setIsConnecting] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.I);
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.I);
 
     const handleConnect = async () => {
         setError("");

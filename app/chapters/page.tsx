@@ -7,7 +7,7 @@ import {bonusApi} from "@/lib/utils";
 import {failQuestNames, rootChapterText} from "@/lib/data/chapters/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/types";
-import {BACKGROUND_AUDIO, playBackgroundAudio} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
 import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.bundled";
 
 
@@ -19,7 +19,7 @@ export default function ChapterBonusPage() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Initialize background audio
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.MAIN)
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.MAIN)
 
     const fetchAll = async () => {
         try {
