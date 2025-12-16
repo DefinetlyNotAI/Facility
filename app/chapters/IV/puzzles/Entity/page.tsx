@@ -8,19 +8,19 @@ import {LogEntry, Process} from "@/types";
 import {localStorageKeys} from "@/lib/saveData";
 import {computeFakeHash, fileExists, getContainerClasses, getFsNode, markCompleted,} from "@/lib/utils/chIV";
 import {
+    useChIVSetup,
     useClientSideValue,
     useCommandHistory,
     useCyclingPhase,
     useFirstTimeTracker,
     useGlitchEffect,
     useInterval,
-    useLocalStorageState,
-    useSetup
+    useLocalStorageState
 } from "@/hooks";
 import {entityConst} from "@/lib/data/chapters/chapterIV";
 
 export default function EntityPuzzlePage() {
-    const {audioRef, isLoading} = useSetup("iv", BACKGROUND_AUDIO.BONUS.IV);
+    const {audioRef, isLoading} = useChIVSetup(BACKGROUND_AUDIO.BONUS.IV);
 
     // Custom hooks for reusable logic
     const sessionId = useClientSideValue(() => Math.floor(Date.now() / 1000));

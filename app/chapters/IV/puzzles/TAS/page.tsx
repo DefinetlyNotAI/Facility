@@ -5,13 +5,13 @@ import Link from 'next/link';
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/utils/chIV';
 import {cookies, localStorageKeys, routes} from '@/lib/saveData';
-import {useSetup} from "@/hooks";
+import {useChIVSetup} from "@/hooks";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
 import {PuzzleHeader, Riddle, StageNavigation} from '@/components/chIV';
 
 
 export default function TasPuzzlePage() {
-    const {audioRef, isLoading} = useSetup("iv", BACKGROUND_AUDIO.BONUS.IV);
+    const {audioRef, isLoading} = useChIVSetup(BACKGROUND_AUDIO.BONUS.IV);
 
     const puzzle = (chapterIVData as any).puzzles?.TAS;
     const puzzleMissing = !puzzle;

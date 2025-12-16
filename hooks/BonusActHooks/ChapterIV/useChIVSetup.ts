@@ -6,12 +6,12 @@ import {cookies, routes} from "@/lib/saveData";
 import {usePlayBackgroundAudio} from "@/lib/audio";
 import {ActionState} from "@/types";
 
-export function useSetup(chapterId: string, backgroundAudio: string) {
+export function useChIVSetup(backgroundAudio: string) {
     const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Check if chapter is not yet released
-    const isNotReleased = useActStateCheck(chapterId, ActionState.NotReleased, routes.bonus.notYet);
+    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
 
     // Redirect if bonus content is locked
     useEffect(() => {
@@ -19,9 +19,7 @@ export function useSetup(chapterId: string, backgroundAudio: string) {
     }, [router]);
 
     // Play background audio
-    useEffect(() => {
-        usePlayBackgroundAudio(audioRef, backgroundAudio);
-    }, [backgroundAudio]);
+    usePlayBackgroundAudio(audioRef, backgroundAudio);
 
     const isLoading = isNotReleased === null;
 

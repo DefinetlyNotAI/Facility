@@ -6,7 +6,7 @@ export {
     useGlitchEffect,
     useInterval,
     useLocalStorageState,
-    useSetup,
+    useChIVSetup,
     useActStateCheck,
     useChapterAccess,
     useChapter2Access,

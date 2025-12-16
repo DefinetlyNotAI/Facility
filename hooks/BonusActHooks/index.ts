@@ -6,7 +6,7 @@ export {
     useGlitchEffect,
     useInterval,
     useLocalStorageState,
-    useSetup
+    useChIVSetup
 } from "@/hooks/BonusActHooks/ChapterIV";
 export {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 export {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";
