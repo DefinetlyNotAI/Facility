@@ -34,7 +34,7 @@ export default function EntityPuzzlePage() {
     const {isFirstTime, reset: resetFirstTime} = useFirstTimeTracker();
     const {isGlitchActive, triggerGlitch} = useGlitchEffect(300);
     const hbPhase = useCyclingPhase(entityConst.heartbeatWindow.interval, entityConst.heartbeatWindow.maxPhase);
-    const [fragments, setFragments] = useLocalStorageState(localStorageKeys.chapterIVProgress, {});
+    const [fragments, setFragments] = useLocalStorageState(localStorageKeys.chIV_EntityProgress, {});
 
     // UI and state
     const [streamLogs, setStreamLogs] = useState<LogEntry[]>([]); // terminal output (color-aware)

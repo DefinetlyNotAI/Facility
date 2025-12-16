@@ -249,6 +249,8 @@ export const localStorageKeys = {
     chIV_TASProgress: "chapterIV-TAS-progress",
     // Chapter IV progress storage key (For TREE Puzzle)
     chIV_TREEProgress: "chapterIV-TREE-progress",
+    // Chapter IV progress storage key (For Entity Puzzle)
+    chIV_EntityProgress: "chapterIV-Entity-progress",
 }
 
 // Keys for items to be checked via hash
