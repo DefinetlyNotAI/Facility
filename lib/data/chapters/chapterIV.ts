@@ -66,7 +66,7 @@ export const chapterIV = {
             stages: [
                 'Seed Decode - a long nested-encoding dossier to decode',
                 'Root Graph - interactively activate roots in the right order',
-                'Canopy Riddle Chain - a sequence of chained riddles and micro-puzzles'
+                'Canopy Riddle Chain - a sequence of chained riddles and micro-chIV'
             ],
             stageData: [
                 {

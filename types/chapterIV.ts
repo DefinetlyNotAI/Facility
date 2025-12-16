@@ -1,6 +1,10 @@
 // Chapter IV Types fir hooks
+import React from "react";
+
+// Type used for plaque identification
 export type PlaqueId = 'TREE' | 'TAS' | 'Entity';
 
+// Types used in lib functions for validation (useStageProgress)
 type StageType =
     | 'payload'
     | 'switches'
@@ -52,6 +56,42 @@ export type ContainerClassArgs = {
 };
 
 export type FragmentsMap = Record<number, string>;
+
+// Types used purely in components
+export interface Stage {
+    stage?: number;
+    title?: string;
+
+    [key: string]: any;
+}
+
+export interface StageNavigationProps {
+    stages: Stage[];
+    currentStageIndex: number;
+    unlockedStage: number;
+    onStageChange: (index: number) => void;
+    className?: string;
+}
+
+export interface StageContainerProps {
+    title: string;
+    instruction?: string;
+    children: React.ReactNode;
+    className?: string;
+}
+
+export interface RiddleProps {
+    idx: number;
+    prompt: string;
+    expectedChunk: string;
+    onResult: (i: number, ok: boolean) => void;
+}
+
+export interface PuzzleHeaderProps {
+    title: string;
+    subtitle?: string;
+    className?: string;
+}
 
 // Ch IV Const arg (text)
 type StartupTextArgs = {

@@ -25,7 +25,7 @@ export const PAGE_HINTS: Record<string, string[]> = {
         "Three items to interact with - an audio file, and two downloadable files. And a secret door unlocks.",
         "That morse code audio? Listen carefully, or find a way to decode it. It's a key.",
         "The ZIP files are password protected with the keywords you've been collecting. Use them wisely!",
-        "One ZIP leads to the other - it's a chain of puzzles. Follow the breadcrumbs.",
+        "One ZIP leads to the other - it's a chain of chIV. Follow the breadcrumbs.",
         "Each interaction unlocks the next step. It's all connected, trust me."
     ],
     '/file-console': [

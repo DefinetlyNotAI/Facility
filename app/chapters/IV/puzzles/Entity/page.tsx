@@ -1,42 +1,26 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
-import {ActionState, LogEntry, Process} from "@/types";
-import {cookies, localStorageKeys, routes} from "@/lib/saveData";
+import {LogEntry, Process} from "@/types";
+import {localStorageKeys} from "@/lib/saveData";
 import {computeFakeHash, fileExists, getContainerClasses, getFsNode, markCompleted,} from "@/lib/utils/chIV";
 import {
-    useActStateCheck,
     useClientSideValue,
     useCommandHistory,
     useCyclingPhase,
     useFirstTimeTracker,
     useGlitchEffect,
     useInterval,
-    useLocalStorageState
+    useLocalStorageState,
+    useSetup
 } from "@/hooks";
 import {entityConst} from "@/lib/data/chapters/chapterIV";
-import {useRouter} from "next/navigation";
-import Cookies from "js-cookie";
 
 export default function EntityPuzzlePage() {
-    const router = useRouter();
-    const audioRef = useRef<HTMLAudioElement>(null);
-
-    // Check if chapter is not yet released - redirect if so
-    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
-
-    // Check if bonus content is locked - redirect if so
-    useEffect(() => {
-        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
-    }, [router]);
-
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
-
-    // Do NOT return early here; compute loading flag so all Hooks remain called in the same order.
-    const isLoading = isNotReleased === null;
+    const {audioRef, isLoading} = useSetup("iv", BACKGROUND_AUDIO.BONUS.IV);
 
     // Custom hooks for reusable logic
     const sessionId = useClientSideValue(() => Math.floor(Date.now() / 1000));

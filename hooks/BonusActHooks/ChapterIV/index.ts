@@ -6,3 +6,4 @@ export {useGlitchEffect} from './useGlitchEffect';
 export {useInterval} from './useInterval';
 export {useLocalStorageState} from './useLocalStorageState';
 export {useTemporaryState} from './useTemporaryState';
+export {useSetup} from './useSetup';

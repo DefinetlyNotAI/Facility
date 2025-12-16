@@ -5,13 +5,14 @@ export {
     useFirstTimeTracker,
     useGlitchEffect,
     useInterval,
-    useLocalStorageState
+    useLocalStorageState,
+    useSetup,
+    useActStateCheck,
+    useChapterAccess,
+    useChapter2Access,
+    useFailed,
+    usePreloadActStates
 } from "@/hooks/BonusActHooks";
-export {useActStateCheck} from "@/hooks/BonusActHooks";
-export {useChapterAccess} from "@/hooks/BonusActHooks";
-export {useChapter2Access} from "@/hooks/BonusActHooks";
-export {useFailed} from "@/hooks/BonusActHooks";
-export {usePreloadActStates} from "@/hooks/BonusActHooks";
 
 export {useBootSequence} from "@/hooks/useBootSequence";
 export {useStageProgression} from "@/hooks/useStageProgression";

@@ -10,47 +10,7 @@ import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
-
-const Riddle = ({idx, prompt, expectedChunk, onResult}: {
-    idx: number,
-    prompt: string,
-    expectedChunk: string,
-    onResult: (i: number, ok: boolean) => void
-}) => {
-    const [answer, setAnswer] = useState('');
-    const [correct, setCorrect] = useState<boolean | null>(null);
-
-    const handleSubmit = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        const ok = answer.trim().toLowerCase() === expectedChunk;
-        setCorrect(ok);
-        onResult(idx, ok);
-    }
-
-    return (
-        <div className="p-4 bg-gray-800 rounded border border-gray-700">
-            <div className="text-sm text-gray-400 mb-2">{prompt}</div>
-            <form onSubmit={handleSubmit} className="flex gap-2">
-                <input
-                    value={answer}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    placeholder={`Riddle ${idx + 1} answer`}
-                    className="bg-gray-900 text-white font-mono text-sm px-3 py-2 rounded flex-1"
-                />
-                <button type="submit"
-                        className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
-                </button>
-            </form>
-            {correct === true && (
-                <div className="mt-2 text-sm text-green-400">Correct!</div>
-            )}
-            {correct === false && (
-                <div className="mt-2 text-sm text-red-400">Try again.</div>
-            )}
-        </div>
-    );
-}
-
+import {PuzzleHeader, Riddle, StageContainer, StageNavigation} from '@/components/chIV';
 
 export default function TreePuzzlePage() {
     const router = useRouter();
@@ -424,38 +384,29 @@ export default function TreePuzzlePage() {
             </div>
         );
     }
-    
+
     // Basic UI rendering for stages
     return (
         <>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
             <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
                 <div className="max-w-3xl mx-auto">
-                    <div className="text-center mb-6">
-                        <h1 className="text-white font-mono text-3xl font-bold">{chapterIVData.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}</h1>
-                        <p className="text-gray-400 font-mono text-sm mt-2">{chapterIVData.text.subHeader}</p>
-                    </div>
+                    <PuzzleHeader
+                        title={chapterIVData.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}
+                        subtitle={chapterIVData.text.subHeader}
+                    />
 
-                    <div className="mb-4 flex gap-2 justify-center">
-                        {stages.map((s: any, i: number) => {
-                            const locked = i > unlockedStage;
-                            return (
-                                <button
-                                    key={i}
-                                    onClick={() => {
-                                        if (!locked) setStageIndex(i);
-                                    }}
-                                    disabled={locked}
-                                    className={`px-3 py-1 font-mono text-sm rounded ${i === stageIndex ? 'bg-gray-700 text-white' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
-                                    {locked ? `🔒 Stage ${s.stage}` : `Stage ${s.stage}`}
-                                </button>
-                            );
-                        })}
-                    </div>
+                    <StageNavigation
+                        stages={stages}
+                        currentStageIndex={stageIndex}
+                        unlockedStage={unlockedStage}
+                        onStageChange={setStageIndex}
+                    />
 
-                    <div className="bg-gray-900 border border-gray-800 p-6 rounded">
-                        <h2 className="font-mono text-lg text-white mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
-                        <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
+                    <StageContainer
+                        title={stages[stageIndex]?.title || 'Stage'}
+                        instruction={stages[stageIndex]?.instruction || ''}
+                    >
 
                         {stageIndex === 0 && (
                             <div className="space-y-3">
@@ -565,7 +516,7 @@ export default function TreePuzzlePage() {
                             </div>
                         )}
 
-                    </div>
+                    </StageContainer>
 
                     <div className="mt-4 text-sm text-gray-400">{completed ? 'Completed and saved.' : ''}</div>
 

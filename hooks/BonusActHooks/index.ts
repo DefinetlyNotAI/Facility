@@ -5,7 +5,8 @@ export {
     useFirstTimeTracker,
     useGlitchEffect,
     useInterval,
-    useLocalStorageState
+    useLocalStorageState,
+    useSetup
 } from "@/hooks/BonusActHooks/ChapterIV";
 export {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 export {useChapterAccess} from "@/hooks/BonusActHooks/useChapterAccess";

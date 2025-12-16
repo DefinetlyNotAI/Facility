@@ -1,73 +1,17 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/utils/chIV';
 import {cookies, localStorageKeys, routes} from '@/lib/saveData';
-import {useActStateCheck} from "@/hooks";
-import {ActionState} from "@/types";
-import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-import {useRouter} from "next/navigation";
-import Cookies from "js-cookie";
+import {useSetup} from "@/hooks";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {PuzzleHeader, Riddle, StageNavigation} from '@/components/chIV';
 
-// Riddle component (adapted from TREE puzzle for a riddle-chain mini-game)
-const Riddle = ({idx, prompt, expectedChunk, onResult}: {
-    idx: number,
-    prompt: string,
-    expectedChunk: string,
-    onResult: (i: number, ok: boolean) => void
-}) => {
-    const [answer, setAnswer] = useState('');
-    const [correct, setCorrect] = useState<boolean | null>(null);
-
-    const handleSubmit = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        const ok = answer.trim().toLowerCase() === expectedChunk;
-        setCorrect(ok);
-        onResult(idx, ok);
-    }
-
-    return (
-        <div className="p-4 bg-gray-800 rounded border border-gray-700">
-            <div className="text-sm text-gray-400 mb-2">{prompt}</div>
-            <form onSubmit={handleSubmit} className="flex gap-2">
-                <input
-                    value={answer}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    placeholder={`Riddle ${idx + 1} answer`}
-                    className="bg-gray-900 text-white font-mono text-sm px-3 py-2 rounded flex-1"
-                />
-                <button type="submit"
-                        className="bg-green-600 hover:bg-green-500 text-black font-mono px-3 py-1 rounded text-sm">Submit
-                </button>
-            </form>
-            {correct === true && (
-                <div className="mt-2 text-sm text-green-400">Correct!</div>
-            )}
-            {correct === false && (
-                <div className="mt-2 text-sm text-red-400">Try again.</div>
-            )}
-        </div>
-    );
-}
 
 export default function TasPuzzlePage() {
-    const router = useRouter();
-    const audioRef = useRef<HTMLAudioElement>(null);
-
-    // Check if chapter is not yet released - redirect if so
-    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
-
-    // Check if bonus content is locked - redirect if so
-    useEffect(() => {
-        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
-    }, [router]);
-
-    playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
-
-    // Do NOT return early here; compute loading flag so all Hooks remain called in the same order.
-    const isLoading = isNotReleased === null;
+    const {audioRef, isLoading} = useSetup("iv", BACKGROUND_AUDIO.BONUS.IV);
 
     const puzzle = (chapterIVData as any).puzzles?.TAS;
     const puzzleMissing = !puzzle;
@@ -164,9 +108,9 @@ export default function TasPuzzlePage() {
         }
     }, [stageIndex]);
 
-    // NEW: unlocked stage tracking (TREE-style)
+    // unlocked stage tracking (TREE-style)
     const [unlockedStage, setUnlockedStage] = useState<number>(0);
-    // NEW: robust advancement helper that persists unlocked stage and index
+    // robust advancement helper that persists unlocked stage and index
     const advanceTo = (index: number) => {
         try {
             // persist immediately
@@ -850,29 +794,19 @@ export default function TasPuzzlePage() {
                 <div
                     className={`min-h-screen p-8 font-mono transition-all duration-500 ${isInverted ? 'bg-white text-black' : 'bg-gray-900 text-white'}`}>
                     <div className="max-w-4xl mx-auto">
-                        <div className="text-center mb-6">
-                            <h1 className="text-3xl font-bold">TAS Puzzle Challenge</h1>
-                            <p className={`text-sm mt-2 ${isInverted ? 'text-gray-600' : 'text-gray-400'}`}>Progress is
-                                saved locally and to a plaque cookie
-                                (3-state save).</p>
-                        </div>
+                        <PuzzleHeader
+                            title="TAS Puzzle Challenge"
+                            subtitle="Progress is saved locally and to a plaque cookie (3-state save)."
+                            className={isInverted ? 'text-black' : 'text-white'}
+                        />
 
-                        <div className="mb-4">
-                            <div className="flex gap-2 overflow-x-auto px-2 py-1">
-                                {stages.map((s: any, i: number) => {
-                                    const locked = i > unlockedStage;
-                                    return (
-                                        <button key={i} disabled={locked} onClick={() => {
-                                            if (!locked) setStageIndex(i);
-                                        }}
-                                                className={`inline-flex flex-shrink-0 px-3 py-1 text-sm rounded whitespace-nowrap ${i === stageIndex ? 'bg-gray-700' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
-                                            {locked ? `🔒 ${s.title}` : `Stage ${s.stage || (i + 1)}: ${s.title}`}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
+                        <StageNavigation
+                            stages={stages}
+                            currentStageIndex={stageIndex}
+                            unlockedStage={unlockedStage}
+                            onStageChange={setStageIndex}
+                            className="overflow-x-auto px-2 py-1"
+                        />
                         <div
                             className={`p-6 rounded border-2 ${isInverted ? 'bg-gray-50 border-gray-300' : 'bg-gray-900 border-gray-800'}`}>
                             <h2 className="font-mono text-lg mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
