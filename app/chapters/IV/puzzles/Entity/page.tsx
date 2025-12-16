@@ -4,11 +4,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
 import styles from '@/styles/Entity.module.css';
-import {LogEntry, Process} from "@/types";
-import {localStorageKeys} from "@/lib/saveData";
+import {ActionState, LogEntry, Process} from "@/types";
+import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 import {computeFakeHash, fileExists, getContainerClasses, getFsNode, markCompleted,} from "@/lib/utils/chIV";
 import {
-    useChapter4Access,
+    useActStateCheck,
     useClientSideValue,
     useCommandHistory,
     useCyclingPhase,
@@ -18,14 +18,24 @@ import {
     useLocalStorageState
 } from "@/hooks";
 import {entityConst} from "@/lib/data/chapters/chapterIV";
+import {useRouter} from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function EntityPuzzlePage() {
-    const access = useChapter4Access();
+    const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Check if chapter is not yet released - redirect if so
+    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
+
+    // Check if bonus content is locked - redirect if so
+    useEffect(() => {
+        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
+    }, [router]);
 
     playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    if (!access) return <div className={styles.loadingContainer}>Booting shell...</div>;
+    if (isNotReleased === null) return <div className={styles.loadingContainer}>Booting shell...</div>;
 
     // Custom hooks for reusable logic
     const sessionId = useClientSideValue(() => Math.floor(Date.now() / 1000));

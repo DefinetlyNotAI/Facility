@@ -3,9 +3,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
-import {useChapter4Access} from "@/hooks";
+import {useActStateCheck} from "@/hooks";
+import {ActionState} from "@/types";
 import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
-import {cookies} from "@/lib/saveData";
+import {cookies, routes} from "@/lib/saveData";
+import {useRouter} from "next/navigation";
+import Cookies from "js-cookie";
 
 const TERM_BG = '#000000';
 const TERM_GREEN = '#00ff66';
@@ -16,11 +19,19 @@ const VOID_BLACK = 0x000000;
 const AMBIENT_DRONE_FREQUENCY = 0.5; // Slow oscillation for unease
 
 export default function WhiteRoomPage() {
+    const router = useRouter();
     const mountRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [phase, setPhase] = useState<'explore' | 'watching' | 'darkening' | 'eyes' | 'complete'>('explore');
     const [instructions, setInstructions] = useState('Click to enter the moonlights room');
-    const access = useChapter4Access();
+
+    // Check if chapter is not yet released - redirect if so
+    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
+
+    // Check if bonus content is locked - redirect if so
+    useEffect(() => {
+        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
+    }, [router]);
 
     // Scene references
     const sceneRef = useRef<THREE.Scene | null>(null);
@@ -58,7 +69,7 @@ export default function WhiteRoomPage() {
     const walkingTimeRef = useRef(0); // Track time spent walking
     const isWalkingRef = useRef(false);
 
-    if (!access) return <div style={{
+    if (isNotReleased === null) return <div style={{
         height: '100vh',
         background: TERM_BG,
         color: TERM_GREEN,

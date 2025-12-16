@@ -5,8 +5,11 @@ import Link from 'next/link';
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/utils/chIV';
 import {cookies, localStorageKeys, routes} from '@/lib/saveData';
-import {useChapter4Access} from "@/hooks";
+import {useActStateCheck} from "@/hooks";
+import {ActionState} from "@/types";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
+import {useRouter} from "next/navigation";
+import Cookies from "js-cookie";
 
 // Riddle component (adapted from TREE puzzle for a riddle-chain mini-game)
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
@@ -50,11 +53,20 @@ const Riddle = ({idx, prompt, expectedChunk, onResult}: {
 }
 
 export default function TasPuzzlePage() {
-    const isCurrentlySolved = useChapter4Access();
+    const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
 
+    // Check if chapter is not yet released - redirect if so
+    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
+
+    // Check if bonus content is locked - redirect if so
+    useEffect(() => {
+        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
+    }, [router]);
+
     playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
-    if (!isCurrentlySolved) {
+
+    if (isNotReleased === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-white font-mono">Loading...</div>

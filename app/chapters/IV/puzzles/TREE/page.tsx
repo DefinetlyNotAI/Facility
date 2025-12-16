@@ -4,9 +4,12 @@ import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {seededShuffle, seedFromString} from '@/lib/utils/chIV';
-import {useChapter4Access} from "@/hooks";
+import {useActStateCheck} from "@/hooks";
+import {ActionState} from "@/types";
+import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 import {BACKGROUND_AUDIO, playBackgroundAudio, playSafeSFX, SFX_AUDIO} from "@/lib/data/audio";
-import {localStorageKeys} from "@/lib/saveData";
+import {useRouter} from "next/navigation";
+import Cookies from "js-cookie";
 
 const Riddle = ({idx, prompt, expectedChunk, onResult}: {
     idx: number,
@@ -50,12 +53,21 @@ const Riddle = ({idx, prompt, expectedChunk, onResult}: {
 
 
 export default function TreePuzzlePage() {
-    const isCurrentlySolved = useChapter4Access();
+    const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    // Check if chapter is not yet released - redirect if so
+    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
+
+    // Check if bonus content is locked - redirect if so
+    useEffect(() => {
+        if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
+    }, [router]);
 
     playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    if (!isCurrentlySolved) {
+    // Show loading while checking access
+    if (isNotReleased === null) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-white font-mono">Loading...</div>

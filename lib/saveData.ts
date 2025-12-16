@@ -75,7 +75,7 @@ export const routes = {
                 validateStage: "/api/chapters/IV/validate-stage",
                 // API: GET /api/chapters/IV/status - returns the current plaque solve states for Chapter IV.
                 // Return: List of plaque IDs marked as solved based on verified auth cookie.
-                status: "/api/chapters/iv/status",
+                status: "/api/chapters/IV/status",
             }
         },
         banned: {

@@ -9,7 +9,7 @@ export {
 } from "@/hooks/BonusActHooks";
 export {useActStateCheck} from "@/hooks/BonusActHooks";
 export {useChapterAccess} from "@/hooks/BonusActHooks";
-export {useChapter2Access, useChapter4Access} from "@/hooks/BonusActHooks";
+export {useChapter2Access} from "@/hooks/BonusActHooks";
 export {useFailed} from "@/hooks/BonusActHooks";
 export {usePreloadActStates} from "@/hooks/BonusActHooks";
 
