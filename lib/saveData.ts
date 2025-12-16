@@ -138,9 +138,9 @@ export const routes = {
             pathTimedUrl: '/chapters/II/3h-15m-10th-utc',
         },
         chapterIVSpecial: {
-            entity: '/chapters/IV/chIV/Entity',
-            tree: '/chapters/IV/chIV/TREE',
-            tas: '/chapters/IV/chIV/TAS',
+            entity: '/chapters/IV/puzzles/Entity',
+            tree: '/chapters/IV/puzzles/TREE',
+            tas: '/chapters/IV/puzzles/TAS',
         }
     },
 }
