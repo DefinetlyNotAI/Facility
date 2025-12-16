@@ -66,15 +66,11 @@ export default function TasPuzzlePage() {
 
     playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    if (isNotReleased === null) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">Loading...</div>
-            </div>
-        );
-    }
+    // Do NOT return early here; compute loading flag so all Hooks remain called in the same order.
+    const isLoading = isNotReleased === null;
+
     const puzzle = (chapterIVData as any).puzzles?.TAS;
-    if (!puzzle) return <div className="min-h-screen flex items-center justify-center">Puzzle not found.</div>;
+    const puzzleMissing = !puzzle;
 
     const stages = puzzle.stageData || [];
 
@@ -841,321 +837,341 @@ export default function TasPuzzlePage() {
     return (
         <>
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" style={{display: 'none'}}/>
-            <div
-                className={`min-h-screen p-8 font-mono transition-all duration-500 ${isInverted ? 'bg-white text-black' : 'bg-gray-900 text-white'}`}>
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-6">
-                        <h1 className="text-3xl font-bold">TAS Puzzle Challenge</h1>
-                        <p className={`text-sm mt-2 ${isInverted ? 'text-gray-600' : 'text-gray-400'}`}>Progress is
-                            saved locally and to a plaque cookie
-                            (3-state save).</p>
-                    </div>
 
-                    <div className="mb-4">
-                        <div className="flex gap-2 overflow-x-auto px-2 py-1">
-                            {stages.map((s: any, i: number) => {
-                                const locked = i > unlockedStage;
-                                return (
-                                    <button key={i} disabled={locked} onClick={() => {
-                                        if (!locked) setStageIndex(i);
-                                    }}
-                                            className={`inline-flex flex-shrink-0 px-3 py-1 text-sm rounded whitespace-nowrap ${i === stageIndex ? 'bg-gray-700' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
-                                        {locked ? `🔒 ${s.title}` : `Stage ${s.stage || (i + 1)}: ${s.title}`}
-                                    </button>
-                                );
-                            })}
+            {isLoading ? (
+                <div className="min-h-screen bg-black flex items-center justify-center">
+                    <div className="text-white font-mono">Loading...</div>
+                </div>
+            ) : puzzleMissing ? (
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="text-white font-mono">Puzzle not found.</div>
+                </div>
+            ) : (
+                <div
+                    className={`min-h-screen p-8 font-mono transition-all duration-500 ${isInverted ? 'bg-white text-black' : 'bg-gray-900 text-white'}`}>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center mb-6">
+                            <h1 className="text-3xl font-bold">TAS Puzzle Challenge</h1>
+                            <p className={`text-sm mt-2 ${isInverted ? 'text-gray-600' : 'text-gray-400'}`}>Progress is
+                                saved locally and to a plaque cookie
+                                (3-state save).</p>
                         </div>
-                    </div>
 
-                    <div
-                        className={`p-6 rounded border-2 ${isInverted ? 'bg-gray-50 border-gray-300' : 'bg-gray-900 border-gray-800'}`}>
-                        <h2 className="font-mono text-lg mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
-                        <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
-
-                        {/* Render by configured type */}
-                        {stages[stageIndex]?.type === 'switches' && (
-                            <div>
-                                <div className="flex gap-2 mb-3">
-                                    {switches.map((b, i) => (
-                                        <button key={i} onClick={() => toggleSwitch(i)}
-                                                className={b === 1 ? 'px-3 py-2 bg-green-600 text-black rounded' : 'px-3 py-2 bg-gray-700 text-gray-200 rounded'}>{b}</button>
-                                    ))}
-                                    <button onClick={submitSwitches}
-                                            className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
-                                    </button>
-                                </div>
-                                <div className="text-xs text-gray-500">Toggle switches to match the expected pattern.
-                                </div>
-                            </div>
-                        )}
-
-                        {stages[stageIndex]?.type === 'assembly' && (
-                            <div>
-                                <div className="text-xs text-gray-400 mb-2">
-                                    Click parts in order to assemble the word. You can reset and try different orders.
-                                </div>
-                                <div className="flex gap-2 flex-wrap mb-3">
-                                    {parts.map((p, i) => (
-                                        <button key={i} disabled={used[i]} onClick={() => clickPart(i)}
-                                                className={used[i] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 border rounded'}>{p}</button>
-                                    ))}
-                                </div>
-                                <div className="mb-3">Current: <span
-                                    className="font-mono text-green-300">{assembly || '(empty)'}</span></div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={submitAssembly}
-                                        disabled={!assembly}
-                                        className="px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded"
-                                    >
-                                        Submit Assembly
-                                    </button>
-                                    <button onClick={() => {
-                                        setUsed(new Array(parts.length).fill(false));
-                                        setAssembly('');
-                                        setFeedback('');
-                                    }} className="px-3 py-2 text-xs text-red-400 underline">Reset
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {stages[stageIndex]?.type === 'timed' && (
-                            <div>
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="text-sm text-gray-400">Time remaining: <span
-                                        className="font-mono">{remainingTime}s</span></div>
-                                    <div className="text-sm text-gray-400">Base timer: <span
-                                        className="font-mono">{stageTimedBase}s</span></div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 mb-3">
-                                    {nodes.map(n => (
-                                        <button key={n.id} onClick={() => handleNodeClick(n)}
-                                                className={`p-4 rounded font-mono text-xl ${n.withered ? 'bg-red-900 text-red-100 opacity-90' : 'bg-green-900 text-white'}`}>
-                                            {n.label}
-                                            {n.withered && <div className="text-xs text-red-300 mt-1">withered</div>}
+                        <div className="mb-4">
+                            <div className="flex gap-2 overflow-x-auto px-2 py-1">
+                                {stages.map((s: any, i: number) => {
+                                    const locked = i > unlockedStage;
+                                    return (
+                                        <button key={i} disabled={locked} onClick={() => {
+                                            if (!locked) setStageIndex(i);
+                                        }}
+                                                className={`inline-flex flex-shrink-0 px-3 py-1 text-sm rounded whitespace-nowrap ${i === stageIndex ? 'bg-gray-700' : locked ? 'bg-gray-800 text-gray-600' : 'bg-gray-600 text-black'}`}>
+                                            {locked ? `🔒 ${s.title}` : `Stage ${s.stage || (i + 1)}: ${s.title}`}
                                         </button>
-                                    ))}
-                                </div>
-                                <div className="text-sm text-gray-300 mb-2">Sequence: <span
-                                    className="font-mono">{nodeSeq}</span></div>
-                                <div className="text-sm text-yellow-400">{feedback}</div>
+                                    );
+                                })}
                             </div>
-                        )}
+                        </div>
 
-                        {stages[stageIndex]?.type === 'grid' && (
-                            <div>
-                                <div className="flex gap-2 mb-3">
-                                    {gridBits.map((b, i) => (
-                                        <button key={i} onClick={() => toggleGridBit(i)}
-                                                className={`px-3 py-2 rounded ${b ? 'bg-green-600 text-black' : 'bg-gray-700 text-gray-200'}`}>{b}</button>
-                                    ))}
-                                    <button onClick={submitGridBits}
-                                            className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
-                                    </button>
-                                </div>
-                                <div className="text-xs text-gray-500">Toggle tiles to match parity pattern.</div>
-                            </div>
-                        )}
+                        <div
+                            className={`p-6 rounded border-2 ${isInverted ? 'bg-gray-50 border-gray-300' : 'bg-gray-900 border-gray-800'}`}>
+                            <h2 className="font-mono text-lg mb-2">{stages[stageIndex]?.title || 'Stage'}</h2>
+                            <p className="text-sm text-gray-400 mb-4">{stages[stageIndex]?.instruction || ''}</p>
 
-                        {stages[stageIndex]?.type === 'merge' && (
-                            <div>
-                                <div className="text-sm text-gray-400 mb-2">Available keys (click to append):</div>
-                                <div className="flex flex-wrap gap-2 mb-2">
-                                    {Object.keys(stageResults).length === 0 &&
-                                        <div className="text-xs text-gray-500">No keys collected yet.</div>}
-                                    {Object.entries(stageResults).map(([k, v]) => (
-                                        <button key={k} onClick={() => clickMergeItem(Number(k))}
-                                                className="px-3 py-1 bg-gray-700 rounded text-xs">Stage {k}: {String(v).slice(0, 10)}</button>
-                                    ))}
-                                </div>
-                                <div className="mt-2">Merged: <span className="font-mono">{assembly}</span></div>
-                                <div className="mt-2 flex gap-2">
-                                    <button onClick={submitMerge} className="px-3 py-2 bg-blue-600 rounded">Submit
-                                        Merge
-                                    </button>
-                                    <button onClick={() => setAssembly('')}
-                                            className="px-2 py-1 underline text-xs">Clear
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {stages[stageIndex]?.type === 'riddle' && (
-                            <div>
-                                <form onSubmit={handleSubmit} className="mt-2">
-                                    <input value={input} onChange={(e) => setInput(e.target.value)}
-                                           placeholder="Enter answer" className="w-full bg-gray-900 px-3 py-2 rounded"/>
-                                    <div className="mt-2">
-                                        <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit</button>
+                            {/* Render by configured type */}
+                            {stages[stageIndex]?.type === 'switches' && (
+                                <div>
+                                    <div className="flex gap-2 mb-3">
+                                        {switches.map((b, i) => (
+                                            <button key={i} onClick={() => toggleSwitch(i)}
+                                                    className={b === 1 ? 'px-3 py-2 bg-green-600 text-black rounded' : 'px-3 py-2 bg-gray-700 text-gray-200 rounded'}>{b}</button>
+                                        ))}
+                                        <button onClick={submitSwitches}
+                                                className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
+                                        </button>
                                     </div>
-                                </form>
-                            </div>
-                        )}
-
-                        {stages[stageIndex]?.type === 'payload' && (
-                            <div>
-                                {stages[stageIndex]?.payload && (
-                                    <div className="space-y-2">
-                                        <div className="bg-black p-2 rounded text-xs text-green-300 break-all">
-                                            {stages[stageIndex].payload}
-                                        </div>
-                                        {stageIndex === 0 && (
-                                            <div className="text-xs text-gray-400 italic">
-                                                💡 Hint: This appears to be base64 encoded. Try decoding it to find the
-                                                key word.
-                                            </div>
-                                        )}
+                                    <div className="text-xs text-gray-500">Toggle switches to match the expected
+                                        pattern.
                                     </div>
-                                )}
-                                <form onSubmit={handleSubmit} className="mt-2">
-                                    <input value={input} onChange={(e) => setInput(e.target.value)}
-                                           placeholder="Enter answer" className="w-full bg-gray-900 px-3 py-2 rounded"/>
-                                    <div className="mt-2">
-                                        <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit</button>
+                                </div>
+                            )}
+
+                            {stages[stageIndex]?.type === 'assembly' && (
+                                <div>
+                                    <div className="text-xs text-gray-400 mb-2">
+                                        Click parts in order to assemble the word. You can reset and try different
+                                        orders.
                                     </div>
-                                </form>
-                            </div>
-                        )}
-
-                        {stages[stageIndex]?.type === 'riddle-chain' && renderFinalRiddleChain()}
-
-                        {/* Numpad Stage */}
-                        {stages[stageIndex]?.type === 'numpad' && (
-                            <div className="space-y-4">
-                                <div className="text-center">
-                                    <div className="text-xl font-mono tracking-widest mb-4">
-                                        {numpadInput.padEnd(5, '_').split('').map((char, i) => (
-                                            <span key={i}
-                                                  className="inline-block w-8 mx-1 text-center border-b-2 border-green-500">
-                                                {char}
-                                            </span>
+                                    <div className="flex gap-2 flex-wrap mb-3">
+                                        {parts.map((p, i) => (
+                                            <button key={i} disabled={used[i]} onClick={() => clickPart(i)}
+                                                    className={used[i] ? 'px-3 py-2 bg-gray-700 rounded' : 'px-3 py-2 bg-black text-green-300 border rounded'}>{p}</button>
                                         ))}
                                     </div>
-                                    <div className="text-xs text-gray-400 mb-4">
-                                        Errors: {consecutiveErrors}/3 (keypad resets at 3)
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
-                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => {
-                                        const isWithered = witheredNumbers.includes(digit);
-                                        return (
-                                            <button
-                                                key={digit}
-                                                onClick={() => handleNumpadPress(digit)}
-                                                disabled={isWithered}
-                                                className={`p-6 text-2xl font-mono rounded transition-all ${
-                                                    isWithered
-                                                        ? 'bg-red-900/30 text-red-600 cursor-not-allowed opacity-30 line-through'
-                                                        : 'bg-gray-800 hover:bg-gray-700 text-white active:bg-green-600'
-                                                }`}
-                                            >
-                                                {isWithered ? '✗' : digit}
-                                            </button>
-                                        );
-                                    })}
-                                    <button
-                                        onClick={() => setNumpadInput('')}
-                                        className="p-6 text-sm font-mono bg-gray-700 hover:bg-gray-600 rounded"
-                                    >
-                                        CLR
-                                    </button>
-                                    <button
-                                        onClick={() => handleNumpadPress(0)}
-                                        disabled={witheredNumbers.includes(0)}
-                                        className={`p-6 text-2xl font-mono rounded transition-all ${
-                                            witheredNumbers.includes(0)
-                                                ? 'bg-red-900/30 text-red-600 cursor-not-allowed opacity-30 line-through'
-                                                : 'bg-gray-800 hover:bg-gray-700 text-white active:bg-green-600'
-                                        }`}
-                                    >
-                                        {witheredNumbers.includes(0) ? '✗' : '0'}
-                                    </button>
-                                    <button
-                                        onClick={() => setNumpadInput(prev => prev.slice(0, -1))}
-                                        className="p-6 text-sm font-mono bg-gray-700 hover:bg-gray-600 rounded"
-                                    >
-                                        ←
-                                    </button>
-                                </div>
-
-                                {witheredNumbers.length > 0 && (
-                                    <div className="text-center space-y-2">
-                                        <div className="text-xs text-red-400 animate-pulse">
-                                            Withered: {witheredNumbers.sort().join(', ')}
-                                        </div>
+                                    <div className="mb-3">Current: <span
+                                        className="font-mono text-green-300">{assembly || '(empty)'}</span></div>
+                                    <div className="flex gap-2">
                                         <button
-                                            onClick={() => {
-                                                setWitheredNumbers([]);
-                                                setNumpadInput('');
-                                                setConsecutiveErrors(0);
-                                                setFeedback('Keypad forcefully reset.');
-                                            }}
-                                            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-mono text-sm rounded"
+                                            onClick={submitAssembly}
+                                            disabled={!assembly}
+                                            className="px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded"
                                         >
-                                            Force Reset Keypad
+                                            Submit Assembly
+                                        </button>
+                                        <button onClick={() => {
+                                            setUsed(new Array(parts.length).fill(false));
+                                            setAssembly('');
+                                            setFeedback('');
+                                        }} className="px-3 py-2 text-xs text-red-400 underline">Reset
                                         </button>
                                     </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Word of the Day Stage */}
-                        {stages[stageIndex]?.type === 'wordofday' && (
-                            <div className="space-y-6">
-                                <div className="text-center">
-                                    <h2 className={`text-4xl font-bold mb-8 ${isInverted ? 'text-black' : 'text-white'}`}>
-                                        What is the word of the day?
-                                    </h2>
                                 </div>
+                            )}
 
-                                <form onSubmit={handleWordOfDaySubmit} className="space-y-4">
-                                    <input
-                                        type="text"
-                                        value={wordOfDayInput}
-                                        onChange={(e) => setWordOfDayInput(e.target.value)}
-                                        placeholder="Type the word..."
-                                        className={`w-full px-4 py-3 rounded font-mono text-lg text-center border-2 focus:outline-none ${
-                                            isInverted
-                                                ? 'bg-gray-100 border-black text-black placeholder-gray-500 focus:border-gray-600'
-                                                : 'bg-gray-800 border-white text-white placeholder-gray-400 focus:border-gray-300'
-                                        }`}
-                                    />
+                            {stages[stageIndex]?.type === 'timed' && (
+                                <div>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="text-sm text-gray-400">Time remaining: <span
+                                            className="font-mono">{remainingTime}s</span></div>
+                                        <div className="text-sm text-gray-400">Base timer: <span
+                                            className="font-mono">{stageTimedBase}s</span></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 mb-3">
+                                        {nodes.map(n => (
+                                            <button key={n.id} onClick={() => handleNodeClick(n)}
+                                                    className={`p-4 rounded font-mono text-xl ${n.withered ? 'bg-red-900 text-red-100 opacity-90' : 'bg-green-900 text-white'}`}>
+                                                {n.label}
+                                                {n.withered &&
+                                                    <div className="text-xs text-red-300 mt-1">withered</div>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="text-sm text-gray-300 mb-2">Sequence: <span
+                                        className="font-mono">{nodeSeq}</span></div>
+                                    <div className="text-sm text-yellow-400">{feedback}</div>
+                                </div>
+                            )}
 
-                                    <button
-                                        type="submit"
-                                        disabled={wordOfDayCountdown > 0}
-                                        className={`w-full px-6 py-4 rounded font-mono text-lg transition-all ${
-                                            wordOfDayCountdown > 0
-                                                ? isInverted
-                                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                    : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                                                : isInverted
-                                                    ? 'bg-black text-white hover:bg-gray-800'
-                                                    : 'bg-white text-black hover:bg-gray-200'
-                                        }`}
-                                    >
-                                        {wordOfDayCountdown > 0 ? `Wait ${wordOfDayCountdown}s` : 'SUBMIT'}
-                                    </button>
-                                </form>
+                            {stages[stageIndex]?.type === 'grid' && (
+                                <div>
+                                    <div className="flex gap-2 mb-3">
+                                        {gridBits.map((b, i) => (
+                                            <button key={i} onClick={() => toggleGridBit(i)}
+                                                    className={`px-3 py-2 rounded ${b ? 'bg-green-600 text-black' : 'bg-gray-700 text-gray-200'}`}>{b}</button>
+                                        ))}
+                                        <button onClick={submitGridBits}
+                                                className="ml-3 px-3 py-2 bg-blue-600 rounded">Submit
+                                        </button>
+                                    </div>
+                                    <div className="text-xs text-gray-500">Toggle tiles to match parity pattern.</div>
+                                </div>
+                            )}
+
+                            {stages[stageIndex]?.type === 'merge' && (
+                                <div>
+                                    <div className="text-sm text-gray-400 mb-2">Available keys (click to append):</div>
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                        {Object.keys(stageResults).length === 0 &&
+                                            <div className="text-xs text-gray-500">No keys collected yet.</div>}
+                                        {Object.entries(stageResults).map(([k, v]) => (
+                                            <button key={k} onClick={() => clickMergeItem(Number(k))}
+                                                    className="px-3 py-1 bg-gray-700 rounded text-xs">Stage {k}: {String(v).slice(0, 10)}</button>
+                                        ))}
+                                    </div>
+                                    <div className="mt-2">Merged: <span className="font-mono">{assembly}</span></div>
+                                    <div className="mt-2 flex gap-2">
+                                        <button onClick={submitMerge} className="px-3 py-2 bg-blue-600 rounded">Submit
+                                            Merge
+                                        </button>
+                                        <button onClick={() => setAssembly('')}
+                                                className="px-2 py-1 underline text-xs">Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {stages[stageIndex]?.type === 'riddle' && (
+                                <div>
+                                    <form onSubmit={handleSubmit} className="mt-2">
+                                        <input value={input} onChange={(e) => setInput(e.target.value)}
+                                               placeholder="Enter answer"
+                                               className="w-full bg-gray-900 px-3 py-2 rounded"/>
+                                        <div className="mt-2">
+                                            <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            {stages[stageIndex]?.type === 'payload' && (
+                                <div>
+                                    {stages[stageIndex]?.payload && (
+                                        <div className="space-y-2">
+                                            <div className="bg-black p-2 rounded text-xs text-green-300 break-all">
+                                                {stages[stageIndex].payload}
+                                            </div>
+                                            {stageIndex === 0 && (
+                                                <div className="text-xs text-gray-400 italic">
+                                                    💡 Hint: This appears to be base64 encoded. Try decoding it to find
+                                                    the
+                                                    key word.
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    <form onSubmit={handleSubmit} className="mt-2">
+                                        <input value={input} onChange={(e) => setInput(e.target.value)}
+                                               placeholder="Enter answer"
+                                               className="w-full bg-gray-900 px-3 py-2 rounded"/>
+                                        <div className="mt-2">
+                                            <button type="submit" className="px-3 py-2 bg-green-600 rounded">Submit
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            {stages[stageIndex]?.type === 'riddle-chain' && renderFinalRiddleChain()}
+
+                            {/* Numpad Stage */}
+                            {stages[stageIndex]?.type === 'numpad' && (
+                                <div className="space-y-4">
+                                    <div className="text-center">
+                                        <div className="text-xl font-mono tracking-widest mb-4">
+                                            {numpadInput.padEnd(5, '_').split('').map((char, i) => (
+                                                <span key={i}
+                                                      className="inline-block w-8 mx-1 text-center border-b-2 border-green-500">
+                                                {char}
+                                            </span>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-gray-400 mb-4">
+                                            Errors: {consecutiveErrors}/3 (keypad resets at 3)
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => {
+                                            const isWithered = witheredNumbers.includes(digit);
+                                            return (
+                                                <button
+                                                    key={digit}
+                                                    onClick={() => handleNumpadPress(digit)}
+                                                    disabled={isWithered}
+                                                    className={`p-6 text-2xl font-mono rounded transition-all ${
+                                                        isWithered
+                                                            ? 'bg-red-900/30 text-red-600 cursor-not-allowed opacity-30 line-through'
+                                                            : 'bg-gray-800 hover:bg-gray-700 text-white active:bg-green-600'
+                                                    }`}
+                                                >
+                                                    {isWithered ? '✗' : digit}
+                                                </button>
+                                            );
+                                        })}
+                                        <button
+                                            onClick={() => setNumpadInput('')}
+                                            className="p-6 text-sm font-mono bg-gray-700 hover:bg-gray-600 rounded"
+                                        >
+                                            CLR
+                                        </button>
+                                        <button
+                                            onClick={() => handleNumpadPress(0)}
+                                            disabled={witheredNumbers.includes(0)}
+                                            className={`p-6 text-2xl font-mono rounded transition-all ${
+                                                witheredNumbers.includes(0)
+                                                    ? 'bg-red-900/30 text-red-600 cursor-not-allowed opacity-30 line-through'
+                                                    : 'bg-gray-800 hover:bg-gray-700 text-white active:bg-green-600'
+                                            }`}
+                                        >
+                                            {witheredNumbers.includes(0) ? '✗' : '0'}
+                                        </button>
+                                        <button
+                                            onClick={() => setNumpadInput(prev => prev.slice(0, -1))}
+                                            className="p-6 text-sm font-mono bg-gray-700 hover:bg-gray-600 rounded"
+                                        >
+                                            ←
+                                        </button>
+                                    </div>
+
+                                    {witheredNumbers.length > 0 && (
+                                        <div className="text-center space-y-2">
+                                            <div className="text-xs text-red-400 animate-pulse">
+                                                Withered: {witheredNumbers.sort().join(', ')}
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setWitheredNumbers([]);
+                                                    setNumpadInput('');
+                                                    setConsecutiveErrors(0);
+                                                    setFeedback('Keypad forcefully reset.');
+                                                }}
+                                                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-mono text-sm rounded"
+                                            >
+                                                Force Reset Keypad
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Word of the Day Stage */}
+                            {stages[stageIndex]?.type === 'wordofday' && (
+                                <div className="space-y-6">
+                                    <div className="text-center">
+                                        <h2 className={`text-4xl font-bold mb-8 ${isInverted ? 'text-black' : 'text-white'}`}>
+                                            What is the word of the day?
+                                        </h2>
+                                    </div>
+
+                                    <form onSubmit={handleWordOfDaySubmit} className="space-y-4">
+                                        <input
+                                            type="text"
+                                            value={wordOfDayInput}
+                                            onChange={(e) => setWordOfDayInput(e.target.value)}
+                                            placeholder="Type the word..."
+                                            className={`w-full px-4 py-3 rounded font-mono text-lg text-center border-2 focus:outline-none ${
+                                                isInverted
+                                                    ? 'bg-gray-100 border-black text-black placeholder-gray-500 focus:border-gray-600'
+                                                    : 'bg-gray-800 border-white text-white placeholder-gray-400 focus:border-gray-300'
+                                            }`}
+                                        />
+
+                                        <button
+                                            type="submit"
+                                            disabled={wordOfDayCountdown > 0}
+                                            className={`w-full px-6 py-4 rounded font-mono text-lg transition-all ${
+                                                wordOfDayCountdown > 0
+                                                    ? isInverted
+                                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                        : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                                    : isInverted
+                                                        ? 'bg-black text-white hover:bg-gray-800'
+                                                        : 'bg-white text-black hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            {wordOfDayCountdown > 0 ? `Wait ${wordOfDayCountdown}s` : 'SUBMIT'}
+                                        </button>
+                                    </form>
+                                </div>
+                            )}
+
+
+                            <div className="mt-4">
+                                <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>
                             </div>
-                        )}
 
-
-                        <div className="mt-4">
-                            <button onClick={reset} className="text-xs text-red-400 underline">Reset</button>
+                            <div className="mt-4 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
+                            <div className="mt-2 text-sm text-yellow-300">{feedback}</div>
                         </div>
 
-                        <div className="mt-4 text-sm text-green-400">{completed ? 'Completed and saved.' : ''}</div>
-                        <div className="mt-2 text-sm text-yellow-300">{feedback}</div>
-                    </div>
-
-                    <div className="mt-6 text-center">
-                        <Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to Chapter IV</Link>
+                        <div className="mt-6 text-center">
+                            <Link href="/chapters/IV" className="text-sm text-gray-300 underline">Back to Chapter
+                                IV</Link>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
         </>
     );
 }

@@ -35,7 +35,8 @@ export default function EntityPuzzlePage() {
 
     playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    if (isNotReleased === null) return <div className={styles.loadingContainer}>Booting shell...</div>;
+    // Do NOT return early here; compute loading flag so all Hooks remain called in the same order.
+    const isLoading = isNotReleased === null;
 
     // Custom hooks for reusable logic
     const sessionId = useClientSideValue(() => Math.floor(Date.now() / 1000));
@@ -784,83 +785,92 @@ export default function EntityPuzzlePage() {
 
     return (
         <div className={getContainerClasses({styles, glitchActive: isGlitchActive, fragmentsCollected})}>
-            <div className={styles.header}>
-                <div className={styles.headerTitle}>{entityConst.messages.headerTitle}</div>
-                <div className={styles.sessionInfo}>{entityConst.messages.sessionPrefix}{mounted && sessionId}</div>
-            </div>
-
-            <div className={styles.mainContent}>
-                <div className={styles.sidebar}>
-                    <div className={styles.sidebarTitle}>{entityConst.messages.sidebarProcesses}</div>
-                    <div className={styles.processList}>
-                        {subprocs.map(s => (<div key={s.pid} className={styles.processItem}>
-                            <div className={styles.processName}>{s.name}</div>
-                            <div className={styles.processPid}>@{s.pid}</div>
-                        </div>))}
-                    </div>
-
-                    <div className={styles.fragmentsTitle}>{entityConst.messages.sidebarFragments}</div>
-                    <div className={styles.fragmentsList}>
-                        {Array.from({length: 7}, (_, i) => i + 1).map(i => (
-                            <div key={i}
-                                 className={styles.fragmentItem}>{i}: {fragments[i] || entityConst.messages.fragmentPlaceholder}</div>))}
-                    </div>
-
-                    <div className={styles.tips}>{entityConst.messages.tips}</div>
-                </div>
-
-                <div className={styles.terminalArea}>
-                    <div className={styles.terminal}>
-                        <div className={styles.terminalOutput}>
-                            {streamLogs.map((l, idx) => {
-                                const colorMap: Record<string, string> = {
-                                    green: styles.logGreen,
-                                    yellow: styles.logYellow,
-                                    red: styles.logRed,
-                                    cyan: styles.logCyan,
-                                    magenta: styles.logMagenta,
-                                    gray: styles.logGray
-                                };
-                                const colorClass = l.color ? colorMap[l.color] : styles.logDefault;
-                                return (<div key={idx} className={`${styles.logLine} ${colorClass}`}>{l.text}</div>);
-                            })}
-                        </div>
-                    </div>
-
-                    <div className={styles.inputArea}>
-                        <input
-                            value={commandInput}
-                            onChange={e => setCommandInput(e.target.value)}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                    processCommand(commandInput).catch(console.error);
-                                    setCommandInput('');
-                                }
-                            }}
-                            placeholder={entityConst.messages.inputPlaceholder}
-                            className={styles.commandInput}
-                        />
-                        <button
-                            onClick={() => {
-                                processCommand(commandInput).catch(console.error);
-                                setCommandInput('');
-                            }}
-                            className={styles.runButton}
-                        >
-                            {entityConst.messages.runButton}
-                        </button>
-                    </div>
-
-                    <div className={styles.footer}>
+            {/* Show a simple loading view until hook indicates release state is known */}
+            {isLoading ? (
+                <div className={styles.loadingContainer}>Booting shell...</div>
+            ) : (
+                <>
+                    <div className={styles.header}>
+                        <div className={styles.headerTitle}>{entityConst.messages.headerTitle}</div>
                         <div
-                            className={styles.streamInfo}>{entityConst.messages.liveStreamInfo(streamLogs.length)}</div>
-                        <div className={styles.backLink}>
-                            <Link href="/chapters/IV"
-                                  className={styles.backLinkAnchor}>{entityConst.messages.backLink}</Link>
+                            className={styles.sessionInfo}>{entityConst.messages.sessionPrefix}{mounted && sessionId}</div>
+                    </div>
+
+                    <div className={styles.mainContent}>
+                        <div className={styles.sidebar}>
+                            <div className={styles.sidebarTitle}>{entityConst.messages.sidebarProcesses}</div>
+                            <div className={styles.processList}>
+                                {subprocs.map(s => (<div key={s.pid} className={styles.processItem}>
+                                    <div className={styles.processName}>{s.name}</div>
+                                    <div className={styles.processPid}>@{s.pid}</div>
+                                </div>))}
+                            </div>
+
+                            <div className={styles.fragmentsTitle}>{entityConst.messages.sidebarFragments}</div>
+                            <div className={styles.fragmentsList}>
+                                {Array.from({length: 7}, (_, i) => i + 1).map(i => (
+                                    <div key={i}
+                                         className={styles.fragmentItem}>{i}: {fragments[i] || entityConst.messages.fragmentPlaceholder}</div>))}
+                            </div>
+
+                            <div className={styles.tips}>{entityConst.messages.tips}</div>
+                        </div>
+
+                        <div className={styles.terminalArea}>
+                            <div className={styles.terminal}>
+                                <div className={styles.terminalOutput}>
+                                    {streamLogs.map((l, idx) => {
+                                        const colorMap: Record<string, string> = {
+                                            green: styles.logGreen,
+                                            yellow: styles.logYellow,
+                                            red: styles.logRed,
+                                            cyan: styles.logCyan,
+                                            magenta: styles.logMagenta,
+                                            gray: styles.logGray
+                                        };
+                                        const colorClass = l.color ? colorMap[l.color] : styles.logDefault;
+                                        return (<div key={idx}
+                                                     className={`${styles.logLine} ${colorClass}`}>{l.text}</div>);
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className={styles.inputArea}>
+                                <input
+                                    value={commandInput}
+                                    onChange={e => setCommandInput(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') {
+                                            processCommand(commandInput).catch(console.error);
+                                            setCommandInput('');
+                                        }
+                                    }}
+                                    placeholder={entityConst.messages.inputPlaceholder}
+                                    className={styles.commandInput}
+                                />
+                                <button
+                                    onClick={() => {
+                                        processCommand(commandInput).catch(console.error);
+                                        setCommandInput('');
+                                    }}
+                                    className={styles.runButton}
+                                >
+                                    {entityConst.messages.runButton}
+                                </button>
+                            </div>
+
+                            <div className={styles.footer}>
+                                <div
+                                    className={styles.streamInfo}>{entityConst.messages.liveStreamInfo(streamLogs.length)}</div>
+                                <div className={styles.backLink}>
+                                    <Link href="/chapters/IV"
+                                          className={styles.backLinkAnchor}>{entityConst.messages.backLink}</Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </>
+            )}
 
             <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.IV} loop preload="auto" className={styles.audioPlayer}/>
         </div>

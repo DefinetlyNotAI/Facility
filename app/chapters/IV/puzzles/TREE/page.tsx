@@ -66,23 +66,7 @@ export default function TreePuzzlePage() {
 
     playBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    // Show loading while checking access
-    if (isNotReleased === null) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">Loading...</div>
-            </div>
-        );
-    }
     const puzzle = (chapterIVData as any).puzzles?.TREE;
-    if (!puzzle) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-white font-mono">Puzzle not found.</div>
-            </div>
-        );
-    }
-
     const stages = puzzle.stageData || [];
     const [stageIndex, setStageIndex] = useState<number>(0);
     const [input, setInput] = useState<string>('');
@@ -425,6 +409,22 @@ export default function TreePuzzlePage() {
         }, 800);
     }
 
+    // Show loading while checking access
+    if (isNotReleased === null) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono">Loading...</div>
+            </div>
+        );
+    }
+    if (!puzzle) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-white font-mono">Puzzle not found.</div>
+            </div>
+        );
+    }
+    
     // Basic UI rendering for stages
     return (
         <>
