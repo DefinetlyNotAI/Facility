@@ -1,6 +1,5 @@
 import {NextRequest} from "next/server";
-import {createSecureResponse, verifyAdmin} from "@/lib/utils";
-import {dbPool} from "@/lib/db";
+import {createSecureResponse, dbPool, verifyAdmin} from '@/lib/server/utils';
 import {allowedActs, genericErrors} from "@/lib/data/api";
 import {ActionState} from "@/types";
 

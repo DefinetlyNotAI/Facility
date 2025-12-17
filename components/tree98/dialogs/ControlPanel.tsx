@@ -4,7 +4,7 @@ import {controlPanelData, sysConfigDefaults} from '@/lib/data/tree98';
 import {getIcon} from "@/components/tree98/icons";
 import {localStorageKeys} from "@/lib/saveData";
 import {ControlPanelData} from "@/types";
-import {detectOsBrowser} from "@/lib/utils";
+import {detectOsBrowser} from "@/lib/client/utils";
 
 const InfoItem = ({label, value}: { label: string; value: string | number | boolean }) => (
     <div className="flex justify-between text-xs border-b py-1">

@@ -9,7 +9,7 @@ import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "
 import {BROWSERS, SUBTITLE_TEXT, TITLE, TOOLTIP, WINGDING} from '@/lib/data/buttons';
 import {BrowserName} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 
 
 // Detect browser reliably (basic)

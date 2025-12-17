@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {cookies, routes} from "@/lib/saveData";
 import {text} from "@/lib/data/root";
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 
 export default function RootPage() {
     const router = useRouter();

@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {loginData, sysConfigDefaults} from "@/lib/data/tree98";
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import {cookies} from "@/lib/saveData";
 import {LoginScreenProps} from "@/types";
 import {playSafeSFX, SFX_AUDIO} from "@/audio";

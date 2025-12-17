@@ -6,7 +6,7 @@ import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/types";
 import {localStorageKeys} from "@/lib/saveData";
-import {computeFakeHash, fileExists, getContainerClasses, getFsNode, markCompleted,} from "@/lib/utils/chIV";
+import {computeFakeHash, fileExists, getContainerClasses, getFsNode, markCompleted,} from "@/lib/client/utils/chapters";
 import {
     useChIVSetup,
     useClientSideValue,

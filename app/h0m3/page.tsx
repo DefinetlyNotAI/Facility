@@ -13,7 +13,7 @@ import {
     ttsMessageID,
     ttsMessages,
 } from '@/lib/data/h0m3';
-import {getOrCreateSessionId, signCookie} from "@/lib/utils";
+import {getOrCreateSessionId, signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";
 
 const letterReplace = (text: string) =>

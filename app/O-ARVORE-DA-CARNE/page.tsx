@@ -3,7 +3,7 @@
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import {script} from "@/lib/data/oArvoreDaCarne";
 import {ScriptItem} from "@/types";
 import {cookies, routes} from "@/lib/saveData";

@@ -19,7 +19,7 @@ import {
     WHOAMI_MSG
 } from "@/lib/data/fileConsole";
 import {BootMessage} from "@/types";
-import {fetchUserIP} from "@/lib/utils";
+import {fetchUserIP} from "@/lib/client/utils";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 
 

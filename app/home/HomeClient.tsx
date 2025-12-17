@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import {BACKGROUND_AUDIO} from "@/audio";
 import {
     classificationClass,

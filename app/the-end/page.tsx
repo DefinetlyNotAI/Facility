@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
-import {checkKeyword, signCookie} from "@/lib/utils";
+import {checkKeyword, signCookie} from "@/lib/client/utils";
 import {messages} from "@/lib/data/theEnd";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 import styles from '@/styles/TheEnd.module.css';

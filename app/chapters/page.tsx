@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import styles from "@/styles/ChapterBonusRoot.module.css";
-import {bonusApi} from "@/lib/utils";
+import {bonusApi} from "@/lib/client/utils";
 import {failQuestNames, rootChapterText} from "@/lib/data/chapters/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/types";

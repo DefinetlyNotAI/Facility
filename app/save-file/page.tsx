@@ -2,7 +2,7 @@
 
 import React, {useState} from 'react';
 import {useRouter} from 'next/navigation';
-import {checkKeyword, signCookie} from '@/lib/utils';
+import {checkKeyword, signCookie} from '@/lib/client/utils';
 import {cookies, routes} from '@/lib/saveData';
 import styles from '@/styles/SaveFile.module.css';
 

@@ -4,7 +4,7 @@ import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 import {validRomans} from "@/lib/data/chapters/chapters.bundled";
 import {routes} from "@/lib/saveData";
-import {bonusApi} from "@/lib/utils";
+import {bonusApi} from "@/lib/client/utils";
 
 export function useActStateCheck(
     roman: string | null,

@@ -1,4 +1,4 @@
-import {createSecureResponse} from '@/lib/utils';
+import {createSecureResponse} from '@/lib/server/utils';
 import {wifiPanelSpecialTipMessage} from "@/lib/data/api";
 
 export async function GET(req: Request) {

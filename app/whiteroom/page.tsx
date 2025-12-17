@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {useActStateCheck} from "@/hooks";
 import {ActionState, Phase} from "@/types";
-import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
+import {getJsonCookie, setJsonCookie} from "@/lib/client/utils/chapters";
 import {cookies, routes} from "@/lib/saveData";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";

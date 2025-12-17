@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {PlaqueId} from '@/lib/data/chapters/chapters.server';
-import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/utils/chIV.server';
+import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/server/utils/chapters';
 import {cookies} from "@/lib/saveData";
 
 /**

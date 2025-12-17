@@ -19,7 +19,7 @@ import {
     wingdingsTitles
 } from '@/lib/data/terminal';
 import {FullScreenOverlay, KeywordKey, TerminalStep} from "@/types";
-import {getOrCreateSessionId, signCookie} from "@/lib/utils";
+import {getOrCreateSessionId, signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";
 
 export default function TerminalPage() {

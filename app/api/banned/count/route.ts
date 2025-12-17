@@ -1,5 +1,4 @@
-import {createSecureResponse} from '@/lib/utils';
-import {dbPool} from '@/lib/db';
+import {createSecureResponse, dbPool} from '@/lib/server/utils';
 import {genericErrors} from "@/lib/data/api";
 
 export async function GET() {

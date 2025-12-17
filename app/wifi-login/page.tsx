@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import styles from '../../styles/WifiLogin.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {form, hashes, messages} from "@/lib/data/wifi";

@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {verifySignedValue} from '@/lib/utils/chIV.server';
+import {verifySignedValue} from '@/lib/server/utils/chapters';
 import {cookies} from "@/lib/saveData";
 
 /**

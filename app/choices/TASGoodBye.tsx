@@ -3,9 +3,10 @@ import styles from "../../styles/Choices.module.css";
 import {CUTSCENE_LINES, FINALE_MSG} from "@/lib/data/choices";
 import {useTypewriter} from "@/hooks";
 import {SFX_AUDIO} from "@/audio";
-import {renderMsg, signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import {TASGoodByeProps} from "@/types";
 import {cookies} from "@/lib/saveData";
+import {renderMsg} from "@/lib/ui";
 
 
 const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {

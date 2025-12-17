@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Cookies from 'js-cookie';
-import {bannedApi, bonusApi, ensureCsrfToken, getCookiesMap, signCookie} from '@/lib/utils';
+import {bannedApi, bonusApi, ensureCsrfToken, getCookiesMap, signCookie} from '@/lib/client/utils';
 import {buttonState, text} from '@/lib/data/smileking';
 import styles from '@/styles/Smileking.module.css';
 import {cookies, routes} from '@/lib/saveData';

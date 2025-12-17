@@ -16,8 +16,9 @@ import {
 import TASGoodBye from "./TASGoodBye";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
 import {useTypewriter} from "@/hooks";
-import {detectOsBrowser, renderMsg, signCookie} from "@/lib/utils";
+import {detectOsBrowser, signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";
+import {renderMsg} from "@/lib/ui";
 
 
 // --- Main Component ---

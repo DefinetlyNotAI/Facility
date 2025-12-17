@@ -1,7 +1,7 @@
 "use client";
 import React, {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
-import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/utils";
+import {bannedApi, ensureCsrfToken, fetchUserIP} from "@/lib/client/utils";
 import {CheckMeResponse} from "@/types";
 import {chapterVIIIData} from "@/lib/data/chapters/chapters";
 import {localStorageKeys} from "@/lib/saveData";

@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
-import {seededShuffle, seedFromString} from '@/lib/utils/chIV';
+import {seededShuffle, seedFromString} from '@/lib/client/utils/chapters';
 import {useActStateCheck} from "@/hooks";
 import {ActionState} from "@/types";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";

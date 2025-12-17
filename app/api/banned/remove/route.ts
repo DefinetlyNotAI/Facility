@@ -1,6 +1,5 @@
 import {NextRequest} from 'next/server';
-import {createSecureResponse, isValidIP, verifyAdmin} from '@/lib/utils';
-import {dbPool} from '@/lib/db';
+import {createSecureResponse, dbPool, isValidIP, verifyAdmin} from '@/lib/server/utils';
 import {genericErrors} from "@/lib/data/api";
 
 

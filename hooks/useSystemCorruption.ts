@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {sysConfigDefaults} from '@/lib/data/tree98';
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";
 import {playSafeSFX, SFX_AUDIO} from "@/audio";
 import {ErrorDialog} from "@/components/tree98/dialogs/ErrorPopup";

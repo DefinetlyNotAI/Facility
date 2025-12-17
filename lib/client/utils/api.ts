@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import {AddMeResponse, BonusAct, BonusResponse, CheckMeResponse} from "@/types";
 import {routes} from "@/lib/saveData";
-import {fetchUserIP, isValidIP} from "@/lib/utils/net";
+import {fetchUserIP, isValidIP} from "@/lib/client/utils/net";
 import {errorText} from "@/lib/data/utils";
 
 /**

@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
-import {signCookie} from "@/lib/utils";
+import {signCookie} from "@/lib/client/utils";
 import Cookies from "js-cookie";
 import {VNTextRenderer} from "@/components/VNRenderer";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO} from "@/audio";
