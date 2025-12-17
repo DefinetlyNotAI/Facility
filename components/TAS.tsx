@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {usePathname} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {PAGE_HINTS, SNARKY_COMMENTS, UNKNOWN_PAGE_HINTS} from "@/lib/data/TAScript";
+import {TAScript} from "@/lib/client/data/TAScript";
 import {cookies, routes} from "@/lib/saveData";
 import {TASProps} from '@/types';
 
@@ -86,7 +86,7 @@ export function TAS({className = ''}: TASProps) {
     useEffect(() => {
         if (!isVisible) return;
 
-        const hints = PAGE_HINTS[pathname] || UNKNOWN_PAGE_HINTS
+        const hints = TAScript.pageHints[pathname] || TAScript.unknownPageHints
 
         setCurrentHint(hints[0]);
     }, [pathname, isVisible]);
@@ -259,7 +259,7 @@ export function TAS({className = ''}: TASProps) {
 
         if (!isExpanded) {
             // Speak the current hint with high priority
-            const hints = PAGE_HINTS[pathname] || ["No specific guidance available for this area, but we'll figure it out!"];
+            const hints = TAScript.pageHints[pathname] || ["No specific guidance available for this area, but we'll figure it out!"];
             const randomHint = hints[Math.floor(Math.random() * hints.length)];
             setCurrentHint(randomHint);
 
@@ -269,7 +269,7 @@ export function TAS({className = ''}: TASProps) {
     };
 
     const getRandomSnarkyComment = () => {
-        const comments = [...SNARKY_COMMENTS];
+        const comments = [...TAScript.snarkyComments];
         return comments[Math.floor(Math.random() * comments.length)];
     };
 
@@ -338,7 +338,7 @@ export function TAS({className = ''}: TASProps) {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            const hints = PAGE_HINTS[pathname] || ["No hints available, but hey - we're exploring together!"];
+                                            const hints = TAScript.pageHints[pathname] || ["No hints available, but hey - we're exploring together!"];
                                             const randomHint = hints[Math.floor(Math.random() * hints.length)];
                                             setCurrentHint(randomHint);
                                             queueSpeech(randomHint, 'high');

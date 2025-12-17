@@ -194,3 +194,6 @@ export const errorMessages: Record<number, string | ((val: string) => string)> =
     13: 'Nothing remains.',
 };
 export const cutsceneMetaCountdown: number = 15;
+
+
+// TODO Add security measures for keywords AND email via API

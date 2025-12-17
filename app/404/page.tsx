@@ -3,7 +3,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
-import {LARGE_NUMBER, MESSAGE, MOONLIGHT_TEXT, SUBTITLE, TERMINAL_MESSAGES, TITLE, WINGDINGS} from "@/lib/data/404";
+import {page404} from "@/lib/client/data/404";
 import {cookies, routes} from "@/lib/saveData";
 import {signCookie} from "@/lib/client/utils";
 
@@ -84,18 +84,18 @@ export default function Glitchy404() {
                     {/* Main content card */}
                     <div className="card card-danger mb-16 text-center">
                         <div className="mb-8">
-                            <h1 className="text-6xl font-bold text-red-400 mb-4 animate-pulse">{LARGE_NUMBER}</h1>
+                            <h1 className="text-6xl font-bold text-red-400 mb-4 animate-pulse">{page404.metadata.number}</h1>
                             <div className="text-red-300 text-xl mb-6">
-                                {TITLE}
+                                {page404.metadata.title}
                             </div>
                         </div>
 
                         <div className="terminal mb-8">
                             <div className="terminal-header">
-                                <span className="text-xs text-red-400 ml-2">{SUBTITLE}</span>
+                                <span className="text-xs text-red-400 ml-2">{page404.metadata.subtitle}</span>
                             </div>
                             <div className="terminal-content">
-                                {TERMINAL_MESSAGES.map((item, idx) => (
+                                {page404.terminalMsg.map((item, idx) => (
                                     <div className="terminal-line text-red-400" key={idx}>
                                         <span className="terminal-prompt">{item.label}</span> {item.message}
                                     </div>
@@ -105,15 +105,15 @@ export default function Glitchy404() {
 
                         {locked && (
                             <div className="bg-black/50 p-8 rounded-lg border border-red-500/30">
-                                <h2 className="text-3xl font-bold text-green-400 mb-6">{MOONLIGHT_TEXT.title}</h2>
+                                <h2 className="text-3xl font-bold text-green-400 mb-6">{page404.text.moonlight.title}</h2>
                                 <div className="text-green-300 text-lg leading-relaxed max-w-2xl mx-auto">
-                                    {MOONLIGHT_TEXT.lines.map((line, idx) => (
-                                        <p className={idx === MOONLIGHT_TEXT.lines.length - 1 ? "mb-6" : "mb-4"}
+                                    {page404.text.moonlight.lines.map((line, idx) => (
+                                        <p className={idx === page404.text.moonlight.lines.length - 1 ? "mb-6" : "mb-4"}
                                            key={idx}>{line}</p>
                                     ))}
                                 </div>
                                 <p className="text-gray-500 text-sm italic">
-                                    {MOONLIGHT_TEXT.riddle}
+                                    {page404.text.moonlight.riddle}
                                 </p>
                             </div>
                         )}
@@ -133,12 +133,12 @@ export default function Glitchy404() {
                                     : "0 0 12px currentColor"
                             }}
                         >
-                            {locked ? WINGDINGS.LOCKED : WINGDINGS.NOT_ALLOWED}
+                            {locked ? page404.wingding.locked : page404.wingding.notAllowed}
                         </div>
 
                         <div className="bg-gray-900/50 rounded-lg p-6 border border-green-500/30 max-w-2xl mx-auto">
                             <div className="text-green-400 text-lg font-mono tracking-wide">
-                                {locked ? MESSAGE.LOCKED : MESSAGE.NOT_ALLOWED}
+                                {locked ? page404.text.locked : page404.text.notAllowed}
                             </div>
                         </div>
                     </div>

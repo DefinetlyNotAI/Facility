@@ -1,25 +1,7 @@
 // NOTE: doesn't include the auth api messages
 
 // smileking server const
-export const undefinedVar: string = "SMILEKING_PASS or SALT environment variable is not set"
-
-// smileking client const
-export const text = {
-    title: "😐 smileking",
-    subtitle: "This is not part of the puzzle.",
-    sectionCookieHeader: "Cookies",
-    sectionButtonHeader: "Button States (DB)",
-}
-export const buttonState = {
-    cookies: {
-        set: "Variable doesn't exist =>",
-        unset: "Variable exists =>",
-    },
-    buttons: {
-        unset: "Button recorded as clicked",
-        set: "Button recorded as not yet clicked",
-    },
-}
+export const undefinedVarErr: string = "SMILEKING_PASS or SALT environment variable is not set"
 
 // smileking auth const
 export const errorMsg = {

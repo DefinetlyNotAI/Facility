@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import crypto from 'crypto';
-import {genericErrors} from "@/lib/data/api";
+import {genericErrors} from "@/lib/server/data/api";
 
 const SECRET = process.env.COOKIE_SECRET || 'Unsecure';
 

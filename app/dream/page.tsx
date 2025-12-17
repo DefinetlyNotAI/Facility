@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from '@/audio';
-import {IMAGE_CAPTION, SMILE_LOC, WHISPER_TEXTS} from '@/lib/data/dream';
+import {imgCaption, smileLocation, whispers} from '@/lib/client/data/dream';
 import styles from '@/styles/Dream.module.css';
 import Cookies from "js-cookie";
 import {cookies, routes} from "@/lib/saveData";
@@ -21,14 +21,14 @@ export default function DreamScreen() {
             window.location.href = routes.oArvoreDaCarne;
             return;
         }
-        const filenames = Object.keys(IMAGE_CAPTION);
+        const filenames = Object.keys(imgCaption);
         const random = filenames[Math.floor(Math.random() * filenames.length)];
-        setImageSrc(SMILE_LOC(random));
-        setCaption(IMAGE_CAPTION[random]);
+        setImageSrc(smileLocation(random));
+        setCaption(imgCaption[random]);
     }, []);
 
     const generateWhispers = () =>
-        WHISPER_TEXTS.map((text, index) => {
+        whispers.map((text, index) => {
             const left = Math.floor(Math.random() * 90) + '%';
             const top = Math.floor(Math.random() * 90) + '%';
             const rotate = Math.floor(Math.random() * 10 - 5);

@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import LoginScreen from './LoginScreen';
-import {desktop, exeTitle, sysConfigDefaults} from '@/lib/data/tree98';
+import {desktop, exeTitle, sysConfigDefaults} from '@/lib/client/data/tree98';
 import Cookies from "js-cookie";
 import {ContextMenu, FileSystemItem} from '@/types';
 import {useBootSequence, useSystemCorruption, useWindowManagement} from '@/hooks';

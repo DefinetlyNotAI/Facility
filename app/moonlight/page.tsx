@@ -6,7 +6,7 @@ import {signCookie} from "@/lib/client/utils";
 import Cookies from "js-cookie";
 import {VNTextRenderer} from "@/components/VNRenderer";
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO} from "@/audio";
-import {CREEPY_LINES, HOVER, MESSAGES, POETIC_LINES, RIDDLE_LOCATION, SOOTHING_EGG} from "@/lib/data/moonlight";
+import {moonlight} from "@/lib/client/data/moonlight";
 import {cookies, routes} from "@/lib/saveData";
 
 export default function Moonlight() {
@@ -49,7 +49,7 @@ export default function Moonlight() {
         Array<{ x: number; y: number; size: number; opacity: number }>
     >([]);
 
-    const lines = moonRed ? CREEPY_LINES : POETIC_LINES;
+    const lines = moonRed ? moonlight.creepyLines : moonlight.poeticLines;
 
     // Check cookie once
     useEffect(() => {
@@ -350,7 +350,7 @@ export default function Moonlight() {
                     onClick={handleInitialClick}
                     tabIndex={0}
                 >
-                    {MESSAGES.start}
+                    {moonlight.messages.start}
                 </div>
             </>
         );
@@ -499,7 +499,7 @@ export default function Moonlight() {
                             pointerEvents: "none", // Ensure this does not block clicks
                         }}
                     >
-                        {MESSAGES.continue}
+                        {moonlight.messages.continue}
                     </div>
                 )}
 
@@ -545,8 +545,8 @@ export default function Moonlight() {
                             if (!moonRed) return;
 
                             const link = document.createElement("a");
-                            link.href = RIDDLE_LOCATION.href;
-                            link.download = RIDDLE_LOCATION.name;
+                            link.href = moonlight.riddleLocation.href;
+                            link.download = moonlight.riddleLocation.name;
                             document.body.appendChild(link);
                             link.click();
                             link.remove();
@@ -575,8 +575,8 @@ export default function Moonlight() {
                             userSelect: "none",
                         }}
                         title={moonRed
-                            ? HOVER.blood
-                            : HOVER.normal}
+                            ? moonlight.hover.blood
+                            : moonlight.hover.normal}
                     >
                         {/* Moon craters/texture */}
                         <div
@@ -628,8 +628,8 @@ export default function Moonlight() {
                             userSelect: "none",
                         }}
                     >
-                        <div style={{fontSize: "2.5rem"}}>{SOOTHING_EGG[eggIndex].emoji}</div>
-                        <div style={{marginTop: 8}}>{SOOTHING_EGG[eggIndex].text}</div>
+                        <div style={{fontSize: "2.5rem"}}>{moonlight.soothingEggs[eggIndex].emoji}</div>
+                        <div style={{marginTop: 8}}>{moonlight.soothingEggs[eggIndex].text}</div>
                     </div>
                 )}
 

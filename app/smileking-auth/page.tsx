@@ -2,7 +2,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {SFX_AUDIO} from "@/audio";
-import {authText, errorMsg, warningMsg} from "@/lib/data/smileking";
+import {authText, errorMsg, warningMsg} from "@/lib/server/data/smileking";
 import {routes} from "@/lib/saveData";
 
 export default function SmilekingAuth() {

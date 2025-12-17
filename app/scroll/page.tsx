@@ -3,19 +3,10 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import {fetchUserIP, signCookie} from "@/lib/client/utils";
+import {fetchUserIP, getRandomFilename, signCookie} from "@/lib/client/utils";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
-import {begStop, creepyTTS, emergencyIP, errors, motivate} from "@/lib/data/scroll";
+import {begStop, creepyTTS, defaultIP, errors, motivate} from "@/lib/client/data/scroll";
 import {cookies, routes} from "@/lib/saveData";
-
-function getRandomFilename(length = 8) {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
 
 export default function ScrollPage() {
     const router = useRouter();
@@ -50,7 +41,7 @@ export default function ScrollPage() {
             faviconRef.current = link;
         }
 
-        fetchUserIP().then(ip => setIpAddress(ip === 'UNKNOWN' ? emergencyIP : ip));
+        fetchUserIP().then(ip => setIpAddress(ip === 'UNKNOWN' ? defaultIP : ip));
     }, [router]);
 
     useEffect(() => {
@@ -203,7 +194,7 @@ export default function ScrollPage() {
                                 setEscapeHovered(true);
                             }}
                         >
-                            {escapeHovered ? ipAddress : emergencyIP}
+                            {escapeHovered ? ipAddress : defaultIP}
                         </button>
                     </div>
                 )}

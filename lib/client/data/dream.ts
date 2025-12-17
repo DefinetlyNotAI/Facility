@@ -1,5 +1,5 @@
 // dream.tsx
-export const IMAGE_CAPTION: Record<string, string> = {
+export const imgCaption: Record<string, string> = {
     'allyounome.png': "The house never needed a foundation-only witnesses.",
     'beautiful.png': "They called it beautiful. You kept blinking, but it never stopped.",
     'letsplay.jpeg': "You promised you'd forget. They're still waiting at recess.",
@@ -10,7 +10,8 @@ export const IMAGE_CAPTION: Record<string, string> = {
     'weallseeyou.png': "They blink in patterns. Have you decoded your reflection yet?",
     'josh.jpg': "Wings of eyes, a face devoid of smiles.. won't you ever smile?",
 };
-export const WHISPER_TEXTS: string[] = [
+
+export const whispers: string[] = [
     'he never left',
     'they bloom in silence',
     'don’t blink',
@@ -25,4 +26,5 @@ export const WHISPER_TEXTS: string[] = [
     'this isn’t memory',
     ':)'
 ];
-export const SMILE_LOC = (random: string) => `/static/dream/${random}`
+
+export const smileLocation = (random: string) => `/static/dream/${random}`

@@ -3,16 +3,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import Cookies from 'js-cookie';
-import styles from "../../styles/Choices.module.css";
-import {
-    EASTER_EGG_COUNTER_MSG,
-    EASTER_EGG_DATA,
-    FINALE_MONOLOGUE,
-    getBeginningMonologue,
-    PUNISHMENT_MSG,
-    REPEAT_VIEW_MSG,
-    SPECIAL_EASTER_EGG,
-} from "@/lib/data/choices";
+import styles from "@/styles/Choices.module.css";
+import {easterEgg, monologue} from "@/lib/client/data/choices";
 import TASGoodBye from "./TASGoodBye";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
 import {useTypewriter} from "@/hooks";
@@ -30,7 +22,7 @@ export default function ChoicesPage() {
     const [inputPhase, setInputPhase] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const [inputDisabled, setInputDisabled] = useState(false);
-    const [eggFound, setEggFound] = useState<boolean[]>(Array(EASTER_EGG_DATA.length).fill(false));
+    const [eggFound, setEggFound] = useState<boolean[]>(Array(easterEgg.list.length).fill(false));
     const [monologueStep, setMonologueStep] = useState(-1);
     const [showSkip, setShowSkip] = useState(false);
     const [punishment, setPunishment] = useState(false);
@@ -63,8 +55,8 @@ export default function ChoicesPage() {
     useEffect(() => {
         if (loading) return;
 
-        const replacedMonologue: string[] = getBeginningMonologue(osBrowser.os, osBrowser.browser)
-        setGreetingMessages(alternateGreeting ? [...REPEAT_VIEW_MSG, ...replacedMonologue] : replacedMonologue);
+        const replacedMonologue: string[] = monologue.start(osBrowser.os, osBrowser.browser)
+        setGreetingMessages(alternateGreeting ? [...monologue.repeatedView, ...replacedMonologue] : replacedMonologue);
         setGreetingStep(0);
         setInputPhase(false);
     }, [loading, alternateGreeting, osBrowser]);
@@ -115,14 +107,14 @@ export default function ChoicesPage() {
         let matchedIndexes: number[] = [];
         let matchedEgg = -1;
         let matchedMsg = "";
-        for (let i = 0; i < EASTER_EGG_DATA.length; ++i) {
-            if (EASTER_EGG_DATA[i].regex.test(trimmed)) {
+        for (let i = 0; i < easterEgg.list.length; ++i) {
+            if (easterEgg.list[i].regex.test(trimmed)) {
                 matchedIndexes.push(i);
             }
         }
         if (matchedIndexes.length > 0) {
-            matchedEgg = EASTER_EGG_DATA[matchedIndexes[0]].egg;
-            matchedMsg = EASTER_EGG_DATA[matchedIndexes[0]].message;
+            matchedEgg = easterEgg.list[matchedIndexes[0]].egg;
+            matchedMsg = easterEgg.list[matchedIndexes[0]].message;
             setEggFound((eggs) => {
                 const copy = [...eggs];
                 copy[matchedEgg] = true;
@@ -130,7 +122,7 @@ export default function ChoicesPage() {
             });
             let msg = matchedMsg;
             await showMessage(msg);
-            if (matchedEgg === SPECIAL_EASTER_EGG.EGG_ID) {
+            if (matchedEgg === easterEgg.specialItem.eggID) {
                 setTimeout(() => {
                     setInputPhase(false);
                     setInputHidden(true);
@@ -143,7 +135,7 @@ export default function ChoicesPage() {
         }
         // No match: slowly delete, then type the special message
         await slowDeleteInput();
-        await slowTypeInput(SPECIAL_EASTER_EGG.MESSAGE);
+        await slowTypeInput(easterEgg.specialItem.msg);
         setTimeout(() => {
             setInputPhase(false);
             setInputHidden(true);
@@ -192,8 +184,8 @@ export default function ChoicesPage() {
 
     // --- Monologue Advance ---
     const monologueDisplay = useTypewriter(
-        monologueStep >= 0 && monologueStep < FINALE_MONOLOGUE.length
-            ? FINALE_MONOLOGUE[monologueStep]
+        monologueStep >= 0 && monologueStep < monologue.final.length
+            ? monologue.final[monologueStep]
             : "",
         22,
         monologueInstant
@@ -201,7 +193,7 @@ export default function ChoicesPage() {
 
     async function handleMonologueAdvance() {
         if (punishment || jumpscare || showGoodLuck) return;
-        if (monologueStep < FINALE_MONOLOGUE.length - 1) {
+        if (monologueStep < monologue.final.length - 1) {
             setMonologueStep((s) => s + 1);
         } else {
             await unlockTerminal();
@@ -280,7 +272,7 @@ export default function ChoicesPage() {
 
             {/* Egg tracker */}
             <div className={styles["egg-tracker"]} title="Secret eggs found">
-                {EASTER_EGG_COUNTER_MSG}: {eggsFoundCount} / {EASTER_EGG_DATA.length}
+                {easterEgg.counterMsg}: {eggsFoundCount} / {easterEgg.list.length}
             </div>
 
             {/* Cutscene overlay */}
@@ -331,7 +323,7 @@ export default function ChoicesPage() {
                     {!jumpscare && !punishment && !showGoodLuck && (
                         <>
                             <span>{renderMsg(monologueDisplay)}</span>
-                            {showSkip && monologueDisplay === FINALE_MONOLOGUE[monologueStep] && (
+                            {showSkip && monologueDisplay === monologue.final[monologueStep] && (
                                 <button className={styles["skip-btn"]} onClick={handleSkip}>
                                     Skip
                                 </button>
@@ -339,19 +331,19 @@ export default function ChoicesPage() {
                         </>
                     )}
                     {jumpscare && (
-                        <div className={styles["jumpscare"]}>{PUNISHMENT_MSG.jumpscare}</div>
+                        <div className={styles["jumpscare"]}>{monologue.punishmentMsg.jumpscare}</div>
                     )}
                     {punishment && (
                         <div>
-                            <div>{renderMsg(PUNISHMENT_MSG.p1)}</div>
-                            <div>{renderMsg(PUNISHMENT_MSG.p2)}</div>
+                            <div>{renderMsg(monologue.punishmentMsg.p1)}</div>
+                            <div>{renderMsg(monologue.punishmentMsg.p2)}</div>
                             <div>{punishCountdown}s</div>
                         </div>
                     )}
                     {showGoodLuck && (
                         <>
                             <div>
-                                <div>{renderMsg(PUNISHMENT_MSG.end)}</div>
+                                <div>{renderMsg(monologue.punishmentMsg.end)}</div>
                             </div>
                             <div>
 

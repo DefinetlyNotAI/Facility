@@ -1,7 +1,7 @@
 import type {NextRequest} from 'next/server';
 import {NextResponse} from 'next/server';
 import jwt from 'jsonwebtoken';
-import {genericErrors} from "@/lib/data/api";
+import {genericErrors} from "@/lib/server/data/api";
 import {cookies} from "@/lib/saveData";
 
 

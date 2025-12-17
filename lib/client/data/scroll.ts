@@ -1,4 +1,4 @@
-export const emergencyIP: string = "ESCAPE"
+export const defaultIP: string = "ESCAPE"
 export const errors: string[] = [
     'Error: Something went terribly wrong.',
     'Warning: Data breach detected!',

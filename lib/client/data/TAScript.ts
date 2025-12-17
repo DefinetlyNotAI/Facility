@@ -1,4 +1,8 @@
-export const PAGE_HINTS: Record<string, string[]> = {
+import {TASType} from "@/types";
+
+
+export const TAScript: TASType = {
+    pageHints: {
     '/': [
         "Hey there! Welcome to our little facility. Fair warning - once you click accept, we're both in this together.",
         "Those content warnings? Yeah, they're not kidding around. But hey, I'll be here to help you through it!",
@@ -55,22 +59,21 @@ export const PAGE_HINTS: Record<string, string[]> = {
         "...",
         "I have a bad feeling here.",
     ]
-};
-
-export const SNARKY_COMMENTS: string[] = [
-    "Oh hey, you're back! Miss me already?",
-    "Still clicking around? Hey, exploration's good for the soul!",
-    "Muted the audio? Smart move, though you might miss some important stuff.",
-    "AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.",
-    "Another refresh? The facility's keeping count, but who's judging?",
-    "Trying to peek behind the curtain? I respect the curiosity!",
-    "Feeling lost? That's totally normal here. We'll figure it out together.",
-    "Still hanging in there? Most people would've bailed by now. You're tougher than you look!",
-    "We've been at this for [TIME] minutes now. Time flies when you're having fun, right?"
-];
-
-export const UNKNOWN_PAGE_HINTS: string[] = [
-    "Hmm, I don't have specific tips for this area. We're in uncharted territory together!",
-    "The facility's systems are a bit unpredictable here. Let's see what happens.",
-    "New area, new mysteries! I'm as curious as you are about what we'll find here."
-];
+    },
+    snarkyComments: [
+        "Oh hey, you're back! Miss me already?",
+        "Still clicking around? Hey, exploration's good for the soul!",
+        "Muted the audio? Smart move, though you might miss some important stuff.",
+        "AFK for a bit? Time keeps ticking here, but don't worry - I'll wait for you.",
+        "Another refresh? The facility's keeping count, but who's judging?",
+        "Trying to peek behind the curtain? I respect the curiosity!",
+        "Feeling lost? That's totally normal here. We'll figure it out together.",
+        "Still hanging in there? Most people would've bailed by now. You're tougher than you look!",
+        "We've been at this for [TIME] minutes now. Time flies when you're having fun, right?"
+    ],
+    unknownPageHints: [
+        "Hmm, I don't have specific tips for this area. We're in uncharted territory together!",
+        "The facility's systems are a bit unpredictable here. Let's see what happens.",
+        "New area, new mysteries! I'm as curious as you are about what we'll find here."
+    ]
+}

@@ -4,7 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {VNTextRenderer} from "@/components/VNRenderer";
-import styles from '../../styles/Terminal.module.css';
+import styles from '@/styles/Terminal.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {
     cutsceneMetaCountdown,
@@ -17,7 +17,7 @@ import {
     terminalMsg,
     vesselLoc,
     wingdingsTitles
-} from '@/lib/data/terminal';
+} from '@/lib/client/data/terminal';
 import {FullScreenOverlay, KeywordKey, TerminalStep} from "@/types";
 import {getOrCreateSessionId, signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";

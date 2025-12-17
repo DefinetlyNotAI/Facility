@@ -2,7 +2,7 @@ import {routes} from "@/lib/saveData";
 import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.bundled";
 
 // Layout.tsx
-export const TITLES: Record<string, string> = {
+export const tabTitles: Record<string, string> = {
     [routes.root]: "Hope you have fun",
     [routes.moonlight]: "A night so cold HE forgot to smile",
     [routes.smileking]: ":)",
@@ -27,8 +27,7 @@ export const TITLES: Record<string, string> = {
         return acc;
     }, {} as Record<string, string>)
 };
-
-export const FAVICON = "/favicon.ico";
+export const faviconLoc = "/favicon.ico";
 
 // Page.tsx
 export const text = {

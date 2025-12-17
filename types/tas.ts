@@ -5,3 +5,9 @@ export interface TASProps {
 export interface TASGoodByeProps {
     onDone: () => void;
 }
+
+export interface TASType {
+    pageHints: Record<string, string[]>;
+    snarkyComments: string[];
+    unknownPageHints: string[];
+}

@@ -1,8 +1,7 @@
 import {Chapter, CodexOverlay} from "@/types";
 
-
 // Data for main codex page
-export const CODEX_TEXT: Record<string, string> = {
+export const codexTxt: Record<string, string> = {
     title: "The Codex",
     loading: "Loading chapter...",
     footerLine1: "The pattern continues.",
@@ -11,9 +10,8 @@ export const CODEX_TEXT: Record<string, string> = {
     curiosity: "Curiosity satisfied for now?",
 };
 
-
 // Codex Data for components
-export const CHAPTERS: Chapter[] = [
+export const chapters: Chapter[] = [
     {id: 1, title: 'Chapter I', subtitle: 'Entity and the Eldritch', filename: 'Chapter_I_Entity_and_the_Eldritch.txt'},
     {id: 2, title: 'Chapter II', subtitle: 'TAS', filename: 'Chapter_II_TAS.txt'},
     {id: 3, title: 'Chapter III', subtitle: 'The VESSEL', filename: 'Chapter_III_The_VESSEL.txt'},
@@ -29,7 +27,7 @@ export const CHAPTERS: Chapter[] = [
     {id: 8, title: 'Chapter VIII', subtitle: 'Apotheosis', filename: 'Chapter_VIII_Apotheosis.txt'},
 ];
 
-export const OVERLAYS: CodexOverlay[] = [
+export const overlays: CodexOverlay[] = [
     {
         id: 'warning-1',
         type: 'warning',
@@ -54,6 +52,7 @@ export const OVERLAYS: CodexOverlay[] = [
     },
 ];
 
+// Keyword information for codex entries (used by the CodexReader component)
 export const keywordInfo: Record<string, string> = {
     whispers: "The teeth of the dark - they echo truths unspoken. A fragment of your past.",
     fletchling: "A fragment of innocence; the last to fall. A fragment of your past.",

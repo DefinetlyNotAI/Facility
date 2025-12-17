@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {AlertTriangle, X} from 'lucide-react';
-import styles from '../../styles/Codex.module.css';
+import styles from '@/styles/Codex.module.css';
 import {CodexOverlay, OverlaySystemProps} from "@/types";
 
 

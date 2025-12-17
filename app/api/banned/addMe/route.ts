@@ -1,6 +1,6 @@
 // Add POST /api/banned/addMe - adds an IP to the banned table
 import {createSecureResponse, dbPool} from '@/lib/server/utils';
-import {genericErrors} from '@/lib/data/api';
+import {genericErrors} from '@/lib/server/data/api';
 
 export async function POST(req: Request) {
     let client: any;

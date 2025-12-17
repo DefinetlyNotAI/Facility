@@ -1,5 +1,5 @@
 import React from 'react';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 import {getIcon} from "@/components/tree98/icons";
 import {ErrorDialogProps} from "@/types";
 

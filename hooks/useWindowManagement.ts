@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {DragState, Window} from '@/types';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 
 const MIN_WIDTH = 250;
 const MIN_HEIGHT = 120;

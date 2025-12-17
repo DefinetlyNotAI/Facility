@@ -1,72 +1,25 @@
 // home.tsx
-import {ResearchLog} from "@/types";
+import {TextData} from "@/types";
 
-// Data for fake system metrics
-export const systemMetrics = {
-    performanceData: [
-        {label: "CPU Usage", value: "92%", status: "warning"},
-        {label: "Memory", value: "68%"},
-        {label: "Disk Space", value: "8 TB"},
-        {label: "Network", value: "1.8 Gbps"},
-        {label: "Threads Available", value: "4,218", status: "warning"},
-        {label: "Power Draw", value: "1421W", status: "warning"},
-    ],
-    sensorData: [
-        {label: "Temperature", key: "temperature", value: "22.7°C"},
-        {label: "Pressure", key: "pressure", value: "1013.42 hPa"},
-        {label: "Humidity", key: "humidity", value: "43%"},
-        {label: "Radiation", key: "radiation", value: "0.09 μSv/h"},
-        {label: "Power Output", key: "powerOutput", value: "2.4 MW"},
-        {label: "Network", key: "networkStatus", value: "SECURE"}
-    ],
-    neuralUnits: {
-        active: 12,
-        warning: 9,
-        critical: 3,
-    }
-};
-// Video path for the hollow pilgrimage
-export const hollowPilgrimagePath = {
-    href: "/static/home/The_Hollow_Pilgrimage.mp4",
-    title: "The_Hollow_Pilgrimage.mp4",
-}
-// Konami code sequence for special feature activation
-export const konamiSequence: string[] = [
-    'ArrowUp', 'ArrowUp',
-    'ArrowDown', 'ArrowDown',
-    'ArrowLeft', 'ArrowRight',
-    'ArrowLeft', 'ArrowRight',
-    'KeyB', 'KeyA'
-];
-// System messages used for either notifications or TTS speech etc.
-export const systemMessages = {
-    scroll: "System integrity verified. Proceed to the void.",
-    time: "Time dissolves into the void... here, eternity and instant are one.",
-    invalidLogPerm: "TREE System Authorisation - You do not have enough admin permissions to view this",
-    wifiUnlocked: "Network access granted. Use curl/wget there with the prefix /api/ for a prize to the next ;)",
-    hollowPilgrimage: "Welcome to hell - Cease your bleating - Isn't it you who seeks this crimson path? - So play the hollow pilgrimage",
-    konamiUnlock: "You listened... So reap what you sowed.",
-    refreshMessages: [
-        {
-            threshold: 5,
-            message:
-                "Five refreshes... You're persistent. The tree notices persistence. Earn my trust to see more."
-        },
-        {
-            threshold: 15,
-            message:
-                "Fifteen refreshes... The roots whisper your name now. They remember you... They trust you."
-        },
-        {
-            threshold: 25,
-            message:
-                "Twenty five refreshes... You've fed the tree well. It smiles upon you, vessel. Seek the next step.",
-            invert: true
-        }
+// All static data used in the home page
+export const data = {
+    // Video path for the hollow pilgrimage
+    hollowPilgrimagePath: {
+        href: "/static/home/The_Hollow_Pilgrimage.mp4",
+        title: "The_Hollow_Pilgrimage.mp4",
+    },
+    // Konami code sequence for special feature activation
+    konamiSequence: [
+        'ArrowUp', 'ArrowUp',
+        'ArrowDown', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight',
+        'ArrowLeft', 'ArrowRight',
+        'KeyB', 'KeyA'
     ]
 }
+
 // All text used in the home page
-export const text = {
+export const text: TextData = {
     puzzlePanel: {
         binaryPuzzleVal: "01010111 01101000 01101001 01110011 01110000 01100101 01110010 01110011",
         timePuzzleVal: "15:25",
@@ -187,35 +140,68 @@ export const text = {
                 classNameIfLow: "text-green-400"
             }
         ]
-    }
-}
-// Classification colors for log entries tags
-export const classificationClass = (selectedLog?: { classification?: string }) => {
-    switch (selectedLog?.classification) {
-        case 'TOP SECRET':
-            return 'bg-red-900/50 text-red-300';
-        case 'SECRET':
-            return 'bg-orange-900/50 text-orange-300';
-        case 'EMERGENCY':
-            return 'bg-pink-900/60 text-pink-300';
-        case '???':
-            return 'bg-gray-900/50 text-gray-300';
-        case 'CONFIDENTIAL':
-            return 'bg-blue-900/50 text-blue-300';
-        default:
-            return 'bg-green-900/50 text-green-300';
-    }
-};
-// Research logs
-export const researchLogs: ResearchLog[] = [
-    {
-        id: "LOG-001-VESSEL",
-        title: "Neural Interface Synchronization Trial #1",
-        researcher: "[REDACTED]",
-        date: "2024-03-15",
-        classification: "TOP SECRET",
-        corrupted: false,
-        content: `RESEARCH LOG
+    },
+    // System messages used for either notifications or TTS speech etc.
+    systemMessages: {
+        scroll: "System integrity verified. Proceed to the void.",
+        time: "Time dissolves into the void... here, eternity and instant are one.",
+        invalidLogPerm: "TREE System Authorisation - You do not have enough admin permissions to view this",
+        wifiUnlocked: "Network access granted. Use curl/wget there with the prefix /api/ for a prize to the next ;)",
+        hollowPilgrimage: "Welcome to hell - Cease your bleating - Isn't it you who seeks this crimson path? - So play the hollow pilgrimage",
+        konamiUnlock: "You listened... So reap what you sowed.",
+        refreshMessages: [
+            {
+                threshold: 5,
+                message:
+                    "Five refreshes... You're persistent. The tree notices persistence. Earn my trust to see more."
+            },
+            {
+                threshold: 15,
+                message:
+                    "Fifteen refreshes... The roots whisper your name now. They remember you... They trust you."
+            },
+            {
+                threshold: 25,
+                message:
+                    "Twenty five refreshes... You've fed the tree well. It smiles upon you, vessel. Seek the next step.",
+                invert: true
+            }
+        ]
+    },
+    // Data for fake system metrics
+    systemMetrics: {
+        performanceData: [
+            {label: "CPU Usage", value: "92%", status: "warning"},
+            {label: "Memory", value: "68%"},
+            {label: "Disk Space", value: "8 TB"},
+            {label: "Network", value: "1.8 Gbps"},
+            {label: "Threads Available", value: "4,218", status: "warning"},
+            {label: "Power Draw", value: "1421W", status: "warning"},
+        ],
+        sensorData: [
+            {label: "Temperature", key: "temperature", value: "22.7°C"},
+            {label: "Pressure", key: "pressure", value: "1013.42 hPa"},
+            {label: "Humidity", key: "humidity", value: "43%"},
+            {label: "Radiation", key: "radiation", value: "0.09 μSv/h"},
+            {label: "Power Output", key: "powerOutput", value: "2.4 MW"},
+            {label: "Network", key: "networkStatus", value: "SECURE"}
+        ],
+        neuralUnits: {
+            active: 12,
+            warning: 9,
+            critical: 3,
+        }
+    },
+    // Research logs
+    researchLogs: [
+        {
+            id: "LOG-001-VESSEL",
+            title: "Neural Interface Synchronization Trial #1",
+            researcher: "[REDACTED]",
+            date: "2024-03-15",
+            classification: "TOP SECRET",
+            corrupted: false,
+            content: `RESEARCH LOG
 Date: March 15, 2024
 Research Lead: [REDACTED]
 Classification: TOP SECRET
@@ -239,15 +225,15 @@ Recommend advancement to Phase 2 testing.
 Note: Several technicians report recurring dreams after extended exposure to Subject. Monitoring advised.
 
 – [REDACTED]`
-    },
-    {
-        id: "LOG-002-BREACH",
-        title: "Sector 7 - Containment Failure Report",
-        researcher: "[REDACTED]",
-        date: "[REDACTED]-03-18",
-        classification: "SECRET",
-        corrupted: true,
-        content: `SECURITY REPORT
+        },
+        {
+            id: "LOG-002-BREACH",
+            title: "Sector 7 - Containment Failure Report",
+            researcher: "[REDACTED]",
+            date: "[REDACTED]-03-18",
+            classification: "SECRET",
+            corrupted: true,
+            content: `SECURITY REPORT
 Date: March 18, [REDACTED]
 Filed by: [REDACTED]
 Classification: SECRET
@@ -271,15 +257,15 @@ Status:
 Recommend lockdown of eastern wing. Awaiting further instruction.
 
 [LOG CORRUPTED]`
-    },
-    {
-        id: "LOG-003-TEMPORAL",
-        title: "Temporal Fluctuations in Terminal 3",
-        researcher: "Dr. [ALL OF THEM ARE DEAD]",
-        date: "[REDACTED]-03-20",
-        classification: "???",
-        corrupted: false,
-        content: `TEMPORAL RESEARCH OBSERVATION
+        },
+        {
+            id: "LOG-003-TEMPORAL",
+            title: "Temporal Fluctuations in Terminal 3",
+            researcher: "Dr. [ALL OF THEM ARE DEAD]",
+            date: "[REDACTED]-03-20",
+            classification: "???",
+            corrupted: false,
+            content: `TEMPORAL RESEARCH OBSERVATION
 Date: March 20, [REDACTED]
 Lead: [REDACTED]
 Classification: [REDACTED] – INTERNAL ONLY
@@ -299,15 +285,15 @@ Recommendation: Suspend further temporal experimentation until baseline reality 
 333333333333333
 
 – Dr. Vasquez`
-    },
-    {
-        id: "LOG-004-CONSCIOUSNESS",
-        title: "Consciousness Transfer Protocol – Phase 2",
-        researcher: "TAS",
-        date: "[REDACTED]-03-22",
-        classification: "TOP SECRET",
-        corrupted: false,
-        content: `TRANSFER REPORT – PHASE 2
+        },
+        {
+            id: "LOG-004-CONSCIOUSNESS",
+            title: "Consciousness Transfer Protocol – Phase 2",
+            researcher: "TAS",
+            date: "[REDACTED]-03-22",
+            classification: "TOP SECRET",
+            corrupted: false,
+            content: `TRANSFER REPORT – PHASE 2
 Date: March 22, [REDACTED]
 Lead: TAS
 Classification: TOP SECRET
@@ -329,15 +315,15 @@ Subject remains calm.
 
 [DATA INTEGRITY FAILURE DETECTED]
 [END OF LOG]`
-    },
-    {
-        id: "LOG-005-FINAL",
-        title: "Final Entry – [REDACTED]",
-        researcher: "Dr. [REDACTED]",
-        date: "[REDACTED]-03-25",
-        classification: "???",
-        corrupted: false,
-        content: `RESEARCH LOG – FINAL
+        },
+        {
+            id: "LOG-005-FINAL",
+            title: "Final Entry – [REDACTED]",
+            researcher: "Dr. [REDACTED]",
+            date: "[REDACTED]-03-25",
+            classification: "???",
+            corrupted: false,
+            content: `RESEARCH LOG – FINAL
 Date: March 25, [REDACTED]
 Researcher: Dr. [REDACTED]
 Classification: COSMIC – INTERNAL EYES ONLY
@@ -357,15 +343,15 @@ Don’t dig deeper. Don’t come looking. Whatever this is… it remembers.
 
 [LOG TERMINATED]
 [CORRUPTION: 67%]`
-    },
-    {
-        id: "LOG-006-MAINTENANCE",
-        title: "Structural Anomaly Report – South Wing",
-        researcher: "Chief Engineer [REDACTED]",
-        date: "[REDACTED]-03-12",
-        classification: "CONFIDENTIAL",
-        corrupted: false,
-        content: `MAINTENANCE REVIEW
+        },
+        {
+            id: "LOG-006-MAINTENANCE",
+            title: "Structural Anomaly Report – South Wing",
+            researcher: "Chief Engineer [REDACTED]",
+            date: "[REDACTED]-03-12",
+            classification: "CONFIDENTIAL",
+            corrupted: false,
+            content: `MAINTENANCE REVIEW
 Date: March 12, [REDACTED]
 Engineer: [REDACTED]
 Classification: CONFIDENTIAL
@@ -385,15 +371,15 @@ Complaints logged. Further tests pending.
 
 Note: Research department has requested no removal of root systems in Sector 7.
 `
-    },
-    {
-        id: "LOG-007-PSYCHOLOGICAL",
-        title: "Group Evaluation – Staff Anomalies",
-        researcher: "Dr. [SHE IS DEAD]",
-        date: "[REDACTED]-03-14",
-        classification: "SECRET",
-        corrupted: true,
-        content: `STAFF PSYCH EVALUATION
+        },
+        {
+            id: "LOG-007-PSYCHOLOGICAL",
+            title: "Group Evaluation – Staff Anomalies",
+            researcher: "Dr. [SHE IS DEAD]",
+            date: "[REDACTED]-03-14",
+            classification: "SECRET",
+            corrupted: true,
+            content: `STAFF PSYCH EVALUATION
 Date: March 14, [REDACTED]
 Psych Lead: Dr. ████ ██████
 Classification: SECRET
@@ -411,15 +397,15 @@ Recommendation: Evacuation of non-essential personnel.
 Further █████████ ███ may accelerate group effects.
 
 – Dr. ██████`
-    },
-    {
-        id: "LOG-008-EMERGENCY",
-        title: "Emergency Protocol Activation",
-        researcher: "Director [HE IS DEAD]",
-        date: "[REDACTED]-03-26",
-        classification: "EMERGENCY",
-        corrupted: true,
-        content: `EMERGENCY INITIATED
+        },
+        {
+            id: "LOG-008-EMERGENCY",
+            title: "Emergency Protocol Activation",
+            researcher: "Director [HE IS DEAD]",
+            date: "[REDACTED]-03-26",
+            classification: "EMERGENCY",
+            corrupted: true,
+            content: `EMERGENCY INITIATED
 Date: March 26, [REDACTED]
 Director: James Harrison
 Classification: EMERGENCY – FULL LOCKDOWN
@@ -441,5 +427,24 @@ Rescue operations not advised. Recommend perimeter denial protocols.
 
 ████████████████████████████████████████████████████████████████
 [ERROR: SYSTEM ROOT OVERRIDE]`
+        }
+    ]
+}
+
+// Classification colors for log entries tags
+export const classificationClass = (selectedLog?: { classification?: string }) => {
+    switch (selectedLog?.classification) {
+        case 'TOP SECRET':
+            return 'bg-red-900/50 text-red-300';
+        case 'SECRET':
+            return 'bg-orange-900/50 text-orange-300';
+        case 'EMERGENCY':
+            return 'bg-pink-900/60 text-pink-300';
+        case '???':
+            return 'bg-gray-900/50 text-gray-300';
+        case 'CONFIDENTIAL':
+            return 'bg-blue-900/50 text-blue-300';
+        default:
+            return 'bg-green-900/50 text-green-300';
     }
-];
+};

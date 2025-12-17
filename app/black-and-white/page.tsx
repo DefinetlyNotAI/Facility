@@ -5,16 +5,7 @@ import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {BACKGROUND_AUDIO, playAudio, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {checkKeyword, signCookie} from "@/lib/client/utils";
-import {
-    FORM_PLACEHOLDER,
-    HINT_404,
-    IMG_LOC,
-    QR_SUBTITLE,
-    SERVER_ERROR,
-    SORRY_MESSAGE,
-    TEXT_HINT_FOR_FORM,
-    TOP_MESSAGE
-} from "@/lib/data/bnw";
+import {BNW} from "@/lib/client/data/bnw";
 import {cookies, routes} from "@/lib/saveData";
 
 
@@ -102,10 +93,10 @@ export default function BlackAndWhitePage() {
                 router.push(routes.choices);
             } else {
                 playAudio(SFX_AUDIO.ERROR);
-                setFormError(SORRY_MESSAGE);
+                setFormError(BNW.sorryMessage);
             }
         } catch (err) {
-            setFormError(SERVER_ERROR);
+            setFormError(BNW.serverErr);
         }
         setSubmitting(false);
     }
@@ -146,11 +137,11 @@ export default function BlackAndWhitePage() {
                         zIndex: 9999,
                     }}
                 >
-                    {HINT_404}
+                    {BNW.hint404}
                 </div>
 
                 <h1 style={{textAlign: 'center', marginBottom: '2rem'}}>
-                    {TOP_MESSAGE}
+                    {BNW.topMessage}
                 </h1>
 
                 {/* QR Codes Side-by-Side */}
@@ -177,8 +168,8 @@ export default function BlackAndWhitePage() {
                         alignItems: 'center',
                     }}>
                         <img
-                            src={IMG_LOC.QR}
-                            alt={IMG_LOC.QR_SUBTITLE}
+                            src={BNW.imgLoc.qr}
+                            alt={BNW.imgLoc.qrSubtitle}
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -187,7 +178,7 @@ export default function BlackAndWhitePage() {
                             }}
                             draggable={false}
                         />
-                        <figcaption style={{marginTop: '0.5rem'}}>{QR_SUBTITLE}</figcaption>
+                        <figcaption style={{marginTop: '0.5rem'}}>{BNW.qrSubtitle}</figcaption>
                     </figure>
 
                     {/* Image 2 */}
@@ -205,8 +196,8 @@ export default function BlackAndWhitePage() {
                         alignItems: 'center',
                     }}>
                         <img
-                            src={IMG_LOC.QR_FAKE}
-                            alt={IMG_LOC.QR_FAKE_SUBTITLE}
+                            src={BNW.imgLoc.qrFake}
+                            alt={BNW.imgLoc.qrFakeSubtitle}
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -251,7 +242,7 @@ export default function BlackAndWhitePage() {
                             value={formInput}
                             onChange={e => setFormInput(e.target.value)}
                             disabled={submitting}
-                            placeholder={FORM_PLACEHOLDER}
+                            placeholder={BNW.formPlaceholder}
                             style={{
                                 fontSize: '1.2rem',
                                 padding: '0.5rem 1rem',
@@ -325,7 +316,7 @@ export default function BlackAndWhitePage() {
                         userSelect: 'none',
                     }}
                 >
-                    {showForm ? '' : TEXT_HINT_FOR_FORM}
+                    {showForm ? '' : BNW.textHintForForm}
                 </p>
             </div>
         </>

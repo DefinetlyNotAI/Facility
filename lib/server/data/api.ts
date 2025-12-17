@@ -18,6 +18,8 @@ export const genericErrors = {
     internalServerError: "Internal server error has occurred. Please try again later and report this issue!",
     // Invalid item or data provided (doesn't match allowed items)
     invalidItem: "Data provided does not match any known items that are allowed to be checked.",
+    // Failed cookie signing (Generic)
+    cookieSignFailed: "Failed to sign cookie",
     // Missing data in request body
     missingData: "Missing data in request body",
     // Method not allowed
@@ -38,7 +40,9 @@ export const genericErrors = {
     // Specific errors for /chapters/ endpoints
     chapters: {
         toggleError: "Failed to toggle act",
-    }
+    },
+    // HTTP Fail for bonusApi
+    HTTPFail: (from: string): string => `${from} failed HTTP`
 }
 
 // Known keyword hashes for validation [SHA-256 hashes]

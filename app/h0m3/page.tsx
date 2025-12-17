@@ -4,15 +4,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
-import {
-    binaryCorruptText,
-    buttons,
-    corruptionConsoleMessages,
-    glitchMessages,
-    hexCorruptText,
-    ttsMessageID,
-    ttsMessages,
-} from '@/lib/data/h0m3';
+import {h0m3} from '@/lib/client/data/h0m3';
 import {getOrCreateSessionId, signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";
 
@@ -97,8 +89,8 @@ export default function H0m3() {
 
             // Use TTS
             const speakLoop = () => {
-                const randomIndex = Math.floor(Math.random() * ttsMessages.length);
-                const utterance = new SpeechSynthesisUtterance(ttsMessages[randomIndex]);
+                const randomIndex = Math.floor(Math.random() * h0m3.ttsMessages.length);
+                const utterance = new SpeechSynthesisUtterance(h0m3.ttsMessages[randomIndex]);
                 utterance.rate = 0.5;
                 utterance.pitch = 0.3;
                 utterance.volume = 0.8;
@@ -162,7 +154,7 @@ export default function H0m3() {
                 playSafeSFX(ttsAudioRef, SFX_AUDIO.STATIC, true);
 
                 // TTS the creepy message
-                const creepyUtterance = new SpeechSynthesisUtterance(ttsMessageID(sessionID));
+                const creepyUtterance = new SpeechSynthesisUtterance(h0m3.ttsMessageID(sessionID));
                 creepyUtterance.rate = 0.4;
                 creepyUtterance.pitch = 0.2;
                 creepyUtterance.volume = 0.9;
@@ -235,11 +227,11 @@ export default function H0m3() {
         }
 
         // Add random glitch text
-        setGlitchText(glitchMessages[Math.floor(Math.random() * glitchMessages.length)]);
+        setGlitchText(h0m3.glitchMessages[Math.floor(Math.random() * h0m3.glitchMessages.length)]);
 
         // Break console
         if (level >= 3) {
-            corruptionConsoleMessages.forEach(fn => fn(level));
+            h0m3.corruptionConsoleMessages.forEach(fn => fn(level));
         }
     };
 
@@ -614,7 +606,7 @@ export default function H0m3() {
                                                 borderRadius: '4px',
                                                 fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                                             }}>
-                                                {binaryCorruptText}
+                                                {h0m3.binaryCorruptText}
                                             </span>
                                         </div>
                                         <div style={{
@@ -678,7 +670,7 @@ export default function H0m3() {
                                             marginBottom: '0.25rem',
                                             fontFamily: brokenElements.includes('fonts-corrupted') ? 'Impact' : 'inherit'
                                         }}>
-                                            {brokenElements.includes('text-scrambled') ? '0xDEAD' : hexCorruptText}
+                                            {brokenElements.includes('text-scrambled') ? '0xDEAD' : h0m3.hexCorruptText}
                                         </div>
                                         <div style={{fontSize: '0.625rem', color: '#6b7280'}}>
                                             {letterReplace(brokenElements.includes('text-scrambled') ? "R3@l1ty @nch0r T1m3$t@mp" : "Reality Anchor Timestamp")}
@@ -726,7 +718,7 @@ export default function H0m3() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    {index < 4 ? 'Next' : buttons.WHY}
+                                    {index < 4 ? 'Next' : h0m3.buttons.why}
                                 </button>
                             </div>
 
@@ -755,7 +747,7 @@ export default function H0m3() {
                             fontSize: '1.1rem',
                             lineHeight: '1.6'
                         }}>
-                            {buttons.WHY}
+                            {h0m3.buttons.why}
                         </div>
                         <button
                             style={{
@@ -784,13 +776,13 @@ export default function H0m3() {
                             onClick={async () => {
                                 speechSynthesis.cancel();
                                 ttsAudioRef.current = null;
-                                Cookies.remove('Corrupt');
-                                Cookies.remove('corrupting');
-                                await signCookie('No_corruption=true');
-                                window.location.href = '/home'
+                                Cookies.remove(cookies.corrupt);
+                                Cookies.remove(cookies.corrupting);
+                                await signCookie(`${cookies.noCorruption}=true`);
+                                window.location.href = routes.home
                             }}
                         >
-                            {buttons.RESET}
+                            {h0m3.buttons.reset}
                         </button>
                     </div>
                 )}

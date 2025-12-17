@@ -1,7 +1,7 @@
 // Implement GET /api/banned/all - returns all rows from banned in a neat structure
 import {NextRequest} from 'next/server';
 import {createSecureResponse, dbPool, verifyAdmin} from '@/lib/server/utils';
-import {genericErrors} from "@/lib/data/api";
+import {genericErrors} from "@/lib/server/data/api";
 
 export async function GET(req: NextRequest) {
     const authError = verifyAdmin(req);

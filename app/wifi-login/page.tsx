@@ -5,9 +5,9 @@ import {useRouter} from 'next/navigation';
 import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/client/utils";
-import styles from '../../styles/WifiLogin.module.css';
+import styles from '@/styles/WifiLogin.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
-import {form, hashes, messages} from "@/lib/data/wifi";
+import {form, hashes, messages} from "@/lib/client/data/wifi";
 import {cookies, routes} from "@/lib/saveData";
 
 const CurlHintPopup: React.FC<{ onDismiss: () => void }> = ({onDismiss}) => {

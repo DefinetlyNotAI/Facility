@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {files, sysConfigDefaults} from '@/lib/data/tree98';
+import {files, sysConfigDefaults} from '@/lib/client/data/tree98';
 import {getIcon} from "@/components/tree98/icons";
 import {FileExplorerProps, FileSystemItem} from "@/types";
 

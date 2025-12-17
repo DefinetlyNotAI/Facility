@@ -1,6 +1,6 @@
 'use client';
 import React, {useEffect, useRef, useState} from 'react';
-import {cmdData, exeTitle, files, sysConfigDefaults} from '@/lib/data/tree98';
+import {cmdData, exeTitle, files, sysConfigDefaults} from '@/lib/client/data/tree98';
 import {getIcon} from "@/components/tree98/icons";
 import {DirItem} from "@/types";
 

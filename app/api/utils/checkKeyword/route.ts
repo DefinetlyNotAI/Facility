@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server';
 import crypto from 'crypto';
-import {genericErrors, knownKeywordHashes} from "@/lib/data/api";
+import {genericErrors, knownKeywordHashes} from "@/lib/server/data/api";
 
 
 function hashKeyword(keyword: string): string {

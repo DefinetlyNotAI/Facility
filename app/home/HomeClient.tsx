@@ -4,15 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/client/utils";
 import {BACKGROUND_AUDIO} from "@/audio";
-import {
-    classificationClass,
-    hollowPilgrimagePath,
-    konamiSequence,
-    researchLogs,
-    systemMessages,
-    systemMetrics,
-    text
-} from '@/lib/data/home';
+import {classificationClass, data, text} from '@/lib/client/data/home';
 import {ResearchLog} from '@/types';
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
 import Cookies from "js-cookie";
@@ -32,7 +24,7 @@ export default function HomeClient() {
 
     // Easter Egg States - Refresh Based Only
     const [refreshCount, setRefreshCount] = useState(0);
-    const [facilityDataDynamic, setFacilityDataDynamic] = useState(systemMetrics.sensorData);
+    const [facilityDataDynamic, setFacilityDataDynamic] = useState(text.systemMetrics.sensorData);
     const [isInverted, setIsInverted] = useState(false);
 
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -104,7 +96,7 @@ export default function HomeClient() {
         const handleInteraction = () => {
             if ([5, 15, 25].includes(refreshCount)) {
                 let message = '';
-                const matchedMessage = systemMessages.refreshMessages.find(
+                const matchedMessage = text.systemMessages.refreshMessages.find(
                     (entry) => entry.threshold === refreshCount
                 );
 
@@ -198,7 +190,7 @@ export default function HomeClient() {
             setTimeout(() => setSystemStatus('MONITORING'), 2000);
 
             if (Cookies.get(cookies.noCorruption) && !Cookies.get(cookies.blackAndWhite)) {
-                setModalMessage(systemMessages.scroll);
+                setModalMessage(text.systemMessages.scroll);
                 setShowModal(true);
                 await signCookie(`${cookies.scroll}=true`);
                 setTimeout(() => router.push(routes.scroll), 2000);
@@ -239,7 +231,7 @@ export default function HomeClient() {
                             ambientAudioRef.current.pause();
                         }
 
-                        const utterance = new SpeechSynthesisUtterance(systemMessages.time);
+                        const utterance = new SpeechSynthesisUtterance(text.systemMessages.time);
                         utterance.rate = 0.7;
                         utterance.pitch = 0.6;
                         utterance.volume = 0.8;
@@ -273,7 +265,7 @@ export default function HomeClient() {
             const timeNow = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             if (timeNow === text.puzzlePanel.timePuzzleVal) {
                 await signCookie(`${cookies.wifiPanel}=true`);
-                setModalMessage(systemMessages.wifiUnlocked);
+                setModalMessage(text.systemMessages.wifiUnlocked);
                 setShowModal(true);
                 setTimeout(() => router.push(routes.wifiLogin), 3000);
             }
@@ -296,7 +288,7 @@ export default function HomeClient() {
                     ambientAudioRef.current.pause();
                 }
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(systemMessages.hollowPilgrimage);
+                const utterance = new SpeechSynthesisUtterance(text.systemMessages.hollowPilgrimage);
                 utterance.rate = 0.7;
                 utterance.pitch = 0.5;
                 utterance.volume = 0.9;
@@ -308,8 +300,8 @@ export default function HomeClient() {
                     await signCookie(`${cookies.hollowPilgrimage}=true`);
                     // Download the file
                     const link = document.createElement('a');
-                    link.href = hollowPilgrimagePath.href;
-                    link.download = hollowPilgrimagePath.title;
+                    link.href = data.hollowPilgrimagePath.href;
+                    link.download = data.hollowPilgrimagePath.title;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -337,12 +329,12 @@ export default function HomeClient() {
         ) return;
 
         const handler = async (e: KeyboardEvent) => {
-            if (e.code === konamiSequence[indexRef.current]) {
+            if (e.code === data.konamiSequence[indexRef.current]) {
                 indexRef.current++;
-                if (indexRef.current === konamiSequence.length) {
+                if (indexRef.current === data.konamiSequence.length) {
                     if (Cookies.get(cookies.fileConsole)) {
                         await signCookie(`${cookies.corrupt}=true`);
-                        setModalMessage(systemMessages.konamiUnlock);
+                        setModalMessage(text.systemMessages.konamiUnlock);
                         setShowModal(true);
                         setTimeout(() => window.location.reload(), 3000);
                     }
@@ -522,7 +514,7 @@ export default function HomeClient() {
                                 <div className="panel-subtitle">{text.logPanel.subtitle}</div>
                             </div>
 
-                            {researchLogs.slice(0, 8).map((log) => {
+                            {text.researchLogs.slice(0, 8).map((log) => {
                                 const isLocked = refreshCount < 15;
                                 return (
                                     <div
@@ -531,7 +523,7 @@ export default function HomeClient() {
                                             if (!isLocked) {
                                                 openLog(log);
                                             } else {
-                                                setModalMessage(systemMessages.invalidLogPerm);
+                                                setModalMessage(text.systemMessages.invalidLogPerm);
                                                 setShowModal(true);
                                             }
                                         }}
@@ -607,7 +599,7 @@ export default function HomeClient() {
                                 </div>
 
                                 <div className="performance-grid">
-                                    {systemMetrics.performanceData.map((item, index) => (
+                                    {text.systemMetrics.performanceData.map((item, index) => (
                                         <div key={index} className="perf-metric">
                                             <span className="metric-label">{item.label}</span>
                                             <span className={`metric-value ${item.status ?? ''}`}>{item.value}</span>
@@ -618,7 +610,7 @@ export default function HomeClient() {
                                 <div className="neural-units">
                                     <div className="units-label">{text.sysMetricPanel.subtitle}</div>
                                     <div className="units-grid">
-                                        {Object.entries(systemMetrics.neuralUnits)
+                                        {Object.entries(text.systemMetrics.neuralUnits)
                                             .flatMap(([type, count]) =>
                                                 Array.from({length: Number(count)}, (_, i) => ({
                                                     key: `${type}-${i}`,

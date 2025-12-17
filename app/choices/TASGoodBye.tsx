@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import styles from "../../styles/Choices.module.css";
-import {CUTSCENE_LINES, FINALE_MSG} from "@/lib/data/choices";
+import styles from "@/styles/Choices.module.css";
+import {cutsceneLines, finaleMsg} from "@/lib/client/data/choices";
 import {useTypewriter} from "@/hooks";
 import {SFX_AUDIO} from "@/audio";
 import {signCookie} from "@/lib/client/utils";
@@ -12,7 +12,7 @@ import {renderMsg} from "@/lib/ui";
 const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
     const [step, setStep] = useState(0);
     const [done, setDone] = useState(false);
-    const display = useTypewriter(CUTSCENE_LINES[step] || "", 26);
+    const display = useTypewriter(cutsceneLines[step] || "", 26);
 
     useEffect(() => {
         (async () => {
@@ -27,7 +27,7 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
 
         function playNext() {
             if (cancelled) return;
-            if (step >= CUTSCENE_LINES.length) {
+            if (step >= cutsceneLines.length) {
                 setDone(true);
                 setTimeout(() => {
                     onDone();
@@ -64,7 +64,6 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
             if (audio) audio.pause();
             clearTimeout(timeout);
         };
-        // eslint-disable-next-line
     }, [step, onDone]);
 
     return (
@@ -75,7 +74,7 @@ const TASGoodBye: React.FC<TASGoodByeProps> = ({onDone}) => {
                 </span>
                 {done && (
                     <div className={styles["cutscene-finale"]}>
-                        <b>{FINALE_MSG}</b>
+                        <b>{finaleMsg}</b>
                     </div>
                 )}
             </div>

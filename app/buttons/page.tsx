@@ -4,9 +4,9 @@ import {useEffect, useRef, useState} from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
-import styles from '../../styles/Buttons.module.css';
+import styles from '@/styles/Buttons.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
-import {BROWSERS, SUBTITLE_TEXT, TITLE, TOOLTIP, WINGDING} from '@/lib/data/buttons';
+import {buttons} from '@/lib/client/data/buttons';
 import {BrowserName} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
 import {signCookie} from "@/lib/client/utils";
@@ -93,7 +93,7 @@ export default function ButtonsPage() {
                     Opera: false,
                 };
                 for (const entry of res.data) {
-                    if (BROWSERS.includes(entry.browser)) {
+                    if (buttons.browsers.includes(entry.browser)) {
                         newStates[entry.browser as BrowserName] = entry.clicked;
                     }
                 }
@@ -148,13 +148,13 @@ export default function ButtonsPage() {
                 style={{display: 'none'}}
             />
             <div className={styles.container}>
-                <h1 className={styles.title}>{TITLE}</h1>
+                <h1 className={styles.title}>{buttons.title}</h1>
 
                 <p className={styles.subtitle}>
-                    {SUBTITLE_TEXT.split('\n').map((line, idx) => (
+                    {buttons.subtitleText.split('\n').map((line, idx) => (
                         <span key={idx}>
                             {line}
-                            {idx < SUBTITLE_TEXT.split('\n').length - 1 && <br/>}
+                            {idx < buttons.subtitleText.split('\n').length - 1 && <br/>}
                         </span>
                     ))}
                 </p>
@@ -171,7 +171,7 @@ export default function ButtonsPage() {
                 </div>
 
                 <div className={styles.buttonGrid}>
-                    {BROWSERS.map((browser) => {
+                    {buttons.browsers.map((browser) => {
                         const isDisabled = browser !== userBrowser || buttonStates[browser];
                         const isPressed = buttonStates[browser];
 
@@ -184,9 +184,9 @@ export default function ButtonsPage() {
                                 title={
                                     isDisabled
                                         ? browser !== userBrowser
-                                            ? TOOLTIP.ONLY_THIS_BROWSER(browser)
-                                            : TOOLTIP.ALREADY_PRESSED
-                                        : TOOLTIP.CLICK_TO_PRESS(browser)
+                                            ? buttons.tooltip.onlyThisBrowser(browser)
+                                            : buttons.tooltip.alreadyPressed
+                                        : buttons.tooltip.clickToPress(browser)
                                 }
                             >
                                 <div>{browser}<br/></div>
@@ -201,7 +201,7 @@ export default function ButtonsPage() {
                 {allPressed && (
                     <>
                         <div className={styles.secretMessage}>
-                            {WINGDING}
+                            {buttons.wingding}
                             <div style={{
                                 fontSize: '1rem',
                                 marginTop: '1rem',

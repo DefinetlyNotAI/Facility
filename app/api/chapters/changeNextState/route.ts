@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {createSecureResponse, dbPool, verifyAdmin} from '@/lib/server/utils';
-import {allowedActs, genericErrors} from "@/lib/data/api";
+import {allowedActs, genericErrors} from "@/lib/server/data/api";
 import {ActionState} from "@/types";
 
 export async function POST(req: NextRequest) {

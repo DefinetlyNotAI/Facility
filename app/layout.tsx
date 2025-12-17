@@ -5,12 +5,12 @@ import {usePathname} from "next/navigation";
 import "./globals.css";
 import styles from "@/styles/Layout.module.css";
 import {TAS} from "@/components/TAS";
-import {FAVICON, TITLES} from "@/lib/data/root";
+import {faviconLoc, tabTitles} from "@/lib/client/data/root";
 import {Analytics} from "@vercel/analytics/next"
 
 
 function getTitle(pathname: string) {
-    return TITLES[pathname] ?? "The Facility";
+    return tabTitles[pathname] ?? "The Facility";
 }
 
 export default function RootLayout({children,}: { children: React.ReactNode; }) {
@@ -28,13 +28,13 @@ export default function RootLayout({children,}: { children: React.ReactNode; }) 
             // Create and add the default favicon link element
             const link = document.createElement("link");
             link.rel = "icon";
-            link.href = FAVICON;
+            link.href = faviconLoc;
             document.head.appendChild(link);
         }
 
         return () => {
             if (!hasFavicon) {
-                document.head.querySelector(`link[rel="icon"][href="${FAVICON}"]`)?.remove();
+                document.head.querySelector(`link[rel="icon"][href="${faviconLoc}"]`)?.remove();
             }
         }
     }, [pathname]);

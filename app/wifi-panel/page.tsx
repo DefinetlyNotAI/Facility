@@ -3,10 +3,10 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/WifiPanel.module.css';
+import styles from '@/styles/WifiPanel.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {checkKeyword, signCookie} from "@/lib/client/utils";
-import {messages, wifiPanel} from "@/lib/data/wifi";
+import {messages, wifiPanel} from "@/lib/client/data/wifi";
 import {cookies, routes} from "@/lib/saveData";
 
 

@@ -1,6 +1,6 @@
 'use client';
 import React, {useEffect, useRef, useState} from 'react';
-import {sysConfigDefaults, vesselBoot} from '@/lib/data/tree98';
+import {sysConfigDefaults, vesselBoot} from '@/lib/client/data/tree98';
 import {VesselBootDialogProps} from '@/types';
 
 export const VesselBootDialog: React.FC<VesselBootDialogProps> = ({item}) => {

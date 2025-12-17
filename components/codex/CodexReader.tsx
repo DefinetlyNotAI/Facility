@@ -2,9 +2,9 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {Eye, Play} from 'lucide-react';
-import styles from '../../styles/Codex.module.css';
+import styles from '@/styles/Codex.module.css';
 import {CodexReaderProps, HoverState} from "@/types";
-import {keywordInfo} from "@/lib/data/codex";
+import {keywordInfo} from "@/lib/client/data/codex";
 
 
 export function CodexReader({

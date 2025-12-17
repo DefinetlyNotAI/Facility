@@ -3,21 +3,9 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
-import styles from '../../styles/FileConsole.module.css';
+import styles from '@/styles/FileConsole.module.css';
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
-import {
-    BOOT_MESSAGES,
-    CAT_FILES,
-    CODE_FILES,
-    ERRORS_OUTPUTS,
-    HELP,
-    HELP_COMMANDS,
-    REPEATED_BOOT_MESSAGES,
-    ROOT_FILES,
-    SUDO_SEQUENCE,
-    WGET_FILES,
-    WHOAMI_MSG
-} from "@/lib/data/fileConsole";
+import {boot, consoleMsg, files} from "@/lib/client/data/fileConsole";
 import {BootMessage} from "@/types";
 import {fetchUserIP} from "@/lib/client/utils";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
@@ -119,7 +107,7 @@ export default function FileConsole() {
 
         const hasBooted = localStorage.getItem(localStorageKeys.fileConsoleBooted) === 'true';
 
-        const messages = !hasBooted ? BOOT_MESSAGES : REPEATED_BOOT_MESSAGES;
+        const messages = !hasBooted ? boot.msg : boot.repeatMsg;
         for (const msg of messages) {
             if (msg.delay) await wait(msg.delay);
             await typeLine(msg);
@@ -175,10 +163,10 @@ export default function FileConsole() {
                 break;
             case 'help': {
                 if (args.length === 0) {
-                    appendMessage({text: HELP, mode: 'instant'});
+                    appendMessage({text: consoleMsg.help, mode: 'instant'});
                 } else {
                     const topic = args[0];
-                    const message = HELP_COMMANDS[topic] ?? `${HELP_COMMANDS._default}${topic}`;
+                    const message = consoleMsg.helpCmd[topic] ?? `${consoleMsg.helpCmd._default}${topic}`;
                     appendMessage({text: message, mode: 'instant'});
                 }
                 break;
@@ -187,7 +175,7 @@ export default function FileConsole() {
                 // Play interaction sound
                 playSafeSFX(audioRef, SFX_AUDIO.SUCCESS)
 
-                const list = cwd === '/' ? ROOT_FILES : cwd === '/code' ? CODE_FILES : [];
+                const list = cwd === '/' ? files.root : cwd === '/code' ? files.code : [];
                 list.forEach(f => appendMessage({text: f.type === 'dir' ? f.name + '/' : f.name, mode: 'instant'}));
                 appendMessage({text: '\n', mode: 'instant'});
                 break;
@@ -205,7 +193,7 @@ export default function FileConsole() {
                 } else {
                     // Play error sound
                     playSafeSFX(audioRef, SFX_AUDIO.ERROR)
-                    appendMessage({text: ERRORS_OUTPUTS.MISSING_DIR, mode: 'instant'});
+                    appendMessage({text: consoleMsg.errOutputs.missingDir, mode: 'instant'});
                 }
                 break;
             }
@@ -213,7 +201,7 @@ export default function FileConsole() {
                 const [fn] = args;
                 let found = false;
 
-                const fileContent = CAT_FILES[cwd]?.[fn];
+                const fileContent = consoleMsg.catFiles[cwd]?.[fn];
                 if (fileContent !== undefined) {
                     found = true;
                     appendMessage({text: fileContent, mode: 'instant'});
@@ -221,7 +209,7 @@ export default function FileConsole() {
 
                 playSafeSFX(audioRef, found ? SFX_AUDIO.SUCCESS : SFX_AUDIO.ERROR);
                 if (!found) {
-                    appendMessage({text: ERRORS_OUTPUTS.INVALID_CAT_FILE, mode: 'instant'});
+                    appendMessage({text: consoleMsg.errOutputs.invalidCat, mode: 'instant'});
                 }
                 break;
             }
@@ -229,7 +217,7 @@ export default function FileConsole() {
                 const [fn] = args;
                 let found = false;
 
-                const message = WGET_FILES[cwd]?.[fn];
+                const message = consoleMsg.wgetFiles[cwd]?.[fn];
                 if (message !== undefined) {
                     found = true;
                     appendMessage({text: message, mode: 'instant'});
@@ -245,17 +233,17 @@ export default function FileConsole() {
             case 'whoami':
                 playSafeSFX(audioRef, SFX_AUDIO.HORROR, true)
 
-                for (const line of WHOAMI_MSG) {
+                for (const line of consoleMsg.whoamiSeq) {
                     appendMessage({text: line, mode: 'type'});
                 }
                 break;
             case 'sudo': {
                 playSafeSFX(audioRef, SFX_AUDIO.ALERT, true);
 
-                appendMessage({text: SUDO_SEQUENCE.initial, mode: 'instant'});
+                appendMessage({text: consoleMsg.sudoSeq.initial, mode: 'instant'});
 
                 setTimeout(() => {
-                    for (const line of SUDO_SEQUENCE.trace) {
+                    for (const line of consoleMsg.sudoSeq.trace) {
                         const msg = typeof line === 'function' ? line(ip) : line;
                         appendMessage({text: msg, mode: 'instant'});
                     }
@@ -263,7 +251,7 @@ export default function FileConsole() {
                     setTimeout(() => {
                         playSafeSFX(audioRef, SFX_AUDIO.HORROR, true);
                         document.body.style.background = 'black';
-                        document.body.innerHTML = SUDO_SEQUENCE.infectedHTML;
+                        document.body.innerHTML = consoleMsg.sudoSeq.infectedHTML;
 
                         setTimeout(() => {
                             window.location.reload();
@@ -275,7 +263,7 @@ export default function FileConsole() {
             default:
                 // Play error sound for unknown commands
                 playSafeSFX(audioRef, SFX_AUDIO.ERROR, false)
-                appendMessage({text: ERRORS_OUTPUTS.INVALID_COMMAND(cmd), mode: 'instant'});
+                appendMessage({text: consoleMsg.errOutputs.invalidCmd(cmd), mode: 'instant'});
                 break;
         }
     };

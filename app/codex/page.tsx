@@ -9,7 +9,7 @@ import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from '@/audio';
 import Cookies from 'js-cookie';
 import {cookies, routes} from '@/lib/saveData';
 import {useRouter} from 'next/navigation';
-import {CHAPTERS, CODEX_TEXT, OVERLAYS} from '@/lib/data/codex';
+import {chapters, codexTxt, overlays} from '@/lib/client/data/codex';
 
 
 function Codex() {
@@ -35,7 +35,7 @@ function Codex() {
 
     const loadChapter = async (chapterId: number) => {
         setIsLoading(true);
-        const chapter = CHAPTERS.find(ch => ch.id === chapterId);
+        const chapter = chapters.find(ch => ch.id === chapterId);
         if (!chapter) return;
 
         try {
@@ -45,7 +45,7 @@ function Codex() {
             setRevealedLines(0);
         } catch (error) {
             console.error('Failed to load chapter:', error);
-            setChapterText(CODEX_TEXT.error);
+            setChapterText(codexTxt.error);
         } finally {
             setIsLoading(false);
         }
@@ -53,7 +53,7 @@ function Codex() {
 
     const handleChapterSelect = (chapterId: number) => setCurrentChapter(chapterId);
 
-    const handleChapterComplete = () => console.log(CODEX_TEXT.curiosity);
+    const handleChapterComplete = () => console.log(codexTxt.curiosity);
 
     return (
         <div className={`${styles.body} min-h-screen relative overflow-hidden`}>
@@ -66,7 +66,7 @@ function Codex() {
             />
 
             <ChapterNavigation
-                chapters={CHAPTERS}
+                chapters={chapters}
                 currentChapter={currentChapter}
                 onChapterSelect={handleChapterSelect}
                 isOpen={isNavOpen}
@@ -74,7 +74,7 @@ function Codex() {
             />
 
             <OverlaySystem
-                overlays={OVERLAYS}
+                overlays={overlays}
                 currentLine={revealedLines}
             />
 
@@ -83,10 +83,10 @@ function Codex() {
             <main className="relative z-10 container mx-auto px-4 py-12 sm:py-16 md:py-20 pb-24 sm:pb-28">
                 <header className={`${styles.animateFadeIn} text-center mb-8 sm:mb-12 md:mb-16`}>
                     <h1 className={`${styles.heading} ${styles.textShadowGlow} text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-amber-200 mb-3 sm:mb-4 px-2`}>
-                        {CODEX_TEXT.title}
+                        {codexTxt.title}
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl text-amber-100/70 italic px-4">
-                        {CHAPTERS[currentChapter - 1]?.subtitle}
+                        {chapters[currentChapter - 1]?.subtitle}
                     </p>
                     <div
                         className="w-48 sm:w-64 h-px bg-gradient-to-r from-transparent via-amber-700 to-transparent mx-auto mt-6 sm:mt-8"/>
@@ -94,7 +94,7 @@ function Codex() {
 
                 {isLoading ? (
                     <div className="text-center text-amber-100/60 text-base sm:text-lg md:text-xl animate-pulse">
-                        {CODEX_TEXT.loading}
+                        {codexTxt.loading}
                     </div>
                 ) : (
                     <CodexReader
@@ -106,8 +106,8 @@ function Codex() {
                 )}
 
                 <footer className="text-center mt-12 sm:mt-16 md:mt-20 text-amber-100/40 text-xs sm:text-sm px-4">
-                    <p>{CODEX_TEXT.footerLine1}</p>
-                    <p className="mt-2">{CODEX_TEXT.footerLine2}</p>
+                    <p>{codexTxt.footerLine1}</p>
+                    <p className="mt-2">{codexTxt.footerLine2}</p>
                 </footer>
             </main>
 

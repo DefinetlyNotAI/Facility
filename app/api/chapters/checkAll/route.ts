@@ -1,5 +1,5 @@
 import {createSecureResponse, dbPool} from '@/lib/server/utils';
-import {allowedActs, genericErrors} from "@/lib/data/api";
+import {allowedActs, genericErrors} from "@/lib/server/data/api";
 import {ActionState} from "@/types";
 
 export async function GET() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 import {FileViewerProps} from "@/types";
 
 

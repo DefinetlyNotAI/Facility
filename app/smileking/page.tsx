@@ -1,7 +1,7 @@
 import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
 import SmilekingClient from './SmilekingClient';
-import {undefinedVar} from "@/lib/data/smileking";
+import {undefinedVarErr} from "@/lib/server/data/smileking";
 import {cookies as savedCookies, routes} from "@/lib/saveData";
 import jwt from 'jsonwebtoken';
 
@@ -13,7 +13,7 @@ export default async function SmilekingPage() {
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
         // Server misconfiguration: fail closed
-        throw new Error(undefinedVar);
+        throw new Error(undefinedVarErr);
     }
 
     if (!token) {

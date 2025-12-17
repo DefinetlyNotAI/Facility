@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 import {localStorageKeys} from "@/lib/saveData";
 
 export const useBootSequence = () => {

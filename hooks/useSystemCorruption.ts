@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 import {signCookie} from "@/lib/client/utils";
 import {cookies, routes} from "@/lib/saveData";
 import {playSafeSFX, SFX_AUDIO} from "@/audio";

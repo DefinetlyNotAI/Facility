@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import {AddMeResponse, BonusAct, BonusResponse, CheckMeResponse} from "@/types";
 import {routes} from "@/lib/saveData";
 import {fetchUserIP, isValidIP} from "@/lib/client/utils/net";
-import {errorText} from "@/lib/data/utils";
+import {genericErrors} from "@/lib/server/data/api";
 
 /**
  * Provides CRUD utilities for interacting with /api/banned endpoints.
@@ -117,7 +117,7 @@ export const bonusApi = {
             headers,
             body: JSON.stringify({act})
         });
-        if (!res.ok) throw new Error(errorText.HTTPFail("bonus.changeToOpp"));
+        if (!res.ok) throw new Error(genericErrors.HTTPFail("bonus.changeToOpp"));
         return res.json();
     },
 
@@ -126,7 +126,7 @@ export const bonusApi = {
      */
     async getAll(): Promise<BonusResponse> {
         const res = await fetch(routes.api.chapters.getAll, {credentials: "include"});
-        if (!res.ok) throw new Error(errorText.HTTPFail("bonus.getAll"));
+        if (!res.ok) throw new Error(genericErrors.HTTPFail("bonus.getAll"));
         return res.json();
     },
 
@@ -138,7 +138,7 @@ export const bonusApi = {
         const url = new URL(routes.api.chapters.getOne, window.location.origin);
         url.searchParams.append("act", act);
         const res = await fetch(url.toString(), {credentials: "include"});
-        if (!res.ok) throw new Error(errorText.HTTPFail("bonus.getOne"));
+        if (!res.ok) throw new Error(genericErrors.HTTPFail("bonus.getOne"));
         return res.json();
     }
 };
@@ -172,7 +172,7 @@ export async function signCookie(data: string): Promise<{ success: boolean; erro
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            return {success: false, error: err.error || errorText.CookieSignFailed};
+            return {success: false, error: err.error || genericErrors.cookieSignFailed};
         }
         return {success: true};
     } catch (e) {

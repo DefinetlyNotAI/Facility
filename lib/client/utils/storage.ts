@@ -30,3 +30,18 @@ export function getCookiesMap(): Record<string, string> {
         return acc;
     }, {} as Record<string, string>);
 }
+
+
+/**
+ * Generates a random filename string of given length.
+ *
+ * @param length
+ */
+export function getRandomFilename(length = 8) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}

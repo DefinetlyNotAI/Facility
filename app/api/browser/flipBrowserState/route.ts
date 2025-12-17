@@ -1,5 +1,5 @@
 import {NextRequest} from 'next/server';
-import {genericErrors} from "@/lib/data/api";
+import {genericErrors} from "@/lib/server/data/api";
 import {createSecureResponse, dbPool} from '@/lib/server/utils';
 
 export async function POST(req: NextRequest) {

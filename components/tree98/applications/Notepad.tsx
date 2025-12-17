@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 
 export const Notepad: React.FC = () => {
     const [text, setText] = useState('');

@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {createHash} from "crypto";
 import {ItemKey} from "@/lib/saveData";
-import {genericErrors, secrets} from "@/lib/data/api";
+import {genericErrors, secrets} from "@/lib/server/data/api";
 
 const itemHashes: Record<ItemKey, string> = Object.fromEntries(
     Object.entries(secrets).map(([k, v]) => [

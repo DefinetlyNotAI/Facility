@@ -1,6 +1,6 @@
 import React, {useLayoutEffect, useRef, useState} from 'react';
 import {WindowComponentProps} from '@/types';
-import {sysConfigDefaults} from '@/lib/data/tree98';
+import {sysConfigDefaults} from '@/lib/client/data/tree98';
 import {getIcon} from "@/components/tree98/icons";
 
 
