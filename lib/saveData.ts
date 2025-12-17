@@ -14,11 +14,26 @@ export const routes = {
             // Combines the value with its signature to ensure integrity and prevent tampering.
             // Returns a JSON response while setting a secure, long-lived cookie with the signed value.
             signCookie: "/api/utils/signCookie",
-            // API: POST /api/utils/checkKeyword - checks if a provided keyword matches a pre-defined hash.
-            // Accepts a keyword and number, validating input for type and range correctness.
-            // Hashes the keyword (case-insensitive) using a salt and compares it to a known hash list.
-            // Returns a JSON response indicating which number was checked and whether the keyword matched.
-            checkKeyword: "/api/utils/checkKeyword",
+            checkKeyword: {
+                // API: POST /api/utils/checkKeyword - checks if a provided keyword matches a pre-defined hash.
+                // Accepts a keyword and number, validating input for type and range correctness.
+                // Hashes the keyword (case-insensitive) using a salt and compares it to a known hash list.
+                // Returns a JSON response indicating which number was checked and whether the keyword matched.
+                _: "/api/utils/checkKeyword",
+                // API: POST /api/utils/checkKeyword/validate-email - validates a user-provided terminal email.
+                // Accepts a JSON body with a 'provided' field containing the email to check.
+                // Normalizes input, rejects missing or malformed values, and checks against the server-side expected email.
+                // Returns a JSON response indicating whether the provided email is correct without exposing the actual email.
+                // GET requests are blocked and return a 405 Method Not Allowed with a generic error message.
+                validateEmail: "/api/utils/checkKeyword/validate-email",
+                // API: POST /api/utils/checkKeyword/validate-keyword - validates a user-provided terminal keyword.
+                // Accepts a JSON body with 'provided' (the keyword) and 'guessedKeywords' (array of already guessed keyword keys).
+                // Normalizes input, rejects missing or malformed values, and checks against the server-side expected keywords.
+                // If the keyword is invalid, responds with a generic "Incorrect keyword" message without erroring.
+                // Tracks whether the keyword has already been guessed and returns its key and value without exposing other keywords.
+                // GET requests are blocked and return a 405 Method Not Allowed with a generic error message.
+                validateKeyword: "/api/utils/checkKeyword/validate-keyword",
+            },
             // API: POST /api/utils/hashChecker - verifies if a provided string matches the hash of a secret item.
             // Accepts a JSON body with "stringToCheck" and "itemToCheck" (enum key).
             // Hashes the input string and compares it to the stored hash for the specified item.

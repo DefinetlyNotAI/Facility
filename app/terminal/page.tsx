@@ -9,12 +9,11 @@ import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "
 import {
     cutsceneMetaCountdown,
     errorMessages,
-    fakeEmail,
-    keywords,
     keywordsMapping,
     phrase,
     placeholders,
     terminalMsg,
+    totalKeywords,
     vesselLoc,
     wingdingsTitles
 } from '@/lib/client/data/terminal';
@@ -28,6 +27,7 @@ export default function TerminalPage() {
     const [noCount, setNoCount] = useState(0);
     const [input, setInput] = useState('');
     const [guessedKeywords, setGuessedKeywords] = useState<Set<KeywordKey>>(new Set());
+    const [keywordNames, setKeywordNames] = useState<Record<KeywordKey, string>>({} as Record<KeywordKey, string>);
     const [messages, setMessages] = useState<string[]>([]);
     const [step, setStep] = useState<TerminalStep>('locked');
     const [showButtons, setShowButtons] = useState(false);
@@ -36,6 +36,7 @@ export default function TerminalPage() {
     const [isReplay, setIsReplay] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
     const [sessionID, setSessionID] = useState<string>('SID-UNKNOWN');
+    const [showFallbackButton, setShowFallbackButton] = useState(false);
 
     useEffect(() => {
         setSessionID(getOrCreateSessionId())
@@ -49,7 +50,7 @@ export default function TerminalPage() {
                 if (keywordsMapping[idx]) {
                     const keywordKey = keywordsMapping[idx];
                     return guessedKeywords.has(keywordKey)
-                        ? keywords[keywordKey]
+                        ? keywordNames[keywordKey] || phrase.placeholder
                         : phrase.placeholder;
                 }
                 return word;
@@ -84,70 +85,101 @@ export default function TerminalPage() {
         setInput('');
 
         if (step === 'fill') {
-            const matched = Object.entries(keywords).find(
-                ([, word]) => normalize(word) === val
-            );
-            if (!matched) {
-                handleWrongPhrase(val);
-                return;
-            } else {
+            try {
+                // Call API to validate keyword
+                const response = await fetch(routes.api.utils.checkKeyword.validateKeyword, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        provided: val,
+                        guessedKeywords: Array.from(guessedKeywords)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!data.ok) {
+                    handleWrongPhrase(val);
+                    return;
+                }
+
                 // Play success sound for correct keyword
                 playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
                 setMessages(['']);
-            }
 
-            const keywordKey = Number(matched[0]) as KeywordKey;
-            if (guessedKeywords.has(keywordKey)) {
-                setMessages(msgs => [...msgs, terminalMsg.alrPlaced(keywords[keywordKey])]);
-                return;
-            }
+                const {keywordKey, keyword, alreadyGuessed} = data;
 
-            setGuessedKeywords(prev => new Set(prev).add(keywordKey));
-            setMessages(msgs => [...msgs, terminalMsg.successPlaced(keywords[keywordKey])]);
-
-            if (guessedKeywords.size + 1 === Object.keys(keywords).length) {
-                setMessages(['']);
-                setStep('solving');
-                await flushMessagesSequentially(terminalMsg.afterSuccess.part1(sessionID));
-                await new Promise(r => setTimeout(r, 1000));
-                setMessages(['']);
-                await flushMessagesSequentially(terminalMsg.afterSuccess.part2(sessionID));
-                setTimeout(() => {
-                    setShowButtons(true);
-                    setStep('question');
-                }, 1000);
-            }
-        } else if (step === 'email') {
-            if (val === fakeEmail) {
-                // Play success sound
-                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
-                setMessages(msgs => [...msgs, terminalMsg.successPlacedEmail]);
-
-                // Wait before dumping the monologue
-                setTimeout(() => {
-                    flushMessagesSequentially(terminalMsg.afterSuccess.part3, 1300).catch(console.error);
-
-                    setTimeout(() => {
-                        setStep('countdown');
-                        runCountdown().catch(console.error);
-                    }, 6000); // Slight delay to ensure the lines are read
-                }, 1500); // Pause after terminalMsg.successPlacedEmail msg
-
-            } else {
-                // Play error sound
-                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-
-                const nextWrong = wrongCount + 1;
-                setWrongCount(nextWrong);
-
-                if (nextWrong % 5 === 0) {
-                    setMessages(['']); // Clear terminal every 5 wrongs
+                if (alreadyGuessed) {
+                    setMessages(msgs => [...msgs, terminalMsg.alrPlaced(keyword)]);
+                    return;
                 }
 
-                if (nextWrong > 25) setWrongCount(10);
+                // Store the keyword name from server
+                setKeywordNames(prev => ({...prev, [keywordKey]: keyword}));
+                setGuessedKeywords(prev => new Set(prev).add(keywordKey));
+                setMessages(msgs => [...msgs, terminalMsg.successPlaced(keyword)]);
 
-                const response = terminalMsg.wrongPlaced[Math.min(nextWrong - 1, terminalMsg.wrongPlaced.length - 1)];
-                setMessages(msgs => [...msgs, response]);
+                if (guessedKeywords.size + 1 === totalKeywords) {
+                    setMessages(['']);
+                    setStep('solving');
+                    await flushMessagesSequentially(terminalMsg.afterSuccess.part1(sessionID));
+                    await new Promise(r => setTimeout(r, 1000));
+                    setMessages(['']);
+                    await flushMessagesSequentially(terminalMsg.afterSuccess.part2(sessionID));
+                    setTimeout(() => {
+                        setShowButtons(true);
+                        setStep('question');
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Error validating keyword:', error);
+                handleWrongPhrase(val);
+            }
+        } else if (step === 'email') {
+            try {
+                // Call API to validate email
+                const response = await fetch(routes.api.utils.checkKeyword.validateEmail, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({provided: val})
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    // Play success sound
+                    playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
+                    setMessages(msgs => [...msgs, terminalMsg.successPlacedEmail]);
+
+                    // Wait before dumping the monologue
+                    setTimeout(() => {
+                        flushMessagesSequentially(terminalMsg.afterSuccess.part3, 1300).catch(console.error);
+
+                        setTimeout(() => {
+                            setStep('countdown');
+                            runCountdown().catch(console.error);
+                        }, 6000); // Slight delay to ensure the lines are read
+                    }, 1500); // Pause after terminalMsg.successPlacedEmail msg
+                } else {
+                    // Play error sound
+                    playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+
+                    const nextWrong = wrongCount + 1;
+                    setWrongCount(nextWrong);
+
+                    if (nextWrong % 5 === 0) {
+                        setMessages(['']); // Clear terminal every 5 wrongs
+                    }
+
+                    if (nextWrong > 25) setWrongCount(10);
+
+                    const response = terminalMsg.wrongPlaced[Math.min(nextWrong - 1, terminalMsg.wrongPlaced.length - 1)];
+                    setMessages(msgs => [...msgs, response]);
+                }
+            } catch (error) {
+                console.error('Error validating email:', error);
+                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+                setMessages(msgs => [...msgs, 'Connection error. Try again.']);
             }
         }
     };
@@ -260,6 +292,12 @@ export default function TerminalPage() {
             }
 
             router.push(routes.theEnd);
+
+            // Start a 10-second timer to show a fallback button
+            setTimeout(() => {
+                setShowFallbackButton(true);
+            }, 10000);
+
             return;
         }
 
@@ -302,6 +340,11 @@ export default function TerminalPage() {
         }
 
         router.push(routes.theEnd);
+
+        // Start a 10-second timer to show a fallback button
+        setTimeout(() => {
+            setShowFallbackButton(true);
+        }, 10000);
     };
 
     if (unlocked === false) {
@@ -362,6 +405,22 @@ export default function TerminalPage() {
                     <div
                         className={`${styles.fullscreenOverlay} ${fullScreenOverlay.size || ''} ${fullScreenOverlay.glitch ? 'corrupted-glitch' : ''}`}>
                         {fullScreenOverlay.text}
+                        {showFallbackButton && (
+                            <button
+                                onClick={() => router.push(routes.theEnd)}
+                                className={styles.choiceButton}
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '20%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    fontSize: '1.5rem',
+                                    padding: '1rem 2rem'
+                                }}
+                            >
+                                Continue
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

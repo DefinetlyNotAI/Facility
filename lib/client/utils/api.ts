@@ -149,7 +149,7 @@ export const bonusApi = {
  * Returns true if the keyword matches, false otherwise.
  */
 export const checkKeyword = async (keyword: string, number: number): Promise<boolean> => {
-    const res = await fetch(routes.api.utils.checkKeyword, {
+    const res = await fetch(routes.api.utils.checkKeyword._, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({keyword, number})

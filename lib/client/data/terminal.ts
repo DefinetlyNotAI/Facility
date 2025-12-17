@@ -51,15 +51,8 @@ export const phrase = {
     ] as string[]
 }
 
-// Keywords used in the terminal and indexes
-// Note that all keywords have been unlocked, so no need for security api calls here or hashing.
-export const keywords: Record<number, string> = {
-    1: 'Whispers',
-    2: 'Fletchling',
-    3: 'Dithed',
-    4: 'Nullskin',
-    5: 'Echoes',
-};
+// Keywords mapping for phrase template positioning
+// The actual keywords are now server-side only
 export const keywordsMapping: { [index: number]: KeywordKey } = {
     1: 2,
     2: 1,
@@ -67,7 +60,9 @@ export const keywordsMapping: { [index: number]: KeywordKey } = {
     5: 3,
     6: 4,
 };
-export const fakeEmail: string = "echo.null@█.tree"
+
+// Total number of keywords required (used for completion check)
+export const totalKeywords = 5;
 
 // Messages for the terminal
 export const terminalMsg = {
@@ -194,6 +189,3 @@ export const errorMessages: Record<number, string | ((val: string) => string)> =
     13: 'Nothing remains.',
 };
 export const cutsceneMetaCountdown: number = 15;
-
-
-// TODO Add security measures for keywords AND email via API
