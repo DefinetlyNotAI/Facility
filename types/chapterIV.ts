@@ -272,3 +272,6 @@ export interface vesselConstType {
         secretDoorPath: string;
     };
 }
+
+// WhiteRoom
+export type Phase = 'explore' | 'watching' | 'darkening' | 'eyes' | 'complete'

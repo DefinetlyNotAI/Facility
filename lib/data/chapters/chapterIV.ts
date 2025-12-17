@@ -501,3 +501,34 @@ export const entityConst: vesselConstType = {
         secretDoorPath: '/random2/tree/raven/echo/echo/lion/iris/edge/door'
     }
 };
+
+// == WhiteRoom Constants ==
+export const whiteRoom = {
+    blackStr: '0x000000',
+    greenStr: '0x00ff66',
+    whiteHex: 0xfafafa,
+    blackHex: 0x000000,
+    ambientDroneFreq: 0.5, // Slow oscillation for unease
+    text: {
+        // UI Messages
+        initialInstruction: 'Click to enter the moonlights room',
+        bootingMessage: 'Booting the room...',
+        clickToContinue: 'Click to continue',
+        controlsHint: 'Use WASD to move • Look around with mouse',
+
+        // Console Messages
+        audioWarning: 'Audio context not available',
+        progressSaveWarning: 'Could not save progress',
+
+        // Debug/Phase Messages
+        walkingTimeLog: 'Walking time:',
+        secondsLog: 'seconds, Phase:',
+        enteringWatchingLog: 'Entering WATCHING phase at',
+        enteringDarkeningLog: 'Entering DARKENING phase at',
+        watchingWalkingLog: 'Watching - Walking time:',
+        darkeningProgressLog: 'Darkening progress:',
+        controlsLockedLog: 'Controls locked at 70% darkness',
+        enteringEyesLog: 'Entering EYES phase - starting turn',
+        instructionsClearedLog: 'Make sure instructions are cleared',
+    }
+}

@@ -4,34 +4,29 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {PointerLockControls} from 'three/examples/jsm/controls/PointerLockControls.js';
 import {useActStateCheck} from "@/hooks";
-import {ActionState} from "@/types";
+import {ActionState, Phase} from "@/types";
 import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
 import {cookies, routes} from "@/lib/saveData";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
+import {whiteRoom} from "@/lib/data/chapters/chapterIV";
 
-const TERM_BG = '#000000';
-const TERM_GREEN = '#00ff66';
-
-// Uncanny atmosphere constants
-const LIMINAL_WHITE = 0xfafafa;
-const VOID_BLACK = 0x000000;
-const AMBIENT_DRONE_FREQUENCY = 0.5; // Slow oscillation for unease
 
 export default function WhiteRoomPage() {
     const router = useRouter();
     const mountRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
-    const [phase, setPhase] = useState<'explore' | 'watching' | 'darkening' | 'eyes' | 'complete'>('explore');
-    const [instructions, setInstructions] = useState('Click to enter the moonlights room');
-
-    // Check if chapter is not yet released - redirect if so
-    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
+    const [phase, setPhase] = useState<Phase>('explore');
+    const [instructions, setInstructions] = useState(whiteRoom.text.initialInstruction);
 
     // Check if bonus content is locked - redirect if so
     useEffect(() => {
         if (!Cookies.get(cookies.end)) router.replace(routes.bonus.locked);
     }, [router]);
+
+    // Check if chapter is not yet released - redirect if so
+    const isNotReleased = useActStateCheck("iv", ActionState.NotReleased, routes.bonus.notYet);
+
 
     // Scene references
     const sceneRef = useRef<THREE.Scene | null>(null);
@@ -69,24 +64,13 @@ export default function WhiteRoomPage() {
     const walkingTimeRef = useRef(0); // Track time spent walking
     const isWalkingRef = useRef(false);
 
-    if (isNotReleased === null) return <div style={{
-        height: '100vh',
-        background: TERM_BG,
-        color: TERM_GREEN,
-        fontFamily: 'monospace',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-    }}>Booting the room...</div>;
-
     // Sync phase ref with phase state
     useEffect(() => {
         phaseRef.current = phase;
     }, [phase]);
 
-
     useEffect(() => {
-        if (!mountRef.current) return;
+        if (!mountRef.current || isNotReleased === null) return;
 
         // Initialize creepy ambient drone
         try {
@@ -107,12 +91,12 @@ export default function WhiteRoomPage() {
             droneOscillatorRef.current = oscillator;
             droneGainRef.current = gainNode;
         } catch (e) {
-            console.warn('Audio context not available');
+            console.warn(whiteRoom.text.audioWarning);
         }
 
         // Scene setup
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(LIMINAL_WHITE, 0.015); // Exponential fog for depth
+        scene.fog = new THREE.FogExp2(whiteRoom.whiteHex, 0.015); // Exponential fog for depth
         sceneRef.current = scene;
 
         // Camera with uncanny FOV
@@ -133,7 +117,7 @@ export default function WhiteRoomPage() {
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setClearColor(LIMINAL_WHITE);
+        renderer.setClearColor(whiteRoom.whiteHex);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         mountRef.current.appendChild(renderer.domElement);
@@ -164,7 +148,7 @@ export default function WhiteRoomPage() {
         // Ground - endless, sterile plane
         const groundGeometry = new THREE.PlaneGeometry(500, 500, 50, 50);
         const groundMaterial = new THREE.MeshStandardMaterial({
-            color: LIMINAL_WHITE,
+            color: whiteRoom.whiteHex,
             roughness: 0.9,
             metalness: 0.1,
             fog: true
@@ -478,7 +462,7 @@ export default function WhiteRoomPage() {
         controls.addEventListener('unlock', () => {
             const currentPhase = phaseRef.current;
             if (currentPhase === 'explore' || currentPhase === 'watching') {
-                setInstructions('Click to continue');
+                setInstructions(whiteRoom.text.clickToContinue);
             }
             // Don't show any instruction during darkening, eyes, or complete phases
         });
@@ -495,37 +479,25 @@ export default function WhiteRoomPage() {
         renderer.domElement.addEventListener('click', handleClick);
 
         // Keyboard controls
+        type MoveKey = 'moveForward' | 'moveBackward' | 'moveLeft' | 'moveRight';
+        const keyMap: Record<string, MoveKey> = {
+            'KeyW': 'moveForward',
+            'KeyS': 'moveBackward',
+            'KeyA': 'moveLeft',
+            'KeyD': 'moveRight'
+        };
+
         const onKeyDown = (event: KeyboardEvent) => {
-            switch (event.code) {
-                case 'KeyW':
-                    playerRef.current.moveForward = true;
-                    break;
-                case 'KeyS':
-                    playerRef.current.moveBackward = true;
-                    break;
-                case 'KeyA':
-                    playerRef.current.moveLeft = true;
-                    break;
-                case 'KeyD':
-                    playerRef.current.moveRight = true;
-                    break;
+            const key = keyMap[event.code];
+            if (key) {
+                playerRef.current[key] = true;
             }
         };
 
         const onKeyUp = (event: KeyboardEvent) => {
-            switch (event.code) {
-                case 'KeyW':
-                    playerRef.current.moveForward = false;
-                    break;
-                case 'KeyS':
-                    playerRef.current.moveBackward = false;
-                    break;
-                case 'KeyA':
-                    playerRef.current.moveLeft = false;
-                    break;
-                case 'KeyD':
-                    playerRef.current.moveRight = false;
-                    break;
+            const key = keyMap[event.code];
+            if (key) {
+                playerRef.current[key] = false;
             }
         };
 
@@ -535,6 +507,30 @@ export default function WhiteRoomPage() {
         // Animation loop
         const clock = new THREE.Clock();
         let frameCount = 0;
+
+        // Helper function to update player movement (DRY)
+        const updatePlayerMovement = (delta: number) => {
+            const player = playerRef.current;
+
+            player.velocity.x -= player.velocity.x * 10.0 * delta;
+            player.velocity.z -= player.velocity.z * 10.0 * delta;
+
+            player.direction.z = Number(player.moveForward) - Number(player.moveBackward);
+            player.direction.x = Number(player.moveRight) - Number(player.moveLeft);
+            player.direction.normalize();
+
+            if (player.moveForward || player.moveBackward) {
+                player.velocity.z -= player.direction.z * 40.0 * delta;
+            }
+            if (player.moveLeft || player.moveRight) {
+                player.velocity.x -= player.direction.x * 40.0 * delta;
+            }
+
+            controls.moveRight(-player.velocity.x * delta);
+            controls.moveForward(-player.velocity.z * delta);
+
+            return player.moveForward || player.moveBackward || player.moveLeft || player.moveRight;
+        };
 
         const animate = () => {
             requestAnimationFrame(animate);
@@ -546,7 +542,7 @@ export default function WhiteRoomPage() {
             // Breathing lights effect (subtle, unsettling)
             breathingLightsRef.current.forEach((light, index) => {
                 const offset = index * Math.PI * 0.5;
-                light.intensity = Math.sin(timeRef.current * AMBIENT_DRONE_FREQUENCY + offset) * 0.15 + 0.3;
+                light.intensity = Math.sin(timeRef.current * whiteRoom.ambientDroneFreq + offset) * 0.15 + 0.3;
             });
 
             // Subtle figure sway (barely perceptible)
@@ -578,28 +574,8 @@ export default function WhiteRoomPage() {
             const currentPhase = phaseRef.current; // Get current phase from ref
 
             if (currentPhase === 'explore' && controls.isLocked) {
-                const player = playerRef.current;
-
-                // Smooth velocity dampening
-                player.velocity.x -= player.velocity.x * 10.0 * delta;
-                player.velocity.z -= player.velocity.z * 10.0 * delta;
-
-                player.direction.z = Number(player.moveForward) - Number(player.moveBackward);
-                player.direction.x = Number(player.moveRight) - Number(player.moveLeft);
-                player.direction.normalize();
-
-                if (player.moveForward || player.moveBackward) {
-                    player.velocity.z -= player.direction.z * 40.0 * delta;
-                }
-                if (player.moveLeft || player.moveRight) {
-                    player.velocity.x -= player.direction.x * 40.0 * delta;
-                }
-
-                controls.moveRight(-player.velocity.x * delta);
-                controls.moveForward(-player.velocity.z * delta);
-
-                // Track walking time instead of distance
-                const isCurrentlyWalking = player.moveForward || player.moveBackward || player.moveLeft || player.moveRight;
+                // Update player movement and track walking
+                const isCurrentlyWalking = updatePlayerMovement(delta);
                 if (isCurrentlyWalking) {
                     walkingTimeRef.current += delta;
                     isWalkingRef.current = true;
@@ -609,7 +585,7 @@ export default function WhiteRoomPage() {
 
                 // Debug logging
                 if (frameCount % 60 === 0) { // Log once per second
-                    console.log('Walking time:', walkingTimeRef.current.toFixed(2), 'seconds, Phase:', currentPhase);
+                    console.log(`${whiteRoom.text.walkingTimeLog}`, walkingTimeRef.current.toFixed(2), `${whiteRoom.text.secondsLog}`, currentPhase);
                 }
 
                 // Gradually fade in ambient drone after 2 seconds
@@ -623,41 +599,22 @@ export default function WhiteRoomPage() {
 
                 // Watching phase - figures subtly turn toward player after 5 seconds
                 if (walkingTimeRef.current > 5 && currentPhase === 'explore') {
-                    console.log('Entering WATCHING phase at', walkingTimeRef.current.toFixed(2), 'seconds');
+                    console.log(`${whiteRoom.text.enteringWatchingLog}`, walkingTimeRef.current.toFixed(2), `${whiteRoom.text.secondsLog}`);
                     setPhase('watching');
                     setInstructions('');
                 }
             } else if (currentPhase === 'watching') {
                 // Allow player to continue moving in watching phase
                 if (controls.isLocked) {
-                    const player = playerRef.current;
-
-                    player.velocity.x -= player.velocity.x * 10.0 * delta;
-                    player.velocity.z -= player.velocity.z * 10.0 * delta;
-
-                    player.direction.z = Number(player.moveForward) - Number(player.moveBackward);
-                    player.direction.x = Number(player.moveRight) - Number(player.moveLeft);
-                    player.direction.normalize();
-
-                    if (player.moveForward || player.moveBackward) {
-                        player.velocity.z -= player.direction.z * 40.0 * delta;
-                    }
-                    if (player.moveLeft || player.moveRight) {
-                        player.velocity.x -= player.direction.x * 40.0 * delta;
-                    }
-
-                    controls.moveRight(-player.velocity.x * delta);
-                    controls.moveForward(-player.velocity.z * delta);
-
-                    // Continue tracking walking time
-                    const isCurrentlyWalking = player.moveForward || player.moveBackward || player.moveLeft || player.moveRight;
+                    // Update player movement and track walking
+                    const isCurrentlyWalking = updatePlayerMovement(delta);
                     if (isCurrentlyWalking) {
                         walkingTimeRef.current += delta;
                     }
 
                     // Debug logging
                     if (frameCount % 60 === 0) {
-                        console.log('Watching - Walking time:', walkingTimeRef.current.toFixed(2), 'seconds');
+                        console.log(`${whiteRoom.text.watchingWalkingLog}`, walkingTimeRef.current.toFixed(2), `${whiteRoom.text.secondsLog}`);
                     }
                 }
 
@@ -672,7 +629,7 @@ export default function WhiteRoomPage() {
 
                 // Continue darkening trigger - after 10 seconds of walking
                 if (walkingTimeRef.current > 10 && currentPhase === 'watching') {
-                    console.log('Entering DARKENING phase at', walkingTimeRef.current.toFixed(2), 'seconds');
+                    console.log(`${whiteRoom.text.enteringDarkeningLog}`, walkingTimeRef.current.toFixed(2), `${whiteRoom.text.secondsLog}`);
                     setPhase('darkening');
                     darknessStartTimeRef.current = timeRef.current;
                     setInstructions('');
@@ -680,24 +637,7 @@ export default function WhiteRoomPage() {
             } else if (currentPhase === 'darkening') {
                 // Allow player to continue moving during darkness buildup
                 if (controls.isLocked && !controlsLockedRef.current) {
-                    const player = playerRef.current;
-
-                    player.velocity.x -= player.velocity.x * 10.0 * delta;
-                    player.velocity.z -= player.velocity.z * 10.0 * delta;
-
-                    player.direction.z = Number(player.moveForward) - Number(player.moveBackward);
-                    player.direction.x = Number(player.moveRight) - Number(player.moveLeft);
-                    player.direction.normalize();
-
-                    if (player.moveForward || player.moveBackward) {
-                        player.velocity.z -= player.direction.z * 40.0 * delta;
-                    }
-                    if (player.moveLeft || player.moveRight) {
-                        player.velocity.x -= player.direction.x * 40.0 * delta;
-                    }
-
-                    controls.moveRight(-player.velocity.x * delta);
-                    controls.moveForward(-player.velocity.z * delta);
+                    updatePlayerMovement(delta);
                 }
 
                 // Gradual, unsettling transition to darkness over 8 seconds
@@ -706,15 +646,15 @@ export default function WhiteRoomPage() {
 
                 // Debug logging
                 if (frameCount % 30 === 0) {
-                    console.log('Darkening progress:', (darknessProgress * 100).toFixed(1) + '%');
+                    console.log(`${whiteRoom.text.darkeningProgressLog}`, (darknessProgress * 100).toFixed(1) + '%');
                 }
 
                 if (ambientLightRef.current) {
                     ambientLightRef.current.intensity = 0.7 * (1 - darknessProgress);
 
                     // Transition fog color gradually
-                    const fogColor = new THREE.Color(LIMINAL_WHITE).lerp(
-                        new THREE.Color(VOID_BLACK),
+                    const fogColor = new THREE.Color(whiteRoom.whiteHex).lerp(
+                        new THREE.Color(whiteRoom.blackHex),
                         darknessProgress
                     );
                     scene.fog = new THREE.FogExp2(fogColor.getHex(), 0.025 + darknessProgress * 0.08);
@@ -732,14 +672,14 @@ export default function WhiteRoomPage() {
                 // At 70% darkness, start removing control dynamically
                 if (darknessProgress > 0.7 && !controlsLockedRef.current) {
                     controlsLockedRef.current = true;
-                    console.log('Controls locked at 70% darkness');
+                    console.log(whiteRoom.text.controlsLockedLog);
                     // Keep pointer lock active but stop processing input
                     // This prevents the "Click to continue" message from appearing
                 }
 
                 // At 95% darkness, begin the turn
                 if (darknessProgress > 0.95) {
-                    console.log('Entering EYES phase - starting turn');
+                    console.log(whiteRoom.text.enteringEyesLog);
                     setPhase('eyes');
                     turningRef.current = true;
                     // Only unlock if still locked
@@ -782,44 +722,29 @@ export default function WhiteRoomPage() {
                         {x: -3.5, y: 1.6, z: 4.5, spacing: 0.29}
                     ];
 
+                    // Helper function to create a single eye with glow
+                    const createEye = (xPos: number, yPos: number, zPos: number) => {
+                        const eyeGroup = new THREE.Group();
+                        const eye = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.08, 8, 8),
+                            eyeMaterial
+                        );
+                        eyeGroup.add(eye);
+
+                        const glow = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.12, 8, 8),
+                            eyeGlowMaterial
+                        );
+                        eyeGroup.add(glow);
+
+                        eyeGroup.position.set(xPos, yPos, zPos);
+                        scene.add(eyeGroup);
+                        eyesRef.current.push(eye);
+                    };
+
                     eyePositions.forEach(({x, y, z, spacing}) => {
-                        // Left eye
-                        const leftEyeGroup = new THREE.Group();
-                        const leftEye = new THREE.Mesh(
-                            new THREE.SphereGeometry(0.08, 8, 8),
-                            eyeMaterial
-                        );
-                        leftEyeGroup.add(leftEye);
-
-                        // Add subtle glow
-                        const leftGlow = new THREE.Mesh(
-                            new THREE.SphereGeometry(0.12, 8, 8),
-                            eyeGlowMaterial
-                        );
-                        leftEyeGroup.add(leftGlow);
-
-                        leftEyeGroup.position.set(x - spacing / 2, y, z);
-                        scene.add(leftEyeGroup);
-                        eyesRef.current.push(leftEye);
-
-                        // Right eye
-                        const rightEyeGroup = new THREE.Group();
-                        const rightEye = new THREE.Mesh(
-                            new THREE.SphereGeometry(0.08, 8, 8),
-                            eyeMaterial
-                        );
-                        rightEyeGroup.add(rightEye);
-
-                        // Add subtle glow
-                        const rightGlow = new THREE.Mesh(
-                            new THREE.SphereGeometry(0.12, 8, 8),
-                            eyeGlowMaterial
-                        );
-                        rightEyeGroup.add(rightGlow);
-
-                        rightEyeGroup.position.set(x + spacing / 2, y, z);
-                        scene.add(rightEyeGroup);
-                        eyesRef.current.push(rightEye);
+                        createEye(x - spacing / 2, y, z); // Left eye
+                        createEye(x + spacing / 2, y, z); // Right eye
                     });
 
                     // Add point lights near eyes for eerie effect
@@ -852,7 +777,7 @@ export default function WhiteRoomPage() {
                         cur['WhiteRoom'] = 2;
                         setJsonCookie(cookies.chIV_progress, cur, 365);
                     } catch (e) {
-                        console.warn('Could not save progress');
+                        console.warn(whiteRoom.text.progressSaveWarning);
                     }
 
                     // Immediate close - no message
@@ -916,33 +841,47 @@ export default function WhiteRoomPage() {
 
             renderer.dispose();
         };
-    }, []);
+    }, [isNotReleased]);
 
     return (
         <div style={{width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden', background: '#000'}}>
-            <div ref={mountRef} style={{width: '100%', height: '100%'}}/>
-
-            {instructions && (
+            {isNotReleased === null ? (
                 <div style={{
-                    position: 'fixed',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    color: phase === 'explore' ? '#000' : '#fff',
-                    fontSize: '24px',
+                    height: '100vh',
+                    background: whiteRoom.blackStr,
+                    color: whiteRoom.greenStr,
                     fontFamily: 'monospace',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    zIndex: 1000,
-                    textShadow: phase === 'explore' ? '2px 2px 4px rgba(255,255,255,0.8)' : '2px 2px 4px rgba(0,0,0,0.8)'
-                }}>
-                    {instructions}
-                    {phase === 'explore' && !loading && (
-                        <div style={{marginTop: '20px', fontSize: '16px'}}>
-                            Use WASD to move • Look around with mouse
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>{whiteRoom.text.bootingMessage}</div>
+            ) : (
+                <>
+                    <div ref={mountRef} style={{width: '100%', height: '100%'}}/>
+
+                    {instructions && (
+                        <div style={{
+                            position: 'fixed',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            color: phase === 'explore' ? '#000' : '#fff',
+                            fontSize: '24px',
+                            fontFamily: 'monospace',
+                            textAlign: 'center',
+                            pointerEvents: 'none',
+                            zIndex: 1000,
+                            textShadow: phase === 'explore' ? '2px 2px 4px rgba(255,255,255,0.8)' : '2px 2px 4px rgba(0,0,0,0.8)'
+                        }}>
+                            {instructions}
+                            {phase === 'explore' && !loading && (
+                                <div style={{marginTop: '20px', fontSize: '16px'}}>
+                                    {whiteRoom.text.controlsHint}
+                                </div>
+                            )}
                         </div>
                     )}
-                </div>
+                </>
             )}
         </div>
     );
