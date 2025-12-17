@@ -4,7 +4,7 @@ import {useEffect, useRef} from 'react';
 import {chapterIXData, fileLinks} from "@/lib/data/chapters/chapters";
 import styles from '@/styles/Philosophy.module.css';
 import {useChapterAccess, useFailed} from "@/hooks";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
 export default function Philosophy() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess();

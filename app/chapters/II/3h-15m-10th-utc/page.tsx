@@ -10,7 +10,7 @@ import {checkPass, signCookie} from "@/lib/utils";
 import {chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
 import {useChapter2Access} from "@/hooks";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
 export default function ChapterIITimedPage() {
     const router = useRouter();

@@ -5,7 +5,7 @@ import {chapter, chapterIIIData} from "@/lib/data/chapters/chapters";
 import {formatTime} from "@/lib/utils";
 import {ClockState} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {routes} from "@/lib/saveData";
 
 const renderCorruptedClock = () => {

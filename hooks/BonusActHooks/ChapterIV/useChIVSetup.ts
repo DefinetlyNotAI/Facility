@@ -3,7 +3,7 @@ import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 import {cookies, routes} from "@/lib/saveData";
-import {usePlayBackgroundAudio} from "@/lib/audio";
+import {usePlayBackgroundAudio} from "@/audio";
 import {ActionState} from "@/types";
 
 export function useChIVSetup(backgroundAudio: string) {

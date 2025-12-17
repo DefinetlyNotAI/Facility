@@ -7,7 +7,7 @@ import {seededShuffle, seedFromString} from '@/lib/utils/chIV';
 import {useActStateCheck} from "@/hooks";
 import {ActionState} from "@/types";
 import {cookies, localStorageKeys, routes} from "@/lib/saveData";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {PuzzleHeader, Riddle, StageContainer, StageNavigation} from '@/components/chIV';

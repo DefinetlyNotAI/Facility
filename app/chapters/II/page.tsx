@@ -5,7 +5,7 @@ import {formatTime} from "@/lib/utils";
 import {chapter, chIIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {Button} from "@/components/ui/button";
 import {useChapterAccess} from "@/hooks";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
 
 // ---------- Component ----------

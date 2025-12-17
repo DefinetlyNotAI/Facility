@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {narratorLines} from "@/lib/data/cheater";
 
 // Join all lines with two newlines

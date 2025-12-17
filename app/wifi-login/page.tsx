@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 import Cookies from "js-cookie";
 import {signCookie} from "@/lib/utils";
 import styles from '../../styles/WifiLogin.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {form, hashes, messages} from "@/lib/data/wifi";
 import {cookies, routes} from "@/lib/saveData";
 

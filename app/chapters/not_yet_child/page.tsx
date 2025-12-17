@@ -3,7 +3,7 @@
 import styles from '@/styles/ChapterBonusSpecial.module.css';
 import {bonusErrorText} from "@/lib/data/chapters/chapters";
 import React, {useEffect, useRef} from "react";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
 import {cookies, routes} from "@/lib/saveData";

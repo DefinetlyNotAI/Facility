@@ -3,7 +3,7 @@ import React, {Suspense, useEffect, useRef} from 'react';
 import styles from '@/styles/NoTimeLeft.module.css';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {chapterMessages} from '@/lib/data/chapters/chapters';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from '@/lib/audio';
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from '@/audio';
 import {cookies, routes} from '@/lib/saveData';
 import Cookies from 'js-cookie';
 import {usePreloadActStates} from "@/hooks";

@@ -18,7 +18,7 @@ import {Paint} from '@/components/tree98/applications/Paint';
 import {StartMenu} from '@/components/tree98/ui/StartMenu';
 import {VesselBootDialog} from '@/components/tree98/dialogs/VesselBootDialog';
 import {WindowComponent} from '@/components/tree98/WindowComponent';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {cookies, routes} from '@/lib/saveData';
 import {getIcon} from "@/components/tree98/icons";
 

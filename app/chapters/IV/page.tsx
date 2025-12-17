@@ -9,7 +9,7 @@ import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
 import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {AllowedPlaqueStatus} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {cookies, routes} from '@/lib/saveData';
 import {getJsonCookie, setJsonCookie} from "@/lib/utils/chIV";
 

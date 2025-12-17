@@ -2,7 +2,7 @@
 
 import {chapterVData, fileLinks} from "@/lib/data/chapters/chapters";
 import {ChapterTemplate} from "@/components/ChapterTemplate";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {useRef} from "react";
 
 export default function ChapterVPage() {

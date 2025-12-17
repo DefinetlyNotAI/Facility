@@ -3,7 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
 import {chapter, chapterVIIData} from "@/lib/data/chapters/chapters";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
 
 export default function TimelinePage() {

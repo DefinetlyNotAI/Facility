@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
 import styles from '@/styles/Entity.module.css';
 import {LogEntry, Process} from "@/types";
 import {localStorageKeys} from "@/lib/saveData";

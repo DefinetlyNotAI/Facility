@@ -7,7 +7,7 @@ import {bonusApi} from "@/lib/utils";
 import {failQuestNames, rootChapterText} from "@/lib/data/chapters/chapters";
 import {routes} from "@/lib/saveData";
 import {ActionState, BonusResponse} from "@/types";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.bundled";
 
 

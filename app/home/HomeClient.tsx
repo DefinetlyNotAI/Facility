@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {signCookie} from "@/lib/utils";
-import {BACKGROUND_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO} from "@/audio";
 import {
     classificationClass,
     hollowPilgrimagePath,

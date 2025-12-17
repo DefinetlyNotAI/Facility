@@ -9,7 +9,7 @@ import {AlertCircle, HelpCircle} from 'lucide-react';
 import {chapter, chIData, fileLinks} from "@/lib/data/chapters/chapters";
 import {checkPass} from "@/lib/utils";
 import {useChapterAccess} from "@/hooks";
-import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/lib/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
 
 export default function ChapterIPage() {

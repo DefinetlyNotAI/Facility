@@ -6,7 +6,7 @@ import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/utils/chIV';
 import {cookies, localStorageKeys, routes} from '@/lib/saveData';
 import {useChIVSetup} from "@/hooks";
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/lib/audio";
+import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO} from "@/audio";
 import {PuzzleHeader, Riddle, StageNavigation} from '@/components/chIV';
 
 
