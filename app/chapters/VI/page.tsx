@@ -21,7 +21,7 @@ export default function ChapterVIPage() {
             const stored = await getSecureItem(localStorageKeys.chapterVISeconds);
             if (stored) setSeconds(Number(stored));
         };
-        loadSavedTime();
+        loadSavedTime().catch(console.error);
     }, []);
 
     // Timer
@@ -46,7 +46,7 @@ export default function ChapterVIPage() {
 
     // Save time
     useEffect(() => {
-        setSecureItem(localStorageKeys.chapterVISeconds, seconds.toString());
+        setSecureItem(localStorageKeys.chapterVISeconds, seconds.toString()).catch(console.error);
     }, [seconds]);
 
     usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VI);
