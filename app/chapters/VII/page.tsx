@@ -1,7 +1,7 @@
 "use client";
 import {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
-import {localStorageKeys} from "@/lib/saveData";
+import {localStorageKeys, routes} from "@/lib/saveData";
 import {chapter, chapterVIIData} from "@/lib/client/data/chapters";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
@@ -13,36 +13,57 @@ export default function TimelinePage() {
     const [yearProgress, setYearProgress] = useState<Record<number, number[]>>({});
     const [error, setError] = useState<string | null>(null);
     const [banMessage, setBanMessage] = useState<string | null>(null);
+    const [years, setYears] = useState<number[]>([]);
+    const [yearTotals, setYearTotals] = useState<Record<number, number>>({});
+    const [loading, setLoading] = useState(true);
     const audioRef = useRef<HTMLAudioElement>(null);
 
     usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VII);
-    const years = Object.keys(chapterVIIData.timelineData).map(Number);
+
+    // Fetch years and totals from API
+    useEffect(() => {
+        const fetchMetadata = async () => {
+            try {
+                const response = await fetch(routes.api.chapters.VII);
+                const data = await response.json();
+                setYears(data.years);
+                setYearTotals(data.yearTotals);
+                setLoading(false);
+            } catch (error) {
+                console.error('Failed to fetch chapter metadata:', error);
+                setLoading(false);
+            }
+        };
+        fetchMetadata().catch(console.error);
+    }, []);
 
     // Load progress and check completion immediately on mount
     useEffect(() => {
+        if (years.length === 0) return;
+
         const storedProgress: Record<number, number[]> = {};
         years.forEach(year => {
             storedProgress[year] = JSON.parse(localStorage.getItem(localStorageKeys.logCreationDateStore(year)) || "[]");
         });
         setYearProgress(storedProgress);
 
-        const allDone = years.every(year => storedProgress[year].length >= chapterVIIData.timelineData[year].length);
+        const allDone = years.every(year => storedProgress[year].length >= yearTotals[year]);
         if (allDone) setIsCurrentlySolved(true);
 
         const banUntil = localStorage.getItem(localStorageKeys.chapterVIIUnbanDate);
         if (banUntil && parseInt(banUntil) > Date.now()) {
             setBanMessage(chapterVIIData.banActive(new Date(parseInt(banUntil))));
         }
-    }, []);
+    }, [years, yearTotals]);
 
     // Update year index based on progress
     useEffect(() => {
-        if (!yearProgress || isCurrentlySolved) return;
+        if (!yearProgress || isCurrentlySolved || years.length === 0) return;
 
         let newIndex = currentYearIndex;
         while (
             newIndex < years.length &&
-            yearProgress[years[newIndex]]?.length >= chapterVIIData.timelineData[years[newIndex]].length
+            yearProgress[years[newIndex]]?.length >= yearTotals[years[newIndex]]
             ) {
             newIndex++;
         }
@@ -51,47 +72,70 @@ export default function TimelinePage() {
             if (newIndex >= years.length) setIsCurrentlySolved(true);
             else setCurrentYearIndex(newIndex);
         }
-    }, [yearProgress, currentYearIndex, isCurrentlySolved]);
+    }, [yearProgress, currentYearIndex, isCurrentlySolved, years, yearTotals]);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (isCurrentlySolved) return;
 
         const banUntil = localStorage.getItem(localStorageKeys.chapterVIIUnbanDate);
         if (banUntil && parseInt(banUntil) > Date.now()) return;
 
         const year = years[currentYearIndex];
-        const expected = chapterVIIData.timelineData[year];
 
         const parsed = inputValue
             .split(",")
             .map(s => parseInt(s.trim()))
             .filter(n => !isNaN(n));
 
-        const alreadyFound = yearProgress[year] || [];
-        const newCorrect = parsed.filter(num => expected.includes(num) && !alreadyFound.includes(num));
+        try {
+            // Call API to validate the numbers
+            const response = await fetch(routes.api.chapters.VII, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    year,
+                    numbers: parsed,
+                }),
+            });
 
-        if (newCorrect.length === 0) {
-            const banTime = Date.now() + chapterVIIData.banMinutes * 60 * 1000;
-            localStorage.setItem(localStorageKeys.chapterVIIUnbanDate, banTime.toString());
-            setBanMessage(chapterVIIData.banTrigger(new Date(banTime)));
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.error || 'Failed to validate');
+                return;
+            }
+
+            const alreadyFound = yearProgress[year] || [];
+            const newCorrect = data.correctNumbers.filter((num: number) => !alreadyFound.includes(num));
+
+            if (newCorrect.length === 0) {
+                const banTime = Date.now() + chapterVIIData.banMinutes * 60 * 1000;
+                localStorage.setItem(localStorageKeys.chapterVIIUnbanDate, banTime.toString());
+                setBanMessage(chapterVIIData.banTrigger(new Date(banTime)));
+                setError(null);
+                return;
+            }
+
+            const updated = [...alreadyFound, ...newCorrect];
+            const newProgress = {...yearProgress, [year]: updated};
+            setYearProgress(newProgress);
+            localStorage.setItem(localStorageKeys.logCreationDateStore(year), JSON.stringify(updated));
+            setInputValue("");
             setError(null);
-            return;
-        }
 
-        const updated = [...alreadyFound, ...newCorrect];
-        const newProgress = {...yearProgress, [year]: updated};
-        setYearProgress(newProgress);
-        localStorage.setItem(`year_${year}_found`, JSON.stringify(updated));
-        setInputValue("");
-        setError(null);
-
-        if (updated.length >= expected.length) {
-            if (currentYearIndex + 1 < years.length) setCurrentYearIndex(currentYearIndex + 1);
-            else setIsCurrentlySolved(true);
+            if (updated.length >= data.totalForYear) {
+                if (currentYearIndex + 1 < years.length) setCurrentYearIndex(currentYearIndex + 1);
+                else setIsCurrentlySolved(true);
+            }
+        } catch (error) {
+            console.error('Failed to validate numbers:', error);
+            setError('Failed to validate. Please try again.');
         }
     };
 
-    if (isCurrentlySolved === null) {
+    if (isCurrentlySolved === null || loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-white font-mono">{chapter.loading}</div>
@@ -108,10 +152,10 @@ export default function TimelinePage() {
     }
 
     const year = years[currentYearIndex];
-    const currentYearTotal = chapterVIIData.timelineData[year].length;
+    const currentYearTotal = yearTotals[year];
     const currentYearFound = yearProgress[year]?.length || 0;
     const totalFound = Object.values(yearProgress).reduce((sum, arr) => sum + arr.length, 0);
-    const totalAll = Object.values(chapterVIIData.timelineData).reduce((sum, arr) => sum + arr.length, 0);
+    const totalAll = Object.values(yearTotals).reduce((sum, total) => sum + total, 0);
 
     return (
         <>

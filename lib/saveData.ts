@@ -91,7 +91,15 @@ export const routes = {
                 // API: GET /api/chapters/IV/status - returns the current plaque solve states for Chapter IV.
                 // Return: List of plaque IDs marked as solved based on verified auth cookie.
                 status: "/api/chapters/IV/status",
-            }
+            },
+            // API: GET /api/puzzle - returns metadata about the puzzle (years and totals).
+            // Return: JSON object like { years: [2020, 2021, ...], yearTotals: {2020: 5, 2021: 3, ...} }
+            //         or an error object with appropriate status.
+            // API: POST /api/puzzle - validates user-submitted numbers for a year and returns correct matches.
+            // Need: JSON body with { year: number, numbers: number[] }.
+            // Return: JSON object like { year: 2020, correctCount: 3, correctNumbers: [1,4,5], totalForYear: 5 }
+            //         or an error object with appropriate status (400 for invalid input, 500 for server error).
+            VII: "/api/chapters/VII",
         },
         banned: {
             // API: POST /api/banned/checkMe

@@ -17,7 +17,6 @@ export type ChapterVIIData = {
     banActive: (time: Date) => string;
     banTrigger: (time: Date) => string;
     banMinutes: number;
-    timelineData: Record<number, number[]>;
 };
 
 export interface ChapterTemplateProps {
