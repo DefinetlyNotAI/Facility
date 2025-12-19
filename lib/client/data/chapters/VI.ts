@@ -1,6 +1,6 @@
 // Chapter VI data
 export const chapterVIData = {
-    duration: 21600,  // 6 hours
+    duration: 10800,  // 3 hours
     msgs: [
         'To escape time, you must endure it.',
         'Each tick brings me closer to you.',

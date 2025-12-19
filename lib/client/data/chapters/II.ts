@@ -28,6 +28,9 @@ export const chIIData = {
             downloadButton: 'Download time itself',
         },
     },
+    // NOTE: This chapter was already solved
+    // BUT these paths should have not been in client-side code,
+    // I will not update this to be server-side due to this already being solved.
     chapterIIPaths: [
         {path: '3', image: fileLinks.II.images['3'], caption: 'YOU - ME - IT'},
         {

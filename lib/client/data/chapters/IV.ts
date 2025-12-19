@@ -48,6 +48,9 @@ export const chapterIV = {
         },
     ],
     puzzles: {
+        // NOTE: This chapter was already solved
+        // BUT these paths should have not been in client-side code,
+        // I will not update this to be server-side due to this already being solved.
         message: "If you see this, you are looking through the JS bundle, " +
             "which means you're trying to cheat. Shame on you... " +
             "this is already solved so there's no point in hiding this, " +
