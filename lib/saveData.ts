@@ -14,6 +14,11 @@ export const routes = {
             // Combines the value with its signature to ensure integrity and prevent tampering.
             // Returns a JSON response while setting a secure, long-lived cookie with the signed value.
             signCookie: "/api/utils/signCookie",
+            // API: POST /api/utils/hashValue - hashes a value server-side with secret salt.
+            // Accepts a JSON body with "value" and returns a SHA-256 hash using the server's SALT.
+            // Used for creating tamper-proof localStorage values by keeping the salt secret.
+            // Returns a JSON response with the hash or an error for invalid requests.
+            hashValue: "/api/utils/hashValue",
             checkKeyword: {
                 // API: POST /api/utils/checkKeyword - checks if a provided keyword matches a pre-defined hash.
                 // Accepts a keyword and number, validating input for type and range correctness.
