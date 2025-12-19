@@ -2,7 +2,7 @@
 
 import {useEffect, useRef} from 'react';
 import {useParams, useRouter} from 'next/navigation';
-import {chIIData} from '@/lib/client/data/chapters';
+import {chIIData} from '@/lib/client/data/chapters/II';
 import Image from 'next/image';
 import {routes} from "@/lib/saveData";
 import {useChapter2Access} from "@/hooks";

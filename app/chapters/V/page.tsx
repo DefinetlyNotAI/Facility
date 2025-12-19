@@ -1,6 +1,6 @@
 'use client';
 
-import {chapterVData, fileLinks} from "@/lib/client/data/chapters";
+import {chapterVData, fileLinksVX} from "@/lib/client/data/chapters/V&X";
 import {ChapterTemplate} from "@/components/ChapterTemplate";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {useRef} from "react";
@@ -15,6 +15,6 @@ export default function ChapterVPage() {
             <ChapterTemplate
                 chapterId="V"
                 chapterData={chapterVData}
-                fileLink={fileLinks.V.Narrator}/></>
+                fileLink={fileLinksVX.V.Narrator}/></>
     );
 }

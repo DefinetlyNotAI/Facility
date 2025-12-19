@@ -24,3 +24,20 @@ export const specialVXText = {
     failedTitle: "YOU HAVE FAILED ME.",
     failedText: "The narrator grows quiet. The story continues without you."
 }
+
+export const fileLinksVX = {
+    V: {
+        Narrator: "/static/chapters/V/Narrator_I.txt",
+        lost: {
+            cambiumKnotholeMP4: "/static/chapters/V/lost/CambiumKnothole.mp4",
+            riddlePNG: "/static/chapters/V/lost/riddle.png",
+            fryingAliveWAV: "/static/chapters/V/lost/fryingalive.wav",
+        },
+        tools: {
+            provideMeTheOilEXE: "/static/chapters/V/tools/Provide_Me_The_Oil.exe"
+        },
+    },
+    X: {
+        Narrator: "/static/chapters/X/Narrator_II.txt",
+    },
+}

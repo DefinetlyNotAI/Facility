@@ -30,3 +30,7 @@ export const chIData = {
     portNumErr: "Port Access Denied - TREE's root has blocked this port",
     ipAddressErr: "IP address connection failed/not accepting handshake protocol. Maybe try a different address?"
 }
+
+export const linksChI = {
+    donecAnteDolorEXE: "/static/chapters/I/donec_ante_dolor.exe",
+};

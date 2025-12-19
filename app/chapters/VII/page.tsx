@@ -2,9 +2,9 @@
 import {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
 import {localStorageKeys, routes} from "@/lib/saveData";
-import {chapter, chapterVIIData} from "@/lib/client/data/chapters";
+import {chapterVIIData} from "@/lib/client/data/chapters/VII";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
-
+import {chapter} from "@/lib/client/data/chapters";
 
 export default function TimelinePage() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;

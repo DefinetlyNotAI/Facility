@@ -1,7 +1,20 @@
 import {vesselConstType} from "@/types";
-import {fileLinks} from "@/lib/client/data/chapters";
 
 // == Chapter IV data ==
+export const linksChIV = {
+    E_TXT: "/static/chapters/IV/E.txt",
+    TAS_TXT: "/static/chapters/IV/TAS.txt",
+    TREE_TXT: "/static/chapters/IV/TREE.txt",
+    plaques: {
+        // A tree - Same image of the tree can be used
+        TREE: '/static/chapters/images/tr33.png',
+        // Bot PNG
+        TAS: '/static/chapters/images/tas.png',
+        // Question mark. the entity?
+        Entity: '/static/chapters/images/entity.jpeg',
+    },
+}
+
 export const chapterIV = {
     gifCrossPath: "/static/chapters/images/failCross.gif",
     text: {
@@ -26,7 +39,7 @@ export const chapterIV = {
             solvedCaption: 'TREE was never just a caretaker; it seeded the first fractures that would let the Eldritch touch our world.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
-            image: fileLinks.IV.plaques.TREE,
+            image: linksChIV.plaques.TREE,
         },
         {
             id: 'TAS',
@@ -35,7 +48,7 @@ export const chapterIV = {
             solvedCaption: 'You? Or all of you? Not one but all, collective of 5 keys, bound by the 6th to end.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
-            image: fileLinks.IV.plaques.TAS,
+            image: linksChIV.plaques.TAS,
         },
         {
             id: 'Entity',
@@ -44,7 +57,7 @@ export const chapterIV = {
             solvedCaption: 'A relation to the VESSEL, a future perhaps, where time is but a loop, and existence a question.',
             unsolvedCaption: '52 65 6D 65 6D 62 65 72 20 74 68 65 20 72 69 64 64 6C 65 73 20 62 65 66 6F 72 65',
             failedCaption: '54 4F 4F 20 4C 41 54 45',
-            image: fileLinks.IV.plaques.Entity,
+            image: linksChIV.plaques.Entity,
         },
     ],
     puzzles: {

@@ -1,12 +1,13 @@
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
-import {chapter, chapterIIIData} from "@/lib/client/data/chapters";
+import {chapterIIIData} from "@/lib/client/data/chapters/III";
 import {formatTime} from "@/lib/client/utils";
 import {ClockState} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {routes} from "@/lib/saveData";
+import {chapter} from "@/lib/client/data/chapters";
 
 const renderCorruptedClock = () => {
     const randomRotation = Math.random() * 360;

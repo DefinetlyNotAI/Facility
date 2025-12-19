@@ -14,5 +14,6 @@ export const chapterIXData = {
             main: "Record finalized.",
             afterText: "“The moment you understood, it stopped being a question.”"
         }
-    }
+    },
+    txt15Path: "/static/chapters/IX/15.txt"
 };

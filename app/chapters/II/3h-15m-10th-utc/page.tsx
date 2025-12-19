@@ -7,7 +7,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/client/utils";
-import {chIIData, fileLinks} from "@/lib/client/data/chapters";
+import {chIIData, linksChapterII} from "@/lib/client/data/chapters/II";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
 import {useChapter2Access} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
@@ -109,7 +109,7 @@ export default function ChapterIITimedPage() {
                 <div className="max-w-2xl w-full space-y-8">
                     <div className="relative w-full aspect-square bg-gray-900 border border-red-900">
                         <Image
-                            src={fileLinks.II.images[chIIData.utcPage.images.meltedClock as keyof typeof fileLinks.II.images]}
+                            src={linksChapterII.images[chIIData.utcPage.images.meltedClock as keyof typeof linksChapterII.images]}
                             alt="Melted Clock"
                             fill
                             className="object-contain opacity-50"
@@ -142,7 +142,7 @@ export default function ChapterIITimedPage() {
 
                     <Button
                         onClick={() => {
-                            window.location.href = fileLinks.II.timeShallStrikeEXE;
+                            window.location.href = linksChapterII.timeShallStrikeEXE;
                         }}
                         className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
                     >

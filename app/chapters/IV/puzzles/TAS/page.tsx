@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {chapterIV} from '@/lib/client/data/chapters';
+import {chapterIV} from '@/lib/client/data/chapters/IV';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/client/utils/chapters';
 import {cookies, localStorageKeys, routes} from '@/lib/saveData';
 import {useChIVSetup} from "@/hooks";

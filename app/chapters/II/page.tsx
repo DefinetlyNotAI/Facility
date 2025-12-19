@@ -2,10 +2,11 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {formatTime} from "@/lib/client/utils";
-import {chapter, chIIData, fileLinks} from "@/lib/client/data/chapters";
+import {chIIData, linksChapterII} from "@/lib/client/data/chapters/II";
 import {Button} from "@/components/ui/button";
 import {useChapterAccess} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
+import {chapter} from "@/lib/client/data/chapters";
 
 
 // ---------- Component ----------
@@ -73,7 +74,7 @@ export default function ChapterIIPage() {
                     <p className="text-gray-400 font-mono">{chIIData.root.text.complete.message}</p>
                     <Button
                         onClick={() => {
-                            window.location.href = fileLinks.II.timeShallStrikeEXE;
+                            window.location.href = linksChapterII.timeShallStrikeEXE;
                         }}
                         className="bg-green-600 hover:bg-green-700 text-white font-mono text-lg px-8 py-4"
                     >

@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {chapterIV} from '@/lib/client/data/chapters';
+import {chapterIV} from '@/lib/client/data/chapters/IV';
 import {seededShuffle, seedFromString} from '@/lib/client/utils/chapters';
 import {useActStateCheck} from "@/hooks";
 import {ActionState} from "@/types";

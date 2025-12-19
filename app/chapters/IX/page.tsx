@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef} from 'react';
-import {chapterIXData, fileLinks} from "@/lib/client/data/chapters";
+import {chapterIXData} from "@/lib/client/data/chapters/IX";
 import styles from '@/styles/Philosophy.module.css';
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
@@ -20,7 +20,7 @@ export default function Philosophy() {
     useEffect(() => {
         if (isCurrentlySolved === false) {
             const link = document.createElement('a');
-            link.href = fileLinks.IX.txt15;
+            link.href = chapterIXData.txt15Path;
             link.download = '15.txt';
             document.body.appendChild(link);
             link.click();

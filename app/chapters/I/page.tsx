@@ -6,10 +6,11 @@ import {Button} from '@/components/ui/button';
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {AlertCircle, HelpCircle} from 'lucide-react';
-import {chapter, chIData, fileLinks} from "@/lib/client/data/chapters";
+import {chIData, linksChI} from "@/lib/client/data/chapters/I";
 import {checkPass} from "@/lib/client/utils";
 import {useChapterAccess} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
+import {chapter} from "@/lib/client/data/chapters";
 
 
 export default function ChapterIPage() {
@@ -153,7 +154,7 @@ export default function ChapterIPage() {
                         <p className="text-black font-mono">{chIData.text.completed.subtitle}</p>
                         <Button
                             onClick={() => {
-                                window.location.href = fileLinks.I.donecAnteDolorEXE;
+                                window.location.href = linksChI.donecAnteDolorEXE;
                             }}
                             className="w-full bg-green-600 text-white border-2 border-green-800 hover:bg-green-700 font-mono font-bold shadow-[2px_2px_0px_0px_rgba(0,100,0,1)]"
                         >

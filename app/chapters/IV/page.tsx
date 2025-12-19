@@ -5,12 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {chapter, chapterIV, fileLinks} from "@/lib/client/data/chapters";
+import {chapterIV, linksChIV} from "@/lib/client/data/chapters/IV";
 import {AllowedPlaqueStatus} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {cookies, routes} from '@/lib/saveData';
 import {getJsonCookie, setJsonCookie} from "@/lib/client/utils/chapters";
+import {chapter} from "@/lib/client/data/chapters";
 
 export default function ChapterIVPage() {
     const {isCurrentlySolved} = useChapterAccess();
@@ -51,9 +52,9 @@ export default function ChapterIVPage() {
     }
 
     const fileLinkMap: Record<string, string> = {
-        Entity: fileLinks.IV.E_TXT,
-        TAS: fileLinks.IV.TAS_TXT,
-        TREE: fileLinks.IV.TREE_TXT,
+        Entity: linksChIV.E_TXT,
+        TAS: linksChIV.TAS_TXT,
+        TREE: linksChIV.TREE_TXT,
     };
 
     const handleChange = (id: string, value: string) => {
