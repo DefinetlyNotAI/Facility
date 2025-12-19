@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
+import {chapterIV} from '@/lib/client/data/chapters';
 import {getJsonCookie, markCompleted, seededShuffle, setJsonCookie} from '@/lib/client/utils/chapters';
 import {cookies, localStorageKeys, routes} from '@/lib/saveData';
 import {useChIVSetup} from "@/hooks";
@@ -13,7 +13,7 @@ import {PuzzleHeader, Riddle, StageNavigation} from '@/components/chIV';
 export default function TasPuzzlePage() {
     const {audioRef, isLoading} = useChIVSetup(BACKGROUND_AUDIO.BONUS.IV);
 
-    const puzzle = (chapterIVData as any).puzzles?.TAS;
+    const puzzle = chapterIV.puzzles.TAS;
     const puzzleMissing = !puzzle;
 
     const stages = puzzle.stageData || [];

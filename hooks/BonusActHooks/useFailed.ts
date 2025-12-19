@@ -1,5 +1,5 @@
 // Returns true if Failed, with conditional redirect
-import {validRomansNoTimeLeft} from "@/lib/data/chapters/chapters";
+import {validRomansNoTimeLeft} from "@/lib/client/data/chapters";
 import {routes} from "@/lib/saveData";
 import {useActStateCheck} from "@/hooks/BonusActHooks/useActStateCheck";
 import {ActionState} from "@/types";

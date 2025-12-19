@@ -1,5 +1,5 @@
 import {routes} from "@/lib/saveData";
-import {successQuestNames, validRomans} from "@/lib/data/chapters/chapters.bundled";
+import {successQuestNames, validRomans} from "@/lib/client/data/chapters";
 
 // Layout.tsx
 export const tabTitles: Record<string, string> = {

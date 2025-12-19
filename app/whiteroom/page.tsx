@@ -9,7 +9,7 @@ import {getJsonCookie, setJsonCookie} from "@/lib/client/utils/chapters";
 import {cookies, routes} from "@/lib/saveData";
 import {useRouter} from "next/navigation";
 import Cookies from "js-cookie";
-import {whiteRoom} from "@/lib/data/chapters/chapterIV";
+import {whiteRoom} from "@/lib/client/data/chapters";
 
 
 export default function WhiteRoomPage() {

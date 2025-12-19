@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
-import {chapter, chapterIIIData} from "@/lib/data/chapters/chapters";
+import {chapter, chapterIIIData} from "@/lib/client/data/chapters";
 import {formatTime} from "@/lib/client/utils";
 import {ClockState} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";

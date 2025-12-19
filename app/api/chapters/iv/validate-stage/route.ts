@@ -1,5 +1,4 @@
 import {NextResponse} from 'next/server';
-import {PlaqueId} from '@/lib/data/chapters/chapters.server';
 import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/server/utils/chapters';
 import {cookies} from "@/lib/saveData";
 
@@ -28,7 +27,6 @@ export async function POST(req: Request) {
 
         // Validate the provided answer for the given plaque stage
         const ok = validateStageAnswer(
-            plaqueId as PlaqueId,
             stageIndex,
             provided
         );

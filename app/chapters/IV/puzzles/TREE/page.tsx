@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
+import {chapterIV} from '@/lib/client/data/chapters';
 import {seededShuffle, seedFromString} from '@/lib/client/utils/chapters';
 import {useActStateCheck} from "@/hooks";
 import {ActionState} from "@/types";
@@ -26,7 +26,7 @@ export default function TreePuzzlePage() {
 
     usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.IV);
 
-    const puzzle = (chapterIVData as any).puzzles?.TREE;
+    const puzzle = chapterIV.puzzles.TREE;
     const stages = puzzle.stageData || [];
     const [stageIndex, setStageIndex] = useState<number>(0);
     const [input, setInput] = useState<string>('');
@@ -293,43 +293,11 @@ export default function TreePuzzlePage() {
         }
 
         // Generic fallback: compare to explicit 'answer' if provided in stageData
-        const expected = (stages[stageIndex]?.answer || '').toLowerCase();
-        if (!expected) {
-            try {
-                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-            } catch (e) {
-            }
-            setFeedback('No expected answer configured for this stage.');
-            return;
+        try {
+            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
+        } catch (e) {
         }
-        if (provided === expected) {
-            try {
-                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
-            } catch (e) {
-            }
-            // correct for this stage
-            setFeedback('Correct!');
-            if (stageIndex < stages.length - 1) {
-                const nextIndex = stageIndex + 1;
-                unlockAndGo(nextIndex);
-                setInput('');
-            } else {
-                // final stage complete
-                setCompleted(true);
-                try {
-                    localStorage.setItem(localStorageKeys.chIV_TREEProgress, String(stages.length));
-                } catch (e) {
-                }
-                setUnlockedStage(stages.length - 1);
-                setStageIndex(stages.length);
-            }
-        } else {
-            try {
-                playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-            } catch (e) {
-            }
-            setFeedback('Incorrect. Try again.');
-        }
+        setFeedback('Incorrect. Try again.');
     }
 
     const onRiddleResult = (i: number, ok: boolean) => {
@@ -392,8 +360,8 @@ export default function TreePuzzlePage() {
             <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-8">
                 <div className="max-w-3xl mx-auto">
                     <PuzzleHeader
-                        title={chapterIVData.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}
-                        subtitle={chapterIVData.text.subHeader}
+                        title={chapterIV.chapterIVPlaques.find(p => p.id === 'TREE')?.solvedName || 'TREE'}
+                        subtitle={chapterIV.text.subHeader}
                     />
 
                     <StageNavigation

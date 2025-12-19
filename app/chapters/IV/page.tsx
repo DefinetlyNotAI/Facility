@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Card, CardContent, CardHeader} from '@/components/ui/card';
-import {chapter, fileLinks} from "@/lib/data/chapters/chapters";
-import {chapterIV as chapterIVData} from '@/lib/data/chapters/chapterIV';
+import {chapter, chapterIV, fileLinks} from "@/lib/client/data/chapters";
 import {AllowedPlaqueStatus} from "@/types";
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
@@ -114,20 +113,20 @@ export default function ChapterIVPage() {
                         {isCurrentlySolved ? (
                             <div className="space-y-4">
                                 <div
-                                    className="text-green-500 font-mono text-3xl font-bold">{chapterIVData.text.complete.title}</div>
-                                <p className="text-gray-400 font-mono">{chapterIVData.text.complete.message}</p>
+                                    className="text-green-500 font-mono text-3xl font-bold">{chapterIV.text.complete.title}</div>
+                                <p className="text-gray-400 font-mono">{chapterIV.text.complete.message}</p>
                             </div>
                         ) : (
                             <>
-                                <h1 className="text-white font-mono text-4xl font-bold mb-4">{chapterIVData.text.header}</h1>
-                                <p className="text-gray-400 font-mono text-sm">{chapterIVData.text.subHeader}</p>
+                                <h1 className="text-white font-mono text-4xl font-bold mb-4">{chapterIV.text.header}</h1>
+                                <p className="text-gray-400 font-mono text-sm">{chapterIV.text.subHeader}</p>
                             </>
                         )}
                     </div>
 
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {chapterIVData.chapterIVPlaques.map((plaque) => {
+                        {chapterIV.chapterIVPlaques.map((plaque) => {
                             const status = plaqueStatuses.find(p => p.id === plaque.id);
                             const isSolved = status?.status === 'solved' || isCurrentlySolved;
                             const isFailed = isAllFailed || status?.status === 'failed';
@@ -146,7 +145,7 @@ export default function ChapterIVPage() {
                                             <div className="absolute top-2 right-2 bg-gray-800 px-3 py-1 rounded z-10">
                                             <span
                                                 className={`font-mono text-xs ${isFailed ? 'text-red-500' : 'text-gray-400'}`}>
-                                                {isFailed ? chapterIVData.text.statuses.failedLabel : plaque.id}
+                                                {isFailed ? chapterIV.text.statuses.failedLabel : plaque.id}
                                             </span>
                                             </div>
 
@@ -161,7 +160,7 @@ export default function ChapterIVPage() {
                                                     <div
                                                         className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                                         <Image
-                                                            src={chapterIVData.gifCrossPath}
+                                                            src={chapterIV.gifCrossPath}
                                                             alt="Failed Cross"
                                                             fill
                                                             className="object-cover w-full h-full"/>
@@ -173,7 +172,7 @@ export default function ChapterIVPage() {
                                         <CardContent className="p-6 space-y-4">
                                             <div className="text-center">
                                                 <h3 className={`font-mono text-xl font-bold mb-2 ${isSolved ? 'text-green-500' : isFailed ? 'text-red-500' : 'text-gray-600'}`}>
-                                                    {isSolved ? plaque.solvedName : isFailed ? chapterIVData.text.statuses.failedLabel : chapterIVData.text.statuses.pendingLabel}
+                                                    {isSolved ? plaque.solvedName : isFailed ? chapterIV.text.statuses.failedLabel : chapterIV.text.statuses.pendingLabel}
                                                 </h3>
 
                                                 <p className={`font-mono text-sm ${isPending ? 'text-gray-500' : isSolved ? 'text-gray-400' : 'text-red-400'}`}>
@@ -231,7 +230,7 @@ export default function ChapterIVPage() {
 
                     {questStatus === 'active' && !isCurrentlySolved && !isAllFailed && (
                         <div className="mt-12 text-center">
-                            <p className="text-gray-600 font-mono text-sm">{chapterIVData.text.questReminder}</p>
+                            <p className="text-gray-600 font-mono text-sm">{chapterIV.text.questReminder}</p>
                         </div>
                     )}
                 </div>

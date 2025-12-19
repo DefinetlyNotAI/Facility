@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef} from 'react';
-import {chapterIXData, fileLinks} from "@/lib/data/chapters/chapters";
+import {chapterIXData, fileLinks} from "@/lib/client/data/chapters";
 import styles from '@/styles/Philosophy.module.css';
 import {useChapterAccess, useFailed} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";

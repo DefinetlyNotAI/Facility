@@ -4,36 +4,6 @@ import React from "react";
 // Type used for plaque identification
 export type PlaqueId = 'TREE' | 'TAS' | 'Entity';
 
-// Types used in lib functions for validation (useStageProgress)
-type StageType =
-    | 'payload'
-    | 'switches'
-    | 'assembly'
-    | 'timed'
-    | 'grid'
-    | 'riddle'
-    | 'riddle-chain'
-    | 'path'
-    | 'weave'
-    | 'validate'
-    | 'merge'
-    | 'final';
-
-export interface StageData {
-    stage: number;
-    title: string;
-    instruction: string;
-    payload?: string;
-    type: StageType;
-    answer?: string;
-    hint?: string;
-}
-
-export interface ValidationResponse {
-    ok: boolean;
-    message?: string;
-}
-
 // Other types used in code
 export type LogEntry = { text: string; color?: 'green' | 'yellow' | 'red' | 'cyan' | 'magenta' | 'gray' };
 

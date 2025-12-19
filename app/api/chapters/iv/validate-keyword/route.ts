@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
-import {PlaqueId} from '@/lib/data/chapters/chapters.server';
 import {makeSignedValue, validateKeyword} from '@/lib/server/utils/chapters';
 import {cookies} from "@/lib/saveData";
+import {PlaqueId} from "@/types";
 
 /**
  * POST handler for validating a Chapter IV plaque phrase.

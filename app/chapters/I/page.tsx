@@ -6,7 +6,7 @@ import {Button} from '@/components/ui/button';
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from '@/components/ui/dialog';
 import {Input} from '@/components/ui/input';
 import {AlertCircle, HelpCircle} from 'lucide-react';
-import {chapter, chIData, fileLinks} from "@/lib/data/chapters/chapters";
+import {chapter, chIData, fileLinks} from "@/lib/client/data/chapters";
 import {checkPass} from "@/lib/client/utils";
 import {useChapterAccess} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";

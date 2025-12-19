@@ -1,18 +1,5 @@
 import {vesselConstType} from "@/types";
-
-// == File links ==
-export const fileLinks = {
-    IV: {
-        E_TXT: "/static/chapters/IV/E.txt",
-        TAS_TXT: "/static/chapters/IV/TAS.txt",
-        TREE_TXT: "/static/chapters/IV/TREE.txt",
-        plaques: {
-            TREE: '/static/chapters/images/tr33.png',
-            TAS: '/static/chapters/images/tas.png',
-            Entity: '/static/chapters/images/entity.jpeg',
-        },
-    }
-};
+import {fileLinks} from "@/lib/client/data/chapters";
 
 // == Chapter IV data ==
 export const chapterIV = {
@@ -60,7 +47,6 @@ export const chapterIV = {
             image: fileLinks.IV.plaques.Entity,
         },
     ],
-    // Public puzzle metadata (no keywords or answers)
     puzzles: {
         message: "If you see this, you are looking through the JS bundle, " +
             "which means you're trying to cheat. Shame on you... " +

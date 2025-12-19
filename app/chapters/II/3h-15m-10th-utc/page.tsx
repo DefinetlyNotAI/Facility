@@ -7,7 +7,7 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import Image from 'next/image';
 import {checkPass, signCookie} from "@/lib/client/utils";
-import {chIIData, fileLinks} from "@/lib/data/chapters/chapters";
+import {chIIData, fileLinks} from "@/lib/client/data/chapters";
 import {cookies, ItemKey, routes} from '@/lib/saveData';
 import {useChapter2Access} from "@/hooks";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";

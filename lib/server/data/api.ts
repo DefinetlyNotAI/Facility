@@ -1,4 +1,3 @@
-import {chIData, chIIData} from "@/lib/data/chapters/chapters";
 import {ItemKey} from "@/lib/saveData";
 
 // Generic error messages used across various API endpoints
@@ -67,7 +66,7 @@ export const allowedActs: string[] = [
 // Secrets to be hashed and compared, only these specific items are allowed
 // The record keys must match the ItemKey enum
 export const secrets: Record<ItemKey, string> = {
-    [ItemKey.portNum]: chIData.portNum,
-    [ItemKey.ipAddress]: chIData.ipAddress,
-    [ItemKey.InternalCode]: chIIData.chapterIIPaths[6].path
+    [ItemKey.portNum]: "15325",
+    [ItemKey.ipAddress]: "192.168.42.177",
+    [ItemKey.InternalCode]: '1033333013'
 };

@@ -2,7 +2,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
-import {chapter, chapterVIIData} from "@/lib/data/chapters/chapters";
+import {chapter, chapterVIIData} from "@/lib/client/data/chapters";
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 
 

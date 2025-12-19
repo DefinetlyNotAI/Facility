@@ -4,7 +4,7 @@ import styles from '@/styles/ChaptersVI.module.css';
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from '@/audio';
 import {useChapterAccess} from "@/hooks";
 import {localStorageKeys} from "@/lib/saveData";
-import {chapter, chapterVIData} from "@/lib/data/chapters/chapters";
+import {chapter, chapterVIData} from "@/lib/client/data/chapters";
 
 export default function ChapterVIPage() {
     const {isCurrentlySolved, setIsCurrentlySolved} = useChapterAccess() as any;

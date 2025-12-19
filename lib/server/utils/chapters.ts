@@ -1,7 +1,8 @@
 // Server-only utilities for chapter IV
 import crypto from 'crypto';
+import {PUZZLES} from "@/lib/server/data/chapters";
 import {PlaqueId} from "@/types";
-import {PUZZLES} from "@/lib/data/chapters/chapters.server";
+import {TASAnswers} from "@/lib/server/data/chapters/IV";
 
 const COOKIE_SECRET = process.env.COOKIE_SECRET || 'please_set_a_real_secret_in_production';
 
@@ -25,21 +26,21 @@ function normalize(input?: unknown) {
     return input.trim().toLowerCase();
 }
 
-export function validateKeyword(plaqueId: string, provided: string): boolean {
+export function validateKeyword(plaqueId: PlaqueId, provided: string): boolean {
     if (!plaqueId) return false;
-    const id = plaqueId as PlaqueId;
-    const p = PUZZLES[id];
-    if (!p) return false;
-    console.log('Validating keyword for', plaqueId, 'provided:', provided, 'expected:', p.keyword);
-    return normalize(p.keyword) === normalize(provided);
+
+    const expected = PUZZLES[plaqueId];
+    if (!expected) return false;
+
+    console.log('Validating keyword for', plaqueId, 'provided:', provided, 'expected:', expected);
+    return normalize(expected) === normalize(provided);
 }
 
-export function validateStageAnswer(plaqueId: string, stageIndex: number, provided: string): boolean {
-    const id = plaqueId as PlaqueId;
-    const p = PUZZLES[id];
-    if (!p) return false;
-    const ans = p.stageAnswers?.[stageIndex];
-    if (!ans) return false;
+
+export function validateStageAnswer(stageIndex: number, provided: string): boolean {
+    if (stageIndex < 0 || stageIndex >= TASAnswers.length) return false;
+
+    const ans = TASAnswers[stageIndex];
     return normalize(ans) === normalize(provided);
 }
 

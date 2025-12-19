@@ -17,7 +17,7 @@ import {
     useInterval,
     useLocalStorageState
 } from "@/hooks";
-import {entityConst} from "@/lib/data/chapters/chapterIV";
+import {entityConst} from "@/lib/client/data/chapters";
 
 export default function EntityPuzzlePage() {
     const {audioRef, isLoading} = useChIVSetup(BACKGROUND_AUDIO.BONUS.IV);

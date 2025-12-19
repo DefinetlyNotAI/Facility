@@ -2,7 +2,7 @@
 import {ActionState, BonusAct} from "@/types";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
-import {validRomans} from "@/lib/data/chapters/chapters.bundled";
+import {validRomans} from "@/lib/client/data/chapters";
 import {routes} from "@/lib/saveData";
 import {bonusApi} from "@/lib/client/utils";
 

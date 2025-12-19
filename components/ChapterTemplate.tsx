@@ -1,7 +1,7 @@
 'use client';
 
 import {useChapterAccess, useFailed} from "@/hooks";
-import {chapter} from "@/lib/data/chapters/chapters";
+import {chapter, specialVXText} from "@/lib/client/data/chapters";
 import {ChapterTemplateProps} from "@/types";
 import {useEffect, useRef} from "react";
 import styles from "@/styles/ChaptersXandV.module.css";
@@ -141,28 +141,28 @@ export function ChapterTemplate({chapterId, chapterData, fileLink}: ChapterTempl
             <div className={styles.content}>
                 <h1 className={styles.header}>{chapterData.text.header}</h1>
                 <p className={styles.subHeader}>{chapterData.text.subHeader}</p>
-                <p className={styles.quote}>{chapter.VX.quote}</p>
+                <p className={styles.quote}>{specialVXText.quote}</p>
 
                 <div style={{marginTop: "3rem"}}>
                     <a href={fileLink} download aria-label="Narrator download" className={styles.downloadButton}>
                         <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5"/>
                         </svg>
-                        <span>{chapter.VX.narrator}</span>
+                        <span>{specialVXText.narrator}</span>
                     </a>
                 </div>
 
                 {!isCurrentlySolved && !isAllFailed && (
                     <div className={styles.reminder}>
                         <p className={styles.reminderText}>{chapterData.text.questReminder}</p>
-                        <p className={styles.reminderSub}>{chapter.VX.reminderSub}</p>
+                        <p className={styles.reminderSub}>{specialVXText.reminderSub}</p>
                     </div>
                 )}
 
                 {isAllFailed && (
                     <div className={styles.failedSection}>
-                        <p className={styles.failedTitle}>{chapter.VX.failedTitle}</p>
-                        <p className={styles.failedText}>{chapter.VX.failedText}</p>
+                        <p className={styles.failedTitle}>{specialVXText.failedTitle}</p>
+                        <p className={styles.failedText}>{specialVXText.failedText}</p>
                     </div>
                 )}
             </div>
