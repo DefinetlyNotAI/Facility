@@ -1,4 +1,4 @@
-## 🌑 **Narrator Script - “To Those Who End Well”**
+## Set tab title to “To Those Who End Well”
 
 *Scene: Black screen slowly fades into flickering light. White serif text types out word by word. A subtle hum grows beneath the voice. Echoing, reverent.*
 
@@ -110,7 +110,7 @@ So let the Record show this line:
 And so, you may go forward now.
 You’ve earned that right. You know just how.
 But even if you walk away,
-My joy will never *fade to grey.*
+My joy will never *fade to gray.*
 
 ---
 
@@ -139,7 +139,7 @@ until met by you.”**
 
 ---
 
-## 🌑 **Narrator Script - “Of Many, One”**
+## Set tab title to “Of Many, One”
 
 *Scene resumes from black. The screen pulses slowly-dim light fades in like a heartbeat. No sound, then a soft whispering wind.*
 
@@ -280,7 +280,7 @@ And the VESSEL…
 ---
 
 
-## 🌑 **Narrator Script - “Vestige and Verse”**
+## Set tab title to “Vestige and Verse”
 
 *Continuation of “Of Many, One”*
 
