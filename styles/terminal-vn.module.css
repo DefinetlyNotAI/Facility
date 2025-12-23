@@ -46,7 +46,12 @@
     gap: 8px;
 }
 
+.terminal-vn-control-btn:last-child {
+    margin-right: 0;
+}
+
 .terminal-vn-control-btn {
+    margin-right: 8px;
     background: transparent;
     border: 1px solid #333;
     color: #888;

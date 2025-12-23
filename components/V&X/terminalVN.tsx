@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import type {TerminalVNProps, TerminalVNScript} from '@/types';
 import {parseVNScript} from '@/lib/client/utils';
 import '@/styles/terminal-vn.module.css';
+import {ChevronDown, ChevronUp, Pause, Play} from "lucide-react";
 
 
 export function TerminalVN({
@@ -26,10 +27,14 @@ export function TerminalVN({
     const [parsedScript, setParsedScript] = useState<TerminalVNScript | null>(null);
     const [currentNodeId, setCurrentNodeId] = useState<string>('start');
     const [currentLineIndex, setCurrentLineIndex] = useState(0);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [manualMode, setManualMode] = useState(true);
+    const [waitingForNext, setWaitingForNext] = useState(false);
 
     const terminalRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const keyboardRef = useRef<HTMLDivElement>(null);
 
     // Parse script on mount or when script changes
     useEffect(() => {
@@ -39,6 +44,8 @@ export function TerminalVN({
             setCurrentNodeId('start');
             setCurrentLineIndex(0);
             setLines([{text: '> VN Engine Initialized...', type: 'system'}]);
+            // In manual mode, set waiting to allow user to start
+            setWaitingForNext(true);
         } catch (error) {
             setLines([
                 {text: '> VN Engine Error', type: 'error'},
@@ -46,6 +53,13 @@ export function TerminalVN({
             ]);
         }
     }, [script]);
+
+    // Focus keyboard handler on mount
+    useEffect(() => {
+        if (keyboardRef.current) {
+            keyboardRef.current.focus();
+        }
+    }, []);
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -190,7 +204,7 @@ export function TerminalVN({
                 break;
 
             case 'choice':
-                // Filter options by condition
+                // Filter options to only those that are available
                 const availableOptions = (line.options || []).filter(opt =>
                     !opt.condition || evaluateCondition(opt.condition)
                 );
@@ -228,10 +242,16 @@ export function TerminalVN({
                 setIsTyping(false);
                 setLines(prev => [...prev, {text: fullText, type: 'dialogue'}]);
                 setCurrentText('');
-                setCurrentLineIndex(prev => prev + 1);
+
+                // In manual mode, wait for user to advance
+                if (manualMode) {
+                    setWaitingForNext(true);
+                } else {
+                    setCurrentLineIndex(prev => prev + 1);
+                }
             }
         }, typingSpeed);
-    }, [typingSpeed]);
+    }, [typingSpeed, manualMode]);
 
     // Skip typing animation
     const skipTyping = useCallback(() => {
@@ -245,10 +265,23 @@ export function TerminalVN({
                 setLines(prev => [...prev, {text: fullText, type: 'dialogue'}]);
                 setCurrentText('');
                 setIsTyping(false);
-                setCurrentLineIndex(prev => prev + 1);
+
+                if (manualMode) {
+                    setWaitingForNext(true);
+                } else {
+                    setCurrentLineIndex(prev => prev + 1);
+                }
             }
         }
-    }, [isTyping, parsedScript, currentNodeId, currentLineIndex]);
+    }, [isTyping, parsedScript, currentNodeId, currentLineIndex, manualMode]);
+
+    // Advance to next line (for manual mode)
+    const advanceNextLine = useCallback(() => {
+        if (waitingForNext) {
+            setWaitingForNext(false);
+            setCurrentLineIndex(prev => prev + 1);
+        }
+    }, [waitingForNext]);
 
     // Handle option selection
     const handleOptionSelect = useCallback((option: { text: string; target?: string; condition?: string }) => {
@@ -289,11 +322,13 @@ export function TerminalVN({
 
     // Process next line when ready
     useEffect(() => {
-        if (!isTyping && !showOptions && !waitingForInput && parsedScript) {
-            const timer = setTimeout(() => processNextLine(), 100);
+        if (!isTyping && !showOptions && !waitingForInput && !waitingForNext && parsedScript) {
+            const timer = setTimeout(() => {
+                processNextLine();
+            }, 100);
             return () => clearTimeout(timer);
         }
-    }, [isTyping, showOptions, waitingForInput, currentLineIndex, currentNodeId, parsedScript, processNextLine]);
+    }, [isTyping, showOptions, waitingForInput, waitingForNext, currentLineIndex, currentNodeId, parsedScript, processNextLine]);
 
     // Cleanup
     useEffect(() => {
@@ -309,19 +344,31 @@ export function TerminalVN({
             <div className="terminal-vn-header">
                 <div className="terminal-vn-title">
                     <span className="terminal-vn-prompt">$</span> VN_ENGINE v1.0.0
+                    <span style={{marginLeft: '10px', fontSize: '11px', opacity: 0.7}}>
+                        {manualMode ? '[MANUAL]' : '[AUTO]'}
+                    </span>
                 </div>
-                <div className="terminal-vn-controls">
+                <div className="terminal-vn-controls" style={{display: 'flex', gap: '8px'}}>
                     <button
                         className="terminal-vn-control-btn"
-                        onClick={() => setLines([])}
-                        title="Clear"
+                        onClick={() => setManualMode(!manualMode)}
+                        title={manualMode ? "Switch to Auto Mode" : "Switch to Manual Mode"}
+                        style={{opacity: manualMode ? 1 : 0.5}}
                     >
-                        ⎚
+                        {manualMode ? <Play size={16}/> : <Pause size={16}/>}
+                    </button>
+
+                    <button
+                        className="terminal-vn-control-btn"
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        title={isCollapsed ? "Expand" : "Collapse"}
+                    >
+                        {isCollapsed ? <ChevronDown size={16}/> : <ChevronUp size={16}/>}
                     </button>
                 </div>
             </div>
 
-            <div className="terminal-vn-body" ref={terminalRef}>
+            <div className="terminal-vn-body" ref={terminalRef} style={{display: isCollapsed ? 'none' : 'block'}}>
                 {lines.map((line, index) => (
                     <div key={index} className={`terminal-vn-line terminal-vn-line-${line.type}`}>
                         {line.text}
@@ -332,6 +379,18 @@ export function TerminalVN({
                     <div className="terminal-vn-line terminal-vn-line-dialogue terminal-vn-typing">
                         {currentText}
                         <span className="terminal-vn-cursor">▊</span>
+                    </div>
+                )}
+
+                {waitingForNext && !showOptions && (
+                    <div style={{marginTop: '10px', textAlign: 'center'}}>
+                        <button
+                            className="terminal-vn-option"
+                            onClick={advanceNextLine}
+                            style={{width: 'auto', padding: '8px 20px'}}
+                        >
+                            ▶ Continue [SPACE or ENTER]
+                        </button>
                     </div>
                 )}
 
@@ -370,26 +429,50 @@ export function TerminalVN({
                 )}
             </div>
 
-            {isTyping && (
+            {(isTyping || (manualMode && !isCollapsed)) && (
                 <div className="terminal-vn-footer">
-                    <button
-                        className="terminal-vn-skip-btn"
-                        onClick={skipTyping}
-                    >
-                        Press SPACE to skip
-                    </button>
+                    {isTyping ? (
+                        <button
+                            className="terminal-vn-skip-btn"
+                            onClick={skipTyping}
+                        >
+                            Press SPACE to skip
+                        </button>
+                    ) : (
+                        <div style={{fontSize: '11px', color: '#888'}}>
+                            [M] Toggle Manual | [C] Collapse | [SPACE/ENTER] Advance
+                        </div>
+                    )}
                 </div>
             )}
 
             {/* Keyboard shortcuts */}
             <div
+                ref={keyboardRef}
                 tabIndex={0}
                 onKeyDown={(e) => {
-                    if (e.key === ' ' && isTyping && !waitingForInput) {
+                    // Advance in manual mode
+                    if ((e.key === ' ' || e.key === 'Enter') && waitingForNext && !waitingForInput) {
+                        e.preventDefault();
+                        advanceNextLine();
+                    }
+                    // Skip typing
+                    else if (e.key === ' ' && isTyping && !waitingForInput) {
                         e.preventDefault();
                         skipTyping();
                     }
-                    if (e.key >= '1' && e.key <= '9' && showOptions) {
+                    // Toggle manual mode with M key
+                    else if (e.key === 'm' || e.key === 'M') {
+                        e.preventDefault();
+                        setManualMode(!manualMode);
+                    }
+                    // Toggle collapse with C key
+                    else if (e.key === 'c' || e.key === 'C') {
+                        e.preventDefault();
+                        setIsCollapsed(!isCollapsed);
+                    }
+                    // Number keys for choices
+                    else if (e.key >= '1' && e.key <= '9' && showOptions) {
                         const index = parseInt(e.key) - 1;
                         if (index < options.length) {
                             e.preventDefault();
@@ -397,7 +480,14 @@ export function TerminalVN({
                         }
                     }
                 }}
-                style={{position: 'absolute', opacity: 0, pointerEvents: 'none'}}
+                style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    top: 0,
+                    left: 0,
+                    outline: 'none'
+                }}
             />
         </div>
     );

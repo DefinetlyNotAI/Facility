@@ -60,6 +60,12 @@ export function parseVNScript(script: string): TerminalVNScript {
 
         // Skip empty lines and comments
         if (!line || line.startsWith('//') || line.startsWith('#')) {
+            // Close any pending choice block on empty lines
+            if (!line && currentChoice && currentNode) {
+                currentNode.lines.push(currentChoice);
+                currentChoice = null;
+            }
+
             // Check for metadata comments
             if (line.startsWith('# title:')) {
                 metadata.title = line.substring(8).trim();
@@ -73,8 +79,10 @@ export function parseVNScript(script: string): TerminalVNScript {
 
         // Node definition
         if (line.startsWith('@node ')) {
-            if (currentChoice) {
-                throw new VNParseError('Cannot start new node inside choice block', lineNumber);
+            // Close any pending choice block before starting new node
+            if (currentChoice && currentNode) {
+                currentNode.lines.push(currentChoice);
+                currentChoice = null;
             }
 
             const nodeId = line.substring(6).trim();
@@ -246,10 +254,19 @@ export function parseVNScript(script: string): TerminalVNScript {
         throw new VNParseError('Script must have a "start" node');
     }
 
-    return {
+    const parsedScript: TerminalVNScript = {
         metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
         nodes,
     };
+
+    // Validate the script for structural issues
+    const validation = validateScript(parsedScript);
+    if (!validation.valid) {
+        const errorMessages = validation.errors.join('\n');
+        throw new VNParseError(`Script validation failed:\n${errorMessages}`);
+    }
+
+    return parsedScript;
 }
 
 /**

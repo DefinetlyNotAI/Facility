@@ -27,7 +27,7 @@ export const specialVXText = {
 
 export const fileLinksVX = {
     V: {
-        Narrator: "/static/chapters/V/Narrator_I.txt",
+        Narrator: "/chapters/V/aStory",
         lost: [
             "/static/chapters/V/lost/CambiumKnothole.mp4", // cambiumKnotholeMP4
             "/static/chapters/V/lost/riddle.png", // riddlePNG
@@ -35,6 +35,6 @@ export const fileLinksVX = {
         ],
     },
     X: {
-        Narrator: "/static/chapters/X/Narrator_II.txt",
+        Narrator: "???",
     },
 }
