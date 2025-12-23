@@ -15,6 +15,6 @@ export default function ChapterXPage() {
             <ChapterTemplate
                 chapterId="X"
                 chapterData={chapterXData}
-                fileLink={fileLinksVX.X.Narrator}/></>
+                redirectLink={fileLinksVX.X.Narrator}/></>
     );
 }

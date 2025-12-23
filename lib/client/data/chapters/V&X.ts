@@ -28,14 +28,11 @@ export const specialVXText = {
 export const fileLinksVX = {
     V: {
         Narrator: "/static/chapters/V/Narrator_I.txt",
-        lost: {
-            cambiumKnotholeMP4: "/static/chapters/V/lost/CambiumKnothole.mp4",
-            riddlePNG: "/static/chapters/V/lost/riddle.png",
-            fryingAliveWAV: "/static/chapters/V/lost/fryingalive.wav",
-        },
-        tools: {
-            provideMeTheOilEXE: "/static/chapters/V/tools/Provide_Me_The_Oil.exe"
-        },
+        lost: [
+            "/static/chapters/V/lost/CambiumKnothole.mp4", // cambiumKnotholeMP4
+            "/static/chapters/V/lost/riddle.png", // riddlePNG
+            "/static/chapters/V/lost/fryingalive.wav" // fryingAliveWAV
+        ],
     },
     X: {
         Narrator: "/static/chapters/X/Narrator_II.txt",

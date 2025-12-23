@@ -28,5 +28,5 @@ export interface ChapterTemplateProps {
             questReminder: string;
         };
     };
-    fileLink: string;
+    redirectLink: string;
 }

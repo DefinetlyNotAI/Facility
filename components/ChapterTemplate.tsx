@@ -7,7 +7,7 @@ import {useEffect, useRef} from "react";
 import styles from "@/styles/ChaptersXandV.module.css";
 import {chapter} from "@/lib/client/data/chapters";
 
-export function ChapterTemplate({chapterId, chapterData, fileLink}: ChapterTemplateProps) {
+export function ChapterTemplate({chapterId, chapterData, redirectLink}: ChapterTemplateProps) {
     const {isCurrentlySolved} = useChapterAccess();
     const isAllFailed = useFailed(chapterId);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -145,7 +145,11 @@ export function ChapterTemplate({chapterId, chapterData, fileLink}: ChapterTempl
                 <p className={styles.quote}>{specialVXText.quote}</p>
 
                 <div style={{marginTop: "3rem"}}>
-                    <a href={fileLink} download aria-label="Narrator download" className={styles.downloadButton}>
+                    <a
+                        href={redirectLink}
+                        aria-label="See Me"
+                        className={styles.downloadButton}
+                    >
                         <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14m7-7H5"/>
                         </svg>
