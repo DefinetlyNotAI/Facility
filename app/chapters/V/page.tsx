@@ -30,7 +30,7 @@ export default function ChapterVPage() {
                 chapterData={chapterVData}
                 redirectLink={fileLinksVX.V.Narrator}/>
             <Button>
-                <a onClick={handleDownloadAll} href="#">Get the lost</a>
+                <a onClick={handleDownloadAll}>Get the lost</a>
             </Button>
         </>
     );
