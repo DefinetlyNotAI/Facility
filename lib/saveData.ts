@@ -169,7 +169,9 @@ export const routes = {
             entity: '/chapters/IV/puzzles/Entity',
             tree: '/chapters/IV/puzzles/TREE',
             tas: '/chapters/IV/puzzles/TAS',
-        }
+        },
+        V_aStory: "/chapters/V/aStory",
+        X_aStory: "/chapters/X_aStory",
     },
 }
 

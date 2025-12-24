@@ -5,11 +5,11 @@ import {cookies, routes} from "@/lib/saveData";
 import {useEffect} from "react";
 import Cookies from "js-cookie";
 
-function useChapterAccess(chapterKey: string) {
+function useChapterAccess(chapterKey: string, redirectSuccess?: string) {
     const router = useRouter();
 
     // Check succeeded state (optional, no redirect)
-    useActStateCheck(chapterKey, ActionState.Succeeded, routes.bonus.actID(chapterKey));
+    useActStateCheck(chapterKey, ActionState.Succeeded, redirectSuccess);
 
     // Redirect if not yet released
     useActStateCheck(chapterKey, ActionState.NotReleased, routes.bonus.notYet);
@@ -23,5 +23,6 @@ function useChapterAccess(chapterKey: string) {
 }
 
 // Specific hooks
-export const useChapter2Access = () => useChapterAccess("ii");
+export const useChapter2Access = () => useChapterAccess("ii", routes.bonus.actID("ii"));
 export const useChapter5Access = () => useChapterAccess("v");
+export const useChapter10Access = () => useChapterAccess("x");
