@@ -28,6 +28,7 @@ export interface TerminalVNScript {
         title?: string;
         author?: string;
         version?: string;
+        autoclear?: string | boolean;
     };
     nodes: Record<string, VNNode>;
 }
@@ -40,3 +41,10 @@ export interface TerminalVNProps {
     typingSpeed?: number;
     className?: string;
 }
+
+export type VFXEffect = {
+    name: string;
+    duration: number;
+    apply: (element: HTMLElement) => void;
+    cleanup?: (element: HTMLElement) => void;
+};

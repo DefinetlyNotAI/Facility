@@ -46,8 +46,6 @@ different insights.
 
 ## Variables
 
-- `playerAwareness`: Increases as you venture deeper (max: 2)
-- `secretsFound`: Tracks discovered secrets (max: 3)
 - `tabTitle`: Changes the browser tab title
 
 ## Endings

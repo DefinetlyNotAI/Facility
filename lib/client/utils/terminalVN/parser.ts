@@ -73,6 +73,8 @@ export function parseVNScript(script: string): TerminalVNScript {
                 metadata.author = line.substring(9).trim();
             } else if (line.startsWith('# version:')) {
                 metadata.version = line.substring(10).trim();
+            } else if (line.startsWith('# autoclear:')) {
+                metadata.autoclear = line.substring(12).trim();
             }
             continue;
         }

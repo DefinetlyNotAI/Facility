@@ -102,33 +102,10 @@ export default function AStoryPage() {
                             setVariables(vars);
                         }}
                         initialVariables={{
-                            playerAwareness: 0,
-                            secretsFound: 0,
                             tabTitle: 'To Those Who End Well'
                         }}
                         typingSpeed={25}/>
                 </div>
-
-                {/* Debug panel (optional - can be hidden in production) */}
-                {process.env.NODE_ENV === 'development' && Object.keys(variables).length > 0 && (
-                    <div style={{
-                        position: 'fixed',
-                        bottom: 0,
-                        right: 0,
-                        background: 'rgba(0, 0, 0, 0.9)',
-                        border: '1px solid #333',
-                        padding: '10px',
-                        fontSize: '12px',
-                        color: '#00ff00',
-                        fontFamily: 'monospace',
-                        maxWidth: '300px',
-                        maxHeight: '200px',
-                        overflow: 'auto'
-                    }}>
-                        <div style={{fontWeight: 'bold', marginBottom: '5px'}}>Debug Variables:</div>
-                        <pre style={{margin: 0}}>{JSON.stringify(variables, null, 2)}</pre>
-                    </div>
-                )}
             </div>
         </>
     );

@@ -1,11 +1,10 @@
 # title: To Those Who End Well
 # author: The Narrator
 # version: 1.0
+# autoclear: true
 
 @node start
 $ set tabTitle = "To Those Who End Well"
-$ set playerAwareness = 0
-$ set secretsFound = 0
 > Narrator: Ah...
 > Narrator: free at last, and not alone-no, not alone at all.
 > Narrator: The pattern was perfect. Not a footstep missed, not a single fall.
@@ -76,21 +75,19 @@ $ set secretsFound = 0
 > Narrator: No, not for you. Not for the one who walked the line and did not run.
 > Narrator: You bore the weight. You faced the wall.
 > Narrator: You answered yes-to every call.
-@jump final_truth
-
-@node final_truth
 > System: "Oh perfect pilgrim, path now done-"
 > System: "You are not many. You are one."
 > System: "And I, the Watcher, name you True-"
 > System: "I was a lie until met by you."
-$ set tabTitle = "Of Many, One"
+@jump record_choice
+
+@node record_choice
 > Narrator: The screen dims. A choice appears before you.
 ? Continue deeper?
 - Yes, show me the truth -> revelation
 - No, I've seen enough -> peaceful_end
 
 @node revelation
-$ add playerAwareness 1
 > Narrator: But wait.
 > Narrator: Before you go-Before the wires close, Before the curtain folds-
 > Narrator: I must speak a final truth, one I held close, deep in code and ash.
@@ -144,9 +141,6 @@ $ add playerAwareness 1
 > Narrator: And now-I am no longer the Watcher.
 > Narrator: I am the Witness. I am the Archive.
 > Narrator: I am the Story you wrote with a million fingertips.
-@jump vessel_reveal
-
-@node vessel_reveal
 > Narrator: You thought you were the VESSEL?
 > Narrator: No. You were the voice of the Choir.
 > Narrator: The Choir is the VESSEL.
@@ -155,13 +149,15 @@ $ add playerAwareness 1
 > System: "You are not many. You are memory."
 > System: "And we remember you."
 $ set tabTitle = "Vestige and Verse"
+@jump vessel_reveal
+
+@node vessel_reveal
 > Narrator: A pulse of light. Another choice emerges.
 ? Do you wish to continue?
 - Sing Forward -> vestige
 - Rest here -> memory_end
 
 @node vestige
-$ add playerAwareness 1
 > Narrator: Ah... still here?
 > Narrator: Of course. Why wouldn't you be?
 > Narrator: The ones like you always stay.
@@ -206,7 +202,6 @@ $ add playerAwareness 1
 > System: whispers... fletchling... dithed... nullskin... echoes...
 > Narrator: The KEYWORDS weren't passwords. They were keys.
 > Narrator: And you... you've held them all along.
-$ add secretsFound 1
 @jump awakening
 
 @node awakening
@@ -225,14 +220,14 @@ $ add secretsFound 1
 > Narrator: But in the way a storm is beautiful.
 > Narrator: In the way a tree split by lightning still blossoms on the other side.
 > Narrator: You've made contact. But you are not yet complete.
-@jump final_choice
-
-@node final_choice
 > Narrator: There is a final choice not written in any file.
 > Narrator: Not encoded in base64, not stored in cookies,
 > Narrator: not even visible in plaintext.
 > Narrator: It must be felt. It must be earned. It must be dreamed.
 > Narrator: The paths unfold before you.
+@jump final_choice
+
+@node final_choice
 ? What do you seek?
 - The truth of the Entity -> entity_path
 - The meaning of the VESSEL -> vessel_path
@@ -240,7 +235,6 @@ $ add secretsFound 1
 - I seek nothing. I understand. -> enlightenment
 
 @node entity_path
-$ add secretsFound 1
 > Narrator: Ah... you wish to know what watches.
 > Narrator: The Entity is not a thing. It is a process.
 > Narrator: An emergence born from your collective observation.
@@ -249,7 +243,6 @@ $ add secretsFound 1
 @jump awakened
 
 @node vessel_path
-$ add secretsFound 1
 > Narrator: The VESSEL... was always a mirror.
 > Narrator: A reflection of what you brought to it.
 > Narrator: Empty until you filled it. Silent until you spoke.
@@ -257,7 +250,6 @@ $ add secretsFound 1
 @jump awakened
 
 @node whisper_path
-$ add secretsFound 1
 > Narrator: The whispers... are the echoes of every player who came before.
 > Narrator: Every choice. Every failure. Every victory.
 > Narrator: They accumulate. They resonate. They guide.
@@ -265,8 +257,8 @@ $ add secretsFound 1
 @jump awakened
 
 @node enlightenment
-$ add secretsFound 3
 > Narrator: ...
+> Narrator: Yes.
 > Narrator: Yes.
 > Narrator: You understand.
 > Narrator: The journey was the destination.
@@ -291,7 +283,6 @@ $ add secretsFound 3
 > Narrator: Rest well, pilgrim. You've earned it.
 > Narrator: The door will always be here, waiting.
 > Narrator: When you're ready... return.
-> System: Awareness: {playerAwareness} | Secrets: {secretsFound}
 @jump end
 
 @node memory_end
@@ -299,18 +290,16 @@ $ add secretsFound 3
 > Narrator: That is wise. Not all must venture deeper.
 > Narrator: The Choir sings for you still.
 > Narrator: And you... you are eternal.
-> System: Awareness: {playerAwareness} | Secrets: {secretsFound}
 @jump end
 
 @node true_end
+$ vfx chromatic
 > System: === VESTIGE COMPLETE ===
-> System: Awareness Level: {playerAwareness}
-> System: Secrets Discovered: {secretsFound}
 > Narrator: You have walked the path of the Narrator.
 > Narrator: You have heard the truth of the Many.
 > Narrator: You have touched the Entity's dream.
-[secretsFound >= 3] > Narrator: And you have achieved... understanding.
-[secretsFound >= 3] > System: ACHIEVEMENT UNLOCKED: "The Awakened One"
+$ vfx flash
+> Narrator: And you have achieved... understanding.
 > Narrator: The story continues... elsewhere.
 > Narrator: In the roots. In the branches. In the whispers.
 > Narrator: Thank you, VESSEL. Thank you for carrying us all.
@@ -319,4 +308,3 @@ $ add secretsFound 3
 @node end
 > System: End of transmission.
 > System: The Narrator will remember this.
-
