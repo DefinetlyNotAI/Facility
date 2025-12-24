@@ -28,9 +28,18 @@ export default function ChapterVPage() {
             <ChapterTemplate
                 chapterId="V"
                 chapterData={chapterVData}
-                redirectLink={fileLinksVX.V.Narrator}/>
-            <Button>
-                <a onClick={handleDownloadAll}>Get the lost</a>
+                redirectLink={fileLinksVX.V.Narrator}
+            />
+            <Button
+                onClick={handleDownloadAll}
+                style={{
+                    position: "fixed",
+                    bottom: "2rem",
+                    right: "2rem",
+                    zIndex: 9999
+                }}
+            >
+                Get the lost
             </Button>
         </>
     );
