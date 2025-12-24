@@ -24,3 +24,4 @@ function useChapterAccess(chapterKey: string) {
 
 // Specific hooks
 export const useChapter2Access = () => useChapterAccess("ii");
+export const useChapter5Access = () => useChapterAccess("v");

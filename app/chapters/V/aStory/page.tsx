@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {TerminalVN} from '@/components/V&X/terminalVN';
 import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
+import {useChapter5Access} from "@/hooks/BonusActHooks/useChapterSpecialAccess";
 
 export default function AStoryPage() {
     const [script, setScript] = useState<string>('');
@@ -11,6 +12,7 @@ export default function AStoryPage() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.V);
+    useChapter5Access();
 
     useEffect(() => {
         // Load the VN script
