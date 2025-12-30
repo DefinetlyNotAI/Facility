@@ -8,7 +8,7 @@ export const successQuestNames: string[] = [
     "3:Clocks and Hands",
     "3:Registration",
     "Narrator: A Harbinger",
-    "He who lives in clocks",
+    "Those who wait are seen",
     "The timeline",
     "Bloom, Live and Die",
     "Philosophy",
