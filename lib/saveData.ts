@@ -263,6 +263,8 @@ export const localStorageKeys = {
     sessionId: "sessionId",
     // How many seconds survived in chapter VI
     chapterVISeconds: "chapterVISeconds",
+    // Side-puzzle solved flag for chapter VI
+    chapterVISidePuzzleSolved: "chapterVI-side-puzzle-solved",
     // Ban until timestamp for chapter VII timeline input
     chapterVIIUnbanDate: "timeline_ban_until",
     // Yearly progress for chapter VII timeline input (This will be a prefix, where there will be 5, one per year)
