@@ -22,9 +22,12 @@ export default function ChapterVIPage() {
 
     // New hold-to-wait puzzle state (patience-themed)
     const [holding, setHolding] = useState(false);
-    const [holdProgress, setHoldProgress] = useState(0); // 0..1
-    const holdStartRef = useRef<number | null>(null);
+    const [holdProgress, setHoldProgress] = useState(0); // 0..1 (derived from accumulatedSeconds)
+    // Track accumulated seconds toward the required hold time in a ref for accuracy across holds
+    const accumulatedRef = useRef<number>(0);
+    const accumulatedAtStartRef = useRef<number | null>(null);
     const lastTickRef = useRef<number | null>(null);
+    const holdPressedAtRef = useRef<number | null>(null); // per-press timestamp for accurate elapsed display
     const holdIntervalRef = useRef<number | null>(null);
     const [requiredHoldSeconds, setRequiredHoldSeconds] = useState(10); // seconds required to demonstrate patience (can increase with impatience)
     const [impatienceCount, setImpatienceCount] = useState(0);
@@ -120,60 +123,85 @@ export default function ChapterVIPage() {
     const startHold = () => {
         if (sideSolved) return;
         setSideFeedback(null);
-        // don't reset progress on every hold; patience can be built across multiple holds,
-        // but we track precise time while holding to avoid exploitation.
+        // mark the accumulated value at start so we can compute elapsed during this hold
+        accumulatedAtStartRef.current = accumulatedRef.current;
         setHolding(true);
-        holdStartRef.current = performance.now();
         lastTickRef.current = performance.now();
+        holdPressedAtRef.current = performance.now();
         if (holdIntervalRef.current) window.clearInterval(holdIntervalRef.current);
         holdIntervalRef.current = window.setInterval(() => {
             if (!lastTickRef.current) return;
             const now = performance.now();
             const delta = (now - lastTickRef.current) / 1000;
             lastTickRef.current = now;
-            setHoldProgress((prev) => {
-                const next = Math.min(prev + delta / requiredHoldSeconds, 1);
-                if (next >= 1) {
-                    // solved
-                    if (holdIntervalRef.current) {
-                        window.clearInterval(holdIntervalRef.current);
-                        holdIntervalRef.current = null;
-                    }
-                    setHolding(false);
-                    setSideFeedback('You finally waited. The prize is revealed.');
-                    setSideSolved(true);
-                    setShowSidePuzzle(false);
+            // add to accumulated seconds
+            accumulatedRef.current = Math.min(accumulatedRef.current + delta, requiredHoldSeconds);
+            const prog = Math.min(accumulatedRef.current / requiredHoldSeconds, 1);
+            setHoldProgress(prog);
+            if (accumulatedRef.current >= requiredHoldSeconds) {
+                // solved
+                if (holdIntervalRef.current) {
+                    window.clearInterval(holdIntervalRef.current);
+                    holdIntervalRef.current = null;
                 }
-                return next;
-            });
+                setHolding(false);
+                setSideFeedback('You finally waited. The prize is revealed.');
+                setSideSolved(true);
+                setShowSidePuzzle(false);
+            }
         }, 100);
     };
 
     const stopHold = () => {
+        // ignore duplicate calls if we're not currently holding
+        if (!holding) return;
         if (holdIntervalRef.current) {
             window.clearInterval(holdIntervalRef.current);
             holdIntervalRef.current = null;
         }
-        if (!holdStartRef.current) {
+        // If we never started properly, just reset UI
+        if (accumulatedAtStartRef.current === null) {
             setHolding(false);
             setHoldProgress(0);
             return;
         }
-        const elapsed = (performance.now() - holdStartRef.current) / 1000;
-        holdStartRef.current = null;
+
+        // compute elapsed during this hold by checking accumulated seconds since start
+        const started = accumulatedAtStartRef.current ?? 0;
+        const elapsed = accumulatedRef.current - started;
+        // use a per-press timestamp to show the actual time the user held this press
+        const perHoldElapsed = holdPressedAtRef.current ? (performance.now() - holdPressedAtRef.current) / 1000 : elapsed;
+        accumulatedAtStartRef.current = null;
         lastTickRef.current = null;
         setHolding(false);
-        if (holdProgress < 1) {
-            // Premature release: penalize progress and increase required time slightly to simulate "harder to be patient"
-            setImpatienceCount((c) => {
-                const next = c + 1;
-                // increase difficulty up to +5s max
-                setRequiredHoldSeconds((prev) => Math.min(10, prev + 1));
-                return next;
-            });
-            setHoldProgress((p) => Math.max(0, p - 0.25));
-            setSideFeedback(`You released early after ${elapsed.toFixed(1)}s. Progress regresses and patience becomes harder.`);
+
+        if (accumulatedRef.current >= requiredHoldSeconds) {
+            // already handled in interval, but guard
+            setSideFeedback('You finally waited. The prize is revealed.');
+            setSideSolved(true);
+            setShowSidePuzzle(false);
+            // clear per-press refs
+            accumulatedAtStartRef.current = null;
+            holdPressedAtRef.current = null;
+            return;
         }
+
+        if (elapsed <= 0) {
+            // very short/zero hold — use per-hold elapsed for message
+            setSideFeedback(`You released immediately after ${perHoldElapsed.toFixed(1)}s. Try holding until the progress fills.`);
+            return;
+        }
+
+        // Premature release: penalize progress and increase required time slightly to simulate "harder to be patient"
+        setImpatienceCount((c) => c + 1);
+        setRequiredHoldSeconds((prev) => Math.min(10, prev + 1));
+
+        // regress accumulated time by 25% of the required seconds (not of progress) to scale with difficulty
+        accumulatedRef.current = Math.max(0, accumulatedRef.current - requiredHoldSeconds * 0.25);
+        const prog = Math.max(0, accumulatedRef.current / requiredHoldSeconds);
+        setHoldProgress(prog);
+        setSideFeedback(`You released early after ${perHoldElapsed.toFixed(1)}s. Progress regresses and patience becomes harder.`);
+        holdPressedAtRef.current = null;
     };
 
     // Passive decay when not holding: gentle regression to encourage continuous patience
@@ -181,10 +209,13 @@ export default function ChapterVIPage() {
         if (!showSidePuzzle) return;
         if (holding) return;
         const decay = window.setInterval(() => {
-            setHoldProgress((p) => Math.max(0, p - 0.02));
+            // decay a small amount of accumulated seconds
+            accumulatedRef.current = Math.max(0, accumulatedRef.current - 0.15);
+            const prog = Math.max(0, accumulatedRef.current / requiredHoldSeconds);
+            setHoldProgress(prog);
         }, 400);
         return () => window.clearInterval(decay);
-    }, [showSidePuzzle, holding]);
+    }, [showSidePuzzle, holding, requiredHoldSeconds]);
 
     // cleanup intervals on unmount
     useEffect(() => {
@@ -231,6 +262,9 @@ export default function ChapterVIPage() {
                                 onPointerUp={stopHold}
                                 onPointerCancel={stopHold}
                                 onPointerLeave={stopHold}
+                                onTouchStart={startHold}
+                                onTouchEnd={stopHold}
+                                onTouchCancel={stopHold}
                                 onKeyDown={(e) => {
                                     if (e.key === ' ' || e.key === 'Enter') {
                                         e.preventDefault();
@@ -244,7 +278,7 @@ export default function ChapterVIPage() {
                                     }
                                 }}
                                 aria-pressed={holding}
-                                style={{padding: '10px 14px', fontWeight: 700, cursor: 'pointer'}}
+                                style={{padding: '10px 14px', fontWeight: 700, cursor: 'pointer', touchAction: 'none'}}
                             >
                                 {holding ? 'Holding…' : 'Hold to wait'}
                             </button>
@@ -263,7 +297,7 @@ export default function ChapterVIPage() {
                                     }}/>
                                 </div>
                                 <div style={{fontSize: '.8rem', opacity: 0.85, marginTop: 6}}>
-                                    {Math.round(holdProgress * requiredHoldSeconds * 10) / 10}/{requiredHoldSeconds}s
+                                    {Math.round(accumulatedRef.current * 10) / 10}/{requiredHoldSeconds}s
                                 </div>
                             </div>
                         </div>
@@ -272,6 +306,9 @@ export default function ChapterVIPage() {
                             <button type="button" onClick={() => {
                                 setShowSidePuzzle(false);
                                 setSideFeedback(null);
+                                accumulatedRef.current = 0;
+                                accumulatedAtStartRef.current = null;
+                                holdPressedAtRef.current = null;
                                 setHoldProgress(0);
                             }} style={{padding: '6px 10px'}}>Close
                             </button>
