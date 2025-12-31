@@ -13,7 +13,7 @@ export const chapterVIIData: ChapterVIIData = {
     banMinutes: 5,
     witnessPhase: {
         title: "WITNESS THE TIMELINE",
-        instruction: "Before you may alter the timeline, you must first prove you can WITNESS it. Observe the events below. Count how many contain the digit 7. Enter that count to proceed.",
+        instruction: "Before you may alter the timeline, you must first prove you can WITNESS it - For today's word of the day is WITNESS. Observe the events below. Count how many contain the digit 7. Enter that count to proceed.",
         events: [
             "1947 - The Roswell incident occurs",
             "1963 - President Kennedy assassinated",
