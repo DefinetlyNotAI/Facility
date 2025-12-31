@@ -83,8 +83,7 @@ export default function TimelinePage() {
 
     const handleWitnessSubmit = () => {
         const parsed = parseInt(witnessInput.trim());
-        // Count years containing digit 7: 1947, 1977, 1997, 2007, 2017 = 5
-        if (parsed === 5) {
+        if (parsed === 1) {
             localStorage.setItem(localStorageKeys.chapterVIIWitnessComplete, "true");
             setWitnessComplete(true);
             setWitnessError(null);
