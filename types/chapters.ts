@@ -17,6 +17,15 @@ export type ChapterVIIData = {
     banActive: (time: Date) => string;
     banTrigger: (time: Date) => string;
     banMinutes: number;
+    witnessPhase: {
+        title: string;
+        instruction: string;
+        events: string[];
+        inputPlaceholder: string;
+        submit: string;
+        error: string;
+        hint: string;
+    };
 };
 
 export interface ChapterTemplateProps {

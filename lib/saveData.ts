@@ -267,6 +267,8 @@ export const localStorageKeys = {
     chapterVISidePuzzleSolved: "chapterVI-side-puzzle-solved",
     // Ban until timestamp for chapter VII timeline input
     chapterVIIUnbanDate: "timeline_ban_until",
+    // Witness phase completion for chapter VII
+    chapterVIIWitnessComplete: "timeline_witness_complete",
     // Yearly progress for chapter VII timeline input (This will be a prefix, where there will be 5, one per year)
     logCreationDateStore: (year: number) => `year_${year}_found`,
     // Chapter VIII progression tokens - LocalStorage keys that show what user has done in chapter VIII

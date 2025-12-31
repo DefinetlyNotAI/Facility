@@ -16,6 +16,9 @@ export default function TimelinePage() {
     const [years, setYears] = useState<number[]>([]);
     const [yearTotals, setYearTotals] = useState<Record<number, number>>({});
     const [loading, setLoading] = useState(true);
+    const [witnessComplete, setWitnessComplete] = useState(false);
+    const [witnessInput, setWitnessInput] = useState("");
+    const [witnessError, setWitnessError] = useState<string | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
     usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BONUS.VII);
@@ -40,6 +43,10 @@ export default function TimelinePage() {
     // Load progress and check completion immediately on mount
     useEffect(() => {
         if (years.length === 0) return;
+
+        // Check witness phase completion
+        const witnessCompleted = localStorage.getItem(localStorageKeys.chapterVIIWitnessComplete) === "true";
+        setWitnessComplete(witnessCompleted);
 
         const storedProgress: Record<number, number[]> = {};
         years.forEach(year => {
@@ -73,6 +80,18 @@ export default function TimelinePage() {
             else setCurrentYearIndex(newIndex);
         }
     }, [yearProgress, currentYearIndex, isCurrentlySolved, years, yearTotals]);
+
+    const handleWitnessSubmit = () => {
+        const parsed = parseInt(witnessInput.trim());
+        // Count years containing digit 7: 1947, 1977, 1997, 2007, 2017 = 5
+        if (parsed === 5) {
+            localStorage.setItem(localStorageKeys.chapterVIIWitnessComplete, "true");
+            setWitnessComplete(true);
+            setWitnessError(null);
+        } else {
+            setWitnessError(chapterVIIData.witnessPhase.error);
+        }
+    };
 
     const handleSubmit = async () => {
         if (isCurrentlySolved) return;
@@ -148,6 +167,47 @@ export default function TimelinePage() {
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="text-white font-mono text-center">{chapterVIIData.solved}</div>
             </div>
+        );
+    }
+
+    // Show witness phase if not yet completed
+    if (!witnessComplete) {
+        return (
+            <>
+                <audio ref={audioRef} src={BACKGROUND_AUDIO.BONUS.VII} loop preload="auto" style={{display: 'none'}}/>
+                <div
+                    className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-white font-mono">
+                    <div className="max-w-2xl w-full">
+                        <h1 className="text-2xl mb-6 text-center text-yellow-400">{chapterVIIData.witnessPhase.title}</h1>
+                        <p className="mb-8 text-center">{chapterVIIData.witnessPhase.instruction}</p>
+
+                        <div className="bg-gray-900 p-6 mb-6 border border-gray-700">
+                            {chapterVIIData.witnessPhase.events.map((event, idx) => (
+                                <div key={idx} className="mb-2 text-sm">
+                                    {event}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                            <input
+                                type="text"
+                                value={witnessInput}
+                                onChange={e => setWitnessInput(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleWitnessSubmit()}
+                                className="p-2 text-black w-64 mb-2"
+                                placeholder={chapterVIIData.witnessPhase.inputPlaceholder}
+                            />
+                            <button onClick={handleWitnessSubmit} className="bg-white text-black px-6 py-2 mb-4">
+                                {chapterVIIData.witnessPhase.submit}
+                            </button>
+
+                            {witnessError && <div className="text-red-500 mb-2">{witnessError}</div>}
+                            <div className="text-xs text-gray-500 mt-4">{chapterVIIData.witnessPhase.hint}</div>
+                        </div>
+                    </div>
+                </div>
+            </>
         );
     }
 
