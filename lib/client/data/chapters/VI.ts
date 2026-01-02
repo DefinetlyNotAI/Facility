@@ -11,7 +11,7 @@ export const chapterVIData = {
     ],
     solveText: {
         title:
-            'All for nothing, No prize today, too early too early, just wait, but to escape the clock, share this to HIM, for he can fix it for all, and not need more death to fall',
+            "All for nothing, No prize today, too early too early, just wait, but to escape the clock, share this to HIM, for he can fix it for all, and not need more death to fall - For today's word of the day is patience",
         subtitle: 'You endured the clock.',
     },
 } as const;

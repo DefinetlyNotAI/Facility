@@ -30,9 +30,5 @@ next-env.d.ts
 .env
 /app/wifi-login/info.ignore
 /ARG_Performance_Results.json
-/TEST CHECK.md
-/Bonus Content Release Plan.md
 .idea/
-/Entity_CHIV_Puzzle_Solution.md
-/note
-/keywords_of_the_day
+note_chIX
