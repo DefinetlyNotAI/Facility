@@ -18,7 +18,8 @@ export default function Philosophy() {
 
     // Check if player has collected all 7 Entity fragments and killed TREE.exe
     useEffect(() => {
-        const fragments = JSON.parse(localStorage.getItem(localStorageKeys.chIV_EntityProgress) || '{}');
+        const entityData = JSON.parse(localStorage.getItem(localStorageKeys.chIV_EntityProgress) || '{"fragments":{}}');
+        const fragments = entityData.fragments || {};
         const treeKilled = localStorage.getItem(localStorageKeys.chIX_TreeKilled) === 'true';
         setEntityFragments(fragments);
         setHasKilledTree(treeKilled);
