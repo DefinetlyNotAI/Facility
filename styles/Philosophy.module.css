@@ -258,3 +258,71 @@
         text-shadow: 0 0 25px #33ff66;
     }
 }
+
+.pilgrimageText {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    text-align: center;
+}
+
+.redGlitch {
+    position: relative;
+    color: #ff3333;
+    font-weight: bold;
+    font-size: 1.3em;
+    letter-spacing: 0.1em;
+    animation: redFlicker 2s infinite;
+}
+
+.redGlitch::before,
+.redGlitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.redGlitch::before {
+    left: 2px;
+    text-shadow: -2px 0 #ff0000;
+    animation: glitchTop 2s infinite linear alternate-reverse;
+}
+
+.redGlitch::after {
+    left: -2px;
+    text-shadow: 2px 0 #aa0000;
+    animation: glitchBottom 2.5s infinite linear alternate-reverse;
+}
+
+.yellowGlitch {
+    position: relative;
+    color: #ffaa00;
+    font-weight: bold;
+    font-size: 1.15em;
+    letter-spacing: 0.05em;
+}
+
+.yellowGlitch::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    width: 100%;
+    overflow: hidden;
+    left: 1px;
+    text-shadow: -1px 0 #ffdd00;
+    animation: glitchTop 3s infinite linear alternate-reverse;
+}
+
+@keyframes redFlicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 10px #ff3333;
+    }
+    20%, 24%, 55% {
+        opacity: 0.6;
+        text-shadow: 0 0 5px #ff3333;
+    }
+}
+

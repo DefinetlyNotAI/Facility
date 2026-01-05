@@ -285,6 +285,8 @@ export const localStorageKeys = {
     chIV_TREEProgress: "chapterIV-TREE-progress",
     // Chapter IV progress storage key (For Entity Puzzle)
     chIV_EntityProgress: "chapterIV-Entity-progress",
+    // Chapter IX progress storage key (For tracking if TREE.exe was killed)
+    chIX_TreeKilled: "chapterIX-TreeKilled",
 }
 
 // Keys for items to be checked via hash

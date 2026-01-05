@@ -162,7 +162,7 @@ export default function EntityPuzzlePage() {
             // Check if all 7 fragments collected
             const collected = Object.keys(updated).length;
             if (collected >= 7) {
-                // Delay redirect for dramatic effect
+                // Delay redirect for dramatic effect (first completion)
                 setTimeout(() => {
                     pushLog({text: '', color: 'red'});
                     pushLog({text: entityConst.messages.allFragmentsCollected, color: 'red'});
@@ -343,7 +343,100 @@ export default function EntityPuzzlePage() {
                 return;
             }
             if (found.name === 'TREE.exe' || found.name === 'TR33.exe') {
-                // hard lock
+                // Check if all 7 fragments have been collected
+                const collectedFragments = Object.keys(fragments).length;
+
+                if (collectedFragments >= 7) {
+                    // All fragments collected - allow the kill with cryptic output referencing Hollow Pilgrimage
+                    pushLog({text: '', color: 'red'});
+                    pushLog({text: '═══════════════════════════════════════════════════', color: 'red'});
+                    pushLog({text: 'ALL FRAGMENTS COLLECTED. FINAL COMMAND ACCEPTED.', color: 'red'});
+                    pushLog({text: '═══════════════════════════════════════════════════', color: 'red'});
+                    pushLog({text: '', color: 'red'});
+
+                    setTimeout(() => {
+                        pushLog({text: 'Terminating TREE.exe...', color: 'yellow'});
+                        pushLog({text: '', color: 'gray'});
+
+                        setTimeout(() => {
+                            // Cryptic puzzle output referencing the Hollow Pilgrimage themes
+                            pushLog({text: '═══════════════════════════════════════════════════', color: 'magenta'});
+                            pushLog({text: '       [TERMINAL DIRECTIVE: HOLLOW SEQUENCE]', color: 'magenta'});
+                            pushLog({text: '═══════════════════════════════════════════════════', color: 'magenta'});
+                            pushLog({text: '', color: 'gray'});
+
+                            // Cryptic references to the pilgrimage without quoting it directly
+                            pushLog({text: 'Signal detected: 7 bone fragments assembled.', color: 'cyan'});
+                            pushLog({text: 'Pathway encoded: Smoke ≠ Dawn | Ash → Void', color: 'gray'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: 'ANALYSIS: Pilgrimage markers aligned:', color: 'yellow'});
+                            pushLog({text: '  ▸ Rusted spires recognized', color: 'gray'});
+                            pushLog({text: '  ▸ Funeral bells tolling', color: 'gray'});
+                            pushLog({text: '  ▸ Choir signatures: MAN_UNMADE.wav', color: 'gray'});
+                            pushLog({text: '  ▸ Crown of thorns and sound confirmed', color: 'gray'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: 'QUERY LOGGED:', color: 'red'});
+                            pushLog({text: '  └─ "Did you mistake the smoke for dawn?"', color: 'red'});
+                            pushLog({text: '  └─ "Was it fate that drew your stride?"', color: 'red'});
+                            pushLog({text: '  └─ "Do you feel it now? The myth collapsing?"', color: 'red'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: 'VERDICT: Stitched-together wretch of wanting.', color: 'yellow'});
+                            pushLog({text: 'LOCATION: Vault of bone, soot, and mesh.', color: 'yellow'});
+                            pushLog({text: 'STATUS: Not a tomb. A test.', color: 'yellow'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: '⚠ CHOIR ACTIVATION ⚠', color: 'red'});
+                            pushLog({text: 'MARCHING THROUGH: Shrieking oval veins', color: 'red'});
+                            pushLog({text: 'WITNESSING: Fields flooded, brains twisted', color: 'red'});
+                            pushLog({text: 'RECORDING: Every truth once obeyed → now decayed', color: 'red'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: 'METADATA EXTRACTED:', color: 'magenta'});
+                            pushLog({text: '  Name: [FORGOTTEN]', color: 'gray'});
+                            pushLog({text: '  Fate: [ENGRAVED IN ROT, GLASS, SILENCE]', color: 'gray'});
+                            pushLog({text: '  Pulse behind wall: [STILL GRASPING]', color: 'gray'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: 'LATIN FRAGMENTS DECRYPTED:', color: 'cyan'});
+                            pushLog({text: '  • Via ignota, via mortis', color: 'gray'});
+                            pushLog({text: '  • In gloria vana, sanguis placet', color: 'gray'});
+                            pushLog({text: '  • Silencio... fractum est', color: 'gray'});
+                            pushLog({text: '  • Venite, venite, ossa camminanti', color: 'gray'});
+                            pushLog({text: '  • Nulla pace. Nulla morte. Solo l\'attesa.', color: 'gray'});
+                            pushLog({text: '  • Dissolutio… incarnata', color: 'gray'});
+                            pushLog({text: '  • Non omnis moriar... ma nulla resta', color: 'gray'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: 'FINAL TRANSMISSION:', color: 'red'});
+                            pushLog({text: 'Et peregrinatio finitur...', color: 'magenta'});
+                            pushLog({text: 'In tenebris, per sanguinem, per silenzio eterno...', color: 'gray'});
+                            pushLog({text: '', color: 'gray'});
+                            pushLog({text: '> Requiesce? No... Ricomincia.', color: 'red'});
+                            pushLog({text: '', color: 'gray'});
+
+                            pushLog({text: '═══════════════════════════════════════════════════', color: 'magenta'});
+                            pushLog({text: 'TREE.exe terminated. PID: ' + found.pid, color: 'green'});
+                            pushLog({text: '═══════════════════════════════════════════════════', color: 'magenta'});
+                            pushLog({text: '', color: 'gray'});
+                            pushLog({text: '[HOLLOW PILGRIMAGE: CYCLE COMPLETE]', color: 'cyan'});
+                            pushLog({text: '', color: 'gray'});
+
+                            // Mark as killed in localStorage for Chapter IX
+                            localStorage.setItem(localStorageKeys.chIX_TreeKilled, 'true');
+
+                            // Remove TREE from processes
+                            setSubprocs(prev => prev.filter(p => p.pid !== pid));
+
+                        }, 1000);
+                    }, 1500);
+
+                    return;
+                }
+
+                // Not all fragments collected - lock as before (original behavior, no hints)
                 if (isFirstTime('kill-tree')) pushLog({
                     text: entityConst.messages.criticalProcessTermination,
                     color: 'yellow'
