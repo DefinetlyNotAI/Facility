@@ -44,6 +44,7 @@ export default function Philosophy() {
     // Check if all 7 fragments collected
     const allFragmentsCollected = Object.keys(entityFragments).length >= 7;
     const needsToKillTree = allFragmentsCollected && !hasKilledTree;
+    const missingFragments = !allFragmentsCollected;
 
     return (
         <>
@@ -56,7 +57,23 @@ export default function Philosophy() {
                     {chapterIXData.title}
                 </h1>
 
-                {needsToKillTree ? (
+                {missingFragments ? (
+                    <div className={styles.text}>
+                        <p className={styles.pilgrimageText}>
+                            <span style={{color: '#888'}}>
+                                You feel you are missing some fragments...<br/>
+                                <br/>
+                            </span>
+                            <span style={{color: '#ff8844'}}>
+                                Maybe you should go back to your future self?<br/>
+                            </span>
+                            <br/>
+                            <span style={{color: '#666', fontSize: '0.9em', fontStyle: 'italic'}}>
+                                ({Object.keys(entityFragments).length}/7 fragments collected)
+                            </span>
+                        </p>
+                    </div>
+                ) : needsToKillTree ? (
                     <div className={styles.text}>
                         <p className={styles.pilgrimageText}>
                             <span className={styles.redGlitch} data-text="THE HOLLOW SEQUENCE AWAITS">THE HOLLOW SEQUENCE AWAITS</span>
