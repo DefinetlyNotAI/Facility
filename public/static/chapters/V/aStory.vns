@@ -224,10 +224,10 @@ $ set tabTitle = "Vestige and Verse"
 > Narrator: Not encoded in base64, not stored in cookies,
 > Narrator: not even visible in plaintext.
 > Narrator: It must be felt. It must be earned. It must be dreamed.
-> Narrator: The paths unfold before you.
 @jump final_choice
 
 @node final_choice
+> Narrator: The paths unfold before you.
 ? What do you seek?
 - The truth of the Entity -> entity_path
 - The meaning of the VESSEL -> vessel_path
