@@ -574,65 +574,67 @@ export function TerminalVN({
                 }}
             />
 
-            <div className={`${styles['terminal-vn']} ${className}`} ref={vfxRef}>
-                {/* Debug Panel - Top Right */}
-                <div className={styles['terminal-vn-debug-panel']}>
-                    <div className={styles['terminal-vn-debug-header']}>
-                        <div className={styles['terminal-vn-debug-title']}>Debug</div>
-                        <button
-                            className={styles['terminal-vn-debug-toggle']}
-                            onClick={() => setDebugCollapsed(!debugCollapsed)}
-                            title={debugCollapsed ? "Expand Debug" : "Collapse Debug"}
-                        >
-                            {debugCollapsed ? <ChevronDown size={14}/> : <ChevronUp size={14}/>}
-                        </button>
-                    </div>
-                    {!debugCollapsed && (
-                        <div className={styles['terminal-vn-debug-content']}>
-                            <div className={styles['terminal-vn-debug-item']}>
-                                <span className={styles['terminal-vn-debug-label']}>Node:</span>
-                                <span className={styles['terminal-vn-debug-value']}>{currentNodeId}</span>
-                            </div>
-                            <div className={styles['terminal-vn-debug-item']}>
-                                <span className={styles['terminal-vn-debug-label']}>Line:</span>
-                                <span className={styles['terminal-vn-debug-value']}>{currentLineIndex}</span>
-                            </div>
-                            <div className={styles['terminal-vn-debug-item']}>
-                                <span className={styles['terminal-vn-debug-label']}>Mode:</span>
-                                <span
-                                    className={styles['terminal-vn-debug-value']}>{manualMode ? 'Manual' : 'Auto'}</span>
-                            </div>
-                            <div className={styles['terminal-vn-debug-item']}>
-                                <span className={styles['terminal-vn-debug-label']}>Typing:</span>
-                                <span className={styles['terminal-vn-debug-value']}>{isTyping ? 'Yes' : 'No'}</span>
-                            </div>
-                            <div className={styles['terminal-vn-debug-item']}>
-                                <span className={styles['terminal-vn-debug-label']}>Waiting:</span>
-                                <span
-                                    className={styles['terminal-vn-debug-value']}>{waitingForNext ? 'Yes' : 'No'}</span>
-                            </div>
-                            <div className={styles['terminal-vn-debug-item']}>
-                                <span className={styles['terminal-vn-debug-label']}>Auto Delay:</span>
-                                <span
-                                    className={styles['terminal-vn-debug-value']}>{waitingForAuto ? 'Yes' : 'No'}</span>
-                            </div>
-                            {Object.keys(variables).length > 0 && (
-                                <>
-                                    <div className={styles['terminal-vn-debug-divider']}></div>
-                                    <div className={styles['terminal-vn-debug-section']}>Variables:</div>
-                                    {Object.entries(variables).map(([key, value]) => (
-                                        <div key={key} className={styles['terminal-vn-debug-item']}>
-                                            <span className={styles['terminal-vn-debug-label']}>{key}:</span>
-                                            <span className={styles['terminal-vn-debug-value']}>
-                                                {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </>
-                            )}
+            <div className={`${styles['terminal-vn']} ${className}`} ref={vfxRef}>{
+                /* Debug Panel - Top Right */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div className={styles['terminal-vn-debug-panel']}>
+                        <div className={styles['terminal-vn-debug-header']}>
+                            <div className={styles['terminal-vn-debug-title']}>Debug</div>
+                            <button
+                                className={styles['terminal-vn-debug-toggle']}
+                                onClick={() => setDebugCollapsed(!debugCollapsed)}
+                                title={debugCollapsed ? "Expand Debug" : "Collapse Debug"}
+                            >
+                                {debugCollapsed ? <ChevronDown size={14}/> : <ChevronUp size={14}/>}
+                            </button>
                         </div>
-                    )}
-                </div>
+                        {!debugCollapsed && (
+                            <div className={styles['terminal-vn-debug-content']}>
+                                <div className={styles['terminal-vn-debug-item']}>
+                                    <span className={styles['terminal-vn-debug-label']}>Node:</span>
+                                    <span className={styles['terminal-vn-debug-value']}>{currentNodeId}</span>
+                                </div>
+                                <div className={styles['terminal-vn-debug-item']}>
+                                    <span className={styles['terminal-vn-debug-label']}>Line:</span>
+                                    <span className={styles['terminal-vn-debug-value']}>{currentLineIndex}</span>
+                                </div>
+                                <div className={styles['terminal-vn-debug-item']}>
+                                    <span className={styles['terminal-vn-debug-label']}>Mode:</span>
+                                    <span
+                                        className={styles['terminal-vn-debug-value']}>{manualMode ? 'Manual' : 'Auto'}</span>
+                                </div>
+                                <div className={styles['terminal-vn-debug-item']}>
+                                    <span className={styles['terminal-vn-debug-label']}>Typing:</span>
+                                    <span className={styles['terminal-vn-debug-value']}>{isTyping ? 'Yes' : 'No'}</span>
+                                </div>
+                                <div className={styles['terminal-vn-debug-item']}>
+                                    <span className={styles['terminal-vn-debug-label']}>Waiting:</span>
+                                    <span
+                                        className={styles['terminal-vn-debug-value']}>{waitingForNext ? 'Yes' : 'No'}</span>
+                                </div>
+                                <div className={styles['terminal-vn-debug-item']}>
+                                    <span className={styles['terminal-vn-debug-label']}>Auto Delay:</span>
+                                    <span
+                                        className={styles['terminal-vn-debug-value']}>{waitingForAuto ? 'Yes' : 'No'}</span>
+                                </div>
+                                {Object.keys(variables).length > 0 && (
+                                    <>
+                                        <div className={styles['terminal-vn-debug-divider']}></div>
+                                        <div className={styles['terminal-vn-debug-section']}>Variables:</div>
+                                        {Object.entries(variables).map(([key, value]) => (
+                                            <div key={key} className={styles['terminal-vn-debug-item']}>
+                                                <span className={styles['terminal-vn-debug-label']}>{key}:</span>
+                                                <span className={styles['terminal-vn-debug-value']}>
+                                                    {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {hasError && (
                     <div className={styles['terminal-vn-header']}>
