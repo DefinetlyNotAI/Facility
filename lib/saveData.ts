@@ -144,6 +144,7 @@ export const routes = {
     codex: "/codex",
     saveFile: "/save-file",
     whiteroom: "/whiteroom",
+    clickMe: "/click-me",
     bonus: {
         main: "/chapters",
         notYet: "/chapters/not_yet_child",

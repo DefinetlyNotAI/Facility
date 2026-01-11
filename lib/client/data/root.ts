@@ -18,6 +18,7 @@ export const tabTitles: Record<string, string> = {
     [routes.bonus.locked]: "A locked door",
     [routes.bonus.noTime]: "A broken down door, time the perpetrator",
     [routes.whiteroom]: "The Moonlight's room",
+    [routes.clickMe]: "click",
     [routes.bonus.chapterIVSpecial.tas]: "TREE ASSISTANCE SYSTEM",
     [routes.bonus.chapterIVSpecial.entity]: "TR33.exe",
     [routes.bonus.chapterIVSpecial.tree]: "Grow little TREE",
