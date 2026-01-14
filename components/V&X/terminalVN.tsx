@@ -4,7 +4,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import type {TerminalVNProps, TerminalVNScript} from '@/types';
 import {parseVNScript} from '@/lib/client/utils';
 import styles from '@/styles/terminal-vn.module.css';
-import '@/styles/vfx.module.css';
+import '@/styles/vfx.css';
 import {ChevronDown, ChevronUp, History, Menu, Pause, Play} from "lucide-react";
 import {applyVFX, parseVFXCommand} from '@/lib/client/utils/terminalVN/vfx';
 import {useRouter} from 'next/navigation';

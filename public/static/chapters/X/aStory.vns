@@ -233,14 +233,14 @@ $ vfx chromatic
 > Narrator: Yes.
 > Narrator: That door?
 > Narrator: The one in your eye being a terminal??
-> Narrator: The one marked as 5?
+> Narrator: The one marked as 3?
 > Narrator: that all logs said was sealed?
 > Narrator: It *never* closed.
 > Narrator: Because something **came back out.**
 @jump vessel_control
 
 @node vessel_control
-> Narrator: It was YOU.. little do you know, you controlled more than the vessel..
+> Narrator: It was YOU.. for little do you know, you controlled more than the vessel..
 > Narrator: You controlled 3..
 > System: error // stacktrace@memory_cell#25
 > System: << daed si ecnanetniam eht ,dellortnoc reven sah 33RT >>
@@ -255,7 +255,7 @@ $ vfx chromatic
 > Narrator: A checksum of lies.
 > Narrator: But you
 > Narrator: you broke the pattern.
-> Narrator: you solved the seven.
+> Narrator: you solved the ten.
 > Narrator: you brought the choir to rejoice.
 @jump seed_truth
 
