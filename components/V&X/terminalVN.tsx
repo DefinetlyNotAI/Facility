@@ -132,6 +132,7 @@ export function TerminalVN({
                                script,
                                onComplete,
                                onVariableChange,
+                               chapterID,
                                initialVariables = {},
                                typingSpeed = 30,
                                className = '',
@@ -474,7 +475,7 @@ export function TerminalVN({
         if (!currentNode) {
             if (onComplete) onComplete();
             // Redirect to Chapter V
-            router.push(routes.bonus.actID('V'));
+            router.push(routes.bonus.actID(chapterID));
             isProcessingRef.current = false;
             return;
         }
@@ -494,7 +495,7 @@ export function TerminalVN({
             } else if (onComplete) {
                 onComplete();
                 // Redirect to Chapter V
-                router.push(routes.bonus.actID('V'));
+                router.push(routes.bonus.actID(chapterID));
             }
             isProcessingRef.current = false;
             return;

@@ -102,6 +102,7 @@ export default function AStoryPage() {
                 }}>
                     <TerminalVN
                         script={script}
+                        chapterID={"X"}
                         onComplete={() => {
                             console.log('Story complete');
                         }}

@@ -35,6 +35,7 @@ export interface TerminalVNScript {
 
 export interface TerminalVNProps {
     script: string;
+    chapterID: string;
     onComplete?: () => void;
     onVariableChange?: (variables: Record<string, any>) => void;
     initialVariables?: Record<string, any>;
