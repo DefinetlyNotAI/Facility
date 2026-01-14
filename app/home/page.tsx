@@ -15,9 +15,5 @@ export default async function HomePage() {
         redirect(routes.h0m3);
     }
 
-    if (end) {
-        redirect(routes.theEnd);
-    }
-
     return <HomeClient/>;
 }
