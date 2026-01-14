@@ -282,6 +282,22 @@
     color: #ffaa00;
 }
 
+/* Markdown formatting styles */
+.terminal-vn-line strong,
+.terminal-vn-history-text strong,
+.terminal-vn-typing strong {
+    font-weight: bold;
+    color: #00ff88;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+
+.terminal-vn-line em,
+.terminal-vn-history-text em,
+.terminal-vn-typing em {
+    font-style: italic;
+    color: #88ff00;
+}
+
 .terminal-vn-typing {
     animation: none;
 }

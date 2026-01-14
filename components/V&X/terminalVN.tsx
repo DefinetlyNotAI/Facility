@@ -10,6 +10,45 @@ import {applyVFX, parseVFXCommand} from '@/lib/client/utils/terminalVN/vfx';
 import {useRouter} from 'next/navigation';
 import {routes} from '@/lib/saveData';
 
+/**
+ * Parse basic Markdown formatting (bold and italic) into React elements
+ * Supports: **bold**, *italic*
+ */
+function parseMarkdown(text: string): React.ReactNode {
+    const parts: React.ReactNode[] = [];
+    let currentIndex = 0;
+    let key = 0;
+
+    // Pattern to match **bold** or *italic* (bold must be checked first)
+    const markdownRegex = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
+    let match: RegExpExecArray | null;
+
+    while ((match = markdownRegex.exec(text)) !== null) {
+        // Add text before the match
+        if (match.index > currentIndex) {
+            parts.push(text.substring(currentIndex, match.index));
+        }
+
+        // Check if it's bold or italic
+        if (match[1]) {
+            // Bold: **text**
+            parts.push(<strong key={key++}>{match[2]}</strong>);
+        } else if (match[3]) {
+            // Italic: *text*
+            parts.push(<em key={key++}>{match[4]}</em>);
+        }
+
+        currentIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (currentIndex < text.length) {
+        parts.push(text.substring(currentIndex));
+    }
+
+    return parts.length > 0 ? parts : text;
+}
+
 
 export function TerminalVN({
                                script,
@@ -43,6 +82,7 @@ export function TerminalVN({
     const [hasError, setHasError] = useState(false);
     const [debugCollapsed, setDebugCollapsed] = useState(false);
     const [selectedChoices, setSelectedChoices] = useState<Set<string>>(new Set());
+    const [safeTitle, setSafeTitle] = useState('default');
 
     const router = useRouter();
 
@@ -54,6 +94,21 @@ export function TerminalVN({
     const vfxRef = useRef<HTMLDivElement>(null);
     const hasInitializedRef = useRef(false);
     const isProcessingRef = useRef(false);
+
+    // Calculate safe title for localStorage keys (useMemo to avoid recalculation)
+    const calculatedSafeTitle = React.useMemo(() => {
+        const parsed = parseVNScript(script);
+        const rawTitle = parsed.metadata?.title ?? 'default';
+        const safe = String(rawTitle).trim()
+            .replace(/\s+/g, '_')
+            .replace(/[^\w\-]/g, '');
+        return safe || 'default';
+    }, [script]);
+
+    // Update safeTitle state when calculated value changes
+    useEffect(() => {
+        setSafeTitle(calculatedSafeTitle);
+    }, [calculatedSafeTitle]);
 
     // Parse script on mount or when script changes
     useEffect(() => {
@@ -68,8 +123,11 @@ export function TerminalVN({
             setCurrentLineIndex(0);
             setLines([{text: '> VN Engine Initialized...', type: 'system'}]);
 
+            // Use calculatedSafeTitle directly to avoid race conditions with state
+            const titleToUse = calculatedSafeTitle;
+
             // Load saved variables from localStorage
-            const savedVars = localStorage.getItem('vn_variables');
+            const savedVars = localStorage.getItem(`vn_variables_${titleToUse}`);
             if (savedVars) {
                 try {
                     const parsedVars = JSON.parse(savedVars);
@@ -82,7 +140,7 @@ export function TerminalVN({
             }
 
             // Load saved selected choices
-            const savedChoices = localStorage.getItem('vn_selected_choices');
+            const savedChoices = localStorage.getItem(`vn_selected_choices_${titleToUse}`);
             if (savedChoices) {
                 try {
                     const parsedChoices = JSON.parse(savedChoices);
@@ -108,21 +166,22 @@ export function TerminalVN({
                 {text: `> ${error instanceof Error ? error.message : 'Unknown error'}`, type: 'error'}
             ]);
         }
-    }, [script]); // Only depend on script, not initialVariables
+    }, [script, calculatedSafeTitle, initialVariables]); // Depend on calculatedSafeTitle directly
 
     // Load visited nodes from localStorage separately
     useEffect(() => {
         const visited = new Set<string>();
+        const prefix = `vn_node_visited_${safeTitle}_`;
         Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('vn_node_visited_')) {
-                const nodeName = key.substring(16); // Length of 'vn_node_visited_'
+            if (key.startsWith(prefix)) {
+                const nodeName = key.substring(prefix.length);
                 if (localStorage.getItem(key) === 'true') {
                     visited.add(nodeName);
                 }
             }
         });
         setVisitedNodes(visited);
-    }, []);
+    }, [safeTitle]);
 
     // Focus keyboard handler on mount
     useEffect(() => {
@@ -151,8 +210,8 @@ export function TerminalVN({
             onVariableChange(variables);
         }
         // Save variables to localStorage
-        localStorage.setItem('vn_variables', JSON.stringify(variables));
-    }, [variables, onVariableChange]);
+        localStorage.setItem(`vn_variables_${safeTitle}`, JSON.stringify(variables));
+    }, [variables, onVariableChange, safeTitle]);
 
     // Interpolate variables in text
     const interpolateVariables = useCallback((text: string): string => {
@@ -348,7 +407,7 @@ export function TerminalVN({
                 const newVisited = new Set(visitedNodes);
                 newVisited.add(currentNodeId);
                 setVisitedNodes(newVisited);
-                localStorage.setItem(`vn_node_visited_${currentNodeId}`, 'true');
+                localStorage.setItem(`vn_node_visited_${safeTitle}_${currentNodeId}`, 'true');
             }
 
             if (currentNode.jump) {
@@ -482,14 +541,14 @@ export function TerminalVN({
         const newSelectedChoices = new Set(selectedChoices);
         newSelectedChoices.add(option.text);
         setSelectedChoices(newSelectedChoices);
-        localStorage.setItem('vn_selected_choices', JSON.stringify(Array.from(newSelectedChoices)));
+        localStorage.setItem(`vn_selected_choices_${safeTitle}`, JSON.stringify(Array.from(newSelectedChoices)));
 
         // Mark current node (containing the choice) as visited
         if (!visitedNodes.has(currentNodeId)) {
             const newVisited = new Set(visitedNodes);
             newVisited.add(currentNodeId);
             setVisitedNodes(newVisited);
-            localStorage.setItem(`vn_node_visited_${currentNodeId}`, 'true');
+            localStorage.setItem(`vn_node_visited_${safeTitle}_${currentNodeId}`, 'true');
         }
 
         if (option.target) {
@@ -500,7 +559,7 @@ export function TerminalVN({
             }
             newVisited.add(option.target);
             setVisitedNodes(newVisited);
-            localStorage.setItem(`vn_node_visited_${option.target}`, 'true');
+            localStorage.setItem(`vn_node_visited_${safeTitle}_${option.target}`, 'true');
 
             setCurrentNodeId(option.target);
             setCurrentLineIndex(0);
@@ -665,7 +724,7 @@ export function TerminalVN({
                     {!autoClear && lines.map((line, index) => (
                         <div key={`line-${index}`}
                              className={`${styles['terminal-vn-line']} ${styles[`terminal-vn-line-${line.type}`]}`}>
-                            {line.text}
+                            {parseMarkdown(line.text)}
                         </div>
                     ))}
 
@@ -674,13 +733,13 @@ export function TerminalVN({
                             {lines.map((line, index) => (
                                 <div key={`dlg-${index}`}
                                      className={`${styles['terminal-vn-line']} ${styles[`terminal-vn-line-${line.type}`]}`}>
-                                    {line.text}
+                                    {parseMarkdown(line.text)}
                                 </div>
                             ))}
                             {currentText && isTyping && (
                                 <div key="typing"
                                      className={`${styles['terminal-vn-line']} ${styles['terminal-vn-line-dialogue']} ${styles['terminal-vn-typing']}`}>
-                                    {currentText}
+                                    {parseMarkdown(currentText)}
                                     <span className={styles['terminal-vn-cursor']}>▊</span>
                                 </div>
                             )}
@@ -691,7 +750,7 @@ export function TerminalVN({
                         <div key="typing-box" className={styles['terminal-vn-dialogue-box']}>
                             <div key="typing"
                                  className={`${styles['terminal-vn-line']} ${styles['terminal-vn-line-dialogue']} ${styles['terminal-vn-typing']}`}>
-                                {currentText}
+                                {parseMarkdown(currentText)}
                                 <span className={styles['terminal-vn-cursor']}>▊</span>
                             </div>
                         </div>
@@ -813,7 +872,7 @@ export function TerminalVN({
                                                 </div>
                                             )}
                                             <div className={styles['terminal-vn-history-text']}>
-                                                {entry.text}
+                                                {parseMarkdown(entry.text)}
                                             </div>
                                         </div>
                                     ))}

@@ -16,7 +16,7 @@ export default function AStoryPage() {
 
     useEffect(() => {
         // Load the VN script
-        fetch('/static/chapters/X/Narrator_II.vns')
+        fetch('/static/chapters/X/aStory.vns')
             .then(res => res.text())
             .then(text => {
                 setScript(text);
@@ -33,6 +33,11 @@ export default function AStoryPage() {
 `);
                 setLoading(false);
             });
+    }, []);
+
+    useEffect(() => {
+        // Set initial tab title
+        document.title = 'The Archivum Monologue';
     }, []);
 
     useEffect(() => {
