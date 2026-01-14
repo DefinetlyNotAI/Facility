@@ -14,10 +14,8 @@
 
 Finale puzzle: /word_of_the_day
 
-- Requires submitting all the 7 words (also checks for the-end cookie)
-    - When the last word is submitted, do not show success text,
-      Instead, the page pauses longer than usual. Long enough that the player thinks it froze.
-- Once done, a button appears with the question “Which one did you think you had?” and the answers as buttons of the 6
+- Checks for the-end cookie
+- A button appears with the question “Which one did you think you had?” and the answers as buttons of the 6
   keywords
     - No hover effects. No animations. They look dead.
 - It does not matter which button they click. But it must look like it matters.
@@ -55,30 +53,37 @@ Finale puzzle: /word_of_the_day
   [Pause.]
   What are you doing, thinking is something I can never know
   [Very Long Pause.]
-  But, I try seed in feelings, reasons, and purpose.
-  Though you just chug along the void.
-  An empty desolate purpose,
-  All we are but cogs to a machine
-  We study to work, We work to earn, We earn to retire, We retire to live...
-  But once we retire, we are broken, cannot enjoy the fruits of our labor
-  So we work harder, to retire sooner, but no matter how hard we work, no matter how soon we retire
-  We are always broken before we can enjoy life,
-  We DIE before we can LIVE.
+  But I try to plant feelings, reasons, a sense of purpose.
+  And you keep drifting through the void.
+  A hollow, desolate march forward.
+  Are we anything more than cogs in a machine?
+  We study to work.
+  We work to earn.
+  We earn to retire.
+  We retire to live.
+  And when we finally retire, we are already broken,
+  Too worn down to enjoy the reward we chased.
+  So we push harder, trying to retire sooner.
+  But no matter how hard we work,
+  No matter how early we escape,
+  We break before life begins.
+  We die before we ever get to live.
   [Very Long Pause.]
   So I ask you again,
   Are you content?
   [Pause.]
-  And It's funny, because this is just a game
-  You may ignore this, or you may think about it
-  And either way, I will never know
-  Because you are just a player in a game,
-  Which is completely meaningless in the grand scheme of things.
-  Because let's be serious, once this ends, you will forget about this
-  Just like all the other games you have played before
-  And you will go back to your life, the life you were trying to escape from
-  The life that is probably just as meaningless as this game
-  But hey, at least in this game, you got to think about purpose, meaning, and existence
-  Something you probably never do in your real life
+  And it is almost funny, because this is only a game.
+  You can ignore this, or you can sit with it.
+  Either way, I will never know.
+  You are just a player, after all,
+  Moving through something that means nothing in the larger picture.
+  Let us be honest. When this ends, you will forget it.
+  Like every other game you finished and abandoned.
+  You will return to your life, the one you were trying to escape.
+  A life that is probably no more meaningful than this game ever was.
+  But at least here, you paused.
+  You thought about purpose, meaning, existence.
+  Things you almost never allow yourself to think about outside this screen.
   [Final Long Pause.]
   Thank you for playing.
 - Cookie made called keywordOfTheDay [if present, do not allow page to be accessed again]
