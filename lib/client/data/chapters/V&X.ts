@@ -35,6 +35,6 @@ export const fileLinksVX = {
         ],
     },
     X: {
-        Narrator: "???",
+        Narrator: "/chapters/X/aStory",
     },
 }
