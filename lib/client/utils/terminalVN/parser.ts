@@ -45,18 +45,64 @@ export class VNParseError extends Error {
 }
 
 export function parseVNScript(script: string): TerminalVNScript {
-    const lines = script.split('\n').map(l => l.trim());
+    const rawLines = script.split('\n');
     const nodes: Record<string, VNNode> = {};
 
     let currentNode: VNNode | null = null;
     let currentChoice: VNLine | null = null;
     let lineNumber = 0;
+    let inCodeBlock = false;
+    let codeBlockContent: string[] = [];
+    let codeBlockSpeaker: string | undefined;
+    let codeBlockCondition: string | undefined;
 
     const metadata: any = {};
 
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0; i < rawLines.length; i++) {
         lineNumber = i + 1;
-        const line = lines[i];
+        const originalLine = rawLines[i];
+        const line = originalLine.trim();
+
+        // Handle code blocks
+        if (line === '```' || line.startsWith('```')) {
+            if (!inCodeBlock) {
+                // Starting a code block
+                inCodeBlock = true;
+                codeBlockContent = [];
+                continue;
+            } else {
+                // Ending a code block - add as dialogue
+                inCodeBlock = false;
+                if (currentNode) {
+                    if (currentChoice) {
+                        currentNode.lines.push(currentChoice);
+                        currentChoice = null;
+                    }
+                    // Join code block content with newlines, preserving original formatting
+                    const dialogueLine: VNLine = {
+                        type: 'dialogue',
+                        content: '```\n' + codeBlockContent.join('\n') + '\n```',
+                    };
+                    if (codeBlockSpeaker) {
+                        dialogueLine.speaker = codeBlockSpeaker;
+                    }
+                    if (codeBlockCondition) {
+                        dialogueLine.condition = codeBlockCondition;
+                    }
+                    currentNode.lines.push(dialogueLine);
+                }
+                codeBlockContent = [];
+                codeBlockSpeaker = undefined;
+                codeBlockCondition = undefined;
+                continue;
+            }
+        }
+
+        // If we're in a code block, collect the original line (preserving whitespace)
+        if (inCodeBlock) {
+            codeBlockContent.push(originalLine);
+            continue;
+        }
 
         // Skip empty lines and comments
         if (!line || line.startsWith('//') || line.startsWith('#')) {
@@ -146,20 +192,42 @@ export function parseVNScript(script: string): TerminalVNScript {
             const content = workingLine.substring(2).trim();
             const speakerMatch = content.match(/^([^:]+):\s*(.+)$/);
 
+            let speaker: string | undefined;
+            let dialogueContent: string;
+
             if (speakerMatch) {
-                currentNode.lines.push({
-                    type: 'dialogue',
-                    speaker: speakerMatch[1].trim(),
-                    content: speakerMatch[2].trim(),
-                    condition,
-                });
+                speaker = speakerMatch[1].trim();
+                dialogueContent = speakerMatch[2].trim();
             } else {
-                currentNode.lines.push({
-                    type: 'dialogue',
-                    content,
-                    condition,
-                });
+                dialogueContent = content;
             }
+
+            // Check if this dialogue line starts a code block
+            if (dialogueContent === '```' || dialogueContent.endsWith('```')) {
+                // Start collecting code block content
+                inCodeBlock = true;
+                codeBlockContent = [];
+                codeBlockSpeaker = speaker;
+                codeBlockCondition = condition;
+
+                // If there's content before ```, include it
+                if (dialogueContent !== '```') {
+                    const beforeCode = dialogueContent.substring(0, dialogueContent.length - 3).trim();
+                    if (beforeCode) {
+                        codeBlockContent.push(beforeCode);
+                    }
+                }
+
+                // Continue to next line to collect code block
+                continue;
+            }
+
+            currentNode.lines.push({
+                type: 'dialogue',
+                speaker,
+                content: dialogueContent,
+                condition,
+            });
             continue;
         }
 

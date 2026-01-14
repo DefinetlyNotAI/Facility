@@ -310,6 +310,24 @@ $ vfx glitch
 - Yes -> lament
 - Yes -> lament
 - Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
+- Yes -> lament
 
 @node lament
 $ vfx flash
@@ -424,12 +442,12 @@ $ vfx chromatic
 @jump termination
 
 @node termination
-> System: ```txt
-VESSEL TERMINATED_
-RECURSION: ABSORBED
-TR33: ROOTED
-ARCHITECT: DISMANTLED
-YOU: STILL HERE
+> System: ```
+  VESSEL TERMINATED_
+  RECURSION: ABSORBED
+  TR33: ROOTED
+  ARCHITECT: DISMANTLED
+  YOU: STILL HERE
 ```
 @jump gospel
 

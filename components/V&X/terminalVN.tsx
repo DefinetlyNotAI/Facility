@@ -12,31 +12,109 @@ import {routes} from '@/lib/saveData';
 
 /**
  * Parse basic Markdown formatting (bold and italic) into React elements
- * Supports: **bold**, *italic*
+ * Supports: **bold**, *italic*, ``` code blocks ```, and nested combinations
  */
 function parseMarkdown(text: string): React.ReactNode {
+    // Check if this is a code block
+    if (text.startsWith('```') && text.endsWith('```')) {
+        // Extract content, removing ``` markers and optional language identifier
+        let codeContent = text.slice(3, -3);
+
+        // Check for language identifier on first line (e.g., ```txt, ```javascript)
+        const firstNewline = codeContent.indexOf('\n');
+        if (firstNewline > 0) {
+            const firstLine = codeContent.substring(0, firstNewline).trim();
+            // If first line is just a word (language identifier), skip it
+            if (firstLine && /^[a-z]+$/.test(firstLine)) {
+                codeContent = codeContent.substring(firstNewline + 1);
+            }
+        } else if (codeContent && /^[a-z]+$/.test(codeContent.trim())) {
+            // If the entire content is just a language identifier, use empty string
+            codeContent = '';
+        }
+
+        codeContent = codeContent.trim();
+
+        return (
+            <pre style={{
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'monospace',
+                background: 'rgba(0,0,0,0.2)',
+                padding: '8px',
+                borderRadius: '4px',
+                margin: '4px 0'
+            }}>
+                {codeContent}
+            </pre>
+        );
+    }
+
     const parts: React.ReactNode[] = [];
-    let currentIndex = 0;
     let key = 0;
 
-    // Pattern to match **bold** or *italic* (bold must be checked first)
-    const markdownRegex = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;
+    // First pass: handle **bold** (including content with single *)
+    // This regex captures bold text that may contain single asterisks
+    const boldRegex = /\*\*(.+?)\*\*/g;
     let match: RegExpExecArray | null;
 
-    while ((match = markdownRegex.exec(text)) !== null) {
+    const segments: Array<{ start: number; end: number; isBold: boolean; content: string }> = [];
+
+    while ((match = boldRegex.exec(text)) !== null) {
+        segments.push({
+            start: match.index,
+            end: match.index + match[0].length,
+            isBold: true,
+            content: match[1]
+        });
+    }
+
+    // Process text with bold segments identified
+    let lastIndex = 0;
+    for (const segment of segments) {
+        // Add text before bold
+        if (segment.start > lastIndex) {
+            const beforeText = text.substring(lastIndex, segment.start);
+            // Parse italics in this segment
+            parts.push(...parseItalics(beforeText, key));
+            key += 100; // Increment key significantly to avoid conflicts
+        }
+
+        // Add bold content (parse italics inside it)
+        const boldContent = parseItalics(segment.content, key);
+        parts.push(<strong key={key++}>{boldContent}</strong>);
+
+        lastIndex = segment.end;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+        const remainingText = text.substring(lastIndex);
+        parts.push(...parseItalics(remainingText, key));
+    }
+
+    return parts.length > 0 ? parts : text;
+}
+
+/**
+ * Helper function to parse italic text
+ */
+function parseItalics(text: string, startKey: number): React.ReactNode[] {
+    const parts: React.ReactNode[] = [];
+    let currentIndex = 0;
+    let key = startKey;
+
+    // Match single * that are not part of **
+    const italicRegex = /(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g;
+    let match: RegExpExecArray | null;
+
+    while ((match = italicRegex.exec(text)) !== null) {
         // Add text before the match
         if (match.index > currentIndex) {
             parts.push(text.substring(currentIndex, match.index));
         }
 
-        // Check if it's bold or italic
-        if (match[1]) {
-            // Bold: **text**
-            parts.push(<strong key={key++}>{match[2]}</strong>);
-        } else if (match[3]) {
-            // Italic: *text*
-            parts.push(<em key={key++}>{match[4]}</em>);
-        }
+        // Add italic text
+        parts.push(<em key={key++}>{match[1]}</em>);
 
         currentIndex = match.index + match[0].length;
     }
@@ -46,7 +124,7 @@ function parseMarkdown(text: string): React.ReactNode {
         parts.push(text.substring(currentIndex));
     }
 
-    return parts.length > 0 ? parts : text;
+    return parts.length > 0 ? parts : [text];
 }
 
 
@@ -436,6 +514,21 @@ export function TerminalVN({
                 break;
 
             case 'command':
+                // Check if it's a VFX command
+                const vfxMatch = line.content.match(/^vfx\s+(\w+)/);
+                if (vfxMatch && vfxRef.current) {
+                    const vfxCmd = parseVFXCommand(line.content);
+                    if (vfxCmd) {
+                        applyVFX(vfxCmd.effect, vfxRef.current);
+                        // Add a small delay to let the VFX be visible
+                        setTimeout(() => {
+                            setCurrentLineIndex(prev => prev + 1);
+                            isProcessingRef.current = false;
+                        }, 100);
+                        return; // Exit early to prevent double processing
+                    }
+                }
+
                 executeCommand(line.content);
                 setCurrentLineIndex(prev => prev + 1);
                 break;
