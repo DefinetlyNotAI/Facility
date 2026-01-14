@@ -22,6 +22,7 @@ export const DISPLAY_NAMES: Record<string, string> = {
     COMPUTER: "Computer",
     COMPUTER_BOOT: "Computer Boot",
     BSOD: "BSOD",
+    WORD_OF_THE_DAY: "Word of the Day",
     CODEX: "Codex",
     "BONUS.NO_TIME": "Chapter - No Time",
     "BONUS.NOT_YET": "Chapter - Not Yet",

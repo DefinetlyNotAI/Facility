@@ -47,7 +47,8 @@ export function TAS({className = ''}: TASProps) {
             pathname === routes.bonus.notYet ||
             pathname === routes.bonus.main ||
             pathname === routes.saveFile ||
-            pathname === routes.whiteroom
+            pathname === routes.whiteroom ||
+            pathname === routes.wordOfTheDay
         ) {
             setIsVisible(false);
             return;

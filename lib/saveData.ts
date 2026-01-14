@@ -132,6 +132,7 @@ export const routes = {
     h0m3: "/h0m3",
     wifiPanel: "/wifi-panel",
     theEnd: "/the-end",
+    wordOfTheDay: "/word_of_the_day",
     blackAndWhite: "/black-and-white",
     smileking: "/smileking",
     smilekingAuth: "/smileking-auth",
@@ -234,6 +235,8 @@ const rawCookies = {
     chapIV_auth: 'chapIV_auth',
     // Cookie for ch 4 entity puzzle progress
     chIV_progress: 'chapterIV-plaque-progress',
+    // Cookie to check if the user has completed the keyword of the day puzzle
+    keywordOfTheDay: 'keywordOfTheDay',
 };
 
 export const cookies = process.env.NODE_ENV !== "production"
