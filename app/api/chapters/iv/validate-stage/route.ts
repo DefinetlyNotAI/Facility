@@ -2,6 +2,24 @@ import {NextResponse} from 'next/server';
 import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/server/utils/chapters';
 import {cookies} from "@/lib/saveData";
 
+// Ensure this route runs on Node.js runtime
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+/**
+ * OPTIONS handler for CORS preflight
+ */
+export async function OPTIONS(_req: Request) {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        },
+    });
+}
+
 /**
  * POST handler for validating a specific stage answer of a Chapter IV plaque.
  * On success, the plaque is added to the unlocked list stored in a signed
@@ -17,8 +35,11 @@ export async function POST(req: Request) {
         const stageIndex = Number(body.stageIndex);
         const provided = String(body.provided || '');
 
+        console.log('[validate-stage] Request:', {plaqueId, stageIndex, provided});
+
         // Reject invalid or missing input
         if (!plaqueId || isNaN(stageIndex) || !provided) {
+            console.log('[validate-stage] Invalid input');
             return NextResponse.json(
                 {ok: false, message: 'Invalid input'},
                 {status: 400}
@@ -30,6 +51,8 @@ export async function POST(req: Request) {
             stageIndex,
             provided
         );
+
+        console.log('[validate-stage] Validation result:', ok);
 
         // Incorrect answers are handled as a normal failure, not an error
         if (!ok) {
@@ -85,6 +108,7 @@ export async function POST(req: Request) {
         return res;
     } catch (e) {
         // Any unexpected failure results in a server error
+        console.error('[validate-stage] Error:', e);
         return NextResponse.json(
             {ok: false, message: 'Server error'},
             {status: 500}

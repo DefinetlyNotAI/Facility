@@ -8,9 +8,11 @@ export const PUZZLES: Record<PlaqueId, string> = {
 };
 
 export const TASAnswers = [
-    'entropy',
-    '00111',
-    'consensus',
-    '53633',
-    'consensus',
+    'entropy',        // Stage 0
+    '00111',          // Stage 1 - Switches
+    'consensus',      // Stage 2 - Assembly
+    '53633',          // Stage 3 - Signal/Numpad
+    'consensus',      // Stage 4 - Grid bits / Word of day
+    '',               // Stage 5 - Unused
+    'consensus',      // Stage 6 - Merge
 ]

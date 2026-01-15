@@ -1,3 +1,3 @@
 export {chapterIIIData} from './III';
-export {PUZZLES} from './IV';
+export {PUZZLES, TASAnswers} from './IV';
 export {timelineData, years} from './VII';
