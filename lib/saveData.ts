@@ -87,15 +87,15 @@ export const routes = {
             // Return: JSON object with server time, or an error object with appropriate status.
             IIIClockStates: "/api/chapters/III/clockStates",
             IV: {
-                // API: POST /api/chapters/IV/validate-keyword - validates a plaque keyword and unlocks it for Chapter IV.
+                // API: POST /api/chapters/iv/validate-keyword - validates a plaque keyword and unlocks it for Chapter IV.
                 // Return: Success flag and sets a signed HttpOnly auth cookie on valid input.
-                validateKeyword: "/api/chapters/IV/validate-keyword",
-                // API: POST /api/chapters/IV/validate-stage - validates a stage answer and updates Chapter IV plaque progress.
+                validateKeyword: "/api/chapters/iv/validate-keyword",
+                // API: POST /api/chapters/iv/validate-stage - validates a stage answer and updates Chapter IV plaque progress.
                 // Return: Success flag and refreshes the signed auth cookie with unlocked plaques.
-                validateStage: "/api/chapters/IV/validate-stage",
-                // API: GET /api/chapters/IV/status - returns the current plaque solve states for Chapter IV.
+                validateStage: "/api/chapters/iv/validate-stage",
+                // API: GET /api/chapters/iv/status - returns the current plaque solve states for Chapter IV.
                 // Return: List of plaque IDs marked as solved based on verified auth cookie.
-                status: "/api/chapters/IV/status",
+                status: "/api/chapters/iv/status",
             },
             // API: GET /api/puzzle - returns metadata about the puzzle (years and totals).
             // Return: JSON object like { years: [2020, 2021, ...], yearTotals: {2020: 5, 2021: 3, ...} }

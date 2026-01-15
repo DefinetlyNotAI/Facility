@@ -2,24 +2,6 @@ import {NextResponse} from 'next/server';
 import {makeSignedValue, validateStageAnswer, verifySignedValue} from '@/lib/server/utils/chapters';
 import {cookies} from "@/lib/saveData";
 
-// Ensure this route runs on Node.js runtime
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
-/**
- * OPTIONS handler for CORS preflight
- */
-export async function OPTIONS(_req: Request) {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type',
-        },
-    });
-}
-
 /**
  * POST handler for validating a specific stage answer of a Chapter IV plaque.
  * On success, the plaque is added to the unlocked list stored in a signed
