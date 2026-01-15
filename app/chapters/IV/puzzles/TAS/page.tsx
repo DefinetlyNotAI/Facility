@@ -153,6 +153,7 @@ export default function TasPuzzlePage() {
             try {
                 const res = await fetch(routes.api.chapters.IV.validateStage, {
                     method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({plaqueId: 'TAS', stageIndex: 1, provided: bits})
                 });
                 const json = await res.json();
@@ -203,6 +204,7 @@ export default function TasPuzzlePage() {
         try {
             const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 2, provided: assembly})
             });
             const json = await res.json();
@@ -351,7 +353,9 @@ export default function TasPuzzlePage() {
                 (async () => {
                     try {
                         const res = await fetch(routes.api.chapters.IV.validateStage, {
-                            method: 'POST', body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: next})
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: next})
                         });
                         const json = await res.json();
                         if (json?.ok) {
@@ -399,6 +403,7 @@ export default function TasPuzzlePage() {
         try {
             const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 4, provided: bits})
             });
             const json = await res.json();
@@ -446,6 +451,7 @@ export default function TasPuzzlePage() {
         try {
             const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 6, provided: payload})
             });
             const json = await res.json();
@@ -492,6 +498,7 @@ export default function TasPuzzlePage() {
         try {
             const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex, provided})
             });
             const json = await res.json();
@@ -648,6 +655,7 @@ export default function TasPuzzlePage() {
                 try {
                     const res = await fetch(routes.api.chapters.IV.validateStage, {
                         method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({plaqueId: 'TAS', stageIndex: 3, provided: newInput})
                     });
                     const json = await res.json();
@@ -742,6 +750,7 @@ export default function TasPuzzlePage() {
         try {
             const res = await fetch(routes.api.chapters.IV.validateStage, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({plaqueId: 'TAS', stageIndex: 4, provided})
             });
             const json = await res.json();

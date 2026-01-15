@@ -70,6 +70,7 @@ export default function ChapterIVPage() {
             // Call server API to validate keyword - server will set signed cookie on success
             const res = await fetch(routes.api.chapters.IV.validateKeyword, {
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({plaqueId: id, provided})
             });
             const data = await res.json();
