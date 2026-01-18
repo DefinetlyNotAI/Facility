@@ -92,9 +92,25 @@ export default function ButtonsPage() {
                     Edge: false,
                     Opera: false,
                 };
+
+                // Helper: normalize incoming browser names to the canonical BrowserName
+                function normalizeBrowserName(raw: any): BrowserName | null {
+                    if (typeof raw !== 'string') return null;
+                    const s = raw.trim().toLowerCase();
+                    if (s === 'chrome') return 'Chrome';
+                    if (s === 'firefox') return 'Firefox';
+                    if (s === 'safari') return 'Safari';
+                    if (s === 'edge') return 'Edge';
+                    // Some APIs send 'opr' or 'opera'
+                    if (s === 'opr' || s === 'opera') return 'Opera';
+                    return null;
+                }
+
                 for (const entry of res.data) {
-                    if (buttons.browsers.includes(entry.browser)) {
-                        newStates[entry.browser as BrowserName] = entry.clicked;
+                    const name = normalizeBrowserName(entry.browser);
+                    if (name && buttons.browsers.includes(name)) {
+                        // coerce clicked to a boolean (handles "true"/"false" strings, etc.)
+                        newStates[name] = Boolean(entry.clicked);
                     }
                 }
                 setButtonStates(newStates);
