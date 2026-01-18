@@ -411,3 +411,16 @@
         height: 3px;
     }
 }
+
+/* Apply pressed styling to all button states (hover, active, focus) */
+/* BUG NOTE: Previously we had extra logic here for hover/active conflicts.
+   It was already solved, so removing that logic should not cause issues. */
+.browserButton.pressed,
+.browserButton.pressed:hover,
+.browserButton.pressed:active,
+.browserButton.pressed:focus {
+    background-color: #4caf50; /* example pressed color */
+    color: white;
+    cursor: default;
+    /* any other pressed styles */
+}

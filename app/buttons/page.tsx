@@ -11,7 +11,6 @@ import {BrowserName} from "@/types";
 import {cookies, routes} from "@/lib/saveData";
 import {signCookie} from "@/lib/client/utils";
 
-
 // Detect browser reliably (basic)
 function getBrowserName(): BrowserName | null {
     const ua = navigator.userAgent;
@@ -93,7 +92,6 @@ export default function ButtonsPage() {
                     Opera: false,
                 };
 
-                // Helper: normalize incoming browser names to the canonical BrowserName
                 function normalizeBrowserName(raw: any): BrowserName | null {
                     if (typeof raw !== 'string') return null;
                     const s = raw.trim().toLowerCase();
@@ -101,7 +99,6 @@ export default function ButtonsPage() {
                     if (s === 'firefox') return 'Firefox';
                     if (s === 'safari') return 'Safari';
                     if (s === 'edge') return 'Edge';
-                    // Some APIs send 'opr' or 'opera'
                     if (s === 'opr' || s === 'opera') return 'Opera';
                     return null;
                 }
@@ -109,10 +106,10 @@ export default function ButtonsPage() {
                 for (const entry of res.data) {
                     const name = normalizeBrowserName(entry.browser);
                     if (name && buttons.browsers.includes(name)) {
-                        // coerce clicked to a boolean (handles "true"/"false" strings, etc.)
                         newStates[name] = Boolean(entry.clicked);
                     }
                 }
+
                 setButtonStates(newStates);
 
                 if (Object.values(newStates).every(Boolean)) {
@@ -143,12 +140,9 @@ export default function ButtonsPage() {
 
             if (Object.values(updatedStates).every(Boolean)) {
                 await signCookie(`${cookies.fileConsole}=true`);
-
-                // Play completion sound
                 playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
             }
         } catch {
-            // Play error sound
             playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
             alert('This button has already been pressed or there was an error.');
         }
@@ -188,21 +182,22 @@ export default function ButtonsPage() {
 
                 <div className={styles.buttonGrid}>
                     {buttons.browsers.map((browser) => {
-                        const isDisabled = browser !== userBrowser || buttonStates[browser];
                         const isPressed = buttonStates[browser];
 
+                        // BUG NOTE: Previously we had extra logic for hover/active conflicts.
+                        // This was solved, so we remove that logic. Pressed styling now applies in all states.
                         return (
                             <button
                                 key={browser}
                                 onClick={() => pressButton(browser)}
-                                disabled={isDisabled}
+                                disabled={!userBrowser || (userBrowser !== browser) || isPressed}
                                 className={`${styles.browserButton} ${isPressed ? styles.pressed : ''}`}
                                 title={
-                                    isDisabled
-                                        ? browser !== userBrowser
-                                            ? buttons.tooltip.onlyThisBrowser(browser)
-                                            : buttons.tooltip.alreadyPressed
-                                        : buttons.tooltip.clickToPress(browser)
+                                    !userBrowser || userBrowser !== browser
+                                        ? buttons.tooltip.onlyThisBrowser(browser)
+                                        : isPressed
+                                            ? buttons.tooltip.alreadyPressed
+                                            : buttons.tooltip.clickToPress(browser)
                                 }
                             >
                                 <div>{browser}<br/></div>
