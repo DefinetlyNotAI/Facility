@@ -1,152 +1,34 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import Cookies from 'js-cookie';
-import axios from 'axios';
-import {useRouter} from 'next/navigation';
+import {useRef} from 'react';
 import styles from '@/styles/Buttons.module.css';
-import {BACKGROUND_AUDIO, playSafeSFX, SFX_AUDIO, usePlayBackgroundAudio} from "@/audio";
+import {BACKGROUND_AUDIO, usePlayBackgroundAudio} from "@/audio";
 import {buttons} from '@/lib/client/data/buttons';
-import {BrowserName} from "@/types";
-import {cookies, routes} from "@/lib/saveData";
-import {signCookie} from "@/lib/client/utils";
-
-// Detect browser reliably (basic)
-function getBrowserName(): BrowserName | null {
-    const ua = navigator.userAgent;
-    if (/Chrome/.test(ua) && !/Edge/.test(ua) && !/OPR/.test(ua)) return 'Chrome';
-    if (/Firefox/.test(ua)) return 'Firefox';
-    if (/Safari/.test(ua) && !/Chrome/.test(ua)) return 'Safari';
-    if (/Edge/.test(ua)) return 'Edge';
-    if (/OPR/.test(ua)) return 'Opera';
-    return null;
-}
 
 function HiddenFooter() {
-    async function handleUnlock() {
-        await signCookie(`${cookies.fileConsole}=true`);
-    }
-
     return (
-        <footer
-            className={styles.SECRET}
-            onClick={handleUnlock}
-        >
-            <a
-                href="/file-console"
-                onClick={async (e) => {
-                    e.stopPropagation();
-                    await signCookie(`${cookies.fileConsole}=true`);
-                }}
-            >
-                Go to File Console
-            </a>
+        <footer className={styles.SECRET}>
+            <a href="/file-console">Go to File Console</a>
         </footer>
     );
 }
 
 export default function ButtonsPage() {
-    const router = useRouter();
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    const [buttonStates, setButtonStates] = useState<Record<BrowserName, boolean>>({
-        Chrome: false,
-        Firefox: false,
-        Safari: false,
-        Edge: false,
-        Opera: false,
-    });
+    // All buttons start as pressed
+    const buttonStates = {
+        Chrome: true,
+        Firefox: true,
+        Safari: true,
+        Edge: true,
+        Opera: true,
+    };
 
-    const [userBrowser, setUserBrowser] = useState<BrowserName | null>(null);
+    const allPressed = true;
+    const pressedCount = Object.values(buttonStates).length;
 
-    const allPressed = Object.values(buttonStates).every(Boolean);
-    const pressedCount = Object.values(buttonStates).filter(Boolean).length;
-
-    // Initialize background audio
-    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS)
-
-    useEffect(() => {
-        axios.get(routes.api.security.csrfToken).catch(() => {
-        });
-    }, []);
-
-    useEffect(() => {
-        const unlocked = Cookies.get(cookies.buttons);
-        if (!unlocked) {
-            router.replace(routes.notFound);
-        }
-    }, [router]);
-
-    useEffect(() => {
-        const detected = getBrowserName();
-        setUserBrowser(detected);
-
-        axios
-            .get(routes.api.browser.getBrowserState)
-            .then(async (res) => {
-                const newStates: Record<BrowserName, boolean> = {
-                    Chrome: false,
-                    Firefox: false,
-                    Safari: false,
-                    Edge: false,
-                    Opera: false,
-                };
-
-                function normalizeBrowserName(raw: any): BrowserName | null {
-                    if (typeof raw !== 'string') return null;
-                    const s = raw.trim().toLowerCase();
-                    if (s === 'chrome') return 'Chrome';
-                    if (s === 'firefox') return 'Firefox';
-                    if (s === 'safari') return 'Safari';
-                    if (s === 'edge') return 'Edge';
-                    if (s === 'opr' || s === 'opera') return 'Opera';
-                    return null;
-                }
-
-                for (const entry of res.data) {
-                    const name = normalizeBrowserName(entry.browser);
-                    if (name && buttons.browsers.includes(name)) {
-                        newStates[name] = Boolean(entry.clicked);
-                    }
-                }
-
-                setButtonStates(newStates);
-
-                if (Object.values(newStates).every(Boolean)) {
-                    await signCookie(`${cookies.fileConsole}=true`);
-                }
-            })
-            .catch(() => {
-            });
-    }, []);
-
-    async function pressButton(browser: BrowserName) {
-        if (!userBrowser || userBrowser !== browser) return;
-        if (buttonStates[browser]) return;
-
-        try {
-            const csrfToken = Cookies.get('csrf-token');
-            await axios.post(
-                routes.api.browser.flipBrowserState,
-                {browser},
-                {headers: {'X-CSRF-Token': csrfToken ?? ''}}
-            );
-
-            // Play success sound
-            playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
-
-            const updatedStates = {...buttonStates, [browser]: true};
-            setButtonStates(updatedStates);
-
-            if (Object.values(updatedStates).every(Boolean)) {
-                await signCookie(`${cookies.fileConsole}=true`);
-                playSafeSFX(audioRef, SFX_AUDIO.SUCCESS, false);
-            }
-        } catch {
-            playSafeSFX(audioRef, SFX_AUDIO.ERROR, false);
-            alert('This button has already been pressed or there was an error.');
-        }
-    }
+    usePlayBackgroundAudio(audioRef, BACKGROUND_AUDIO.BUTTONS);
 
     return (
         <>
@@ -175,38 +57,23 @@ export default function ButtonsPage() {
                     <div className={styles.progressBar}>
                         <div
                             className={styles.progressFill}
-                            style={{width: `${(pressedCount / 5) * 100}%`}}
+                            style={{width: `100%`}}
                         />
                     </div>
                 </div>
 
                 <div className={styles.buttonGrid}>
-                    {buttons.browsers.map((browser) => {
-                        const isPressed = buttonStates[browser];
-
-                        // BUG NOTE: Previously we had extra logic for hover/active conflicts.
-                        // This was solved, so we remove that logic. Pressed styling now applies in all states.
-                        return (
-                            <button
-                                key={browser}
-                                onClick={() => pressButton(browser)}
-                                disabled={!userBrowser || (userBrowser !== browser) || isPressed}
-                                className={`${styles.browserButton} ${isPressed ? styles.pressed : ''}`}
-                                title={
-                                    !userBrowser || userBrowser !== browser
-                                        ? buttons.tooltip.onlyThisBrowser(browser)
-                                        : isPressed
-                                            ? buttons.tooltip.alreadyPressed
-                                            : buttons.tooltip.clickToPress(browser)
-                                }
-                            >
-                                <div>{browser}<br/></div>
-                                {isPressed && (
-                                    <div style={{fontSize: '0.8rem', marginTop: '0.2rem'}}>✓</div>
-                                )}
-                            </button>
-                        );
-                    })}
+                    {buttons.browsers.map((browser) => (
+                        <button
+                            key={browser}
+                            disabled
+                            className={`${styles.browserButton} ${styles.pressed}`}
+                            title="Already pressed"
+                        >
+                            <div>{browser}<br/></div>
+                            <div style={{fontSize: '0.8rem', marginTop: '0.2rem'}}>✓</div>
+                        </button>
+                    ))}
                 </div>
 
                 {allPressed && (
@@ -219,8 +86,7 @@ export default function ButtonsPage() {
                                 fontStyle: 'italic',
                                 color: '#666',
                                 fontFamily: 'JetBrains Mono, monospace'
-                            }}>
-                            </div>
+                            }}/>
                         </div>
                         <HiddenFooter/>
                     </>
